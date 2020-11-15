@@ -149,7 +149,7 @@ class Renderer {
         for(let i = 0; i < 8; i++) {
             let col = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
             let dx = xFlip == true ? i : 7 - i;
-            if(x + dx < 0)
+            if((x + dx) < 0 || (x + dx) > 160)
                 continue;
             // since there are four bytes per pixel, we must times by 4
             let canvasOffset = (x + dx + y * 160) * 4;
@@ -174,7 +174,7 @@ class Renderer {
         let yFlip = UInt8.getBit(flags, 6) == 1;
         let p = UInt8.getBit(flags, 4) == 1;
 
-        let pal = (p == 1) ? cpu.ppu.obj0Pal : cpu.ppu.obj1Pal;
+        let pal = (p == 1) ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
 
         for(let dy = 0; dy < 8; dy++) {
             let byte1 = cpu.read8(tileAddress + dy * 2);

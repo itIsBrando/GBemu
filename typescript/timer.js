@@ -26,6 +26,8 @@ class Timer {
     
         if(this.frequency > 0) { return }
         
+        this.setClockFrequency();
+
         if(this.regs.tima == 0xFF) {
             this.regs.tima = this.regs.tma;
             cpu.requestInterrupt(InterruptType.timer);
