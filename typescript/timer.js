@@ -1,0 +1,57 @@
+
+class Timer {
+    constructor() {
+        this.divCycles = 0;
+
+        this.regs = {
+            tima: 0,
+            div: 0,
+            tma: 0,
+            tac: 0
+        }
+
+        this.frequency = 0;
+    }
+
+    updateTimers(cpu) {
+        let cycles = cpu.cycles;
+        
+        this.increaseDiv(cycles);
+        
+        // return if timer is disabled
+        if(UInt8.getBit(this.regs.tac, 2) == 0)
+            return;
+
+        this.frequency -= cycles;
+    
+        if(this.frequency > 0) { return }
+        
+        if(this.regs.tima == 0xFF) {
+            this.regs.tima = this.regs.tma;
+            cpu.requestInterrupt(InterruptType.timer);
+        } else {
+            this.regs.tima++
+            this.regs.tima &= 255;
+        }
+    }
+    
+    
+    increaseDiv(cycles) {
+        this.divCycles += cycles;
+        if(this.divCycles > 64) {
+            this.regs.div++;
+            this.regs.div &= 0xFF;
+            this.divCycles -= 64;
+        }
+
+    }
+
+    setClockFrequency() {
+        switch(this.regs.tac & 0x3) {
+            case 0: this.frequency = 1024; break;
+            case 1: this.frequency = 16; break;
+            case 2: this.frequency = 64; break;
+            case 3: this.frequency = 256; break;
+        }
+    }
+}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html manifest="game.manifest">
+    <head>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="GBemu">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta charset="UTF-8">
+        <style>
+
+            html, body {
+                /* padding: 0px;
+                width: 100%;
+                height: 100%;
+                margin: 0px;
+                border: 0px; */
+                /* display: block; */
+                background-color: rgb(54, 54, 54);
+                position: fixed;
+                overflow: hidden;
+                
+                image-rendering: optimizeSpeed;
+                image-rendering: -moz-crisp-edges;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: optimize-contrast;
+                image-rendering: pixelated;
+                -ms-interpolation-mode: nearest-neighbor;
+                
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -webkit-touch-callout: none;
+                
+            }
+            
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Disable right click/highlighting */
+            .no-selection {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -webkit-touch-callout: none;
+            }
+
+            /* Virtual Gamepad Buttons */
+            .btn {
+                margin: 0px;
+                background-color: brown;
+                padding: 0px;
+                cursor: pointer;
+                z-index: 10;
+                /* position: abssolute; */
+                display: inline-block;
+                bottom: 0%;
+                width: 100px;
+            }
+
+            .btn:active {
+                background-color: maroon;
+            }
+        </style>
+
+        <!-- Screen -->
+        <div id="viewport">
+                <canvas id="screen" width="160" height="144"></canvas>
+            </div>
+            <!-- Enables pausing -->
+            <button type="button" name="reset" id="timerStop">Stop</button>
+            <!-- Enables stepping -->
+            <button type="button" name="step" id="timerStep">Step</button>
+            <!-- ROM loading -->
+            <input type="file" name="inputfile" id="inputfile"><br>
+            <pre id="outputfile"></pre>
+            
+            <!-- Controller -->
+            <div style="width: 100%; display: none;" class="no-selection">
+                <button class="btn" style="float: left;" type="button" name="up button" id="controllerUp">UP</button>
+                <button class="btn" style="float: left;" type="button" name="down button" id="controllerDown">DOWN</button>
+                <button class="btn" style="float: right;" type="button" name="a button" id="controllerA">A</button>
+                <button class="btn" style="float: right;" type="button" name="b button" id="controllerB">B</button>
+                <button class="btn" style="float: right;"type="button" name="start button" id="controllerStart">START</button>
+
+            </div>
+            <p id="errorP"></p>
+        </body>
+
+        <script src="typescript/types.js"></script>
+        <script src="typescript/controller.js"></script>
+        <script src="typescript/renderer.js"></script>
+        <script src="typescript/MBC1.js"></script>
+        <script src="typescript/ppu.js"></script>
+        <script src="typescript/instructionCB.js"></script>
+        <script src="typescript/instruction.js"></script>
+        <script src="typescript/timer.js"></script>
+        <script src="typescript/register.js"></script>
+        <script src="typescript/cpu.js"></script>
+        <script src="typescript/initalize.js"></script>
+        <script type="text/javascript">
+            let inputForm = document.getElementById('inputfile');
+            
+            inputForm.addEventListener('change', function() {
+                let reader = new FileReader();
+                reader.onload = function() {
+                    document.getElementById('outputfile').text = reader.result;
+                }
+                reader.readAsArrayBuffer(this.files[0]);
+                //let blob = new Uint8Array(buffer, 0, buffer.length);
+                
+                let buffer = this.files[0];
+                let array = new ArrayBuffer(32768);
+                
+                // wait for arrayBuffer to be ready
+                /*buffer.arrayBuffer().then(b => {
+                    // b == array
+                    startEmulation(b);
+                });*/
+                reader.onloadend = function() {
+                  startEmulation(reader.result)
+                }
+                
+            });
+        </script>
+    <body>
+</head>
