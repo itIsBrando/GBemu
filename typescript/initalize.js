@@ -47,7 +47,7 @@ function startEmulation(rom) {
 };
 
 function run() {
-    for(let i = 0; i < 69905; i++)
+    for(let i = 0; i < 70224; i++)
         if(c.execute() == false) break;
 
     // console.log("PC: 0x" + c.pc.v.toString(16));
