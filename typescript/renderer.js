@@ -57,7 +57,7 @@ class Renderer {
         
         let y = (scanline + scy) & 7; // same as % 8
         
-        for(let i = 0; i < 160/8; i++) {
+        for(let i = 0; i <= 160/8; i++) {
             let yOffset = ((scanline + scy) >> 3) & 0x1F;
             let xOffset = (i + (scx >> 3)) & 0x1F;
             let tileNumber = cpu.read8(mapBase + xOffset + (yOffset << 5));
@@ -185,6 +185,8 @@ class Renderer {
                     continue;
                 let yf = yFlip ? 7 - dy: dy;
                 let xf = xFlip ? i : 7 - i;
+                if((x + xf) > 160 || (x + xf) < 0)
+                    continue;
                 let canvasOffset = (x + xf + (y + yf) * 160) * 4;
                 this.screen.data[canvasOffset + 0] = pal[col & 3][0];
                 this.screen.data[canvasOffset + 1] = pal[col & 3][1];
