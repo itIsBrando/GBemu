@@ -1,3 +1,4 @@
+# everything can be cached in order to work offline
 CACHE MANIFEST
 typescript/types.js
 typescript/controller.js
@@ -10,6 +11,7 @@ typescript/timer.js
 typescript/register.js
 typescript/cpu.js
 typescript/initalize.js
+index.html
 
 NETWORK:
 
