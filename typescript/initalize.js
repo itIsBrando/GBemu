@@ -40,6 +40,7 @@ document.getElementById("timerStep").onclick = function() {
 function startEmulation(rom) {
     c.initialize();
     c.loadROM(new Uint8Array(rom));
+    // c.mbcHandler = null;
     
     c.timer = setInterval(run, 100);
 

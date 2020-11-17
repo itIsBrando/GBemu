@@ -68,15 +68,8 @@ class PPU {
                 if(this.cycles >= 80) {
                     this.mode = PPUMODE.scanlineVRAM
                     this.cycles -= 80;
-                    // reset coincidence flag
-                    this.regs.stat &= 0xFB;
-                    // scanline interrupt
-                    if(this.regs.syc == this.regs.scanline+1 && UInt8.getBit(this.regs.stat, 6) == 1)
-                    {
-                        cpu.requestInterrupt(InterruptType.lcd);
-                        // set coincidence flag
-                        this.regs.stat |= 0x04;
-                    } 
+                    // scanline equivalence
+                    this.checkCoincidence(cpu);
                 }
                 break;
             case PPUMODE.scanlineVRAM:
@@ -86,7 +79,7 @@ class PPU {
                     cpu.renderer.renderScanline(this, cpu);
                     // check for hblank interrupt in rSTAT
                     if(UInt8.getBit(this.regs.stat, 3) == 1)
-                    cpu.requestInterrupt(InterruptType.lcd);
+                        cpu.requestInterrupt(InterruptType.lcd);
                 }
                 break;
             case PPUMODE.hblank:
@@ -100,6 +93,8 @@ class PPU {
                         // check for vblank interrupt in rSTAT
                         if(UInt8.getBit(this.regs.stat, 3) == 1)
                             cpu.requestInterrupt(InterruptType.lcd);
+                        
+                            this.checkCoincidence(cpu);
                     } else {
                         this.mode = PPUMODE.scanlineOAM;
                         // check for OAM interrupt
@@ -112,6 +107,7 @@ class PPU {
                 break;
             case PPUMODE.vblank:
                 if(this.cycles >= 456) {
+                    this.checkCoincidence(cpu);
                     this.regs.scanline++;
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;
@@ -124,5 +120,21 @@ class PPU {
         }
 
         this.regs.stat |= this.mode;
+    }
+
+    checkCoincidence(cpu) {
+        // reset coincidence flag
+        this.regs.stat &= 0xFB;
+
+        if(this.regs.syc == this.regs.scanline)
+        {
+            // coincidence interrupt
+            if(UInt8.getBit(this.regs.stat, 6) == 1)
+            {
+                cpu.requestInterrupt(InterruptType.lcd);
+            }
+            // set coincidence flag
+            this.regs.stat |= 0x04;
+        } 
     }
 }

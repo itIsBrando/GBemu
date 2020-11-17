@@ -1742,6 +1742,7 @@ var opTable = {
             let x = (opcode & 0b11000000) >> 6;
             let y = ((opcode &0b00111000) >> 3) & 0x07;
             let z = (opcode & 0b00000111)
+            cpu.cycles = 8;
 
             if(x == 1) {
                 // bit y, r[z]

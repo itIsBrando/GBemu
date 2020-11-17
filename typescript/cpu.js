@@ -70,12 +70,12 @@ const opcodeCycles = [
     4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 5
     4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 6
     8,   8,  8,  8,  8,  8,  4,  8,  4,  4,  4, 4,  4,  4, 8,  4, // 7
-    4,   4,  4,  4,  4,  4,  7,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 8
-    4,   4,  4,  4,  4,  4,  7,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 9
-    4,   4,  4,  4,  4,  4,  7,  4,  4,  4,  4, 4,  4,  4, 8,  4, // A
-    4,   4,  4,  4,  4,  4,  7,  4,  4,  4,  4, 4,  4,  4, 8,  4, // B
+    4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 8
+    4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // 9
+    4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // A
+    4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // B
     20, 12, 16, 16, 24, 16,  8, 16, 20, 16, 16, 4, 24, 24, 8, 16, // C
-    20, 12, 16,  0, 24, 16,  8, 16, 20, 16, 16, 0, 24, 24, 8, 16, // D
+    20, 12, 16,  0, 24, 16,  8, 16, 20, 16, 16, 0, 24, 0, 8, 16, // D
     12, 12, 8,   0,  0, 16,  8, 16, 16,  4, 16, 0,  0,  0, 8, 16, // E
     12, 12, 8,   4,  0, 16,  8, 16, 12,  8, 16, 4,  0,  0, 8, 16, // F
 ];
@@ -176,7 +176,6 @@ class CPU {
     serviceInterrupts() {
         let handlerAddress = [0x40, 0x48, 0x50, 0x58, 0x60];
         let fired = this.interrupt_flag & this.interrupt_enable;
-
         
         if(this.interrupt_master == true && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
@@ -188,7 +187,7 @@ class CPU {
                         this.isHalted = false;
                         this.pc.v++;
                     }
-                    
+
                     this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
                     this.interrupt_master = false;
                     this.pushStack(this.pc.v);
@@ -266,7 +265,7 @@ class CPU {
         } else if(address == 0xFF43) {
             this.ppu.regs.scx = byte;
         } else if(address == 0xFF44) {
-            this.ppu.regs.scanline = byte;
+            return; // scanline is read only
         } else if(address == 0xFF45) {
             this.ppu.regs.syc = byte;
         } else if(address == 0xFF46) {
@@ -459,7 +458,6 @@ class CPU {
             return false;
         } */
 
-
         // execute opcode
         if(opTable[opcode] == undefined) {
             illegalOpcode(opcode, this, false);
@@ -484,9 +482,9 @@ class CPU {
 
         // handle interrupts
         this.serviceInterrupts();
-
+        
         this.timerRegs.updateTimers(this);
-
+        
         // update GPU
         this.ppu.step(this);
         return true;
