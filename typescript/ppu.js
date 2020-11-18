@@ -11,31 +11,39 @@ class PPU {
         this.mode = PPUMODE.vblank;
         this.cycles = 0;
     
-      this.regs = {
-          lcdc: 0, // ff40
-          stat: 0, // ff41
-          scy: 0, // ff42 scroll Y
-          scx: 0, // ff43 scroll X
-          scanline: 0, // FF44
-          syc: 0, // ff45 scanline compare
-          dma: 0, // ff46 dma transfer address
-          bgp: 0, // ff47 background palette
-          obp0: 0,// ff48
-          obp1: 0,// ff49
-          wy: 0, // ff4a window Y
-          wx: 0  // ff4b window X
+        this.regs = {
+            lcdc: 0, // ff40
+            stat: 0, // ff41
+            scy: 0, // ff42 scroll Y
+            scx: 0, // ff43 scroll X
+            scanline: 0, // FF44
+            syc: 0, // ff45 scanline compare
+            dma: 0, // ff46 dma transfer address
+            bgp: 0, // ff47 background palette
+            obj0: 0,// ff48
+            obj1: 0,// ff49
+            wy: 0, // ff4a window Y
+            wx: 0  // ff4b window X
         }
         
-        this.obj0Pal = palette;
-        this.obj1Pal = palette;
-
-    
+        this.obj0Pal = [
+            [3,3,3],
+            [3,3,3],
+            [3,3,3],
+            [3,3,3],
+        ];
+        this.obj1Pal = [
+            palette[3],
+            palette[2],
+            palette[1],
+            palette[0],
+        ];
         this.bgPal = [
-            [240, 255, 240],
-            [170, 210, 170],
-            [85, 145, 85],
-            [0, 40, 0],
-        ]
+            palette[0],
+            palette[1],
+            palette[2],
+            palette[3],
+        ];
     }
 
     /**
@@ -50,7 +58,7 @@ class PPU {
      * Represents the base address of the map based on lcdc register
      */
     get mapBase() {
-        return UInt8.getBit(this.regs.lcdc, 3) == 1 ? 0x9C00 : 0x9800;
+        return 0x9800;//UInt8.getBit(this.regs.lcdc, 3) == 1 ? 0x9C00 : 0x9800;
     }
 
     step(cpu) {

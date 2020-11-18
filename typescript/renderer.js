@@ -11,10 +11,10 @@ var canvas = document.getElementById("screen");
 
 // greenish palette
 var palette = [
-    [240, 255, 240],
-    [170, 210, 170],
-    [85, 145, 85],
-    [0, 40, 0],
+    [240, 255, 240],// lighest
+    [170, 210, 170],// lighter
+    [85, 145, 85],  // darker
+    [0, 40, 0],     // darkest
 ];
 
 class Renderer {
@@ -80,7 +80,7 @@ class Renderer {
         if(UInt8.getBit(ppu.regs.lcdc, 5) == 0)
             return;
 
-        let wx = ppu.regs.wx - 7;
+        let wx = ppu.regs.wx;
         let wy = ppu.regs.wy;
 
         let tileBase = UInt8.getBit(ppu.regs.lcdc, 4) == 1? 0x8000 : 0x9000;
@@ -92,8 +92,6 @@ class Renderer {
         
         for(let x = wx>>3; x < 160 / 8; x++)
         {
-            if(x < 0)
-                continue;
             let xMap = (x & 0xFF);
             let yMap = (scanline - wy) & 255;
             let y = yMap & 7;
@@ -103,9 +101,7 @@ class Renderer {
                 tile -= 256;
             let tileAddress = tileBase + (tile * 16) + y * 2;
             
-            this.drawTileLine(cpu, ppu, x << 3, scanline, tileAddress, false, false);
-            // console.log("tile:"+tileAddress.toString(16)+" x:" + (x*8) + " y: " + yMap);
-            // return;
+            this.drawTileLine(cpu, ppu, (x << 3) + 7 - (wx & 7), scanline, tileAddress, false, false);
         }
 
     }
@@ -115,17 +111,32 @@ class Renderer {
         if(ppu.regs.lcdc & 0x2 == 0)
             return;
 
-            for(let s = 0; s < 40; s++)
-            {
+        const bigSprite = UInt8.getBit(ppu.regs.lcdc, 2) == 1;
+
+        for(let s = 0; s < 40; s++)
+        {
             let spriteBase = 0xFE00 + s * 4;
             let y = (cpu.read8(spriteBase) - 16);
             let x = (cpu.read8(spriteBase + 1) - 8);
-            if(x < 0 || y < 0 || y > 143 || x > 160)
-                continue;
             let tile = cpu.read8(spriteBase + 2);
             let flags= cpu.read8(spriteBase + 3);
 
-            this.drawTile(x, y, tile * 16 + 0x8000, flags, cpu);
+            // draw 8x16 sprites
+            if(bigSprite)
+            {
+                // if y-flip, then then second sprite is drawn above first 
+                if(UInt8.getBit(flags, 6) == 1)
+                {
+                    this.drawTile(x, y + 8, tile * 16 + 0x8000, flags, cpu);
+                    this.drawTile(x, y, (tile + 1) * 16 + 0x8000, flags, cpu);
+                } else {
+                    this.drawTile(x, y, tile * 16 + 0x8000, flags, cpu);
+                    this.drawTile(x, y + 8, (tile + 1) * 16 + 0x8000, flags, cpu);
+                }
+            } else {
+                
+                this.drawTile(x, y, tile * 16 + 0x8000, flags, cpu);
+            }
         }
     }
 
@@ -147,15 +158,16 @@ class Renderer {
         let byte2 = cpu.read8(tileAddress + 1);
 
         for(let i = 0; i < 8; i++) {
-            let col = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
-            let dx = xFlip == true ? i : 7 - i;
+            const index = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
+            const dx = xFlip == true ? i : 7 - i;
+            const col = ppu.bgPal[index & 3];
             if((x + dx) < 0 || (x + dx) > 160)
                 continue;
             // since there are four bytes per pixel, we must times by 4
             let canvasOffset = (x + dx + y * 160) * 4;
-            this.screen.data[canvasOffset + 0] = ppu.bgPal[col & 3][0];
-            this.screen.data[canvasOffset + 1] = ppu.bgPal[col & 3][1];
-            this.screen.data[canvasOffset + 2] = ppu.bgPal[col & 3][2];
+            this.screen.data[canvasOffset + 0] = col[0];
+            this.screen.data[canvasOffset + 1] = col[1];
+            this.screen.data[canvasOffset + 2] = col[2];
             this.screen.data[canvasOffset + 3] = 255; // alpha
         }
     }
@@ -167,30 +179,39 @@ class Renderer {
      * @param {UInt16} tileAddress 
      * @param {UInt8} flags 
      * @param {CPU} cpu 
-     * @param {boolean} useTransparency whether index 0 should be drawn or exclude
      */
     drawTile(x, y, tileAddress, flags, cpu) {
-        let xFlip = UInt8.getBit(flags, 5) == 1;
-        let yFlip = UInt8.getBit(flags, 6) == 1;
-        let p = UInt8.getBit(flags, 4) == 1;
-
-        let pal = (p == 1) ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
+        const xFlip = UInt8.getBit(flags, 5) == 1;
+        const yFlip = UInt8.getBit(flags, 6) == 1;
+        const p = UInt8.getBit(flags, 4);
+        let pal;
+        if(p)
+            pal = cpu.ppu.obj1Pal;
+        else
+            pal = cpu.ppu.obj0Pal;
 
         for(let dy = 0; dy < 8; dy++) {
-            let byte1 = cpu.read8(tileAddress + dy * 2);
-            let byte2 = cpu.read8(tileAddress + dy * 2 + 1);
+            const byte1 = cpu.read8(tileAddress + dy * 2);
+            const byte2 = cpu.read8(tileAddress + dy * 2 + 1);
+            // skip this line if we are off screen
+            if(y + dy < 0)
+                continue;
+            
             for(let i = 0; i < 8; i++) {
-                let col = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
-                if(col == 0)
+                const index = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
+                const col = pal[index & 0x03];
+                // transparency
+                if(index == 0)
                     continue;
-                let yf = yFlip ? 7 - dy: dy;
-                let xf = xFlip ? i : 7 - i;
-                if((x + xf) > 160 || (x + xf) < 0)
+                let yf = yFlip ? (7 - dy): dy;
+                let xf = xFlip ? i : (7 - i);
+                // check out of bound
+                if((x + xf > 159) || (x + xf < 0))
                     continue;
                 let canvasOffset = (x + xf + (y + yf) * 160) * 4;
-                this.screen.data[canvasOffset + 0] = pal[col & 3][0];
-                this.screen.data[canvasOffset + 1] = pal[col & 3][1];
-                this.screen.data[canvasOffset + 2] = pal[col & 3][2];
+                this.screen.data[canvasOffset + 0] = col[0];
+                this.screen.data[canvasOffset + 1] = col[1];
+                this.screen.data[canvasOffset + 2] = col[2];
                 this.screen.data[canvasOffset + 3] = 255; // alpha
             }
         }

@@ -13,16 +13,15 @@
 
 var c = new CPU();
 
-// passed: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11
+// passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 /**
  * Failed:
- *  - 9: 0xCB 0x00 undefined
+ *  - mem_timing
  */
 
 
 document.getElementById("timerStop").onclick = function() {
     clearInterval(c.timer);
-    console.log("click");
 }
 
 
@@ -38,6 +37,7 @@ document.getElementById("timerStep").onclick = function() {
  * @param {ArrayBuffer} rom 
  */
 function startEmulation(rom) {
+    clearInterval(c.timer);
     c.initialize();
     c.loadROM(new Uint8Array(rom));
     // c.mbcHandler = null;

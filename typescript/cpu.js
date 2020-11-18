@@ -162,6 +162,7 @@ class CPU {
         this.isHalted = false;
         for(let i = 0xFF00; i <= 0xFFFF; i++)
             this.write8(i, 0);
+        
     }
 
 
@@ -280,16 +281,16 @@ class CPU {
                 palette[(byte & 0b11000000) >> 6],
             ]
         } else if(address == 0xFF48) {
-            this.ppu.regs.obp0 = byte;
-            this.ppu.obp0Pal = [
+            this.ppu.regs.obj0 = byte;
+            this.ppu.obj0Pal = [
                 palette[(byte & 0b00000011)],
                 palette[(byte & 0b00001100) >> 2],
                 palette[(byte & 0b00110000) >> 4],
                 palette[(byte & 0b11000000) >> 6],
             ]
         } else if(address == 0xFF49) {
-            this.ppu.regs.obp1 = byte;
-            this.ppu.obp1Pal = [
+            this.ppu.regs.obj1 = byte;
+            this.ppu.obj1Pal = [
                 palette[(byte & 0b00000011)],
                 palette[(byte & 0b00001100) >> 2],
                 palette[(byte & 0b00110000) >> 4],
@@ -417,9 +418,9 @@ class CPU {
         } else if(address == 0xFF47) {
             return this.ppu.regs.bgp;
         } else if(address == 0xFF48) {
-            return this.ppu.regs.obp0;
+            return this.ppu.regs.obj0;
         } else if(address == 0xFF49) {
-            return this.ppu.regs.obp1;
+            return this.ppu.regs.obj1;
         } else if(address == 0xFF4A) {
             return this.ppu.regs.wy;
         } else if(address == 0xFF4B) {
@@ -480,10 +481,10 @@ class CPU {
             }
         }
 
+        this.timerRegs.updateTimers(this);
+
         // handle interrupts
         this.serviceInterrupts();
-        
-        this.timerRegs.updateTimers(this);
         
         // update GPU
         this.ppu.step(this);
