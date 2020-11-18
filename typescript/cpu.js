@@ -50,6 +50,7 @@ function getMBCType(v) {
         case 0x02:
             return MBCType.MBC_1;
         case 0x03:
+        case 0x1B:
             return MBCType.MBC_1 | MBCType.RAM;
         case 0x06:
             return MBCType.MBC_2 | MBCType.RAM;
