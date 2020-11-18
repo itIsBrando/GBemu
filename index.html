@@ -37,6 +37,10 @@
                 height: 100%;
             }
 
+            label, pre {
+                color: antiquewhite;
+            }
+
             /* Disable right click/highlighting */
             .no-selection {
                 -webkit-user-select: none;
@@ -65,15 +69,27 @@
 
         <!-- Screen -->
         <div id="viewport">
-                <canvas id="screen" width="160" height="144"></canvas>
-            </div>
-            <!-- Enables pausing -->
-            <button type="button" name="reset" id="timerStop">Stop</button>
+            <canvas id="screen" width="160" height="144"></canvas>
+        </div>
+
+        <!-- Enables pausing -->
+        <div id="debugDIV" style="display:none">
+            <buttontype="button" name="timerStop" id="timerStop">Stop</button>
             <!-- Enables stepping -->
             <button type="button" name="step" id="timerStep">Step</button>
+        </div>
+            
             <!-- ROM loading -->
-            <input type="file" name="inputfile" id="inputfile"><br>
-            <pre id="outputfile"></pre>
+            <div id="romLoading">
+                <label for="inputfile">ROM</label>
+                <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc"><br>
+                <label id="outputfile"></label>
+            </div>
+            <div id="saveStateLoading">
+                <label for="inputSaveFile">Save</label>
+                <input type="file" name="inputSaveFile" id="inputSaveFile" accept=".sav"><br>
+                <label id="outputSaveFile"></label>
+            </div>
             
             <!-- Controller -->
             <div style="width: 100%; display: none;" class="no-selection">
@@ -85,7 +101,7 @@
 
             </div>
             <p id="errorP"></p>
-        </body>
+        <body>
         <title>GBemu</title>
         <script src="typescript/types.js"></script>
         <script src="typescript/controller.js"></script>
@@ -110,7 +126,7 @@
                 //let blob = new Uint8Array(buffer, 0, buffer.length);
                 
                 let buffer = this.files[0];
-                let array = new ArrayBuffer(32768);
+                // let array = new ArrayBuffer(32768);
                 
                 // wait for arrayBuffer to be ready
                 /*buffer.arrayBuffer().then(b => {
@@ -122,6 +138,23 @@
                 }
                 
             });
+
+            // Save file loading
+            document.getElementById("inputSaveFile").addEventListener('change', function() {
+                let reader = new FileReader();
+
+                reader.onload = function() {
+                    document.getElementById('outputSaveFile').text = reader.resut;
+                }
+
+                reader.readAsArrayBuffer(this.files[0]);
+
+                let buffer = this.files[0];
+                
+                reader.onloadend = function() {
+                    MBC1.useSaveData(reader.result);
+                }
+            });
         </script>
-    <body>
+    </body>
 </head>
