@@ -82,7 +82,7 @@
             <!-- ROM loading -->
             <div id="romLoading">
                 <label for="inputfile">ROM</label>
-                <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc"><br>
+                <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc" ><br>
                 <label id="outputfile"></label>
             </div>
             <div id="saveStateLoading">
@@ -106,7 +106,10 @@
         <script src="typescript/types.js"></script>
         <script src="typescript/controller.js"></script>
         <script src="typescript/renderer.js"></script>
-        <script src="typescript/MBC1.js"></script>
+        <script src="typescript/mbc/MBC1.js"></script>
+        <script src="typescript/mbc/MBC2.js"></script>
+        <script src="typescript/mbc/MBC3.js"></script>
+        <script src="typescript/mbc/MBC5.js"></script>
         <script src="typescript/ppu.js"></script>
         <script src="typescript/instructionCB.js"></script>
         <script src="typescript/instruction.js"></script>

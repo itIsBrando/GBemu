@@ -26,7 +26,29 @@ const MemoryControllerText = {
     0x05: "MBC2",
     0x06: "MBC2+BATTERY",
     0x08: "ROM+RAM",
-    0x08: "ROM+RAM+BATTERY",
+    0x08: "ROM+RAM",
+    0x09: "ROM+RAM+BATTERY",
+    0x0B: "MMM01",
+    0x0C: "MMM01+RAM",
+    0x0D: "MMM01+RAM+BATTERY",
+    0x0F: "MBC3+TIMER+BATTERY",
+    0x10: "MBC3+TIMER+RAM+BATTERY",
+    0x11: "MBC3",
+    0x12: "MBC3+RAM",
+    0x13: "MBC3+RAM+BATTERY",
+    0x19: "MBC5",
+    0x1A: "MBC5+RAM",
+    0x1B: "MBC5+RAM+BATTERY",
+    0x1C: "MBC5+RUMBLE",
+    0x1D: "MBC5+RUMBLE+RAM",
+    0x1E: "MBC5+RUMBLE+RAM+BATTERY",
+    0x20: "MBC6",
+    0x22: "MBC7+SENSOR+RUMBLE+RAM+BATTERY",
+    0xFC: "POCKET CAMERA",
+    0xFD: "BANDAI TAMA5",
+    0xFE: "HuC3",
+    0xFF: "HuC1+RAM+BATTERY",
+
 }
 
 const MBCType = {
@@ -35,8 +57,6 @@ const MBCType = {
     MBC_2: 2,
     MBC_3: 3,
     MBC_5: 5,
-
-    RAM: 128, // this has to be a unique bit
 }
 
 /**
@@ -48,13 +68,28 @@ function getMBCType(v) {
         case 0x00: return MBCType.NONE;
         case 0x01:
         case 0x02:
-            return MBCType.MBC_1;
         case 0x03:
-            return MBCType.MBC_1 | MBCType.RAM;
+        case 0x08:
+        case 0x09:
+            return MBCType.MBC_1;
+        case 0x05:
         case 0x06:
-            return MBCType.MBC_2 | MBCType.RAM;
+            return MBCType.MBC_2;
+        case 0x0F:
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13:
+            return MBCType.MBC_3;
+        case 0x19:
+        case 0x1A:
+        case 0x1B:
+        case 0x1C:
+        case 0x1D:
+        case 0x1E:
+            return MBCType.MBC_5;
         default:
-            alert("Unsupported MBC:" + v.toString(16));
+            alert("Unsupported: " + MemoryControllerText[v]);
     }
 
     return MBCType.NONE;
@@ -314,20 +349,40 @@ class CPU {
 
     /**
      * Loads the rom into memory
-     * @param {Uint8Array} array 8-bit ROM
+     * @param {ArrayBuffer} array
      */
     loadROM(array) {
-        this.mem.rom = array; // this array should be trimmed to only be 0x8000 bytse long
-        this.mbc = getMBCType(this.mem.rom[0x0147]);
-        if((this.mbc & MBCType.MBC_1) != 0) {
-            this.mbcHandler = new MBC1(array);
-        } else if((this.mbc & MBCType.MBC_2) != 0) {
-            this.mbcHandler = new MBC1(array);
-            console.log(this.mbcHandler);
-        } else if(this.mbc != MBCType.NONE)
-            alert("Unknown MBC:" + this.mbc);
+        const untrimmedROM = new Uint8Array(array);
 
-        console.log("MBC Type:" + this.mem.rom[0x0147]);
+        const trimmed = [...new Uint8Array(array)];
+        this.mem.rom = new Uint8Array(trimmed.splice(0, 0x8000));
+
+        // get MBC type
+        this.mbc = getMBCType(this.mem.rom[0x0147]);
+
+        // create our memory bank controller
+        switch(this.mbc) {
+            case MBCType.MBC_1:
+                this.mbcHandler = new MBC1(untrimmedROM);
+                break;
+            case MBCType.MBC_2:
+                this.mbcHandler = new MBC2(untrimmedROM);
+                console.log("2");
+                break;
+            case MBCType.MBC_3:
+                this.mbcHandler = new MBC3(untrimmedROM);
+                break;
+            case MBCType.MBC_5:
+                this.mbcHandler = new MBC5(untrimmedROM);
+                break;
+            case MBCType.NONE:
+                break;
+            default:
+                alert("Unsupport MBC");
+            
+        }
+
+        console.log("MBC Type:" + MemoryControllerText[this.mbc]);
     }
 
     /**

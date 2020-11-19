@@ -1,8 +1,6 @@
 var useExternalSaveFile = false;
-let externalSave = null;
+var externalSave = null;
 
-// RAM banking not implemented
-// modification of 'this.ramBank' occurs, but this.read8 does not recognize it
 class MBC1 {
     constructor(rom) {
         this.rom = rom;

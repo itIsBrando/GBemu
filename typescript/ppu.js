@@ -58,7 +58,7 @@ class PPU {
      * Represents the base address of the map based on lcdc register
      */
     get mapBase() {
-        return 0x9800;//UInt8.getBit(this.regs.lcdc, 3) == 1 ? 0x9C00 : 0x9800;
+        return UInt8.getBit(this.regs.lcdc, 3) == 1 ? 0x9C00 : 0x9800;
     }
 
     step(cpu) {
