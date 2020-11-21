@@ -1,16 +1,4 @@
 "use strict"
-
-// implement this later, as firefox does not have ArrayBuffer.slice
-
-// if(!ArrayBuffer.prototype.slice)
-//     /**
-//      * 
-//      * @param {number} start 
-//      */
-//     Array.prototype.slice = function(start) {
-        
-//     }
-
 var c = new CPU();
 
 // passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
@@ -50,6 +38,4 @@ function startEmulation(rom) {
 function run() {
     for(let i = 0; i < 70224; i++)
         if(c.execute() == false) break;
-
-    // console.log("PC: 0x" + c.pc.v.toString(16));
 }

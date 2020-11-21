@@ -146,6 +146,7 @@ class CPU {
         this.debug = false;
         
         this.isHalted = false;
+        this.haltBug = false;
         this.interrupt_master = false;
         this.interrupt_enable = 0;
         this.interrupt_flag = 0;
@@ -382,7 +383,8 @@ class CPU {
             
         }
 
-        console.log("MBC Type:" + MemoryControllerText[this.mbc]);
+        console.log("MBC Type:" + MemoryControllerText[this.mem.rom[0x0147]]);
+        console.log("ROM Name: " + readROMName());
     }
 
     /**
@@ -502,17 +504,8 @@ class CPU {
     }
 
     execute() {
-        let opcode = this.read8(this.pc.v);
-        // if(this.debug==true)console.log("PC: 0x" + this.pc.v.toString(16) + " | 0x" + opcode.toString(16) + " | A: 0x" + this.af.high.toString(16) + " | HL: 0x" + this.hl.v.toString(16));
-
+        const opcode = this.read8(this.pc.v);
         this.cycles = opcodeCycles[opcode];
-
-/*         if(this.pc.v == 0x72ca)
-        {
-            illegalOpcode(opcode, this, false);
-            opTable[opcode](this);
-            return false;
-        } */
 
         // execute opcode
         if(opTable[opcode] == undefined) {
@@ -521,6 +514,8 @@ class CPU {
         } else if(this.isHalted == false) {
             opTable[opcode](this);
         }
+
+
 
         // manage interrupts
         if(opcode != 0xF3 && opcode != 0xFB)
@@ -658,6 +653,10 @@ class CPU {
      * @param {number} dx 
      */
     skip(dx) {
+        if(this.haltBug) {
+            this.haltBug = false;
+            return;
+        }
         this.pc.v += dx;
     };
 

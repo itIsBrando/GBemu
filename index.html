@@ -1,22 +1,23 @@
 <!doctype html>
 <html manifest="game.manifest">
-    <head>
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-title" content="GBemu">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <meta charset="UTF-8">
+    <script type="text/javascript" src="https://js.live.net/v7.2/OneDrive.js"></script>    <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GBemu">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- Disable zooming on iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
         <style>
 
             html, body {
                 /* padding: 0px;
-                width: 100%;
                 height: 100%;
                 margin: 0px;
                 border: 0px; */
-                /* display: block; */
+                width: 100%;
                 background-color: rgb(54, 54, 54);
                 position: fixed;
-                overflow: hidden;
+                /* overflow: hidden; */
                 
                 image-rendering: optimizeSpeed;
                 image-rendering: -moz-crisp-edges;
@@ -31,14 +32,16 @@
                 -webkit-touch-callout: none;
                 
             }
+
+            #touchControls {
+                position: fixed;
+                bottom: 0;
+            }
             
             canvas {
-                width: 100%;
-                height: 100%;
-            }
-
-            label, pre {
-                color: antiquewhite;
+                /* width: 100%; */
+                /* height: auto; */
+                overflow: hidden;
             }
 
             /* Disable right click/highlighting */
@@ -49,60 +52,116 @@
                 -webkit-touch-callout: none;
             }
 
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+
+            .menubtn {
+                background-color: aquamarine;
+                display: block;   
+                padding: 6px;
+                width: 100%;
+                max-width: 250px;
+                border: none;
+            }
+
+            .menubtn:hover {
+                background-color: cyan;
+            }
+
             /* Virtual Gamepad Buttons */
             .btn {
-                margin: 0px;
-                background-color: brown;
-                padding: 0px;
+                margin: 10;
+                background-color:blueviolet;
+                padding: 10px;
                 cursor: pointer;
                 z-index: 10;
-                /* position: abssolute; */
+                border: none;
                 display: inline-block;
-                bottom: 0%;
-                width: 100px;
+                min-width: 40px;
+                min-height: 40px;
+                max-width: 200px;
+                max-height: 250px;
+                touch-action: manipulation;
             }
 
             .btn:active {
-                background-color: maroon;
+                background-color:indigo;
             }
         </style>
+            <!-- OneDrive -->
+            <button onclick="launchODPicker()">Open Onedrive</button>
 
-        <!-- Screen -->
-        <div id="viewport">
-            <canvas id="screen" width="160" height="144"></canvas>
-        </div>
-
-        <!-- Enables pausing -->
-        <div id="debugDIV" style="display:none">
-            <buttontype="button" name="timerStop" id="timerStop">Stop</button>
-            <!-- Enables stepping -->
-            <button type="button" name="step" id="timerStep">Step</button>
-        </div>
-            
-            <!-- ROM loading -->
-            <div id="romLoading">
-                <label for="inputfile">ROM</label>
-                <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc" ><br>
-                <label id="outputfile"></label>
-            </div>
-            <div id="saveStateLoading">
-                <label for="inputSaveFile">Save</label>
-                <input type="file" name="inputSaveFile" id="inputSaveFile" accept=".sav"><br>
-                <label id="outputSaveFile"></label>
+            <!-- Debugging features -->
+            <div id="debugDIV" style="display:none">
+                <buttontype="button" name="timerStop" id="timerStop">Stop</button>
+                <!-- Enables stepping -->
+                <button type="button" name="step" id="timerStep">Step</button>
             </div>
             
+            <!-- Hidden items used for file reading dialogs -->
+            <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc" style="display: none;" >
+            <input type="file" name="inputSaveFile" id="inputSaveFile" accept=".sav" style="display: none;">
+            
+            <!-- file loading menu -->
+            <div class="dropdown" style="float: left;">
+                <button style="width: 200px;" type="button" id="fileMenuToggle" class="menubtn">File</button>
+                
+                <div id="loadMenu" style="z-index: 2; width: 200px; position: absolute; left: 0; display: none;">
+                    <!-- ROM loading -->
+                    <button type="button" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
+                    <!-- Save State loading -->
+                    <button type="button" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+                </div>
+            </div>
+            
+            <!-- options menu -->
+            <div class="dropdown" style="float: left;">
+                <button style="width: 200px;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
+                
+                <div id="optionsMenu" style="z-index: 2; width: 200px; left: 0; position: absolute; display: none;">
+                    <button type="button" id="controlsToggle" class="menubtn">Toggle touch controls</button>
+                    <button type="button" id="fullscreenToggle" class="menubtn">Fullscreen</button>
+                </div>
+            </div>
+                
+            <!-- Save Manager menu -->
+            <div class="dropdown" style="float: left;">
+                <button style="width: 200px;" type="button" id="saveMenuToggle" class="menubtn">Save Manager</button>
+                
+                <div id="saveMenu" style="z-index: 2; width: 200px; left: 0; position: absolute; display: none;">
+                    <button type="button" id="exportSaveButton" class="menubtn">Export Save File</button>
+                    <!-- <button type="button" id="idkeToggle" class="menubtn">Fullscreen</button> -->
+                </div>
+            </div>
+                
+            <!-- Screen -->
+            <div id="viewport">
+                <canvas id="screen" width="160" height="144"></canvas>
+            </div>
+
             <!-- Controller -->
-            <div style="width: 100%; display: none;" class="no-selection">
-                <button class="btn" style="float: left;" type="button" name="up button" id="controllerUp">UP</button>
-                <button class="btn" style="float: left;" type="button" name="down button" id="controllerDown">DOWN</button>
-                <button class="btn" style="float: right;" type="button" name="a button" id="controllerA">A</button>
-                <button class="btn" style="float: right;" type="button" name="b button" id="controllerB">B</button>
-                <button class="btn" style="float: right;"type="button" name="start button" id="controllerStart">START</button>
+            <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 10;" class="no-selection">
+                <!-- UP & DOWN are hidden temporarily -->
+                <button class="btn" style="position: absolute; left: 50px; bottom: 80px" type="button" name="UP" id="controllerUp">UP</button>
+                <button class="btn" style="position: absolute; left: 50px; bottom: 0" type="button" name="DOWN" id="controllerDown">DOWN</button>
+                <button class="btn" style="position: absolute; left: 0; bottom: 40px" type="button" name="LEFT" id="controllerLeft">LEFT</button>
+                <button class="btn" style="position: absolute; left: 100px; bottom: 40px" type="button" name="RIGHT" id="controllerRight">RIGHT</button>
+                <button class="btn" style="position: absolute; right: 0; bottom: 80px" type="button" name="A" id="controllerA">A</button>
+                <button class="btn" style="position: absolute; right: 100px; bottom: 40px;" type="button" name="B" id="controllerB">B</button>
+                <button class="btn" style="position: absolute; left:200px; bottom: 0;"type="button" name="START" id="controllerStart">START</button>
+                <button class="btn" style="position: absolute; left:150px; bottom: 0;"type="button" name="SELECT" id="controllerSelect">SELECT</button>
 
             </div>
+            <!-- used to display errors -->
             <p id="errorP"></p>
+            <!-- Used to save files -->
+            <a id="saveA" style="display: none;"></a>
         <body>
         <title>GBemu</title>
+        <!-- Lovely library -->
+        <script src="js/msapi.js"></script>
         <script src="typescript/types.js"></script>
         <script src="typescript/controller.js"></script>
         <script src="typescript/renderer.js"></script>
@@ -117,25 +176,19 @@
         <script src="typescript/register.js"></script>
         <script src="typescript/cpu.js"></script>
         <script src="typescript/initalize.js"></script>
+        <script src="js/utility.js"></script>
+        <script src="js/touch.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
             
+            // for loading ROM
             inputForm.addEventListener('change', function() {
                 let reader = new FileReader();
                 reader.onload = function() {
-                    document.getElementById('outputfile').text = reader.result;
+                    console.log("ROM File: " + reader.result);
                 }
                 reader.readAsArrayBuffer(this.files[0]);
-                //let blob = new Uint8Array(buffer, 0, buffer.length);
-                
-                let buffer = this.files[0];
-                // let array = new ArrayBuffer(32768);
-                
-                // wait for arrayBuffer to be ready
-                /*buffer.arrayBuffer().then(b => {
-                    // b == array
-                    startEmulation(b);
-                });*/
+
                 reader.onloadend = function() {
                   startEmulation(reader.result)
                 }
@@ -147,7 +200,7 @@
                 let reader = new FileReader();
 
                 reader.onload = function() {
-                    document.getElementById('outputSaveFile').text = reader.resut;
+                    console.log("Save data file: " + reader.result);
                 }
 
                 reader.readAsArrayBuffer(this.files[0]);
@@ -158,6 +211,81 @@
                     MBC1.useSaveData(reader.result);
                 }
             });
+
+
+            // for `file` menu tab
+            const fileMenuToggle = document.getElementById('fileMenuToggle');
+            const loadMenu = document.getElementById('loadMenu');
+            
+            // for `options` menu tab
+            const controlsToggle = document.getElementById('controlsToggle');
+            const optionsMenu = document.getElementById('optionsMenu');
+            const optionsMenuToggle = document.getElementById('optionsMenuToggle');
+            const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+            const saveMenu = document.getElementById('saveMenu');
+            const saveMenuToggle = document.getElementById('saveMenuToggle');
+            const exportSaveButton = document.getElementById('exportSaveButton');
+
+
+            // used as a tab system
+            var menus = [
+                {"shown":false, "header": fileMenuToggle, "div": loadMenu},
+                {"shown":false, "header": optionsMenuToggle, "div": optionsMenu},
+                {"shown":false, "header": saveMenuToggle, "div": saveMenu},
+            ];
+
+            
+            // for 'File' menu
+            fileMenuToggle.addEventListener('click', function() {
+                toggleMenu(0);
+            });
+
+
+            // for 'Options' menu
+            optionsMenuToggle.addEventListener('click', function() {
+                toggleMenu(1);
+            });
+
+            controlsToggle.addEventListener('click', function() {
+                document.getElementById("touchControls").style.display = "block";
+            })
+
+            // for 'fullscreen button'
+            fullscreenToggle.addEventListener('click', function() {
+                if(!requestFullscreen())
+                {
+                    fullscreenToggle.style.display = "none";
+                    alert("This device does not support fullscreen");
+                }
+            });
+
+
+            // for 'Save Manager' menu
+            saveMenuToggle.addEventListener('click', function() {
+                toggleMenu(2);
+            });
+
+            exportSaveButton.onclick = function() {
+                // do saving
+                const name = readROMName() + ".sav"
+                const a = document.getElementById('saveA');
+                if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
+                {
+                    alert("This ROM does not have a RAM chip");
+                    return;
+                }
+                // save file
+                let blob = new Blob([c.mbcHandler.ram], {type: "example/binary"});
+                a.download = readROMName() + ".sav"
+                a.href = window.URL.createObjectURL(blob);
+                a.click();
+            };
+
+            // auto-hide if we are standalone
+            if(window.navigator.standalone) {
+                fullscreenToggle.style.display = "none";
+            }
         </script>
     </body>
 </head>

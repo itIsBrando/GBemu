@@ -1,6 +1,14 @@
 
 var canvas = document.getElementById("screen");
 
+window.onresize = setCanvasSize;
+
+function setCanvasSize() {
+    const size = Math.min(window.innerWidth, window.innerHeight - 100) + "px";
+    canvas.style.width = size;
+    canvas.style.height = size;
+}
+
 // grayscale palette
 // var palette = [
     //     [255, 255, 255],
@@ -21,6 +29,7 @@ class Renderer {
     
     constructor() {
         this.context = canvas.getContext('2d');
+        setCanvasSize();
         this.screen = this.context.getImageData(0, 0, 160, 144);
         for(let i = 0; i < 160 * 144 * 4; i++)
         {
@@ -29,10 +38,10 @@ class Renderer {
         this.drawBuffer();
     }
 
-
     drawBuffer() {
         this.context.putImageData(this.screen, 0, 0);
     }
+
 
     /**
      * Renders a scanline
@@ -43,6 +52,7 @@ class Renderer {
         this.renderMap(ppu, cpu);
         this.renderWindow(ppu, cpu);
     }
+
 
     /**
      * Renders a background scanline
@@ -70,6 +80,7 @@ class Renderer {
         }
     }
 
+
     /**
      * X coordinate only works with multiples of 8
      * @param {PPU} ppu 
@@ -80,31 +91,32 @@ class Renderer {
         if(UInt8.getBit(ppu.regs.lcdc, 5) == 0)
             return;
 
-        let wx = ppu.regs.wx;
-        let wy = ppu.regs.wy;
+        const wx = ppu.regs.wx;
+        const wy = ppu.regs.wy;
 
-        let tileBase = UInt8.getBit(ppu.regs.lcdc, 4) == 1? 0x8000 : 0x9000;
-        let mapBase = UInt8.getBit(ppu.regs.lcdc, 6) == 1 ? 0x9C00 : 0x9800;
-        let scanline= ppu.regs.scanline;
+        const tileBase = ppu.tileBase;
+        const mapBase = UInt8.getBit(ppu.regs.lcdc, 6) == 1 ? 0x9C00 : 0x9800;
+        const scanline= ppu.regs.scanline;
         
         if(scanline < wy && scanline < 144)
             return;
         
-        for(let x = wx>>3; x < 160 / 8; x++)
+        for(let x = wx>>3; x <= 160 / 8; x++)
         {
-            let xMap = (x & 0xFF);
-            let yMap = (scanline - wy) & 255;
-            let y = yMap & 7;
+            const xMap = (x & 0xFF);
+            const yMap = (scanline - wy) & 255;
+            const y = yMap & 7;
             let tile = cpu.read8(mapBase + ( (yMap >> 3) * 32) + xMap-(wx>>3));
             // signed tile
-            if(tileBase == 0x9000 && tile > 127)
+            if(tileBase == 0x9000 && (tile > 127))
                 tile -= 256;
-            let tileAddress = tileBase + (tile * 16) + y * 2;
+            const tileAddress = tileBase + (tile * 16) + y * 2;
             
-            this.drawTileLine(cpu, ppu, (x << 3) + 7 - (wx & 7), scanline, tileAddress, false, false);
+            this.drawTileLine(cpu, ppu, (x << 3) - 7 + (wx & 7), scanline, tileAddress, false, false);
         }
 
     }
+
 
     renderSprites(ppu, cpu) {
         // return if sprites are disabled
@@ -115,11 +127,11 @@ class Renderer {
 
         for(let s = 0; s < 40; s++)
         {
-            let spriteBase = 0xFE00 + s * 4;
-            let y = (cpu.read8(spriteBase) - 16);
-            let x = (cpu.read8(spriteBase + 1) - 8);
-            let tile = cpu.read8(spriteBase + 2);
-            let flags= cpu.read8(spriteBase + 3);
+            const spriteBase = 0xFE00 + s * 4;
+            const y = (cpu.read8(spriteBase) - 16);
+            const x = (cpu.read8(spriteBase + 1) - 8);
+            const tile = cpu.read8(spriteBase + 2);
+            const flags= cpu.read8(spriteBase + 3);
 
             // draw 8x16 sprites
             if(bigSprite)
@@ -140,6 +152,7 @@ class Renderer {
         }
     }
 
+
     /**
      * @param {CPU} cpu CPU instance 
      * @param {PPU} ppu PPU instance 
@@ -154,8 +167,8 @@ class Renderer {
          // this probably does not work
         // if(yFlip == true) tileAddress += 15 - (y & 7) * 2;
 
-        let byte1 = cpu.read8(tileAddress);
-        let byte2 = cpu.read8(tileAddress + 1);
+        const byte1 = cpu.read8(tileAddress);
+        const byte2 = cpu.read8(tileAddress + 1);
 
         for(let i = 0; i < 8; i++) {
             const index = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
@@ -164,13 +177,15 @@ class Renderer {
             if((x + dx) < 0 || (x + dx) > 160)
                 continue;
             // since there are four bytes per pixel, we must times by 4
-            let canvasOffset = (x + dx + y * 160) * 4;
+            const canvasOffset = (x + dx + y * 160) * 4;
+
             this.screen.data[canvasOffset + 0] = col[0];
             this.screen.data[canvasOffset + 1] = col[1];
             this.screen.data[canvasOffset + 2] = col[2];
             this.screen.data[canvasOffset + 3] = 255; // alpha
         }
     }
+
 
     /**
      * Only meant for sprites
@@ -203,8 +218,8 @@ class Renderer {
                 // transparency
                 if(index == 0)
                     continue;
-                let yf = yFlip ? (7 - dy): dy;
-                let xf = xFlip ? i : (7 - i);
+                const yf = yFlip ? (7 - dy): dy;
+                const xf = xFlip ? i : (7 - i);
                 // check out of bound
                 if((x + xf > 159) || (x + xf < 0))
                     continue;

@@ -805,7 +805,11 @@ var opTable = {
     },
     // HALT
     0x76: function(cpu) {
-        cpu.isHalted = true;
+        if(cpu.interrupt_master)
+            cpu.isHalted = true;
+        else {
+            cpu.skip(1);
+        }
     },
     // ld r, a
     0x77: function(cpu) {

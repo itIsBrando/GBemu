@@ -14,41 +14,31 @@ class MBC5 extends MBC1{
 
         // 0x0000-0x1FFF RAM enable (MBC1)
         if(address < 0x2000) {
-            if((byte & 0x0A) == 0x0A && this.ramSize != 0)
-                this.ramEnable = true;
-            else
-                this.ramEnable = false;
+            if(this.ramSize != 0)
+                this.ramEnable = (byte & 0x0F) == 0x0A;
+ 
             return false;
         // 0x2000-0x2FFF low byte of ROM bank
         } else if(address < 0x3000) {
             this.bank = (this.bank & 0x100) | byte;
+            this.romBankAddress = this.bank * 0x4000;
         // 0x3000-0x3FFF upper BIT of ROM bank
         } else if(address < 0x4000) {
-            this.bank = (this.bank & 0xFF) | (byte & 0x1);
+            byte &= 1;
+            this.bank = (this.bank & 0xFF) | (byte << 8);
+            this.romBankAddress = this.bank * 0x4000;
             return false;
         // 0x4000-0x5FFF RAM bank
         } else if(address < 0x6000) {
             this.ramBank = byte & 0x0F;
+            this.ramBankAddress = this.ramBank * 0x2000;
             return false;
-        // 0x6000-0x7FFF Banking mode select
-        } else if(address < 0x8000)
-        {
-            this.mode = byte & 1;
-            return false;
-        // RAM
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
             // only allow writing if RAM is enabled
             if(this.ramEnable)
-            {
-                if(this.mode == 0)
-                {
-                    this.ram[address- 0xA000] = byte;
-                } else {
-                    this.ram[address - 0xA000 + this.ramBank * 0x2000];
-                }
-                return false;
-            }
+                this.ram[address - 0xA000 + this.ramBankAddress];
+            return false;
         }
 
         return true;
@@ -62,30 +52,17 @@ class MBC5 extends MBC1{
      */
     read8(cpu, address) {
 
-        // ROM
-        if(address < 0x4000) {
-            return null // this.rom[address];
-        // banks 00-1FF (mbc1)
-        } else if(address < 0x8000) {
+        if(address >= 0x4000 && address <= 0x7FFF) {
             address -= 0x4000;
-            return this.rom[this.bank * 0x4000 + address];
+            return this.rom[address + this.romBankAddress];
         // RAM A000-BFFF
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
+            address -= 0xA000;
             if(this.ramEnable)
-            {
-                address -= 0xA000;
-                if(this.mode == 0)
-                {
-                    return this.ram[address];
-                } else {
-                    return this.ram[address + (this.ramBank * 0x2000)];
-                }
-            }
+                return this.ram[address + this.ramBankAddress];
             else
-            {
                 return 0xFF;
-            }
         }
 
         return null;

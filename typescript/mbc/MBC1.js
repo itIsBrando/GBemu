@@ -7,10 +7,12 @@ class MBC1 {
         this.ramEnable = false;
         this.ramSize = rom[0x0149];
         this.romSize = rom[0x0148];
+        this.ramBankAddress = 0; // RAM address corresponding to the bank number
+        this.romBankAddress = 0; // ROM address corresponding to the bank number
         if(useExternalSaveFile)
             this.ram = externalSave;
         else
-            this.ram = new Uint8Array(65536 << this.ramSize);
+            this.ram = new Uint8Array(2048 << (this.ramSize - 1));
         this.ramBank = 0;
         this.bank = 1;
 
