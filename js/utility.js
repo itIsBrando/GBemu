@@ -38,29 +38,6 @@ function exitFullscreen() {
 }
 
 /**
- * Shows/Hides a menu
- * @param {number} num index of the menu entry
- */
-function toggleMenu(num) {
-    const wasShown = menus[num].shown;
-    // hide all other menus
-    for(let i = 0; i < menus.length; i++) {
-        menus[i].shown = false;
-        menus[i].shown = false;
-        menus[i].div.style.display = "none";
-        menus[i].header.style.backgroundColor = "aquamarine";
-    }
-
-    if(wasShown)
-        return;
-
-    // show this one
-    menus[num].shown = true;
-    menus[num].div.style.display = "block";
-    menus[num].header.style.backgroundColor = "lightblue";
-}
-
-/**
  * Reads the game title embeded inside the ROM
  * @returns
  */
@@ -72,4 +49,9 @@ function readROMName() {
         i++;
     } while(i <= 16 && c.mem.rom[0x134 + i] != 0);
     return str;
+}
+
+
+function hex(v) {
+    return v.toString(16);
 }

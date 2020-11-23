@@ -3,6 +3,7 @@
 class MBC3 extends MBC1{
     constructor(rom) {
         super(rom);
+        this.date = new Date();
         this.RTCEnable = false;
         this.RTCReg = 0; // index to the currently selected reg
         this.regs = [
@@ -14,6 +15,10 @@ class MBC3 extends MBC1{
                     //  - bit 0: MSB of counter
                     //  - bit 6: Halt (0=active, 1=stopped)
                     //  - bit 7: Day Counter carry (1=overflow)
+        ]
+
+        this.latchedRegs = [
+            0, 0, 0, 0, 0
         ]
     }
     
@@ -43,7 +48,7 @@ class MBC3 extends MBC1{
                 this.RTCReg = byte - 0x8;
                 this.ramBank = -1; // a flag indicating that we are reading from RTC instead of RAM
             // set RAM bank if RAM size is 32K
-            } else if(byte < 4) {
+            } else if(byte <= 3) {
                 this.ramBank = byte & 3;
             }
             return false;
@@ -51,20 +56,25 @@ class MBC3 extends MBC1{
         } else if(address < 0x8000)
         {
             // do some RTC stuff
+            byte &= 0x1;
+            if(this.latch == 0 && byte == 1)
+            {
+                this.latchRTC();
+            }
+            this.latch = byte;
             return false;
         // RAM
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
-            if(this.RTCEnable && this.ramBank == -1) {
+            if(this.RTCEnable && (this.ramBank == -1)) {
                 this.regs[this.RTCReg] = byte;
-                return false;
             // only allow writing if RAM is enabled
             //  and we are not looking at RTC
-            } else if(this.ramEnable && this.ramBank >= 0)
+            } else if(this.ramEnable && (this.ramBank >= 0))
             {
-                this.ram[address - 0xA000 + this.ramBank * 0x2000];
-                return false;
+                this.ram[address - 0xA000 + (this.ramBank * 0x2000)] = byte;
             }
+            return false;
         }
 
         return true;
@@ -84,18 +94,18 @@ class MBC3 extends MBC1{
         // banks 01-7f
         } else if(address < 0x8000) {
             address -= 0x4000;
-            return this.rom[this.bank * 0x4000 + address];
+            return this.rom[(this.bank * 0x4000) + address];
         // RAM A000-BFFF or RTC register
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
             
-            if(this.ramEnable && this.ramBank >= 0)
+            if(this.ramEnable && this.ramBank != -1)
             {
                 address -= 0xA000;
                 return this.ram[address + (this.ramBank * 0x2000)];
             }
             else if(this.RTCEnable)
-                return this.regs[this.RTCReg];
+                return this.latchedRegs[this.RTCReg];
             else
             {
                 return 0xFF;
@@ -105,6 +115,13 @@ class MBC3 extends MBC1{
         return null;
     }
 
-
-    
+    /**
+     * latches data
+     */
+    latchRTC() {
+        this.latchedRegs[0] = this.date.getSeconds();
+        this.latchedRegs[1] = this.date.getMinutes();
+        this.latchedRegs[2] = this.date.getHours();
+        this.latchedRegs[3] = this.date.getDate(); // gets day
+    }
 }

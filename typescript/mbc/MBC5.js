@@ -1,6 +1,8 @@
-class MBC5 extends MBC1{
+class MBC5 extends MBC1 {
     constructor(rom) {
         super(rom);
+        this.bank = 1;
+        this.romBankAddress = 0x4000;
     }
 
     /**
@@ -22,6 +24,7 @@ class MBC5 extends MBC1{
         } else if(address < 0x3000) {
             this.bank = (this.bank & 0x100) | byte;
             this.romBankAddress = this.bank * 0x4000;
+            return false;
         // 0x3000-0x3FFF upper BIT of ROM bank
         } else if(address < 0x4000) {
             byte &= 1;
@@ -37,7 +40,9 @@ class MBC5 extends MBC1{
         {
             // only allow writing if RAM is enabled
             if(this.ramEnable)
-                this.ram[address - 0xA000 + this.ramBankAddress];
+                this.ram[address - 0xA000 + this.ramBankAddress] = byte;
+            else
+                console.log("Illegal write to RAM while disabled");
             return false;
         }
 
@@ -58,9 +63,8 @@ class MBC5 extends MBC1{
         // RAM A000-BFFF
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
-            address -= 0xA000;
             if(this.ramEnable)
-                return this.ram[address + this.ramBankAddress];
+                return this.ram[address - 0xA000 + this.ramBankAddress];
             else
                 return 0xFF;
         }

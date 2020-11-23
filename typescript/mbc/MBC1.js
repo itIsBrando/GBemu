@@ -1,6 +1,14 @@
 var useExternalSaveFile = false;
 var externalSave = null;
 
+function getRAMSize(size)
+{
+    const sizes = [
+        0, 2048, 8192, 32768, 524288, 131072
+    ];
+    return sizes[size];
+}
+
 class MBC1 {
     constructor(rom) {
         this.rom = rom;
@@ -12,7 +20,7 @@ class MBC1 {
         if(useExternalSaveFile)
             this.ram = externalSave;
         else
-            this.ram = new Uint8Array(2048 << (this.ramSize - 1));
+            this.ram = new Uint8Array(getRAMSize(this.ramSize));
         this.ramBank = 0;
         this.bank = 1;
 

@@ -187,10 +187,10 @@ class CPU {
     initialize() {
         this.pc.v = 0x100;
         this.sp.v = 0xFFFE;
-        this.af.v = 0;
-        this.bc.v = 0;
-        this.de.v = 0;
-        this.hl.v = 0;
+        this.af.v = 0x01B0;
+        this.bc.v = 0x0013;
+        this.de.v = 0x00D8;
+        this.hl.v = 0x014D;
         this.ppu.regs.stat = 0x85;
         this.ppu.regs.lcdc = 0x91;
         this.mbcHandler = null;
@@ -214,15 +214,15 @@ class CPU {
         let handlerAddress = [0x40, 0x48, 0x50, 0x58, 0x60];
         let fired = this.interrupt_flag & this.interrupt_enable;
         
-        if(this.interrupt_master == true && fired != 0 ) {
+        if(this.interrupt_master && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
                 // if both bits are set
                 if(UInt8.getBit(fired, i) == 1)
                 {
                     // if we are HALTed
-                    if(this.isHalted == true) {
+                    if(this.isHalted) {
                         this.isHalted = false;
-                        this.pc.v++;
+                        this.pc.v++; // pass the HALT instruction
                     }
 
                     this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
@@ -230,6 +230,7 @@ class CPU {
                     this.pushStack(this.pc.v);
                     this.pc.v = handlerAddress[i];
                     this.cycles += 12;
+                    return;
                 }
             }
 
@@ -256,18 +257,21 @@ class CPU {
 
         if(this.mbcHandler)
         {
-            let shouldWrite = this.mbcHandler.write8(this, address, byte);
-            if(!shouldWrite)
+            const shouldWrite = this.mbcHandler.write8(this, address, byte);
+            if(shouldWrite == false)
                 return;
         }
 
         if(address < 0x8000) {
-            //this.mem.rom[address] = byte;
+            console.log("illegal ROM write: " + address.toString(16));
         } else if(address < 0xA000) {
             this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
+            // cart RAM
+            console.log("illegal RAM read");
             this.mem.cram[address - 0xA000] = byte;
         } else if(address < 0xE000) {
+            // working RAM
             this.mem.wram[address - 0xC000] = byte;
         } else if(address < 0xFE00) {
             // mirror WRAM
@@ -285,10 +289,10 @@ class CPU {
             this.timerRegs.regs.tima = byte;
         } else if(address == 0xFF06) {
             this.timerRegs.regs.tma = byte;
-            if(this.timerRegs.regs.tma & 0x3 != byte & 0x3)
-                this.timerRegs.setClockFrequency();
         } else if(address == 0xFF07) {
             this.timerRegs.regs.tac = byte;
+            if((this.timerRegs.regs.tac & 0x3) != (byte & 0x3))
+                this.timerRegs.setClockFrequency();
         } else if(address == 0xFF0F) {
             this.interrupt_flag = byte;
         } else if(address == 0xFF40) {
@@ -339,8 +343,6 @@ class CPU {
         } else if(address == 0xFFFF) {
             this.interrupt_enable = byte;
         } else if(address < 0xFFFF) {
-            // if(address == 0xff80 && byte == 0xff)
-                // illegalOpcode(-1, this, false);
             this.mem.hram[address - 0xFF00] = byte;
         } else {
             console.log("ERROR WRITING FROM ADDRESS: 0x" + address.toString(16));
@@ -368,7 +370,7 @@ class CPU {
                 break;
             case MBCType.MBC_2:
                 this.mbcHandler = new MBC2(untrimmedROM);
-                console.log("2");
+                alert("MBC2 Untested");
                 break;
             case MBCType.MBC_3:
                 this.mbcHandler = new MBC3(untrimmedROM);
@@ -377,6 +379,7 @@ class CPU {
                 this.mbcHandler = new MBC5(untrimmedROM);
                 break;
             case MBCType.NONE:
+                this.mbcHandler = null;
                 break;
             default:
                 alert("Unsupport MBC");
@@ -423,11 +426,9 @@ class CPU {
         {
             // if our address was read properly by our MBC, return it
             //  or continue searching
-            let v = this.mbcHandler.read8(this, address);
+            const v = this.mbcHandler.read8(this, address);
             if(v != null)
-            {
                 return v;
-            }
         }
 
         if(address < 0x8000) {
@@ -435,6 +436,8 @@ class CPU {
         } else if(address < 0xA000) {
             return this.mem.vram[address - 0x8000];
         } else if(address < 0xC000) {
+            // cart RAM
+            console.log("illegal read: " + address.toString(16));
             return this.mem.cram[address - 0xA000];
         } else if(address < 0xE000) {
             return this.mem.wram[address - 0xC000];
@@ -515,6 +518,12 @@ class CPU {
             opTable[opcode](this);
         }
 
+        // if interrupts are disabled but we have something pending, then break from HALT
+        if(this.isHalted && !this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
+        {
+            this.skip(1);
+            this.isHalted = false;
+        }
 
 
         // manage interrupts

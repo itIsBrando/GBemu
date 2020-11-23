@@ -1,6 +1,6 @@
 <!doctype html>
 <html manifest="game.manifest">
-    <script type="text/javascript" src="https://js.live.net/v7.2/OneDrive.js"></script>    <head>
+    <!-- <script src="https://apis.google.com/js/api.js"></script> -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GBemu">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -39,8 +39,6 @@
             }
             
             canvas {
-                /* width: 100%; */
-                /* height: auto; */
                 overflow: hidden;
             }
 
@@ -56,11 +54,27 @@
                 position: relative;
                 display: inline-block;
             }
+            
+            .dropdown:hover .dropdown-background {
+                display: block;
+            }
+
+            .dropdown-background {
+                /* used for the <div> that hosts all submenu items */
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                background-color: none;
+                z-index: 2;
+                display: none;
+                width: 200px;
+                left: 0;
+                position: absolute;
+            }
 
             .menubtn {
                 background-color: aquamarine;
                 display: block;   
                 padding: 6px;
+                margin-top: 1px;
                 width: 100%;
                 max-width: 250px;
                 border: none;
@@ -80,7 +94,7 @@
                 border: none;
                 display: inline-block;
                 min-width: 40px;
-                min-height: 40px;
+                min-height: 0px;
                 max-width: 200px;
                 max-height: 250px;
                 touch-action: manipulation;
@@ -89,10 +103,14 @@
             .btn:active {
                 background-color:indigo;
             }
-        </style>
-            <!-- OneDrive -->
-            <button onclick="launchODPicker()">Open Onedrive</button>
 
+            .center {
+                width: 50%;
+                border: 0px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
             <!-- Debugging features -->
             <div id="debugDIV" style="display:none">
                 <buttontype="button" name="timerStop" id="timerStop">Stop</button>
@@ -108,7 +126,7 @@
             <div class="dropdown" style="float: left;">
                 <button style="width: 200px;" type="button" id="fileMenuToggle" class="menubtn">File</button>
                 
-                <div id="loadMenu" style="z-index: 2; width: 200px; position: absolute; left: 0; display: none;">
+                <div id="loadMenu" class="dropdown-background">
                     <!-- ROM loading -->
                     <button type="button" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
                     <!-- Save State loading -->
@@ -120,7 +138,7 @@
             <div class="dropdown" style="float: left;">
                 <button style="width: 200px;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
                 
-                <div id="optionsMenu" style="z-index: 2; width: 200px; left: 0; position: absolute; display: none;">
+                <div id="optionsMenu" class="dropdown-background">
                     <button type="button" id="controlsToggle" class="menubtn">Toggle touch controls</button>
                     <button type="button" id="fullscreenToggle" class="menubtn">Fullscreen</button>
                 </div>
@@ -130,15 +148,16 @@
             <div class="dropdown" style="float: left;">
                 <button style="width: 200px;" type="button" id="saveMenuToggle" class="menubtn">Save Manager</button>
                 
-                <div id="saveMenu" style="z-index: 2; width: 200px; left: 0; position: absolute; display: none;">
+                <div id="saveMenu" class="dropdown-background">
                     <button type="button" id="exportSaveButton" class="menubtn">Export Save File</button>
+                    <button type="button" id="gdButtonLogin" class="menubtn">Google Drive Sync</button>
                     <!-- <button type="button" id="idkeToggle" class="menubtn">Fullscreen</button> -->
                 </div>
             </div>
                 
             <!-- Screen -->
             <div id="viewport">
-                <canvas id="screen" width="160" height="144"></canvas>
+                <canvas style="width: 100%;" id="screen" width="160" height="144"></canvas>
             </div>
 
             <!-- Controller -->
@@ -148,20 +167,20 @@
                 <button class="btn" style="position: absolute; left: 50px; bottom: 0" type="button" name="DOWN" id="controllerDown">DOWN</button>
                 <button class="btn" style="position: absolute; left: 0; bottom: 40px" type="button" name="LEFT" id="controllerLeft">LEFT</button>
                 <button class="btn" style="position: absolute; left: 100px; bottom: 40px" type="button" name="RIGHT" id="controllerRight">RIGHT</button>
-                <button class="btn" style="position: absolute; right: 0; bottom: 80px" type="button" name="A" id="controllerA">A</button>
+                <button class="btn" style="position: absolute; right: 10px; bottom: 80px" type="button" name="A" id="controllerA">A</button>
                 <button class="btn" style="position: absolute; right: 100px; bottom: 40px;" type="button" name="B" id="controllerB">B</button>
-                <button class="btn" style="position: absolute; left:200px; bottom: 0;"type="button" name="START" id="controllerStart">START</button>
-                <button class="btn" style="position: absolute; left:150px; bottom: 0;"type="button" name="SELECT" id="controllerSelect">SELECT</button>
+                <button class="btn" style="position: absolute; left: 200px; bottom: 0;"type="button" name="START" id="controllerStart">START</button>
+                <button class="btn" style="position: absolute; left: 150px; bottom: 0;"type="button" name="SELECT" id="controllerSelect">SELECT</button>
 
             </div>
             <!-- used to display errors -->
             <p id="errorP"></p>
             <!-- Used to save files -->
-            <a id="saveA" style="display: none;"></a>
+            <a id="saveA" style="display: none;" download></a>
         <body>
         <title>GBemu</title>
         <!-- Lovely library -->
-        <script src="js/msapi.js"></script>
+        <script src="js/drive.js"></script>
         <script src="typescript/types.js"></script>
         <script src="typescript/controller.js"></script>
         <script src="typescript/renderer.js"></script>
@@ -199,10 +218,6 @@
             document.getElementById("inputSaveFile").addEventListener('change', function() {
                 let reader = new FileReader();
 
-                reader.onload = function() {
-                    console.log("Save data file: " + reader.result);
-                }
-
                 reader.readAsArrayBuffer(this.files[0]);
 
                 let buffer = this.files[0];
@@ -214,38 +229,19 @@
 
 
             // for `file` menu tab
+            // const loadMenu = document.getElementById('loadMenu');
             const fileMenuToggle = document.getElementById('fileMenuToggle');
-            const loadMenu = document.getElementById('loadMenu');
             
             // for `options` menu tab
             const controlsToggle = document.getElementById('controlsToggle');
-            const optionsMenu = document.getElementById('optionsMenu');
+            // const optionsMenu = document.getElementById('optionsMenu');
             const optionsMenuToggle = document.getElementById('optionsMenuToggle');
             const fullscreenToggle = document.getElementById('fullscreenToggle');
 
-            const saveMenu = document.getElementById('saveMenu');
+            // const saveMenu = document.getElementById('saveMenu');
             const saveMenuToggle = document.getElementById('saveMenuToggle');
             const exportSaveButton = document.getElementById('exportSaveButton');
 
-
-            // used as a tab system
-            var menus = [
-                {"shown":false, "header": fileMenuToggle, "div": loadMenu},
-                {"shown":false, "header": optionsMenuToggle, "div": optionsMenu},
-                {"shown":false, "header": saveMenuToggle, "div": saveMenu},
-            ];
-
-            
-            // for 'File' menu
-            fileMenuToggle.addEventListener('click', function() {
-                toggleMenu(0);
-            });
-
-
-            // for 'Options' menu
-            optionsMenuToggle.addEventListener('click', function() {
-                toggleMenu(1);
-            });
 
             controlsToggle.addEventListener('click', function() {
                 document.getElementById("touchControls").style.display = "block";
@@ -260,12 +256,6 @@
                 }
             });
 
-
-            // for 'Save Manager' menu
-            saveMenuToggle.addEventListener('click', function() {
-                toggleMenu(2);
-            });
-
             exportSaveButton.onclick = function() {
                 // do saving
                 const name = readROMName() + ".sav"
@@ -276,9 +266,9 @@
                     return;
                 }
                 // save file
-                let blob = new Blob([c.mbcHandler.ram], {type: "example/binary"});
-                a.download = readROMName() + ".sav"
+                let blob = new Blob([c.mbcHandler.ram]);
                 a.href = window.URL.createObjectURL(blob);
+                a.download = readROMName() + ".sav"
                 a.click();
             };
 

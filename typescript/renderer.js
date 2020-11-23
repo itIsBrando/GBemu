@@ -4,18 +4,17 @@ var canvas = document.getElementById("screen");
 window.onresize = setCanvasSize;
 
 function setCanvasSize() {
+    const d = document.getElementById('viewport');
     const size = Math.min(window.innerWidth, window.innerHeight - 100) + "px";
-    canvas.style.width = size;
-    canvas.style.height = size;
+    d.style.width = size;
+    d.style.height = size;
 }
 
 // grayscale palette
-// var palette = [
-    //     [255, 255, 255],
-    //     [170, 170, 170],
-    //     [85, 85, 85],
-    //     [0, 0, 0,],
-// ];
+//     [255, 255, 255],
+//     [170, 170, 170],
+//     [85, 85, 85],
+//     [0, 0, 0,],
 
 // greenish palette
 var palette = [
@@ -32,9 +31,8 @@ class Renderer {
         setCanvasSize();
         this.screen = this.context.getImageData(0, 0, 160, 144);
         for(let i = 0; i < 160 * 144 * 4; i++)
-        {
-                this.screen.data[i] = 255;
-        }
+            this.screen.data[i] = 0xF0;
+
         this.drawBuffer();
     }
 
@@ -230,5 +228,17 @@ class Renderer {
                 this.screen.data[canvasOffset + 3] = 255; // alpha
             }
         }
+    }
+
+    dumpTiles() {
+        for(let y = 0; y < 15; y++)
+        {
+            for(let x = 0; x < 20; x++)
+            {
+                const add = (x + y * 20) * 16;
+                this.drawTile(x <<3, y << 3, 0x8000 + add, 0, c);
+            }
+        }
+        this.drawBuffer();
     }
 }

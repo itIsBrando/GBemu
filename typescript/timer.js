@@ -1,7 +1,7 @@
-
 class Timer {
     constructor() {
         this.divCycles = 0;
+        this.shouldReload = false;
 
         this.regs = {
             tima: 0,
@@ -17,6 +17,13 @@ class Timer {
         let cycles = cpu.cycles;
         
         this.increaseDiv(cycles);
+
+        if(this.shouldReload)
+        {
+            this.regs.tima = this.regs.tma;
+            this.shouldReload = false;
+            cpu.requestInterrupt(InterruptType.timer);
+        }
         
         // return if timer is disabled
         if(UInt8.getBit(this.regs.tac, 2) == 0)
@@ -28,22 +35,21 @@ class Timer {
         
         this.setClockFrequency();
 
-        if(this.regs.tima == 0xFF) {
-            this.regs.tima = this.regs.tma;
-            cpu.requestInterrupt(InterruptType.timer);
-        } else {
-            this.regs.tima++
-            this.regs.tima &= 255;
-        }
+        // if we are about to overflow
+        if(this.regs.tima == 0xFF)
+            this.shouldReload = true;
+
+        this.regs.tima++;
+        this.regs.tima &= 255;
     }
     
     
     increaseDiv(cycles) {
         this.divCycles += cycles;
-        if(this.divCycles > 64) {
+        if(this.divCycles >= 256) {
             this.regs.div++;
             this.regs.div &= 0xFF;
-            this.divCycles -= 64;
+            this.divCycles -= 256;
         }
 
     }

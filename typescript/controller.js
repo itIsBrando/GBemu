@@ -41,6 +41,7 @@ document.onkeyup = function(event) {
         case "arrowright":  gamepadButtons["RIGHT"] = false; break;
         case "arrowup":     gamepadButtons["UP"]    = false; break;
         case "arrowdown":   gamepadButtons["DOWN"]  = false; break;
+        case "f": requestFullscreen();
     }
 }
 
