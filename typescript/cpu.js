@@ -89,7 +89,7 @@ function getMBCType(v) {
         case 0x1E:
             return MBCType.MBC_5;
         default:
-            alert("Unsupported: " + MemoryControllerText[v]);
+            showMessage("Unsupport MBC type.", MemoryControllerText[v]);
     }
 
     return MBCType.NONE;
@@ -118,7 +118,14 @@ const opcodeCycles = [
 
 class CPU {
     constructor() {
+        // timer that runs every 100ms
         this.timer = null;
+        // speed multiplier
+        this.speed = 1;
+        this.FastForwardSpeed = 7;
+
+        // cycles ran for this setInterval tick
+        this.currentCycles = 0;
 
         this.timerRegs = new Timer();
         this.ppu = new PPU();
@@ -272,6 +279,8 @@ class CPU {
             this.mem.cram[address - 0xA000] = byte;
         } else if(address < 0xE000) {
             // working RAM
+            if(address == 0xda12)
+                console.log("write at 0x" + hex(address) + ": 0x" + hex(byte) + " at PC: 0x" + hex(this.pc.v) + " OP: 0x" + hex(this.read8(this.pc.v)));
             this.mem.wram[address - 0xC000] = byte;
         } else if(address < 0xFE00) {
             // mirror WRAM
@@ -366,23 +375,21 @@ class CPU {
         // create our memory bank controller
         switch(this.mbc) {
             case MBCType.MBC_1:
-                this.mbcHandler = new MBC1(untrimmedROM);
+                this.mbcHandler = new MBC1(untrimmedROM, 1);
                 break;
             case MBCType.MBC_2:
-                this.mbcHandler = new MBC2(untrimmedROM);
+                this.mbcHandler = new MBC2(untrimmedROM, 2);
                 alert("MBC2 Untested");
                 break;
             case MBCType.MBC_3:
-                this.mbcHandler = new MBC3(untrimmedROM);
+                this.mbcHandler = new MBC3(untrimmedROM, 3);
                 break;
             case MBCType.MBC_5:
-                this.mbcHandler = new MBC5(untrimmedROM);
+                this.mbcHandler = new MBC5(untrimmedROM, 5);
                 break;
             case MBCType.NONE:
                 this.mbcHandler = null;
                 break;
-            default:
-                alert("Unsupport MBC");
             
         }
 
@@ -510,6 +517,11 @@ class CPU {
         const opcode = this.read8(this.pc.v);
         this.cycles = opcodeCycles[opcode];
 
+        if(this.debug && opcode != 0x76)
+        {
+            console.log("PC: 0x" + hex(this.pc.v) + " op: 0x" + hex(opcode));
+        }
+
         // execute opcode
         if(opTable[opcode] == undefined) {
             illegalOpcode(opcode, this, false);
@@ -524,6 +536,7 @@ class CPU {
             this.skip(1);
             this.isHalted = false;
         }
+
 
 
         // manage interrupts
@@ -547,6 +560,8 @@ class CPU {
         
         // update GPU
         this.ppu.step(this);
+
+        this.currentCycles += this.cycles;
         return true;
     };
 
@@ -653,7 +668,7 @@ class CPU {
      */
     pushStack(v) {
         this.sp.v -= 2;
-        this.write16(this.sp.v, v & 0xFFFF);
+        this.write16(this.sp.v, v);
     }
 
 

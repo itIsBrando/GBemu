@@ -1,8 +1,9 @@
 // needs RTC support
 
 class MBC3 extends MBC1{
-    constructor(rom) {
-        super(rom);
+    constructor(rom, mbc) {
+        super(rom, mbc);
+
         this.date = new Date();
         this.RTCEnable = false;
         this.RTCReg = 0; // index to the currently selected reg
@@ -33,7 +34,7 @@ class MBC3 extends MBC1{
 
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
-            this.RTCEnable = this.ramEnable = (byte & 0x0A) == 0x0A;
+            this.RTCEnable = this.ramEnable = (byte & 0x0F) == 0x0A;
             return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {

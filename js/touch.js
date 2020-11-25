@@ -3,22 +3,43 @@ const touchControls = document.getElementById('touchControls');
 const buttonA = document.getElementById("controllerA");
 const buttonB = document.getElementById("controllerB");
 const buttonStart = document.getElementById("controllerStart");
+const buttonSelect = document.getElementById("controllerSelect");
 const buttonUp = document.getElementById("controllerUp");
 const buttonDown = document.getElementById("controllerDown");
 const buttonRight = document.getElementById("controllerRight");
 const buttonLeft = document.getElementById("controllerLeft");
+const buttonFF = document.getElementById("controllerFastForward");
 
 const buttonElements = [
     buttonA,
     buttonB,
     buttonStart,
+    buttonSelect,
     buttonUp,
     buttonDown,
     buttonRight,
-    buttonLeft
+    buttonLeft,
+    buttonFF,
 ];
 
+const sampleButton = document.getElementById("sampleSVG");
+
+const ids = [
+        "A",
+        "B",
+        "START",
+        "SELECT",
+        "UP",
+        "DOWN",
+        "RIGHT",
+        "LEFT",
+        "FF"
+]
+
+
 for(let i = 0; i < buttonElements.length; i++) {
+    buttonElements[i].id = ids[i];
+    buttonElements[i].innerHTML = sampleButton.innerHTML;
     buttonElements[i].addEventListener('touchstart', touchStart);
     buttonElements[i].addEventListener('touchend', touchEnd);
     buttonElements[i].addEventListener('touchcancel', touchEnd);
@@ -40,9 +61,9 @@ function touchMove(event) {
     const y = touch.clientY - rect.top;
 
     if(x < 0 || y < 0 || x > rect.width || y > rect.height) {
-        gamepadButtons[target.name] = false;
+        gamepadButtons[target.id] = false;
     } else {
-        gamepadButtons[target.name] = true;
+        gamepadButtons[target.id] = true;
     }
 }
 
@@ -53,7 +74,14 @@ function touchMove(event) {
  */
 function touchStart(event) {
     event.preventDefault();
-    gamepadButtons[this.name] = true;
+
+    if(this.id == "FF") {    
+        c.speed = c.FastForwardSpeed;
+        return;
+    }
+
+    gamepadButtons[this.id] = true;
+        
 }
 
 /**
@@ -63,5 +91,11 @@ function touchStart(event) {
  */
 function touchEnd(event) {
     event.preventDefault();
-    gamepadButtons[this.name] = false;
+
+    if(this.id == "FF") {
+        c.speed = 1;
+        return;
+    }
+
+    gamepadButtons[this.id] = false;
 }

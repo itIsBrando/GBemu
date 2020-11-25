@@ -44,6 +44,10 @@ function exitFullscreen() {
 function readROMName() {
     let str = "";
     let i = 0;
+
+    if(c.mem.rom[0x134] == 0)
+        return null;
+
     do {
         str += String.fromCharCode(c.mem.rom[0x134 + i]);
         i++;
@@ -54,4 +58,40 @@ function readROMName() {
 
 function hex(v) {
     return v.toString(16);
+}
+
+
+
+
+
+
+
+const messageDiv = document.getElementById('messageID');
+const messageConfirm = document.getElementById('messageConfirm');
+
+messageConfirm.onclick = hideMessage;
+
+/**
+ * Shows a message to the user
+ * @param {String} string message to tell
+ * @param {String?} title string to display at the top
+ */
+function showMessage(string, title) {
+    const messageContent = document.getElementById('messageContent');
+    const messageHeader = document.getElementById('messageHeader');
+    messageContent.textContent = string;
+    messageHeader.textContent = title || "ALERT";
+    // show 
+    messageDiv.style.display = "block";
+    
+    messageDiv.style.opacity = "1";
+}
+
+
+function hideMessage() {
+    // hide
+    messageDiv.style.opacity = "0";
+    setTimeout(function() {
+        messageDiv.style.display = "none";
+    }, 600);
 }

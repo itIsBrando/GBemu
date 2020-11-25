@@ -1,6 +1,6 @@
 class MBC5 extends MBC1 {
-    constructor(rom) {
-        super(rom);
+    constructor(rom, mbc) {
+        super(rom, mbc);
         this.bank = 1;
         this.romBankAddress = 0x4000;
     }

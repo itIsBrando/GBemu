@@ -11,9 +11,9 @@ function illegalOpcode(op, cpu, isCB) {
     if(isCB == true)
         out+="CB 0x";
     
-    out +=  op.toString(16)+", at address 0x"+cpu.pc.v.toString(16);
-    console.log(out);
-    errorParagraph.innerHTML = out;
+    out +=  hex(op) + ", at address 0x" + hex(cpu.pc.v);
+    
+    showMessage(out, "Illegal Opcode");
     clearInterval(cpu.timer);
 }
 
@@ -143,7 +143,7 @@ var opTable = {
 
     // stop
     0x10: function(cpu) {
-        console.log("STOP");
+        console.log("STOP PC: " + hex(cpu.pc.v));
         cpu.skip(2);
     },
     // ld de, nn
@@ -2005,6 +2005,7 @@ var opTable = {
         0xE8: function(cpu) {
             let n = UInt16.toSigned(cpu.readImmediate8());
             let result = (cpu.sp.v + n) & 0xFFFF;
+            
 
             cpu.flags.c = ((cpu.sp.v ^ n ^ result) & 0x100) == 0x100;
             cpu.flags.hc = ((cpu.sp.v ^ n ^ result) & 0x10) == 0x10;

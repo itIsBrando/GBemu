@@ -1,11 +1,17 @@
 <!doctype html>
 <html manifest="game.manifest">
-    <!-- <script src="https://apis.google.com/js/api.js"></script> -->
+    <head>
+    <!-- iOS web app info -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GBemu">
+    <link rel="apple-touch-icon" href="icons/icon.jpg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <!-- Disable zooming on iOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- Desktop web app -->
+    <link rel="manifest" href="/manifest.webmanifest">
+
     <meta charset="UTF-8">
         <style>
 
@@ -30,16 +36,36 @@
                 -moz-user-select: none;
                 -ms-user-select: none;
                 -webkit-touch-callout: none;
-                
+                z-index: 2;
             }
 
             #touchControls {
                 position: fixed;
                 bottom: 0;
             }
+
+            #viewport {
+                position: absolute;
+                /* visibility: hidden; */
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                left: 2px;
+                right: 2px;
+                top: 25px;
+                z-index: -1;
+            }
             
-            canvas {
-                overflow: hidden;
+            #screen {
+                height: min(100vw, 97vh);
+                width: min(100vw, 97vh);
+                position: absolute;
+                padding: 0;
+                margin: 0;
+                transform: translate(-50%, 0);
+                left: 50%;
+
             }
 
             /* Disable right click/highlighting */
@@ -69,6 +95,43 @@
                 left: 0;
                 position: absolute;
             }
+            
+            .popup {
+                display: none;
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #333333;
+                border: 3px solid #dddddd;
+                color: #f1f1f1;
+                box-shadow: 0px 16px 32px 0px rgba(0,0,0,0.8);
+                z-index: 9;
+            }
+
+            .message-div {
+                display: none;
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #444444;
+                border: 3px solid #dddddd;
+                box-shadow: 0px 16px 32px 0px rgba(0,0,0,0.8);
+                z-index: 9;
+                opacity: 0;
+                transition: opacity 0.5s;
+            }
+
+            .text-form {
+                min-height: 30px;
+                background: #444444;
+                color:aliceblue;
+            }
+
+            .text-form:focus {
+                background: #777777;
+            }
 
             .menubtn {
                 background-color: aquamarine;
@@ -84,13 +147,27 @@
                 background-color: cyan;
             }
 
+            .x-btn {
+                float: right;
+                background-color: aliceblue;
+                max-width: 50px;
+                max-height: 50px;
+                border: none;
+                margin: 0px;
+                padding: 5px;
+            }
+
+            .x-btn:hover {
+                background-color:darkgray;
+            }
+
             /* Virtual Gamepad Buttons */
             .btn {
                 margin: 10;
                 background-color:blueviolet;
                 padding: 10px;
                 cursor: pointer;
-                z-index: 10;
+                z-index: 5;
                 border: none;
                 display: inline-block;
                 min-width: 40px;
@@ -110,6 +187,28 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+
+            .gamepad-button {
+                /* position: fixed; */
+                z-index: 10;
+                cursor: pointer;
+                touch-action: manipulation;
+                fill: orangered;
+            }
+
+            .gamepad-button-top {
+                fill: inherit;
+            }
+
+            .gamepad-button:active .gamepad-button-top {
+                display: none;
+            }
+            .gamepad-button-bottom {
+                fill:black;
+            }
+            .gamepad-button:active .gamepad-button-bottom {
+                fill: inherit;
+            }
         </style>
             <!-- Debugging features -->
             <div id="debugDIV" style="display:none">
@@ -117,6 +216,14 @@
                 <!-- Enables stepping -->
                 <button type="button" name="step" id="timerStep">Step</button>
             </div>
+
+            <!-- test button -->
+            <svg id="sampleSVG" style="display: none;" width="50" height="50" class="gamepad-button no-selection">
+                <g>
+                    <rect class="gamepad-button-bottom" x="5" y="5" rx="5" ry="5" width="40" height="40"/>
+                    <rect class="gamepad-button-top" x="0" y="0" rx="5" ry="5" width="40" height="40"/>
+                </g>
+            </svg>
             
             <!-- Hidden items used for file reading dialogs -->
             <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc" style="display: none;" >
@@ -129,8 +236,10 @@
                 <div id="loadMenu" class="dropdown-background">
                     <!-- ROM loading -->
                     <button type="button" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
-                    <!-- Save State loading -->
+                    <!-- Savefile uploading -->
                     <button type="button" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+                    <!-- Savefile downloading -->
+                    <button type="button" id="exportSaveButton" class="menubtn">Export Save File</button>
                 </div>
             </div>
             
@@ -149,21 +258,28 @@
                 <button style="width: 200px;" type="button" id="saveMenuToggle" class="menubtn">Save Manager</button>
                 
                 <div id="saveMenu" class="dropdown-background">
-                    <button type="button" id="exportSaveButton" class="menubtn">Export Save File</button>
-                    <button type="button" id="gdButtonLogin" class="menubtn">Google Drive Sync</button>
-                    <!-- <button type="button" id="idkeToggle" class="menubtn">Fullscreen</button> -->
+                    <button type="button" id="localSaveButton" class="menubtn">Internal Save</button>
+                    <button type="button" id="localLoadButton" class="menubtn">Internal Load</button>
                 </div>
             </div>
-                
+            
             <!-- Screen -->
             <div id="viewport">
-                <canvas style="width: 100%;" id="screen" width="160" height="144"></canvas>
+                <canvas id="screen" width="160" height="144"></canvas>
             </div>
-
-            <!-- Controller -->
+            
+            <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 10;" class="no-selection">
-                <!-- UP & DOWN are hidden temporarily -->
-                <button class="btn" style="position: absolute; left: 50px; bottom: 80px" type="button" name="UP" id="controllerUp">UP</button>
+                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 10px; bottom: 80px" name="A" id="controllerA"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 70px; bottom: 40px;" name="B" id="controllerB"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="position: absolute; left: 50%; transform: translate(-100%, 0); bottom: 0;" name="SELECT" id="controllerSelect"></svg>
+                <svg class="gamepad-button" width="50" height="50" style="fill:#444444; position: absolute; left: 50%; transform: translate(-50%, 0); bottom: 150px;" id="controllerFastForward"></svg>
+                <!-- <button class="btn" style="position: absolute; left: 50px; bottom: 80px" type="button" name="UP" id="controllerUp">UP</button>
                 <button class="btn" style="position: absolute; left: 50px; bottom: 0" type="button" name="DOWN" id="controllerDown">DOWN</button>
                 <button class="btn" style="position: absolute; left: 0; bottom: 40px" type="button" name="LEFT" id="controllerLeft">LEFT</button>
                 <button class="btn" style="position: absolute; left: 100px; bottom: 40px" type="button" name="RIGHT" id="controllerRight">RIGHT</button>
@@ -171,16 +287,37 @@
                 <button class="btn" style="position: absolute; right: 100px; bottom: 40px;" type="button" name="B" id="controllerB">B</button>
                 <button class="btn" style="position: absolute; left: 200px; bottom: 0;"type="button" name="START" id="controllerStart">START</button>
                 <button class="btn" style="position: absolute; left: 150px; bottom: 0;"type="button" name="SELECT" id="controllerSelect">SELECT</button>
-
+                 -->
             </div>
-            <!-- used to display errors -->
-            <p id="errorP"></p>
+            
+            <!-- Pop up menu for saving/loading states -->
+            <div class="popup" id="popup">
+                <label for="localSaveName"><b>Save File Name</b></label>
+                <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
+                <br>
+                <!-- input form -->
+                <input class="text-form" type="text" name="localSaveName" id="localSaveName" autocapitalize="none" autocomplete="off" style="font-size: large;">
+                <!-- Submit button -->
+                <button class="menubtn" id="submitSaveName" name="submitSaveName">Save</button>
+            </div>
+
+            <!-- Prettier messaging system. Call `showMessage()` using JS -->
+            <div class="message-div" id="messageID">
+                <!-- header -->
+                <h3 id="messageHeader" style="text-align: center; background-color: #dddddd; width: 100%; margin: 0px; padding: 0px;">ALERT</h3>
+                <!-- <br> -->
+                <!-- body -->
+                <a id="messageContent" style="color: aliceblue;">Message Content</a>
+                <!-- confirm -->
+                <button class="menubtn" style="max-width: 100%; width: 100%;" id="messageConfirm">Okay</button>
+            </div>
             <!-- Used to save files -->
             <a id="saveA" style="display: none;" download></a>
-        <body>
+            <body>
         <title>GBemu</title>
         <!-- Lovely library -->
-        <script src="js/drive.js"></script>
+        <script src="js/saveManager.js"></script>
+        <script src="js/utility.js"></script>
         <script src="typescript/types.js"></script>
         <script src="typescript/controller.js"></script>
         <script src="typescript/renderer.js"></script>
@@ -195,7 +332,6 @@
         <script src="typescript/register.js"></script>
         <script src="typescript/cpu.js"></script>
         <script src="typescript/initalize.js"></script>
-        <script src="js/utility.js"></script>
         <script src="js/touch.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
@@ -256,13 +392,15 @@
                 }
             });
 
+            
+            // save file to computer
             exportSaveButton.onclick = function() {
                 // do saving
                 const name = readROMName() + ".sav"
                 const a = document.getElementById('saveA');
                 if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
                 {
-                    alert("This ROM does not have a RAM chip");
+                    showMessage("This ROM does not have a RAM chip", "No RAM");
                     return;
                 }
                 // save file
@@ -279,3 +417,4 @@
         </script>
     </body>
 </head>
+</html>

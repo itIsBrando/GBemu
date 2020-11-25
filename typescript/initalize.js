@@ -1,4 +1,6 @@
 "use strict"
+
+const INTERVAL_SPEED = 8;
 var c = new CPU();
 
 // passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
@@ -30,12 +32,17 @@ function startEmulation(rom) {
     c.loadROM(rom);
     // c.mbcHandler = null;
     
-    c.timer = setInterval(run, 100);
+    c.timer = setInterval(run, INTERVAL_SPEED);
 
 
 };
 
 function run() {
-    for(let i = 0; i < 70224; i++)
+    const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;
+    while(c.currentCycles < totalIteration)
+    {
         if(c.execute() == false) break;
+    }
+
+    c.currentCycles -= totalIteration;
 }

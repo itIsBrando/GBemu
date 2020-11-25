@@ -1,15 +1,6 @@
 
 var canvas = document.getElementById("screen");
 
-window.onresize = setCanvasSize;
-
-function setCanvasSize() {
-    const d = document.getElementById('viewport');
-    const size = Math.min(window.innerWidth, window.innerHeight - 100) + "px";
-    d.style.width = size;
-    d.style.height = size;
-}
-
 // grayscale palette
 //     [255, 255, 255],
 //     [170, 170, 170],
@@ -28,7 +19,6 @@ class Renderer {
     
     constructor() {
         this.context = canvas.getContext('2d');
-        setCanvasSize();
         this.screen = this.context.getImageData(0, 0, 160, 144);
         for(let i = 0; i < 160 * 144 * 4; i++)
             this.screen.data[i] = 0xF0;

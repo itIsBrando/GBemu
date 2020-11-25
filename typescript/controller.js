@@ -9,6 +9,7 @@ var gamepadButtons = {
     "DOWN": false,
 }
 
+
 /**
  * Key Pressed
  * @param {KeyboardEvent} event 
@@ -23,6 +24,8 @@ document.onkeydown = function(event) {
         case "arrowright":  gamepadButtons["RIGHT"] = true; break;
         case "arrowup":     gamepadButtons["UP"]    = true; break;
         case "arrowdown":   gamepadButtons["DOWN"]  = true; break;
+        case "f": requestFullscreen(); break;
+        case "d": c.speed = c.FastForwardSpeed; break;
     }
 }
 
@@ -41,7 +44,7 @@ document.onkeyup = function(event) {
         case "arrowright":  gamepadButtons["RIGHT"] = false; break;
         case "arrowup":     gamepadButtons["UP"]    = false; break;
         case "arrowdown":   gamepadButtons["DOWN"]  = false; break;
-        case "f": requestFullscreen();
+        case "d": c.speed = 1; break;
     }
 }
 

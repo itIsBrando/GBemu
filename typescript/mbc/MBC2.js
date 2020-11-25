@@ -3,8 +3,8 @@
  * Only has 512x4 bits of nonbankable RAM
  */
 class MBC2 extends MBC1 {
-    constructor(rom) {
-        super(rom);
+    constructor(rom, mbc) {
+        super(rom, mbc);
     }
 
     /**
@@ -18,11 +18,11 @@ class MBC2 extends MBC1 {
 
         // 0x0000-0x3FFF RAM enable and ROM bank number
         if(address < 0x4000) {
-            if((byte & 0x80) == 0x80) {
+            if(UInt8.getBit(address, 8) == 1) {
                 // set ROM bank
+                byte &= 0x0F;
                 if(byte == 0) byte++;
-                if((address & 1) == 1)
-                    this.bank = byte & 0x0F;
+                this.bank = byte & 0x0F;
             } else
                 // set RAM bank
                 this.ramEnable = byte == 0x0A;
@@ -34,12 +34,8 @@ class MBC2 extends MBC1 {
             // only allow writing if RAM is enabled
             if(this.ramEnable)
             {
-                if(this.mode == 0)
-                {
-                    this.ram[address- 0xA000] = byte & 0x0F;
-                } else {
-                    this.ram[address - 0xA000 + this.ramBank * 0x2000];
-                }
+                byte &= 0x0F;
+                this.ram[address- 0xA000] = byte;
                 return false;
             }
         }
@@ -65,7 +61,7 @@ class MBC2 extends MBC1 {
             if(this.ramEnable)
             {
                 address -= 0xA000;
-                return this.ram[address] & 0x0F;
+                return this.ram[address + this.ramBank] & 0x0F;
             }
             else
             {
