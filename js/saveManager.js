@@ -57,9 +57,11 @@ const popupMenu = document.getElementById('popup');
 const popupSubmitButton = document.getElementById('submitSaveName');
 
 
-function showPopupMenu() {
+function showPopupMenu(title, buttonText) {
     popupMenu.style.display = "block";
     // give focus to the text input
+    document.getElementById('popup-title').innerHTML = title;
+    popupSubmitButton.innerText = buttonText;
     localSaveName.focus();
 }
 
@@ -82,10 +84,8 @@ function hidePopupMenu() {
  * Shows the pop up menu for saving to localStorage
  */
 localSaveButton.addEventListener('click', function() {
-    // since we use this for both loading and saing, we must change some text
-    popupSubmitButton.innerHTML = "Save";
     localSaveName.placeholder = readROMName() || "ROM NAME";
-    showPopupMenu();
+    showPopupMenu("Save Name", "Save");
 });
 
 /**
@@ -94,12 +94,14 @@ localSaveButton.addEventListener('click', function() {
 popupSubmitButton.addEventListener('click', function() {
     const name = localSaveName.value;
 
-    if(popupSubmitButton.innerText == "Save")
+    switch(popupSubmitButton.innerText.toLowerCase())
     {
+    case "save":
         if(name.length > 0)
             saveToLocal(name);
-    } else {
-        // loading
+        break;
+    case "load":
+        // loading from localStorage
         const data = readFromLocal(name);
         if(!data)
             showMessage("Could not find \'" + name + "\' in local storage.", "Error");
@@ -108,6 +110,12 @@ popupSubmitButton.addEventListener('click', function() {
             MBC1.useSaveData(data);
             showMessage('\'' + name + "\', loaded successfully. Now load your ROM.", "Completed");
         }
+        break;
+    case "load json":
+        // import from clipboard JSON
+        localStorage.setItem("import", name);
+        showMessage("Import successful. Now you can load this save from the menu.", "Success");
+        break;
     }
 
     hidePopupMenu();
@@ -126,7 +134,6 @@ function pasteLabel() {
  * - Creates a list of buttons that correspond to all localStorage saves
  */
 localLoadButton.addEventListener('click', function() {
-    popupSubmitButton.innerHTML = "Load";
     localSaveName.placeholder = "LABEL NAME";
 
     const lbl = document.createElement("a");
@@ -138,7 +145,8 @@ localLoadButton.addEventListener('click', function() {
     popupMenu.appendChild(lbl);
     popupMenu.appendChild(lineBreak);
 
-    // iterate through each value in `localStorage` and create a button for it
+    // iterate through each value in `localStorage`
+    //  and create a button for each entry
     const keys = Object.keys(localStorage);
     for(let i in keys)
     {
@@ -152,5 +160,28 @@ localLoadButton.addEventListener('click', function() {
         popupMenu.appendChild(btn);
     };
 
-    showPopupMenu();
+    showPopupMenu("Save Name", "Load");
 })
+
+
+/**
+ * Downloads the current MBC's RAM to a desktop
+ *  - only works from a destkop web browser
+ */
+function downloadSave(){
+    const name = readROMName() + ".sav"
+    const a = document.getElementById('saveA');
+
+    // save file
+    let blob = new Blob([c.mbcHandler.ram]);
+    a.href = window.URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+}
+
+/**
+ * Imports a savefile based on the text from a clipboard
+ */
+document.getElementById('importTextButton').onclick = function() {
+    showPopupMenu("Paste Clipboard", "Load JSON");
+};

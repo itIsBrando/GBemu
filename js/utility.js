@@ -60,8 +60,30 @@ function hex(v) {
     return v.toString(16);
 }
 
+/**
+ * Saves a string to the clipboard
+ * @param {String} text string to save
+ * @returns false if could not copy, else true
+ */
+function copyClip(text) {
+    const elem = document.createElement('input');
+    elem.type = "text";
+    elem.value = text;
 
+    document.body.appendChild(elem);
 
+    elem.select();
+    elem.setSelectionRange(0, 9999999);
+
+    if(document.execCommand)
+        document.execCommand("copy");
+    else
+        return false;
+
+    elem.remove();
+
+    return true;
+}
 
 
 

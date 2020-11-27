@@ -1,8 +1,15 @@
 CACHE MANIFEST
+
+js/saveManager.js
+js/utility.js
+js/touch.js
 typescript/types.js
 typescript/controller.js
 typescript/renderer.js
-typescript/MBC1.js
+typescript/mbc/MBC1.js
+typescript/mbc/MBC2.js
+typescript/mbc/MBC3.js
+typescript/mbc/MBC5.js
 typescript/ppu.js
 typescript/instructionCB.js
 typescript/instruction.js
@@ -10,6 +17,8 @@ typescript/timer.js
 typescript/register.js
 typescript/cpu.js
 typescript/initalize.js
+icons/icon.jpg
+index.html
 
 NETWORK:
 

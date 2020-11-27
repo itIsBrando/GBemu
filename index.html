@@ -138,9 +138,9 @@
                 display: block;   
                 padding: 6px;
                 margin-top: 1px;
-                width: 100%;
-                max-width: 250px;
-                border: none;
+                width: 250px;
+                /* max-width: 250px; */
+                border-width: 1px;
             }
 
             .menubtn:hover {
@@ -231,35 +231,36 @@
             
             <!-- file loading menu -->
             <div class="dropdown" style="float: left;">
-                <button style="width: 200px;" type="button" id="fileMenuToggle" class="menubtn">File</button>
+                <button style="width: 33vw;" type="button" id="fileMenuToggle" class="menubtn">File</button>
                 
-                <div id="loadMenu" class="dropdown-background">
+                <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
-                    <button type="button" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
+                    <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
                     <!-- Savefile uploading -->
-                    <button type="button" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+                    <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
                     <!-- Savefile downloading -->
-                    <button type="button" id="exportSaveButton" class="menubtn">Export Save File</button>
+                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
                 </div>
             </div>
             
             <!-- options menu -->
             <div class="dropdown" style="float: left;">
-                <button style="width: 200px;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
+                <button style="width: 33vw;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
                 
-                <div id="optionsMenu" class="dropdown-background">
-                    <button type="button" id="controlsToggle" class="menubtn">Toggle touch controls</button>
-                    <button type="button" id="fullscreenToggle" class="menubtn">Fullscreen</button>
+                <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
+                        <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
+                        <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
                 </div>
             </div>
                 
             <!-- Save Manager menu -->
             <div class="dropdown" style="float: left;">
-                <button style="width: 200px;" type="button" id="saveMenuToggle" class="menubtn">Save Manager</button>
+                <button style="width: 33vw;" type="button" id="saveMenuToggle" class="menubtn">Save Manager</button>
                 
-                <div id="saveMenu" class="dropdown-background">
-                    <button type="button" id="localSaveButton" class="menubtn">Internal Save</button>
-                    <button type="button" id="localLoadButton" class="menubtn">Internal Load</button>
+                <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
+                    <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
+                    <button type="button" id="localLoadButton" style="width: inherit;" class="menubtn">Internal Load</button>
+                    <button type="button" id="importTextButton" style="width: inherit;" class="menubtn">Import JSON Text</button>
                 </div>
             </div>
             
@@ -279,20 +280,11 @@
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; left: 50%; transform: translate(-100%, 0); bottom: 0;" name="SELECT" id="controllerSelect"></svg>
                 <svg class="gamepad-button" width="50" height="50" style="fill:#444444; position: absolute; left: 50%; transform: translate(-50%, 0); bottom: 150px;" id="controllerFastForward"></svg>
-                <!-- <button class="btn" style="position: absolute; left: 50px; bottom: 80px" type="button" name="UP" id="controllerUp">UP</button>
-                <button class="btn" style="position: absolute; left: 50px; bottom: 0" type="button" name="DOWN" id="controllerDown">DOWN</button>
-                <button class="btn" style="position: absolute; left: 0; bottom: 40px" type="button" name="LEFT" id="controllerLeft">LEFT</button>
-                <button class="btn" style="position: absolute; left: 100px; bottom: 40px" type="button" name="RIGHT" id="controllerRight">RIGHT</button>
-                <button class="btn" style="position: absolute; right: 10px; bottom: 80px" type="button" name="A" id="controllerA">A</button>
-                <button class="btn" style="position: absolute; right: 100px; bottom: 40px;" type="button" name="B" id="controllerB">B</button>
-                <button class="btn" style="position: absolute; left: 200px; bottom: 0;"type="button" name="START" id="controllerStart">START</button>
-                <button class="btn" style="position: absolute; left: 150px; bottom: 0;"type="button" name="SELECT" id="controllerSelect">SELECT</button>
-                 -->
             </div>
             
             <!-- Pop up menu for saving/loading states -->
             <div class="popup" id="popup">
-                <label for="localSaveName"><b>Save File Name</b></label>
+                <label id="popup-title" for="localSaveName"><b>Save File Name</b></label>
                 <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
                 <br>
                 <!-- input form -->
@@ -311,6 +303,7 @@
                 <!-- confirm -->
                 <button class="menubtn" style="max-width: 100%; width: 100%;" id="messageConfirm">Okay</button>
             </div>
+
             <!-- Used to save files -->
             <a id="saveA" style="display: none;" download></a>
             <body>
@@ -395,25 +388,30 @@
             
             // save file to computer
             exportSaveButton.onclick = function() {
-                // do saving
-                const name = readROMName() + ".sav"
-                const a = document.getElementById('saveA');
                 if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
                 {
                     showMessage("This ROM does not have a RAM chip", "No RAM");
                     return;
                 }
-                // save file
-                let blob = new Blob([c.mbcHandler.ram]);
-                a.href = window.URL.createObjectURL(blob);
-                a.download = readROMName() + ".sav"
-                a.click();
+            
+                // do saving
+
+                // if we are mobile or embeded app, we cannot download files
+                if(true || window.navigator.standalone) {
+                    const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
+
+                    if(copyClip(new String(data)))
+                        showMessage("Copied to clipboard", "Success");
+                    else
+                        showMessage("Saving not supported", "Clipboard Error");
+                    
+                } else {
+                    downloadSave();
+                }
+                
             };
 
-            // auto-hide if we are standalone
-            if(window.navigator.standalone) {
-                fullscreenToggle.style.display = "none";
-            }
+            fullscreenToggle.style.display = "none";
         </script>
     </body>
 </head>
