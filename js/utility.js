@@ -1,4 +1,12 @@
 /**
+ * Checks if the game is landscape of potrait
+ * @returns true if the window is being displayed in landscape
+ */
+function isLandscape() {
+    return window.innerHeight < window.innerWidth;
+}
+
+/**
  * Enters full screen if possible, or does nothing
  * @returns true if we could get fullscreen, otherwise false
  */
@@ -39,7 +47,7 @@ function exitFullscreen() {
 
 /**
  * Reads the game title embeded inside the ROM
- * @returns
+ * @returns String
  */
 function readROMName() {
     let str = "";
@@ -55,10 +63,14 @@ function readROMName() {
     return str;
 }
 
-
+/**
+ * Converts a value into a hexidemical string
+ * @param {any} v 
+ */
 function hex(v) {
-    return v.toString(16);
+    return "0x" + v.toString(16);
 }
+
 
 /**
  * Shows a menu to prompt the user to save text
@@ -77,9 +89,11 @@ function copyClipMenu(text) {
     menuDiv.style.opacity = "1";
 }
 
+
 /**
  * Copies to clipboard
  * - must be called by a reputable event
+ * - copies text inside of 'copyTextInput'
  */
 function clipboardCopy() {
     const elem = document.getElementById('copyTextInput');

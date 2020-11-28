@@ -99,3 +99,14 @@ function touchEnd(event) {
 
     gamepadButtons[this.id] = false;
 }
+
+
+window.onresize = function() {
+    // move fastforward button over if we are in landscape
+    if(isLandscape())
+    {
+        buttonFF.style.left = "5%";
+    } else {
+        buttonFF.style.left = "50%";
+    }
+}

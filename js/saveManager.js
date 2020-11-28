@@ -56,8 +56,19 @@ const localSaveName = document.getElementById('localSaveName');
 const popupMenu = document.getElementById('popup');
 const popupSubmitButton = document.getElementById('submitSaveName');
 
-
+/**
+ * Shows the popup menu
+ * - does nothing if this menu is already open
+ * @param {String} title header string
+ * @param {String} buttonText text to display to the user
+ * @returns false if the menu is already open
+ */
 function showPopupMenu(title, buttonText) {
+    console.log(popupMenu.style.display);
+
+    if(popupMenu.style.display == "block")
+        return false;
+    
     popupMenu.style.display = "block";
     // give focus to the text input
     document.getElementById('popup-title').innerHTML = title;
@@ -84,8 +95,9 @@ function hidePopupMenu() {
  * Shows the pop up menu for saving to localStorage
  */
 localSaveButton.addEventListener('click', function() {
+    if(!showPopupMenu("Save Name", "Save"))
+        return;
     localSaveName.placeholder = readROMName() || "ROM NAME";
-    showPopupMenu("Save Name", "Save");
 });
 
 /**
@@ -136,6 +148,10 @@ function pasteLabel() {
 localLoadButton.addEventListener('click', function() {
     localSaveName.placeholder = "LABEL NAME";
 
+    // prevent the menu from reappearing if it is already active
+    if(popupMenu.style.display == "block")
+        return;
+
     const lbl = document.createElement("a");
     const lineBreak = document.createElement("hr");
     lineBreak.id = "delete";
@@ -159,7 +175,7 @@ localLoadButton.addEventListener('click', function() {
         btn.onclick = pasteLabel;
         popupMenu.appendChild(btn);
     };
-
+    
     showPopupMenu("Save Name", "Load");
 })
 
