@@ -61,31 +61,50 @@ function hex(v) {
 }
 
 /**
- * Saves a string to the clipboard
+ * Shows a menu to prompt the user to save text
+ * - must be called from an event
  * @param {String} text string to save
- * @returns false if could not copy, else true
  */
-function copyClip(text) {
-    const elem = document.createElement('input');
-    elem.type = "text";
+function copyClipMenu(text) {
+    const elem = document.getElementById('copyTextInput');
+    const menuDiv = document.getElementById('textCopyPopup');
     elem.value = text;
+    elem.focus();
+    console.log("show clipboard menu");
 
-    document.body.appendChild(elem);
-
-    elem.select();
-    elem.setSelectionRange(0, 9999999);
-
-    if(document.execCommand)
-        document.execCommand("copy");
-    else
-        return false;
-
-    elem.remove();
-
-    return true;
+    // show menu
+    menuDiv.style.display = 'block';
+    menuDiv.style.opacity = "1";
 }
 
+/**
+ * Copies to clipboard
+ * - must be called by a reputable event
+ */
+function clipboardCopy() {
+    const elem = document.getElementById('copyTextInput');
+    
+    elem.readonly = false;
+    elem.contentEditable = true;
+    elem.select();
 
+    const range = document.createRange();
+    range.selectNodeContents(elem);
+    
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+    
+    elem.setSelectionRange(0, 999999);
+    
+    document.execCommand("copy");
+    
+    // hide menu
+    document.getElementById('textCopyPopup').style.display = 'none';
+    // show success message
+    showMessage("Copied to clipboard", "Success");
+}
 
 
 const messageDiv = document.getElementById('messageID');

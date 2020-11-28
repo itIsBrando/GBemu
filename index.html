@@ -293,6 +293,13 @@
                 <button class="menubtn" id="submitSaveName" name="submitSaveName">Save</button>
             </div>
 
+            <!-- allows the user to copy something to the clipboard -->
+            <div class="message-div" id="textCopyPopup" >
+                <input id="copyTextInput" type="text" contenteditable="true">
+                <button type="button" class="menubtn" style="width:100%;" onclick="clipboardCopy()">Copy Text</button>
+            </div>
+
+            
             <!-- Prettier messaging system. Call `showMessage()` using JS -->
             <div class="message-div" id="messageID">
                 <!-- header -->
@@ -400,18 +407,14 @@
                 if(true || window.navigator.standalone) {
                     const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
 
-                    if(copyClip(new String(data)))
-                        showMessage("Copied to clipboard", "Success");
-                    else
-                        showMessage("Saving not supported", "Clipboard Error");
-                    
+                    copyClipMenu(new String(data));
                 } else {
                     downloadSave();
                 }
                 
             };
 
-            fullscreenToggle.style.display = "none";
+            // fullscreenToggle.style.display = "none";
         </script>
     </body>
 </head>
