@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" href="icons/icon.jpg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <!-- Disable zooming on iOS -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- Desktop web app -->
     <link rel="manifest" href="/manifest.webmanifest">
@@ -43,6 +43,7 @@
                 position: fixed;
                 bottom: 0;
             }
+
 
             #viewport {
                 position: absolute;
@@ -123,13 +124,16 @@
                 transition: opacity 0.5s;
             }
 
-            .text-form {
+            input {
                 min-height: 30px;
-                background: #444444;
+                min-width: 60px;
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                background: #424141;
                 color:aliceblue;
             }
 
-            .text-form:focus {
+            input:focus {
                 background: #777777;
             }
 
@@ -139,7 +143,6 @@
                 padding: 6px;
                 margin-top: 1px;
                 width: 250px;
-                /* max-width: 250px; */
                 border-width: 1px;
             }
 
@@ -149,7 +152,7 @@
 
             .x-btn {
                 float: right;
-                background-color: aliceblue;
+                background-color: orangered;
                 max-width: 50px;
                 max-height: 50px;
                 border: none;
@@ -158,7 +161,7 @@
             }
 
             .x-btn:hover {
-                background-color:darkgray;
+                background-color: darkred;
             }
 
             /* Virtual Gamepad Buttons */
@@ -181,6 +184,7 @@
                 background-color:indigo;
             }
 
+            /* Center object. Maybe??? */
             .center {
                 width: 50%;
                 border: 0px;
@@ -248,8 +252,9 @@
                 <button style="width: 33vw;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
                 
                 <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
-                        <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
-                        <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
+                    <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
+                    <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn">Change Palette</button>
+                    <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
                 </div>
             </div>
                 
@@ -288,7 +293,7 @@
                 <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
                 <br>
                 <!-- input form -->
-                <input class="text-form" type="text" name="localSaveName" id="localSaveName" autocapitalize="none" autocomplete="off" style="font-size: large;">
+                <input type="text" name="localSaveName" id="localSaveName" autocapitalize="none" autocomplete="off" style="font-size: large;">
                 <!-- Submit button -->
                 <button class="menubtn" id="submitSaveName" name="submitSaveName">Save</button>
             </div>
@@ -297,6 +302,21 @@
             <div class="message-div" id="textCopyPopup" >
                 <input id="copyTextInput" type="text" contenteditable="true">
                 <button type="button" class="menubtn" style="width:100%;" onclick="clipboardCopy()">Copy Text</button>
+            </div>
+
+            <!-- Change palette colors -->
+            <div class="message-div" style="opacity: 1;" id="paletteSetDiv">
+                <!-- header -->
+                <button type="button" class="x-btn" onclick="hidePaletteMenu()">&times;</button>
+                <!-- arrows -->
+                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left; height: 25px; border:none;" onclick="onPaletteArrow(-1)">&larr;</button>
+                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="onPaletteArrow(1)">&rarr;</button>
+                <a id="paletteTitle" style="color: aliceblue; margin-bottom: 8px; padding-bottom: 8px;"><b>Color 0</b></a>
+                <!-- color inputs -->
+                <div id="colorPreview" style="background-color: #000000; width: 100%; height: 100px; display:block;"></div>
+                <input id="colorR" style="width: 100%;" placeholder="red" type="number" min="0" max="255" oninput="onPaletteChange()">
+                <input id="colorG" style="width: 100%;" placeholder="green" type="number" min="0" max="255" oninput="onPaletteChange()">
+                <input id="colorB" style="width: 100%;" placeholder="blue" type="number" min="0" max="255" oninput="onPaletteChange()">
             </div>
 
             
@@ -404,7 +424,7 @@
                 // do saving
 
                 // if we are mobile or embeded app, we cannot download files
-                if(true || window.navigator.standalone) {
+                if(window.navigator.standalone) {
                     const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
 
                     copyClipMenu(new String(data));

@@ -122,7 +122,7 @@ class CPU {
         this.timer = null;
         // speed multiplier
         this.speed = 1;
-        this.FastForwardSpeed = 7;
+        this.FastForwardSpeed = 8;
 
         // cycles ran for this setInterval tick
         this.currentCycles = 0;
@@ -131,6 +131,7 @@ class CPU {
         this.ppu = new PPU();
         this.renderer = new Renderer();
         this.cycles = 0;
+        this.cgb = false;
         this.mbc = MBCType.NONE;
         this.mbcHandler = null;
         
@@ -190,6 +191,7 @@ class CPU {
 
     /**
      * resets specific values
+     * - should be called before a ROM is loaded
      */
     initialize() {
         this.pc.v = 0x100;
@@ -272,7 +274,11 @@ class CPU {
         if(address < 0x8000) {
             console.log("illegal ROM write: " + address.toString(16));
         } else if(address < 0xA000) {
-            this.mem.vram[address - 0x8000] = byte;
+            // VRAM
+            if(this.cgb && this.ppu.cgb.vbank == 1)
+                this.ppu.cgb.vram[address-0x8000] = byte;
+            else
+                this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
             // cart RAM
             console.log("illegal RAM read");
@@ -349,6 +355,29 @@ class CPU {
             this.ppu.regs.wy = byte;
         } else if(address == 0xFF4B) {
             this.ppu.regs.wx = byte;
+        } else if(address == 0xFF68) {
+            // cgb only
+            this.ppu.cgb.bgi = byte & 0x3F;
+            this.ppu.cgb.bgAutoInc = (byte & 0x80) == 0x80;
+        } else if(address == 0xFF69) {
+            // cgb only
+            this.ppu.cgb.bgPal[this.ppu.cgb.bgi] = byte;
+            
+            if(this.ppu.cgb.bgAutoInc)
+                this.ppu.cgb.bgi = (this.ppu.cgb.bgi + 1) & 0x3F;
+        } else if(address == 0xFF6A) {
+            // cgb only
+            this.ppu.cgb.obji = byte & 0x3F;
+            this.ppu.cgb.objAutoInc = (byte & 0x80) == 0x80;
+        } else if(address == 0xFF6B) {
+            // cgb only
+            this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
+
+            if(this.ppu.cgb.objAutoInc)
+                this.ppu.cgb.obji = (this.ppu.cgb.obji + 1) & 0x3F;
+        } else if(address == 0xFF4F) {
+            // cgb only
+            this.ppu.cgb.vbank = byte & 0x1;
         } else if(address == 0xFFFF) {
             this.interrupt_enable = byte;
         } else if(address < 0xFFFF) {
@@ -359,6 +388,17 @@ class CPU {
 
     };
 
+
+    /**
+     * Gets the flags byte of a tile in VRAM
+     * @param {UInt16} address points to a tile. Should be an address of in the tile map
+     * @returns flag byte
+     */
+    getTileAttributes(address) {
+        const data = this.ppu.cgb.vram[address - 0x8000];
+        return data;
+    }
+
     /**
      * Loads the rom into memory
      * @param {ArrayBuffer} array
@@ -368,6 +408,14 @@ class CPU {
 
         const trimmed = [...new Uint8Array(array)];
         this.mem.rom = new Uint8Array(trimmed.splice(0, 0x8000));
+
+        // detect CGB mode
+        this.cgb = (this.mem.rom[0x0143] & 0x80) == 0x80;
+
+        if(this.cgb) {
+            this.af.v = 0x11B0;
+            this.bc.high &= 254;
+        }
 
         // get MBC type
         this.mbc = getMBCType(this.mem.rom[0x0147]);
@@ -441,6 +489,10 @@ class CPU {
         if(address < 0x8000) {
             return this.mem.rom[address];
         } else if(address < 0xA000) {
+            // VRAM read from bank
+            if(this.cgb && this.ppu.cgb.vbank == 1)
+                return this.ppu.cgb.vram[address - 0x8000];
+
             return this.mem.vram[address - 0x8000];
         } else if(address < 0xC000) {
             // cart RAM
@@ -492,6 +544,20 @@ class CPU {
             return this.ppu.regs.wy;
         } else if(address == 0xFF4B) {
             return this.ppu.regs.wx;
+        } else if(address == 0xFF68) {
+            // cgb only
+            return this.cgb ? this.ppu.cgb.bgi : 0xff;
+        } else if(address == 0xFF69) {
+            // cgb only
+            return this.ppu.cgb.bgPal[this.ppu.cgb.bgi];
+        } else if(address == 0xFF6A) {
+            // cgb only
+            return this.ppu.cgb.obji;
+        } else if(address == 0xFF6B) {
+            return this.ppu.cgb.objPal[this.ppu.cgb.obji];
+        } else if(address == 0xFF4F) {
+            // cgb only
+            return this.ppu.cgb.vbank | 0xFE;
         } else if(address == 0xFFFF) {
             return this.interrupt_enable;
         } else if(address < 0xFFFF) {

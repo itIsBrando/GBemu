@@ -77,6 +77,20 @@ class UInt16 {
         }
     }
 
+    /**
+     * Reverses the bit order of a 16-bit number
+     * @param {UInt16} a 16-bit number
+     */
+    static reverseBits(a)
+    {
+        let result = 0;
+        for(let i = 0; i < 16; i++) 
+        {
+            result = (result << 1) | (a & 1);
+            a >>= 1;
+        }
+        return result;
+    }
 }
 
 

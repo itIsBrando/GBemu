@@ -25,6 +25,21 @@ class PPU {
             wy: 0, // ff4a window Y
             wx: 0  // ff4b window X
         }
+
+        // CGB registers
+        this.cgb = {
+            bgi: 0,     // ff68 background palette index
+            bgd: 0,     // ff69 background palette data
+            obji: 0,    // ff6A object palette index
+            objd: 0,    // ff6B object palette data
+            bgPal: new Uint8Array(0x40),
+            objPal: new Uint8Array(0x40),
+            vram: new Uint8Array(0x2000),
+            bgAutoInc: false,
+            objAutoInc: false,
+            vbank: 0,
+            
+        }
         
         this.obj0Pal = [
             [3,3,3],
@@ -44,6 +59,29 @@ class PPU {
             palette[2],
             palette[3],
         ];
+    }
+
+    /**
+     * Converts a serially ordered 8-bit 1D array into a 2D array with colors
+     * - the length should be 8 entries long
+     * - Ex: [a, b, c, d, e, f, g, h...] converts to [[ab, cd, ef], [gh,...]]
+     * @param {[]} arr
+     */
+    static linearToRGB(arr) {
+        let out = [];
+        for(let i = 0; i < 4; i++)
+        {
+            out[i] = [];
+            const idx = (i * 2);
+            const bgr = (arr[idx + 1] << 8) | arr[idx];
+            const r = (bgr & 0x001f);
+            const g = (bgr >> 5) & 0x1F;
+            const b = (bgr >> 10) & 0x1F;
+            out[i][0] = r * 8;
+            out[i][1] = g * 8;
+            out[i][2] = b * 8;
+        }
+        return out;
     }
 
     /**
@@ -145,4 +183,5 @@ class PPU {
             this.regs.stat |= 0x04;
         } 
     }
+
 }

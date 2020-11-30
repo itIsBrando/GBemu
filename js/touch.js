@@ -103,10 +103,16 @@ function touchEnd(event) {
 
 window.onresize = function() {
     // move fastforward button over if we are in landscape
-    if(isLandscape())
+    if(isLandscape() == true)
     {
         buttonFF.style.left = "5%";
+        touchControls.style.marginBottom = "0px";
     } else {
         buttonFF.style.left = "50%";
+        // check for notch
+        if(hasNotch()) {
+            showMessage("this is a notched iPhone in landscape \n:)", "Nice!");
+        }
+        touchControls.style.marginBottom = "75px";
     }
 }

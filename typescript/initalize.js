@@ -30,7 +30,6 @@ function startEmulation(rom) {
     clearInterval(c.timer);
     c.initialize();
     c.loadROM(rom);
-    // c.mbcHandler = null;
     
     c.timer = setInterval(run, INTERVAL_SPEED);
 

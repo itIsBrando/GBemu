@@ -1,9 +1,25 @@
+// desktop needs innerWidth
+var getWidth = function() {
+    return document.documentElement.clientWidth;
+}
+
+var getHeight = function() {
+    return document.documentElement.clientHeight;
+}
+
 /**
  * Checks if the game is landscape of potrait
  * @returns true if the window is being displayed in landscape
  */
 function isLandscape() {
-    return window.innerHeight < window.innerWidth;
+    return getHeight() < getWidth();
+}
+
+/**
+ * @returns true if the device is an iPhone with a notch
+ */
+function hasNotch() {
+    return navigator.userAgent.match(/(iPhone)/) && window.innerWidth * window.innerHeight == "304500";
 }
 
 /**
@@ -116,6 +132,10 @@ function clipboardCopy() {
     
     // hide menu
     document.getElementById('textCopyPopup').style.display = 'none';
+
+    // because the size is huge, we will empty the text inside it
+    elem.value = "";
+    
     // show success message
     showMessage("Copied to clipboard", "Success");
 }
@@ -149,4 +169,60 @@ function hideMessage() {
     setTimeout(function() {
         messageDiv.style.display = "none";
     }, 600);
+}
+
+
+// color palette
+const changePaletteButton = document.getElementById('changePaletteButton');
+const paletteSetDiv = document.getElementById('paletteSetDiv');
+const colorPreview = document.getElementById('colorPreview');
+
+// color elements
+const r = document.getElementById('colorR');
+const g = document.getElementById('colorG');
+const b = document.getElementById('colorB');
+
+// color index
+let colorIndex = 0;
+
+
+changePaletteButton.onclick = function() {
+    paletteSetDiv.style.display = 'block';
+}
+
+// hides the palette selection menu
+function hidePaletteMenu() {
+    paletteSetDiv.style.display = 'none';
+}
+
+// sets the preview color's background color
+const setPreviewCol = function() {
+    const col = "rgb(" + r.value + ', ' + g.value + ', ' + b.value + ')';
+
+    colorPreview.style.backgroundColor = col;
+}
+
+/**
+ * Called when the color input changes its value
+ */
+function onPaletteChange()
+{
+    setPreviewCol();
+    palette[colorIndex][0] = Number(r.value);
+    palette[colorIndex][1] = Number(g.value);
+    palette[colorIndex][2] = Number(b.value);
+}
+
+/**
+ * Changes the color index that the user is editing
+ * @param dir -1 to move left or 1 to move right
+ */
+function onPaletteArrow(dir) {
+    colorIndex = (colorIndex + dir) & 3;
+    document.getElementById('paletteTitle').innerText = "Color " + colorIndex;
+    
+    r.value = palette[colorIndex][0];
+    g.value = palette[colorIndex][1];
+    b.value = palette[colorIndex][2];
+    setPreviewCol();
 }
