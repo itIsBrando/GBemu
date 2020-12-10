@@ -13,6 +13,14 @@ class Timer {
         this.frequency = 0;
     }
 
+    reset() {
+        this.regs.tima = 0;
+        this.regs.div  = 0; 
+        this.regs.tma  = 0;
+        this.regs.tac  = 0;
+        this.divCycles = 0; 
+    }
+
     updateTimers(cpu) {
         let cycles = cpu.cycles;
         

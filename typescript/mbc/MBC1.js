@@ -26,6 +26,7 @@ class MBC1 {
      * @param {Number} mbc mbc number (1, 2, 3, 5)
      */
     constructor(rom, mbc) {
+        this.mbcNumber = mbc;
         this.rom = rom;
         this.ramEnable = false;
         this.ramSize = rom[0x0149];
@@ -33,12 +34,7 @@ class MBC1 {
         this.TOTAL_BANKS = Math.floor(rom.length / 0x4000);
         this.ramBankAddress = 0; // RAM address for the bank number
         this.romBankAddress = 0; // ROM address for the bank number
-        if(useExternalSaveFile) {
-            this.ram = externalSave;
-            if(externalSave.length != getRAMSize(this.ramSize, mbc))
-                showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
-        } else
-            this.ram = new Uint8Array(getRAMSize(this.ramSize, mbc));
+        this.initRAM();
         this.ramBank = 0;
         this.bank = 1;
 
@@ -50,6 +46,19 @@ class MBC1 {
     }
 
     /**
+     * If an external save is loaded, then that will be used or
+     *   RAM will be allocated
+     */
+    initRAM() {
+        if(useExternalSaveFile) {
+            this.ram = externalSave;
+            if(externalSave.length != getRAMSize(this.ramSize, this.mbcNumber))
+                showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
+        } else
+            this.ram = new Uint8Array(getRAMSize(this.ramSize, this.mbcNumber));
+    }
+
+    /**
      * 
      * @param {ArrayBuffer} array raw array of the save data
      */
@@ -57,6 +66,8 @@ class MBC1 {
         useExternalSaveFile = true;
         externalSave = new Uint8Array(array);
         console.log("using external save file");
+        if(c.isRunning)
+            restartEmulation();
     }
 
     /**

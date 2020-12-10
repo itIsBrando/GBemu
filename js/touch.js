@@ -100,8 +100,7 @@ function touchEnd(event) {
     gamepadButtons[this.id] = false;
 }
 
-
-window.onresize = function() {
+changeSize = function() {
     // move fastforward button over if we are in landscape
     if(isLandscape() == true)
     {
@@ -116,3 +115,7 @@ window.onresize = function() {
         touchControls.style.marginBottom = "75px";
     }
 }
+
+window.onresize = changeSize();
+
+changeSize();

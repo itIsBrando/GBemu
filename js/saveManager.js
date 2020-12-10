@@ -70,9 +70,12 @@ function showPopupMenu(title, buttonText) {
         return false;
     
     popupMenu.style.display = "block";
-    // give focus to the text input
+    // set title
     document.getElementById('popup-title').innerHTML = title;
     popupSubmitButton.innerText = buttonText;
+    
+    // give focus to the text input
+    localSaveName.value = null;
     localSaveName.focus();
 }
 
@@ -114,14 +117,7 @@ popupSubmitButton.addEventListener('click', function() {
         break;
     case "load":
         // loading from localStorage
-        const data = readFromLocal(name);
-        if(!data)
-            showMessage("Could not find \'" + name + "\' in local storage.", "Error");
-        else
-        {
-            MBC1.useSaveData(data);
-            showMessage('\'' + name + "\', loaded successfully. Now load your ROM.", "Completed");
-        }
+        injectLocalStorage(name);
         break;
     case "load json":
         // import from clipboard JSON
@@ -140,6 +136,27 @@ popupSubmitButton.addEventListener('click', function() {
  */
 function pasteLabel() {
     localSaveName.value = this.value;
+    hidePopupMenu();
+
+    injectLocalStorage(this.value);
+}
+
+/**
+ * Loads a key into MBC ram
+ * @param {String} key key name in localStorage
+ */
+function injectLocalStorage(key) {
+    // loading from localStorage
+    const data = readFromLocal(key);
+    if(!data)
+        showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error");
+    else
+    {
+        MBC1.useSaveData(data);
+        if(c.isRunning)
+            c.mbcHandler.initRAM();
+        showMessage("Loaded <b style=\"color:green;\">" + key + "</b> successfully.", "Completed");
+    }
 }
 
 /**

@@ -1,5 +1,14 @@
 "use strict";
 
+/**
+ * TODO:
+ *  - recognize tile banking in drawTileLine
+ *  - implement the rest of MBC3's RTC
+ *  - add an `x` button to the copy text menu
+ *  - 
+ */
+
+
 const Arithmetic = {
     ADD: 'add',
     ADC: 'adc',// only supports 8-bit operations
@@ -166,7 +175,7 @@ class CPU {
             rom: new Uint8Array(0x8000), // ROM 0000-7FFF
             vram: new Uint8Array(0x2000), // RAM 8000-9FFF
             cram: new Uint8Array(0x2000), // RAM A000-BFFF (cart RAM)
-            wram: new Uint8Array(0x2000), // RAM C000-CFFF & D000-DFFF (working RAM) (mirror RAM = E000-FDFF)
+            wram: new Uint8Array(0x2000 * 8), // RAM C000-CFFF & D000-DFFF (working RAM) (mirror RAM = E000-FDFF)
             oam : new Uint8Array(0x00A0), // OAM RAM FE00-FE9F
             hram: new Uint8Array(0x0100) // HRAM FF00-FFFF
         };
@@ -194,6 +203,14 @@ class CPU {
      * - should be called before a ROM is loaded
      */
     initialize() {
+        this.mbcHandler = null;
+        this.reset();
+    }
+
+    /**
+     * Resets registers and stuff. Useful for resetting the game that is loading
+     */
+    reset() {
         this.pc.v = 0x100;
         this.sp.v = 0xFFFE;
         this.af.v = 0x01B0;
@@ -202,12 +219,19 @@ class CPU {
         this.hl.v = 0x014D;
         this.ppu.regs.stat = 0x85;
         this.ppu.regs.lcdc = 0x91;
-        this.mbcHandler = null;
         this.interrupt_master = true;
         this.isHalted = false;
+        this.currentCycles = 0;
+        this.timerRegs.reset();
+        this.ppu.reset();
         for(let i = 0xFF00; i <= 0xFFFF; i++)
             this.write8(i, 0);
         
+    }
+
+    // true if the CPU is currently running a ROM
+    get isRunning() {
+        return this.timer != null;
     }
 
 
@@ -255,6 +279,26 @@ class CPU {
             this.write8(i + 0xFE00, this.read8(UInt16.makeWord(high, i)));
         }
     }
+
+    /**
+     * Performs an DMA to OAM transfer for GBC
+     * @param {UInt8} data 
+     */
+    DMATransferCGB(data) {
+        const mode = UInt8.getBit(data, 7);
+        const length = data & 0x7F;
+        if(mode)
+        {
+            for(let i = 0; i < length; i++)
+            {
+                const byte = this.read8(i + this.ppu.cgb.srcDMA);
+                this.write8(i + this.ppu.cgb.destDMA, byte);
+            }
+            this.ppu.cgb.hdma = 0xFF;
+        } else {
+            console.log("mode 1 DMA not supported");
+        }
+    }
     
     /**
      * Writes a byte to an address in memory
@@ -285,9 +329,11 @@ class CPU {
             this.mem.cram[address - 0xA000] = byte;
         } else if(address < 0xE000) {
             // working RAM
-            if(address == 0xda12)
-                console.log("write at 0x" + hex(address) + ": 0x" + hex(byte) + " at PC: 0x" + hex(this.pc.v) + " OP: 0x" + hex(this.read8(this.pc.v)));
-            this.mem.wram[address - 0xC000] = byte;
+            address -= 0xC000;
+            if(this.cgb)
+                this.mem.wram[address + this.ppu.cgb.svbk * 0x2000] = byte;
+            else
+                this.mem.wram[address] = byte;
         } else if(address < 0xFE00) {
             // mirror WRAM
             this.mem.wram[address - 0xE000] = byte;
@@ -355,6 +401,27 @@ class CPU {
             this.ppu.regs.wy = byte;
         } else if(address == 0xFF4B) {
             this.ppu.regs.wx = byte;
+        } else if(address == 0xFF4F) {
+            // cgb only
+            this.ppu.cgb.vbank = byte & 0x1;
+        } else if(address == 0xFF51) {
+            // cgb
+            this.ppu.cgb.srcDMA &= 0xFF;
+            this.ppu.cgb.srcDMA |= byte << 8;
+        } else if(address == 0xFF52) {
+            // cgb
+            this.ppu.cgb.srcDMA &= 0xFF00;
+            this.ppu.cgb.srcDMA |= byte & 0xF0;
+        } else if(address == 0xFF53) {
+            // cgb
+            this.ppu.cgb.destDMA &= 0xFF;
+            this.ppu.cgb.destDMA |= 0x9000 + ((byte & 0xF) << 8);
+        } else if(address == 0xFF54) {
+            // cgb
+            this.ppu.cgb.destDMA &= 0xFF00;
+            this.ppu.cgb.destDMA |= byte & 0xF0;
+        } else if(address == 0xFF55) {
+            this.DMATransferCGB(byte);
         } else if(address == 0xFF68) {
             // cgb only
             this.ppu.cgb.bgi = byte & 0x3F;
@@ -362,6 +429,9 @@ class CPU {
         } else if(address == 0xFF69) {
             // cgb only
             this.ppu.cgb.bgPal[this.ppu.cgb.bgi] = byte;
+            // must convert this modified palette into usable RGB
+            const palNum = this.ppu.cgb.bgi >> 3;
+            this.ppu.cgb.rgbBG[palNum] = PPU.linearToRGB(this.ppu.cgb.bgPal.slice(palNum * 8, palNum * 8 + 8));
             
             if(this.ppu.cgb.bgAutoInc)
                 this.ppu.cgb.bgi = (this.ppu.cgb.bgi + 1) & 0x3F;
@@ -372,12 +442,16 @@ class CPU {
         } else if(address == 0xFF6B) {
             // cgb only
             this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
+            
+            const palNum = this.ppu.cgb.obji >> 3;
+            this.ppu.cgb.rgbOBJ[palNum] = PPU.linearToRGB(this.ppu.cgb.objPal.slice(palNum * 8, palNum * 8 + 8));
 
             if(this.ppu.cgb.objAutoInc)
                 this.ppu.cgb.obji = (this.ppu.cgb.obji + 1) & 0x3F;
-        } else if(address == 0xFF4F) {
-            // cgb only
-            this.ppu.cgb.vbank = byte & 0x1;
+        } else if(address == 0xFF70) {
+            // cgb WRAM bank
+            if(byte == 0) byte++;
+            this.ppu.cgb.svbk = byte & 0x07;
         } else if(address == 0xFFFF) {
             this.interrupt_enable = byte;
         } else if(address < 0xFFFF) {
@@ -492,14 +566,18 @@ class CPU {
             // VRAM read from bank
             if(this.cgb && this.ppu.cgb.vbank == 1)
                 return this.ppu.cgb.vram[address - 0x8000];
-
-            return this.mem.vram[address - 0x8000];
+            else
+                return this.mem.vram[address - 0x8000];
         } else if(address < 0xC000) {
             // cart RAM
             console.log("illegal read: " + address.toString(16));
             return this.mem.cram[address - 0xA000];
         } else if(address < 0xE000) {
-            return this.mem.wram[address - 0xC000];
+            address -= 0xC000;
+            if(this.cgb)
+                return this.mem.wram[address + this.ppu.cgb.svbk * 0x2000];
+            else
+                return this.mem.wram[address];
         } else if(address < 0xFE00) {
             // mirror WRAM
             return this.mem.wram[address - 0xE000]
@@ -544,6 +622,20 @@ class CPU {
             return this.ppu.regs.wy;
         } else if(address == 0xFF4B) {
             return this.ppu.regs.wx;
+        } else if(address == 0xFF51) {
+            // cgb
+            return this.ppu.cgb.srcDMA >> 8;
+        } else if(address == 0xFF52) {
+            // cgb
+            return this.ppu.cgb.srcDMA & 0xFF;
+        } else if(address == 0xFF53) {
+            // cgb
+            return this.ppu.cgb.destDMA >> 8;
+        } else if(address == 0xFF54) {
+            // cgb
+            return this.ppu.cgb.destDMA & 0xFF;
+        } else if(address == 0xFF55) {
+            return this.ppu.cgb.hdma
         } else if(address == 0xFF68) {
             // cgb only
             return this.cgb ? this.ppu.cgb.bgi : 0xff;
@@ -558,6 +650,8 @@ class CPU {
         } else if(address == 0xFF4F) {
             // cgb only
             return this.ppu.cgb.vbank | 0xFE;
+        } else if(address == 0xFF70) {
+            return this.ppu.cgb.svbk | 0xF8;
         } else if(address == 0xFFFF) {
             return this.interrupt_enable;
         } else if(address < 0xFFFF) {

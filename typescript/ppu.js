@@ -37,10 +37,24 @@ class PPU {
             vram: new Uint8Array(0x2000),
             bgAutoInc: false,
             objAutoInc: false,
-            vbank: 0,
-            
+            vbank: 0,   // VRAM bank 0-1
+            svbk: 1,    // WRAM bank 0-3
+            rgbBG: [],  // actual representation of `bgPal`
+            rgbOBJ:[],
+
+            // some registers
+            srcDMA: 0, // ff53
+            destDMA:0, // ff54
+            hdma: 0, // ff55
         }
         
+        this.reset();
+    }
+
+    /**
+     * Resets palettes
+     */
+    reset() {
         this.obj0Pal = [
             [3,3,3],
             [3,3,3],
@@ -62,24 +76,23 @@ class PPU {
     }
 
     /**
-     * Converts a serially ordered 8-bit 1D array into a 2D array with colors
-     * - the length should be 8 entries long
+     * Converts a single CGB palette into an RGB encoded palette
+     * - the length should be 8 bytes long
      * - Ex: [a, b, c, d, e, f, g, h...] converts to [[ab, cd, ef], [gh,...]]
      * @param {[]} arr
      */
     static linearToRGB(arr) {
-        let out = [];
+        let out = [[], [], [], []];
         for(let i = 0; i < 4; i++)
         {
-            out[i] = [];
-            const idx = (i * 2);
+            const idx = (i << 1);
             const bgr = (arr[idx + 1] << 8) | arr[idx];
-            const r = (bgr & 0x001f);
+            const r = (bgr & 0x1f);
             const g = (bgr >> 5) & 0x1F;
             const b = (bgr >> 10) & 0x1F;
-            out[i][0] = r * 8;
-            out[i][1] = g * 8;
-            out[i][2] = b * 8;
+            out[i][0] = r << 3;
+            out[i][1] = g << 3;
+            out[i][2] = b << 3;
         }
         return out;
     }

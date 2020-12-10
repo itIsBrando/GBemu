@@ -26,6 +26,7 @@ document.onkeydown = function(event) {
         case "arrowdown":   gamepadButtons["DOWN"]  = true; break;
         case "f": requestFullscreen(); break;
         case "d": c.speed = c.FastForwardSpeed; break;
+        case "=": restartEmulation(); break;
     }
 }
 

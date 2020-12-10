@@ -141,7 +141,7 @@
                 background-color: aquamarine;
                 display: block;   
                 padding: 6px;
-                margin-top: 1px;
+                margin: none;
                 width: 250px;
                 border-width: 1px;
             }
@@ -235,7 +235,7 @@
             
             <!-- file loading menu -->
             <div class="dropdown" style="float: left;">
-                <button style="width: 33vw;" type="button" id="fileMenuToggle" class="menubtn">File</button>
+                <button style="width: 34vw;" type="button" id="fileMenuToggle" class="menubtn">File</button>
                 
                 <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
@@ -252,7 +252,7 @@
                 <button style="width: 33vw;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
                 
                 <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
-                    <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
+                    <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Enable touch controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn">Change Palette</button>
                     <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
                 </div>
@@ -300,7 +300,7 @@
 
             <!-- allows the user to copy something to the clipboard -->
             <div class="message-div" id="textCopyPopup" >
-                <input id="copyTextInput" type="text" contenteditable="true">
+                <input id="copyTextInput" type="text" contenteditable="true" maxlength="9999999">
                 <button type="button" class="menubtn" style="width:100%;" onclick="clipboardCopy()">Copy Text</button>
             </div>
 
@@ -331,7 +331,7 @@
                 <button class="menubtn" style="max-width: 100%; width: 100%;" id="messageConfirm">Okay</button>
             </div>
 
-            <!-- Used to save files -->
+            <!-- Used to save files but is never shown-->
             <a id="saveA" style="display: none;" download></a>
             <body>
         <title>GBemu</title>
@@ -428,13 +428,13 @@
                     const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
 
                     copyClipMenu(new String(data));
+
+                    fullscreenToggle.style.display = "none";
                 } else {
                     downloadSave();
                 }
                 
             };
-
-            // fullscreenToggle.style.display = "none";
         </script>
     </body>
 </head>

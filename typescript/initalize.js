@@ -23,7 +23,8 @@ document.getElementById("timerStep").onclick = function() {
 
 
 /**
- * 
+ * Begins the CPU.
+ * - initializes a timer and begins running the ROM.
  * @param {ArrayBuffer} rom 
  */
 function startEmulation(rom) {
@@ -32,9 +33,19 @@ function startEmulation(rom) {
     c.loadROM(rom);
     
     c.timer = setInterval(run, INTERVAL_SPEED);
-
-
 };
+
+/**
+ * Restarts the game that is running
+ */
+function restartEmulation() {
+    if(!c.isRunning)
+        return;
+    
+    clearInterval(c.timer);
+    c.reset();
+    c.timer = setInterval(run, INTERVAL_SPEED)
+}
 
 function run() {
     const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;

@@ -154,7 +154,7 @@ messageConfirm.onclick = hideMessage;
 function showMessage(string, title) {
     const messageContent = document.getElementById('messageContent');
     const messageHeader = document.getElementById('messageHeader');
-    messageContent.textContent = string;
+    messageContent.innerHTML = string;
     messageHeader.textContent = title || "ALERT";
     // show 
     messageDiv.style.display = "block";

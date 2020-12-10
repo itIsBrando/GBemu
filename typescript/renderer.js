@@ -102,7 +102,7 @@ class Renderer {
                 tile -= 256;
             const tileAddress = tileBase + (tile * 16) + y * 2;
             
-            this.drawTileLine(cpu, mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress, false, false);
+            this.drawTileLine(cpu, mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress);
         }
 
     }
@@ -154,14 +154,17 @@ class Renderer {
         if(y >= 144) { return };
         const flags = cpu.getTileAttributes(mapAddress);
         const xFlip = UInt8.getBit(flags, 6) == 1;
-        const yFlip = UInt8.getBit(flags, 5) == 1;
+        // const yFlip = UInt8.getBit(flags, 5) == 1;
          // THIS DOES NOT WORK
         // if(yFlip == true) tileAddress += 16 - (y & 7) * 2;
 
         const pal = Renderer.getPalette(cpu, true, flags);
 
-        const byte1 = cpu.read8(tileAddress);
-        const byte2 = cpu.read8(tileAddress + 1);
+        // override VRAM bank
+        tileAddress -= 0x8000;
+        const vram = UInt8.getBit(flags, 3) ? cpu.ppu.cgb.vram : cpu.mem.vram;
+        const byte1 = vram[tileAddress];
+        const byte2 = vram[tileAddress + 1];
 
         for(let i = 0; i < 8; i++) {
             const index = UInt8.getBit(byte1, i) | (UInt8.getBit(byte2, i) << 1);
@@ -170,7 +173,7 @@ class Renderer {
             if((x + dx) < 0 || (x + dx) > 160)
                 continue;
             // since there are four bytes per pixel, we must times by 4
-            const canvasOffset = (x + dx + y * 160) * 4;
+            const canvasOffset = (x + dx + y * 160) << 2;
 
             this.screen.data[canvasOffset + 0] = col[0];
             this.screen.data[canvasOffset + 1] = col[1];
@@ -192,17 +195,16 @@ class Renderer {
             if(isBG)
                 return cpu.ppu.bgPal;
             
-            const p = UInt8.getBit(flags, 4);
-            return p ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
+            return UInt8.getBit(flags, 4) ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
         } else
         {
             // CGB palettes
             const palNum = flags & 0x7;
             if(isBG) {
-                return PPU.linearToRGB(cpu.ppu.cgb.bgPal.slice(palNum * 8, palNum * 8 + 8))
+                return cpu.ppu.cgb.rgbBG[palNum];
             } else
             {
-                return PPU.linearToRGB(cpu.ppu.cgb.objPal.slice(palNum * 8, palNum * 8 + 8));
+                return cpu.ppu.cgb.rgbOBJ[palNum];
             }
         }
     }
@@ -221,8 +223,9 @@ class Renderer {
         let pal = Renderer.getPalette(cpu, false, flags);
 
         for(let dy = 0; dy < 8; dy++) {
-            const byte1 = cpu.read8(tileAddress + dy * 2);
-            const byte2 = cpu.read8(tileAddress + dy * 2 + 1);
+            const addr = tileAddress - 0 + (dy << 1);
+            const byte1 = cpu.read8(addr);
+            const byte2 = cpu.read8(addr + 1);
             // skip this line if we are off screen
             if(y + dy < 0)
                 continue;
@@ -238,7 +241,7 @@ class Renderer {
                 // check out of bound
                 if((x + xf > 159) || (x + xf < 0))
                     continue;
-                let canvasOffset = (x + xf + (y + yf) * 160) * 4;
+                let canvasOffset = (x + xf + (y + yf) * 160) << 2;
                 this.screen.data[canvasOffset + 0] = col[0];
                 this.screen.data[canvasOffset + 1] = col[1];
                 this.screen.data[canvasOffset + 2] = col[2];
