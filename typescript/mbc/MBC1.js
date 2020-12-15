@@ -81,6 +81,8 @@ class MBC1 {
 
         if(this.bank == 0 || this.bank == 0x20 || this.bank == 0x40 || this.bank == 0x60)
             this.bank++;
+
+        this.romBankAddress = this.bank * 0x4000;
     }
 
     /**
@@ -94,6 +96,8 @@ class MBC1 {
 
         if(this.bank == 0 || this.bank == 0x20 || this.bank == 0x40 || this.bank == 0x60)
             this.bank++;
+
+        this.romBankAddress = this.bank * 0x4000;
     }
 
     /**
@@ -104,10 +108,9 @@ class MBC1 {
      * @returns true if the CPU should allow the write to happen, otherwise false
      */
     write8(cpu, address, byte) {
-
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
-            this.ramEnable = ((byte & 0x0F) == 0x0A) && this.ramSize != 0;
+            this.ramEnable = ((byte & 0x0A) == 0x0A) && this.ramSize != 0;
             return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
@@ -170,7 +173,7 @@ class MBC1 {
         // banks 01-7f
         if(address < 0x8000 && address >= 0x4000) {
             address -= 0x4000;
-            return this.rom[this.bank * 0x4000 + address];
+            return this.rom[this.romBankAddress + address];
         // RAM A000-BFFF
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {

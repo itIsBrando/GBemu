@@ -3,7 +3,6 @@ CACHE MANIFEST
 js/saveManager.js
 js/utility.js
 js/touch.js
-
 typescript/types.js
 typescript/controller.js
 typescript/renderer.js

@@ -56,6 +56,14 @@ const localSaveName = document.getElementById('localSaveName');
 const popupMenu = document.getElementById('popup');
 const popupSubmitButton = document.getElementById('submitSaveName');
 
+
+localSaveName.onkeydown = function(event) {
+    if(event.keyCode === 13)
+    {
+        event.preventDefault();
+        popupSubmitButton.click();
+    }
+}
 /**
  * Shows the popup menu
  * - does nothing if this menu is already open

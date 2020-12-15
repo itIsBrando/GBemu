@@ -158,6 +158,16 @@ function showMessage(string, title) {
     messageHeader.textContent = title || "ALERT";
     // show 
     messageDiv.style.display = "block";
+    messageConfirm.focus();
+
+    messageConfirm.onkeydown = function(event)
+    {
+        console.log(event.key)
+        if(event.key.toLowerCase() == "enter")
+        {
+            messageConfirm.click();
+        }
+    }
     
     messageDiv.style.opacity = "1";
 }
