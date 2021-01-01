@@ -10,15 +10,12 @@ const buttonRight = document.getElementById("controllerRight");
 const buttonLeft = document.getElementById("controllerLeft");
 const buttonFF = document.getElementById("controllerFastForward");
 
+// dpad buttons are handled differently
 const buttonElements = [
     buttonA,
     buttonB,
     buttonStart,
     buttonSelect,
-    buttonUp,
-    buttonDown,
-    buttonRight,
-    buttonLeft,
     buttonFF,
 ];
 
@@ -29,14 +26,14 @@ const ids = [
         "B",
         "START",
         "SELECT",
+        "FF",
         "UP",
         "DOWN",
         "RIGHT",
         "LEFT",
-        "FF"
 ]
 
-
+// show regular buttons
 for(let i = 0; i < buttonElements.length; i++) {
     buttonElements[i].id = ids[i];
     buttonElements[i].innerHTML = sampleButton.innerHTML;
@@ -45,7 +42,39 @@ for(let i = 0; i < buttonElements.length; i++) {
     buttonElements[i].addEventListener('touchcancel', touchEnd);
     buttonElements[i].addEventListener('touchmove', touchMove);
 }
-// touchControls.addEventListener('touchmove', touchMove);
+
+
+// show dpad buttons
+const d = [
+    buttonUp,
+    buttonDown,
+    buttonRight,
+    buttonLeft,
+];
+
+for(let i = 0; i < d.length; i++)
+{
+    d[i].id = ids[i + 5];
+    d[i].innerHTML = sampleButton.innerHTML;
+}
+delete d;
+
+// add event listeners to DPAD
+const dpad = document.getElementById("dpadButtons");
+
+dpad.addEventListener('touchstart', function(event) {
+    touchDPAD(event, true);
+});
+dpad.addEventListener('touchmove', function(event) {
+    touchDPAD(event, true);
+});
+dpad.addEventListener('touchend', function(event) {
+    touchDPAD(event, false);
+});
+dpad.addEventListener('touchcancel', function(event) {
+    touchDPAD(event, false);
+});
+
 
 /**
  * Handles touch movement
@@ -54,17 +83,22 @@ for(let i = 0; i < buttonElements.length; i++) {
  */
 function touchMove(event) {
     event.preventDefault();
-    let touch = event.changedTouches[0];
-    let target = touch.target;
-    let rect = target.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-
-    if(x < 0 || y < 0 || x > rect.width || y > rect.height) {
-        gamepadButtons[target.id] = false;
-    } else {
-        gamepadButtons[target.id] = true;
+    const touches = event.changedTouches;
+    for(let i = 0; i < touches.length; i++)
+    {
+        let touch = touches[i];
+        let target = touch.target;
+        let rect = target.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        
+        if(x < 0 || y < 0 || x > rect.width || y > rect.height) {
+            gamepadButtons[target.id] = false;
+        } else {
+            gamepadButtons[target.id] = true;
+        }
     }
+
 }
 
 /**
@@ -75,30 +109,73 @@ function touchMove(event) {
 function touchStart(event) {
     event.preventDefault();
 
-    if(this.id == "FF") {    
+    if(this.id == "FF")
         c.speed = c.FastForwardSpeed;
-        return;
-    }
-
-    gamepadButtons[this.id] = true;
+    else
+        gamepadButtons[this.id] = true;
         
 }
 
 /**
- * Handles touch movement
+ * Handles touch movement (FOR non-directional pad buttons only)
  *  - Disables button
  * @param {Event} event 
  */
 function touchEnd(event) {
     event.preventDefault();
 
-    if(this.id == "FF") {
+    if(this.id == "FF")
         c.speed = 1;
-        return;
-    }
-
-    gamepadButtons[this.id] = false;
+    else
+        gamepadButtons[this.id] = false;
 }
+
+/**
+ * Handles touch movement for the dPad
+ * @param {TouchEvent} event 
+ * @param {boolean} state true to enable button, false to clear all
+ */
+function touchDPAD(event, state) {
+    event.preventDefault();
+
+    
+    gamepadButtons["LEFT"] = false;
+    gamepadButtons["RIGHT"] = false;
+    gamepadButtons["UP"] = false;
+    gamepadButtons["DOWN"] = false;
+    
+    if(state == false)
+        return;
+
+    const xy = getRelativePosition(dpad, event.changedTouches[0]);
+    const x = xy.x, y = xy.y;
+
+    if(x <= 0.33)
+        gamepadButtons["LEFT"] = true;
+    else if(x >= 0.66)
+        gamepadButtons["RIGHT"] = true;
+
+    if(y >= 0.66)
+        gamepadButtons["DOWN"] = true;
+    else if(y <= 0.33)
+        gamepadButtons["UP"] = true;
+
+}
+
+
+/**
+ * Returns a number between 0.0-1.0 of the relative position the touch is between `elem`
+ * @param {HTMLElement} elem element to check position in
+ * @param {Touch} touch 
+ */
+function getRelativePosition(elem, touch) {
+    const rect = elem.getBoundingClientRect();
+    return {
+        x: Math.min(1, Math.max(0, (touch.clientX - rect.left) / rect.width)),
+        y: Math.min(1, Math.max(0, (touch.clientY - rect.top) / rect.height))
+    };
+}
+
 
 changeSize = function() {
     // move fastforward button over if we are in landscape

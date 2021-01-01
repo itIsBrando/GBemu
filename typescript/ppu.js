@@ -29,9 +29,7 @@ class PPU {
         // CGB registers
         this.cgb = {
             bgi: 0,     // ff68 background palette index
-            bgd: 0,     // ff69 background palette data
             obji: 0,    // ff6A object palette index
-            objd: 0,    // ff6B object palette data
             bgPal: new Uint8Array(0x40),
             objPal: new Uint8Array(0x40),
             vram: new Uint8Array(0x2000),
@@ -73,6 +71,46 @@ class PPU {
             palette[2],
             palette[3],
         ];
+
+        this.cgb.bgAutoInc = 0;
+        this.cgb.objAutoInc = 0;
+        this.cgb.vbank = 0;
+        this.cgb.svbk = 1;
+        this.cgb.bgPal.fill(0);
+        this.cgb.objPal.fill(0);
+
+        this.cgb.rgbOBJ = [
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        ];
+
+        this.cgb.rgbBG = [
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        ];
+
+
+        this.regs.lcdc = 0;
+        this.regs.stat = 0;
+        this.regs.scy = 0;
+        this.regs.scx = 0;
+        this.regs.scanline = 0;
+        this.regs.syc = 0;
+        this.regs.bgp = 0;
+        this.regs.obj0 = 0;
+        this.regs.obj1 = 0;
     }
 
     /**

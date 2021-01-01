@@ -33,7 +33,7 @@ class MBC1 {
         this.romSize = rom[0x0148];
         this.TOTAL_BANKS = Math.floor(rom.length / 0x4000);
         this.ramBankAddress = 0; // RAM address for the bank number
-        this.romBankAddress = 0; // ROM address for the bank number
+        this.romBankAddress = 0x4000; // ROM address for the bank number
         this.initRAM();
         this.ramBank = 0;
         this.bank = 1;
@@ -50,12 +50,28 @@ class MBC1 {
      *   RAM will be allocated
      */
     initRAM() {
+        // if the user loaded an incompatible save, then do not use it
+        if(useExternalSaveFile && externalSave.length != getRAMSize(this.ramSize, this.mbcNumber))
+        {
+            showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
+            useExternalSaveFile = false;
+        }
+
         if(useExternalSaveFile) {
             this.ram = externalSave;
-            if(externalSave.length != getRAMSize(this.ramSize, this.mbcNumber))
-                showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
         } else
             this.ram = new Uint8Array(getRAMSize(this.ramSize, this.mbcNumber));
+    }
+
+    /**
+     * Resets all MBC handlers
+     */
+    reset() {
+        this.ramBankAddress = 0;
+        this.romBankAddress = 0x4000;
+        this.ramBank = 0;
+        this.bank = 1;
+        this.mode = 0;
     }
 
     /**
@@ -136,6 +152,7 @@ class MBC1 {
                 if(this.mode == 1)
                 {
                     this.bank &= 0x1f;
+                    this.romBankAddress = this.bank * 0x4000;
                 } else {
                     this.ramBank = 0;
                 }

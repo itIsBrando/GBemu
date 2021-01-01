@@ -37,6 +37,8 @@
                 -ms-user-select: none;
                 -webkit-touch-callout: none;
                 z-index: 2;
+
+                font-size: medium;
             }
 
             #touchControls {
@@ -127,6 +129,7 @@
             input {
                 min-height: 30px;
                 min-width: 60px;
+                width: 100%;
                 box-sizing: border-box;
                 -moz-box-sizing: border-box;
                 background: #424141;
@@ -135,6 +138,10 @@
 
             input:focus {
                 background: #777777;
+            }
+
+            input:out-of-range {
+                background-color: darkred;
             }
 
             .menubtn {
@@ -193,7 +200,6 @@
             }
 
             .gamepad-button {
-                /* position: fixed; */
                 z-index: 10;
                 cursor: pointer;
                 touch-action: manipulation;
@@ -222,7 +228,7 @@
             </div>
 
             <!-- test button -->
-            <svg id="sampleSVG" style="display: none;" width="50" height="50" class="gamepad-button no-selection">
+            <svg id="sampleSVG" style="display: none; margin:none; padding:none;" width="50" height="50" class="gamepad-button no-selection">
                 <g>
                     <rect class="gamepad-button-bottom" x="5" y="5" rx="5" ry="5" width="40" height="40"/>
                     <rect class="gamepad-button-top" x="0" y="0" rx="5" ry="5" width="40" height="40"/>
@@ -244,6 +250,8 @@
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
                     <!-- Savefile downloading -->
                     <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
+                    <!-- ROM Info -->
+                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="showROMInfo()">ROM Info</button>
                 </div>
             </div>
             
@@ -254,6 +262,7 @@
                 <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Enable touch controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn">Change Palette</button>
+                    <button type="button" id="toggleDMGMode" style="width: inherit;" class="menubtn">Force DMG: no</button>
                     <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
                 </div>
             </div>
@@ -276,10 +285,12 @@
             
             <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 10;" class="no-selection">
-                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
-                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
-                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
-                <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
+                <div id="dpadButtons" style="width: 150px; height: 150px;">
+                    <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: gray; position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
+                </div>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 10px; bottom: 80px" name="A" id="controllerA"></svg>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 70px; bottom: 40px;" name="B" id="controllerB"></svg>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
@@ -293,7 +304,7 @@
                 <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
                 <br>
                 <!-- input form -->
-                <input type="text" name="localSaveName" id="localSaveName" autocapitalize="none" autocomplete="off" style="font-size: large;">
+                <input type="text" name="localSaveName" id="localSaveName" minlength="1" autocapitalize="none" autocomplete="off" style="font-size: large;">
                 <!-- Submit button -->
                 <button class="menubtn" id="submitSaveName" name="submitSaveName">Save</button>
             </div>
@@ -334,7 +345,6 @@
             <!-- Used to save files but is never shown-->
             <a id="saveA" style="display: none;" download></a>
             <body>
-        <title>GBemu</title>
         <!-- Lovely library -->
         <script src="js/saveManager.js"></script>
         <script src="js/utility.js"></script>
@@ -398,10 +408,14 @@
             const saveMenuToggle = document.getElementById('saveMenuToggle');
             const exportSaveButton = document.getElementById('exportSaveButton');
 
-
+            // touch controls
             controlsToggle.addEventListener('click', function() {
                 document.getElementById("touchControls").style.display = "block";
             })
+
+            // auto enable if using a touch device
+            if(hasTouchscreen())
+                controlsToggle.click();
 
             // for 'fullscreen button'
             fullscreenToggle.addEventListener('click', function() {

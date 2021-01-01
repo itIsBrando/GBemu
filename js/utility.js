@@ -141,6 +141,26 @@ function clipboardCopy() {
 }
 
 
+/**
+ * Shows the information of a ROM if it is loaded
+ */
+function showROMInfo() {
+    if(!c.isRunning)
+    {
+        showMessage("Load a game first.", "No ROM loaded");
+        return;
+    }
+
+    showMessage(
+        '<b style="color:lime">ROM Name:</b> ' + readROMName() +
+        '<br><b style="color:lime">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]] +
+        '<br><b style="color:lime">GBC Mode: </b>' + (c.cgb ? "yes" : "no") +
+        '<br><b style="color:lime">Frame Skip:</b> ' + c.framesToSkip,
+        "ROM Info"
+    );
+}
+
+
 const messageDiv = document.getElementById('messageID');
 const messageConfirm = document.getElementById('messageConfirm');
 
@@ -172,7 +192,9 @@ function showMessage(string, title) {
     messageDiv.style.opacity = "1";
 }
 
-
+/**
+ * Hides the message dialog from `showMessage`
+ */
 function hideMessage() {
     // hide
     messageDiv.style.opacity = "0";
@@ -235,4 +257,36 @@ function onPaletteArrow(dir) {
     g.value = palette[colorIndex][1];
     b.value = palette[colorIndex][2];
     setPreviewCol();
+}
+
+
+
+/**
+ * Checks to see if the current device has a touchscreen
+ * @returns true if it does, otherwise false
+ */
+function hasTouchscreen() {
+    return 'ontouchstart' in window;
+}
+
+
+
+// toggle between emulating in DMG mode or attempting CGB mode
+const toggleDMGMode = document.getElementById('toggleDMGMode');
+
+toggleDMGMode.onclick = function() {
+    if(c.forceDMG == false)
+    {
+        toggleDMGMode.innerText = "Force DMG: yes";
+    } else {
+        toggleDMGMode.innerText = "Force DMG: no";
+
+    }
+
+    c.forceDMG = !c.forceDMG;
+
+    if(c.isRunning)
+    {
+        showMessage("Reload the ROM to see an affect.", "Changed Emulation Mode");
+    }
 }

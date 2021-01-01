@@ -129,9 +129,13 @@ class CPU {
     constructor() {
         // timer that runs every 100ms
         this.timer = null;
+        // used to boot in DMG mode
+        this.forceDMG = false;
         // speed multiplier
         this.speed = 1;
         this.FastForwardSpeed = 8;
+        // used to maintain 60fps
+        this.framesToSkip = 0;
 
         // cycles ran for this setInterval tick
         this.currentCycles = 0;
@@ -207,16 +211,23 @@ class CPU {
         this.reset();
     }
 
+    initRegisters() {
+        this.pc.v = 0x100;
+        this.sp.v = 0xFFFE;
+        this.af.v = this.cgb ? 0x11B0 : 0x01B0; 
+        this.bc.v = 0x0013;
+        this.de.v = 0x00D8;
+        this.hl.v = 0x014D;
+
+        if(this.cgb)
+            this.bc.high &= 254;
+    }
+
     /**
      * Resets registers and stuff. Useful for resetting the game that is loading
      */
     reset() {
-        this.pc.v = 0x100;
-        this.sp.v = 0xFFFE;
-        this.af.v = 0x01B0;
-        this.bc.v = 0x0013;
-        this.de.v = 0x00D8;
-        this.hl.v = 0x014D;
+        this.initRegisters();
         this.ppu.regs.stat = 0x85;
         this.ppu.regs.lcdc = 0x91;
         this.interrupt_master = true;
@@ -224,6 +235,10 @@ class CPU {
         this.currentCycles = 0;
         this.timerRegs.reset();
         this.ppu.reset();
+
+        if(this.mbcHandler)
+            this.mbcHandler.reset();
+        
         for(let i = 0xFF00; i <= 0xFFFF; i++)
             this.write8(i, 0);
         
@@ -423,7 +438,7 @@ class CPU {
         } else if(address == 0xFF55) {
             this.DMATransferCGB(byte);
         } else if(address == 0xFF68) {
-            // cgb only
+            // cgb only (BCPS/BGPI)
             this.ppu.cgb.bgi = byte & 0x3F;
             this.ppu.cgb.bgAutoInc = (byte & 0x80) == 0x80;
         } else if(address == 0xFF69) {
@@ -436,7 +451,7 @@ class CPU {
             if(this.ppu.cgb.bgAutoInc)
                 this.ppu.cgb.bgi = (this.ppu.cgb.bgi + 1) & 0x3F;
         } else if(address == 0xFF6A) {
-            // cgb only
+            // cgb only (OCPS/OBPI)
             this.ppu.cgb.obji = byte & 0x3F;
             this.ppu.cgb.objAutoInc = (byte & 0x80) == 0x80;
         } else if(address == 0xFF6B) {
@@ -462,6 +477,22 @@ class CPU {
 
     };
 
+    /**
+     * Attempts to copy the screen buffer to the canvas
+     *  - this will do nothing if we are fastforwarded to maintain 60fps
+     */
+    requestBufferCopy() {
+        if(this.speed != 1)
+        {
+            this.framesToSkip++;
+
+            if(this.framesToSkip <= 8)
+                return
+            else
+                this.framesToSkip = 0;
+        }
+        this.renderer.drawBuffer();
+    }
 
     /**
      * Gets the flags byte of a tile in VRAM
@@ -469,7 +500,7 @@ class CPU {
      * @returns flag byte
      */
     getTileAttributes(address) {
-        const data = this.ppu.cgb.vram[address - 0x8000];
+        const data = this.ppu.cgb.vram[address - 0x9800];
         return data;
     }
 
@@ -484,11 +515,10 @@ class CPU {
         this.mem.rom = new Uint8Array(trimmed.splice(0, 0x8000));
 
         // detect CGB mode
-        this.cgb = (this.mem.rom[0x0143] & 0x80) == 0x80;
+        this.cgb = this.forceDMG ? false : ((this.mem.rom[0x0143] & 0x80) == 0x80);
 
         if(this.cgb) {
-            this.af.v = 0x11B0;
-            this.bc.high &= 254;
+            this.initRegisters();
         }
 
         // get MBC type

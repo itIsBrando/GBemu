@@ -223,7 +223,7 @@ class Renderer {
         let pal = Renderer.getPalette(cpu, false, flags);
 
         for(let dy = 0; dy < 8; dy++) {
-            const addr = tileAddress - 0 + (dy << 1);
+            const addr = tileAddress + (dy << 1);
             const byte1 = cpu.read8(addr);
             const byte2 = cpu.read8(addr + 1);
             // skip this line if we are off screen
