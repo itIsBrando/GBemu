@@ -147,7 +147,7 @@ class PPU {
                     if(this.regs.scanline > 143) {
                         this.mode = PPUMODE.vblank;
                         cpu.renderer.renderSprites(this, cpu);
-                        cpu.renderer.drawBuffer();
+                        cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
                         // check for vblank interrupt in rSTAT
                         if(UInt8.getBit(this.regs.stat, 3) == 1)
