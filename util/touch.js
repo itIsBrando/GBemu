@@ -70,6 +70,10 @@ dpad.addEventListener('touchmove', function(event) {
 });
 dpad.addEventListener('touchend', function(event) {
     touchDPAD(event, false);
+    touchDPADReset(buttonLeft);
+    touchDPADReset(buttonRight);
+    touchDPADReset(buttonUp);
+    touchDPADReset(buttonDown);
 });
 dpad.addEventListener('touchcancel', function(event) {
     touchDPAD(event, false);
@@ -131,13 +135,43 @@ function touchEnd(event) {
 }
 
 /**
+ * Sets the dpad button `elem` to be pressed
+ * @param {HTMLElement} elem 
+ */
+const touchDPADSet = function(elem) {
+    const bot = elem.getElementsByClassName("gamepad-button-bottom").item(0);
+    const top = elem.getElementsByClassName("gamepad-button-top").item(0);
+
+    if(!bot.classList.contains("gamepad-button-bottom-active"))
+        bot.classList.add("gamepad-button-bottom-active");
+    if(!top.classList.contains("gamepad-button-top-active"))
+        top.classList.add("gamepad-button-top-active");
+    
+}
+
+
+/**
+ * Sets the dpad button `elem` to be unpressed
+ * @param {HTMLElement} elem 
+ */
+const touchDPADReset = function(elem) {
+    const bot = elem.getElementsByClassName("gamepad-button-bottom").item(0);
+    const top = elem.getElementsByClassName("gamepad-button-top").item(0);
+
+    if(bot.classList.contains("gamepad-button-bottom-active"))
+        bot.classList.remove("gamepad-button-bottom-active");
+    if(top.classList.contains("gamepad-button-top-active"))
+        top.classList.remove("gamepad-button-top-active");
+    
+}
+
+/**
  * Handles touch movement for the dPad
  * @param {TouchEvent} event 
  * @param {boolean} state true to enable button, false to clear all
  */
 function touchDPAD(event, state) {
     event.preventDefault();
-
     
     gamepadButtons["LEFT"] = false;
     gamepadButtons["RIGHT"] = false;
@@ -150,15 +184,29 @@ function touchDPAD(event, state) {
     const xy = getRelativePosition(dpad, event.changedTouches[0]);
     const x = xy.x, y = xy.y;
 
-    if(x <= 0.33)
-        gamepadButtons["LEFT"] = true;
-    else if(x >= 0.66)
-        gamepadButtons["RIGHT"] = true;
+    // this graphically updates the DPAD button
+    touchDPADReset(buttonDown);
+    touchDPADReset(buttonUp);
+    touchDPADReset(buttonLeft);
+    touchDPADReset(buttonRight);
 
-    if(y >= 0.66)
+    // sets button state and graphical state
+    if(x <= 0.33) {
+        gamepadButtons["LEFT"] = true;
+        touchDPADSet(buttonLeft);
+        
+    } else if(x >= 0.66) {
+        gamepadButtons["RIGHT"] = true;
+        touchDPADSet(buttonRight);
+    }
+
+    if(y >= 0.66) {
         gamepadButtons["DOWN"] = true;
-    else if(y <= 0.33)
+        touchDPADSet(buttonDown);
+    } else if(y <= 0.33) {
         gamepadButtons["UP"] = true;
+        touchDPADSet(buttonUp);
+    }
 
 }
 

@@ -209,13 +209,20 @@
             .gamepad-button-top {
                 fill: inherit;
             }
-
+            .gamepad-button-top-active {
+                display: none;
+            }
             .gamepad-button:active .gamepad-button-top {
                 display: none;
             }
+            
             .gamepad-button-bottom {
                 fill:black;
             }
+            .gamepad-button-bottom-active {
+                fill:inherit;
+            }
+            
             .gamepad-button:active .gamepad-button-bottom {
                 fill: inherit;
             }
@@ -346,23 +353,23 @@
             <a id="saveA" style="display: none;" download></a>
             <body>
         <!-- Lovely library -->
-        <script src="js/saveManager.js"></script>
-        <script src="js/utility.js"></script>
-        <script src="typescript/types.js"></script>
-        <script src="typescript/controller.js"></script>
-        <script src="typescript/renderer.js"></script>
-        <script src="typescript/mbc/MBC1.js"></script>
-        <script src="typescript/mbc/MBC2.js"></script>
-        <script src="typescript/mbc/MBC3.js"></script>
-        <script src="typescript/mbc/MBC5.js"></script>
-        <script src="typescript/ppu.js"></script>
-        <script src="typescript/instructionCB.js"></script>
-        <script src="typescript/instruction.js"></script>
-        <script src="typescript/timer.js"></script>
-        <script src="typescript/register.js"></script>
-        <script src="typescript/cpu.js"></script>
-        <script src="typescript/initalize.js"></script>
-        <script src="js/touch.js"></script>
+        <script src="util/saveManager.js"></script>
+        <script src="util/utility.js"></script>
+        <script src="javascript/types.js"></script>
+        <script src="javascript/controller.js"></script>
+        <script src="javascript/renderer.js"></script>
+        <script src="javascript/mbc/MBC1.js"></script>
+        <script src="javascript/mbc/MBC2.js"></script>
+        <script src="javascript/mbc/MBC3.js"></script>
+        <script src="javascript/mbc/MBC5.js"></script>
+        <script src="javascript/ppu.js"></script>
+        <script src="javascript/instructionCB.js"></script>
+        <script src="javascript/instruction.js"></script>
+        <script src="javascript/timer.js"></script>
+        <script src="javascript/register.js"></script>
+        <script src="javascript/cpu.js"></script>
+        <script src="javascript/initalize.js"></script>
+        <script src="util/touch.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
             
