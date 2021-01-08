@@ -1,25 +1,24 @@
 CACHE MANIFEST
 
+util/saveManager.js
+util/utility.js
+util/touch.js
+javascript/types.js
+javascript/controller.js
+javascript/renderer.js
 
-js/saveManager.js
-js/utility.js
-js/touch.js
-typescript/types.js
-typescript/controller.js
-typescript/renderer.js
+javascript/mbc/MBC1.js
+javascript/mbc/MBC2.js
+javascript/mbc/MBC3.js
+javascript/mbc/MBC5.js
+javascript/ppu.js
+javascript/instructionCB.js
+javascript/instruction.js
+javascript/timer.js
+javascript/register.js
+javascript/cpu.js
+javascript/initalize.js
 
-
-typescript/mbc/MBC1.js
-typescript/mbc/MBC2.js
-typescript/mbc/MBC3.js
-typescript/mbc/MBC5.js
-typescript/ppu.js
-typescript/instructionCB.js
-typescript/instruction.js
-typescript/timer.js
-typescript/register.js
-typescript/cpu.js
-typescript/initalize.js
 
 icons/icon.jpg
 index.html

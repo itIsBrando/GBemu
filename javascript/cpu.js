@@ -334,9 +334,10 @@ class CPU {
             console.log("illegal ROM write: " + address.toString(16));
         } else if(address < 0xA000) {
             // VRAM
-            if(this.cgb && this.ppu.cgb.vbank == 1)
+            if(this.cgb && this.ppu.cgb.vbank == 1) {
                 this.ppu.cgb.vram[address-0x8000] = byte;
-            else
+                console.log("VRAM bank1:" + hex(address) + " val:" + byte);
+            }else
                 this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
             // cart RAM
@@ -500,7 +501,7 @@ class CPU {
      * @returns flag byte
      */
     getTileAttributes(address) {
-        const data = this.ppu.cgb.vram[address - 0x9800];
+        const data = this.ppu.cgb.vram[address - 0x8000];
         return data;
     }
 

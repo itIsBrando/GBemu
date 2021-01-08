@@ -139,13 +139,14 @@ function touchEnd(event) {
  * @param {HTMLElement} elem 
  */
 const touchDPADSet = function(elem) {
-    const bot = elem.getElementsByClassName("gamepad-button-bottom").item(0);
-    const top = elem.getElementsByClassName("gamepad-button-top").item(0);
+    const bot = elem.getElementsByClassName("dpad-button-bottom").item(0);
+    const top = elem.getElementsByClassName("dpad-button-top").item(0);
 
-    if(!bot.classList.contains("gamepad-button-bottom-active"))
-        bot.classList.add("gamepad-button-bottom-active");
-    if(!top.classList.contains("gamepad-button-top-active"))
-        top.classList.add("gamepad-button-top-active");
+
+    if(!bot.classList.contains("dpad-button-bottom-active"))
+        bot.classList.add("dpad-button-bottom-active");
+    if(!top.classList.contains("dpad-button-top-active"))
+        top.classList.add("dpad-button-top-active");
     
 }
 
@@ -155,13 +156,21 @@ const touchDPADSet = function(elem) {
  * @param {HTMLElement} elem 
  */
 const touchDPADReset = function(elem) {
-    const bot = elem.getElementsByClassName("gamepad-button-bottom").item(0);
-    const top = elem.getElementsByClassName("gamepad-button-top").item(0);
+    const bot = elem.getElementsByClassName("dpad-button-bottom").item(0) || elem.getElementsByClassName("gamepad-button-bottom").item(0);
+    const top = elem.getElementsByClassName("dpad-button-top").item(0) || elem.getElementsByClassName("gamepad-button-top").item(0);
+    
+    if(bot.classList.contains("gamepad-button-bottom"))
+    {
+        bot.classList.remove("gamepad-button-bottom");
+        top.classList.remove("gamepad-button-top");
+        bot.classList.add("dpad-button-bottom");
+        top.classList.add("dpad-button-top");
+    }
 
-    if(bot.classList.contains("gamepad-button-bottom-active"))
-        bot.classList.remove("gamepad-button-bottom-active");
-    if(top.classList.contains("gamepad-button-top-active"))
-        top.classList.remove("gamepad-button-top-active");
+    if(bot.classList.contains("dpad-button-bottom-active"))
+        bot.classList.remove("dpad-button-bottom-active");
+    if(top.classList.contains("dpad-button-top-active"))
+        top.classList.remove("dpad-button-top-active");
     
 }
 

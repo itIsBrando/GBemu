@@ -128,9 +128,9 @@ class PPU {
             const r = (bgr & 0x1f);
             const g = (bgr >> 5) & 0x1F;
             const b = (bgr >> 10) & 0x1F;
-            out[i][0] = r << 3;
-            out[i][1] = g << 3;
-            out[i][2] = b << 3;
+            out[i][0] = Math.min(r * 13,255);
+            out[i][1] = Math.min(g * 13.25,255).toFixed();
+            out[i][2] = Math.min(b * 13,255);
         }
         return out;
     }

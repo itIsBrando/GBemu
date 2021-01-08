@@ -65,7 +65,7 @@ class Renderer {
                 tileNumber -= 256;
             const dataAddress = tileBase + 16 * tileNumber + y * 2;
             
-            this.drawTileLine(cpu, tileNumber, (i << 3) - (scx & 7), scanline, dataAddress)
+            this.drawTileLine(cpu, mapAddress, (i << 3) - (scx & 7), scanline, dataAddress)
         }
     }
 

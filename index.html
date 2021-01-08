@@ -209,9 +209,7 @@
             .gamepad-button-top {
                 fill: inherit;
             }
-            .gamepad-button-top-active {
-                display: none;
-            }
+            
             .gamepad-button:active .gamepad-button-top {
                 display: none;
             }
@@ -219,13 +217,26 @@
             .gamepad-button-bottom {
                 fill:black;
             }
-            .gamepad-button-bottom-active {
-                fill:inherit;
-            }
             
             .gamepad-button:active .gamepad-button-bottom {
                 fill: inherit;
             }
+            /* These are for DPAD buttons only */
+            .dpad-button-top {
+                fill: inherit
+            }
+
+            .dpad-button-bottom {
+                fill: black;
+            }
+
+            .dpad-button-top-active {
+                display: none;
+            }
+            .dpad-button-bottom-active {
+                fill:inherit;
+            }
+
         </style>
             <!-- Debugging features -->
             <div id="debugDIV" style="display:none">
