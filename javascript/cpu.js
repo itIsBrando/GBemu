@@ -145,7 +145,6 @@ class CPU {
         this.renderer = new Renderer();
         this.cycles = 0;
         this.cgb = false;
-        this.mbc = MBCType.NONE;
         this.mbcHandler = null;
         
         
@@ -265,7 +264,7 @@ class CPU {
         if(this.interrupt_master && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
                 // if both bits are set
-                if(UInt8.getBit(fired, i) == 1)
+                if(UInt8.getBit(fired, i) === 1)
                 {
                     // if we are HALTed
                     if(this.isHalted) {
@@ -302,6 +301,7 @@ class CPU {
     DMATransferCGB(data) {
         const mode = UInt8.getBit(data, 7);
         const length = data & 0x7F;
+        // preliminary support for some of the CGB's DMA transfers
         if(mode)
         {
             for(let i = 0; i < length; i++)
@@ -326,7 +326,7 @@ class CPU {
         if(this.mbcHandler)
         {
             const shouldWrite = this.mbcHandler.write8(this, address, byte);
-            if(shouldWrite == false)
+            if(shouldWrite === false)
                 return;
         }
 
@@ -523,10 +523,10 @@ class CPU {
         }
 
         // get MBC type
-        this.mbc = getMBCType(this.mem.rom[0x0147]);
+        const mbc = getMBCType(this.mem.rom[0x0147]);
 
         // create our memory bank controller
-        switch(this.mbc) {
+        switch(mbc) {
             case MBCType.MBC_1:
                 this.mbcHandler = new MBC1(untrimmedROM, 1);
                 break;
@@ -708,16 +708,11 @@ class CPU {
         const opcode = this.read8(this.pc.v);
         this.cycles = opcodeCycles[opcode];
 
-        if(this.debug && opcode != 0x76)
-        {
-            console.log("PC: 0x" + hex(this.pc.v) + " op: 0x" + hex(opcode));
-        }
-
         // execute opcode
-        if(opTable[opcode] == undefined) {
+         if(opTable[opcode] == undefined) {
             illegalOpcode(opcode, this, false);
             return false;
-        } else if(this.isHalted == false) {
+        } else if(this.isHalted === false) {
             opTable[opcode](this);
         }
 
@@ -728,22 +723,21 @@ class CPU {
             this.isHalted = false;
         }
 
-
-
         // manage interrupts
         if(opcode != 0xF3 && opcode != 0xFB)
         {
-            if(this.shouldDI == true)
+            if(this.shouldDI === true)
             {
                 this.interrupt_master = false;
                 this.shouldDI = false;
-            } else if(this.shouldEI == true)
+            } else if(this.shouldEI === true)
             {
                 this.interrupt_master = true;
                 this.shouldEI = false;
             }
         }
 
+        // update timers
         this.timerRegs.updateTimers(this);
 
         // handle interrupts

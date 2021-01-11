@@ -152,10 +152,12 @@ function showROMInfo() {
     }
 
     showMessage(
-        '<b style="color:lime">ROM Name:</b> ' + readROMName() +
-        '<br><b style="color:lime">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]] +
-        '<br><b style="color:lime">GBC Mode: </b>' + (c.cgb ? "yes" : "no") +
-        '<br><b style="color:lime">Frame Skip:</b> ' + c.framesToSkip,
+        '<b style="color:deepskyblue">ROM Name:</b> ' + readROMName() +
+        '<br><b style="color:deepskyblue">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]] +
+        '<br><b style="color:deepskyblue">GBC Mode: </b>' + (c.cgb ? "yes" : "no") +
+        '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +
+        '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.ram.length + " bytes": "none") +
+        '',
         "ROM Info"
     );
 }

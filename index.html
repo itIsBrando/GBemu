@@ -270,6 +270,8 @@
                     <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
                     <!-- ROM Info -->
                     <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="showROMInfo()">ROM Info</button>
+                    <!-- Reset Game -->
+                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="restartEmulation()"><b style="color: orangered;">reset game</b></button>
                 </div>
             </div>
             
@@ -278,7 +280,7 @@
                 <button style="width: 33vw;" type="button" id="optionsMenuToggle" class="menubtn">Options</button>
                 
                 <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
-                    <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Enable touch controls</button>
+                    <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn">Change Palette</button>
                     <button type="button" id="toggleDMGMode" style="width: inherit;" class="menubtn">Force DMG: no</button>
                     <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
@@ -366,8 +368,8 @@
         <!-- Lovely library -->
         <script src="util/saveManager.js"></script>
         <script src="util/utility.js"></script>
+        <script src="util/controller.js"></script>
         <script src="javascript/types.js"></script>
-        <script src="javascript/controller.js"></script>
         <script src="javascript/renderer.js"></script>
         <script src="javascript/mbc/MBC1.js"></script>
         <script src="javascript/mbc/MBC2.js"></script>
@@ -428,7 +430,11 @@
 
             // touch controls
             controlsToggle.addEventListener('click', function() {
-                document.getElementById("touchControls").style.display = "block";
+                const buttons = document.getElementById("touchControls");
+                if(buttons.style.display == "block")
+                    buttons.style.display = "none";
+                else
+                    buttons.style.display = "block";
             })
 
             // auto enable if using a touch device

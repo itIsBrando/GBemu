@@ -1,6 +1,11 @@
 var useExternalSaveFile = false;
 var externalSave = null;
 
+/**
+ * Gets the RAM size in bytes for a given ROM
+ * @param {Number} size Raw RAM size byte from ROM
+ * @param {Number} mbc MBC number
+ */
 function getRAMSize(size, mbc)
 {
     const m1Sizes = [
