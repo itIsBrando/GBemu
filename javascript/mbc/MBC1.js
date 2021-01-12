@@ -86,9 +86,10 @@ class MBC1 {
     static useSaveData(array) {
         useExternalSaveFile = true;
         externalSave = new Uint8Array(array);
-        console.log("using external save file");
-        if(c.isRunning)
+        if(c.isRunning) {
             restartEmulation();
+            c.mbcHandler.initRAM();
+        }
     }
 
     /**

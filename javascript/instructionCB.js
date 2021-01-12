@@ -3,35 +3,35 @@
 var opBIT_CB = {
     // bit y, b 
     0x00: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.bc.high, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.bc.high, bit);
     },
     // bit y, c
     0x01: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.bc.low, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.bc.low, bit);
     },
     // bit y, d
     0x02: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.de.high, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.de.high, bit);
     },
     // bit y, e
     0x03: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.de.low, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.de.low, bit);
     },
     // bit y, h
     0x04: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.hl.high, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.hl.high, bit);
     },
     // bit y, l
     0x05: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.hl.low, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.hl.low, bit);
     },
     // bit y, [hl]
     0x06: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.indirect_hl, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.indirect_hl, bit);
     },
     // bit y, a
     0x07: function(cpu, bit) {
-        cpu.flags.z = !Boolean(UInt8.getBit(cpu.af.high, bit));
+        cpu.flags.z = !UInt8.getBit(cpu.af.high, bit);
     },
 }
 

@@ -4,8 +4,8 @@ CACHE MANIFEST
 util/saveManager.js
 util/utility.js
 util/touch.js
+util/controller.js
 javascript/types.js
-javascript/controller.js
 javascript/renderer.js
 
 javascript/mbc/MBC1.js
@@ -19,7 +19,6 @@ javascript/timer.js
 javascript/register.js
 javascript/cpu.js
 javascript/initalize.js
-
 
 icons/icon.jpg
 index.html

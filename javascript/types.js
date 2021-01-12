@@ -102,11 +102,11 @@ class UInt8 {
 
     /**
      * Returns a bit of a UInt8 or UInt16
-     * @param {number} v number
-     * @param {number} bit bit number (0-15) or (0-7)
+     * @param {Number} v number
+     * @param {Number} bit bit number (0-15) or (0-7)
      */
     static getBit(v, bit) {
-        return (v >> bit) & 1;
+        return (v & (1 << bit)) === (1 << bit);
     }
     /**
      * Sets a bit of a UInt8 or UInt16

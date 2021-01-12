@@ -34,7 +34,7 @@ class Timer {
         }
         
         // return if timer is disabled
-        if(UInt8.getBit(this.regs.tac, 2) == 0)
+        if(!UInt8.getBit(this.regs.tac, 2))
             return;
 
         this.frequency -= cycles;

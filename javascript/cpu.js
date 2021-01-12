@@ -264,7 +264,7 @@ class CPU {
         if(this.interrupt_master && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
                 // if both bits are set
-                if(UInt8.getBit(fired, i) === 1)
+                if(UInt8.getBit(fired, i))
                 {
                     // if we are HALTed
                     if(this.isHalted) {
@@ -334,9 +334,8 @@ class CPU {
             console.log("illegal ROM write: " + address.toString(16));
         } else if(address < 0xA000) {
             // VRAM
-            if(this.cgb && this.ppu.cgb.vbank == 1) {
+            if(this.cgb && this.ppu.cgb.vbank === 1) {
                 this.ppu.cgb.vram[address-0x8000] = byte;
-                console.log("VRAM bank1:" + hex(address) + " val:" + byte);
             }else
                 this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
@@ -483,27 +482,9 @@ class CPU {
      *  - this will do nothing if we are fastforwarded to maintain 60fps
      */
     requestBufferCopy() {
-        if(this.speed != 1)
-        {
-            this.framesToSkip++;
-
-            if(this.framesToSkip <= 8)
-                return
-            else
-                this.framesToSkip = 0;
-        }
         this.renderer.drawBuffer();
     }
 
-    /**
-     * Gets the flags byte of a tile in VRAM
-     * @param {UInt16} address points to a tile. Should be an address of in the tile map
-     * @returns flag byte
-     */
-    getTileAttributes(address) {
-        const data = this.ppu.cgb.vram[address - 0x8000];
-        return data;
-    }
 
     /**
      * Loads the rom into memory
@@ -617,7 +598,7 @@ class CPU {
         } else if(address <= 0xFEFF) {
             return 0xFF;
         } else if(address == 0xFF00) {
-            let chkDpad = UInt8.getBit(this.mem.hram[0], 5) == 1;
+            let chkDpad = UInt8.getBit(this.mem.hram[0], 5);
             return Controller.getButtons(chkDpad);
         } else if(address == 0xFF04) {
             return this.timerRegs.regs.div;

@@ -112,6 +112,15 @@ class PPU {
         this.regs.obj0 = 0;
         this.regs.obj1 = 0;
     }
+    
+    /**
+     * Gets the flags byte of a tile in VRAM
+     * @param {UInt16} address points to a tile. Should be an address of in the tile map
+     * @returns flag byte
+     */
+    getTileAttributes(address) {
+        return this.cgb.vram[address - 0x8000];
+    }
 
     /**
      * Converts a single CGB palette into an RGB encoded palette
@@ -128,9 +137,9 @@ class PPU {
             const r = (bgr & 0x1f);
             const g = (bgr >> 5) & 0x1F;
             const b = (bgr >> 10) & 0x1F;
-            out[i][0] = Math.min(r * 12,255);
-            out[i][1] = Math.min(g * 12.25,255).toFixed();
-            out[i][2] = Math.min(b * 12,255);
+            out[i][0] = Math.min(r * 10,255);
+            out[i][1] = Math.min(g * 10,255).toFixed();
+            out[i][2] = Math.min(b * 10,255);
         }
         return out;
     }
@@ -140,14 +149,14 @@ class PPU {
      */
     get tileBase() {
         // 9000 is signed displacement
-        return UInt8.getBit(this.regs.lcdc, 4) == 0 ? 0x9000 : 0x8000;
+        return UInt8.getBit(this.regs.lcdc, 4) === false ? 0x9000 : 0x8000;
     }
 
     /**
      * Represents the base address of the map based on lcdc register
      */
     get mapBase() {
-        return UInt8.getBit(this.regs.lcdc, 3) == 1 ? 0x9C00 : 0x9800;
+        return UInt8.getBit(this.regs.lcdc, 3) ? 0x9C00 : 0x9800;
     }
 
     step(cpu) {
@@ -175,7 +184,7 @@ class PPU {
                     this.cycles -= 172;
                     cpu.renderer.renderScanline(this, cpu);
                     // check for hblank interrupt in rSTAT
-                    if(UInt8.getBit(this.regs.stat, 3) == 1)
+                    if(UInt8.getBit(this.regs.stat, 3))
                         cpu.requestInterrupt(InterruptType.lcd);
                 }
                 break;
@@ -188,7 +197,7 @@ class PPU {
                         cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
                         // check for vblank interrupt in rSTAT
-                        if(UInt8.getBit(this.regs.stat, 3) == 1)
+                        if(UInt8.getBit(this.regs.stat, 3))
                             cpu.requestInterrupt(InterruptType.lcd);
                         
                             this.checkCoincidence(cpu);
@@ -196,7 +205,7 @@ class PPU {
                         this.mode = PPUMODE.scanlineOAM;
                         // check for OAM interrupt
                         //  who on earth would use this interrupt?
-                        if(UInt8.getBit(this.regs.stat, 5) == 1)
+                        if(UInt8.getBit(this.regs.stat, 5))
                             cpu.requestInterrupt(InterruptType.lcd);
                     }
                     this.cycles -= 204;
@@ -226,7 +235,7 @@ class PPU {
         if(this.regs.syc == this.regs.scanline)
         {
             // coincidence interrupt
-            if(UInt8.getBit(this.regs.stat, 6) == 1)
+            if(UInt8.getBit(this.regs.stat, 6))
             {
                 cpu.requestInterrupt(InterruptType.lcd);
             }

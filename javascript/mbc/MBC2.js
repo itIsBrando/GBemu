@@ -18,7 +18,7 @@ class MBC2 extends MBC1 {
 
         // 0x0000-0x3FFF RAM enable and ROM bank number
         if(address < 0x4000) {
-            if(UInt8.getBit(address, 8) == 1) {
+            if(UInt8.getBit(address, 8)) {
                 // set ROM bank
                 byte &= 0x0F;
                 if(byte == 0) byte++;

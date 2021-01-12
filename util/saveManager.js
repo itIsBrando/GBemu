@@ -161,8 +161,6 @@ function injectLocalStorage(key) {
     else
     {
         MBC1.useSaveData(data);
-        if(c.isRunning)
-            c.mbcHandler.initRAM();
         showMessage("Loaded <b style=\"color:green;\">" + key + "</b> successfully.", "Completed");
     }
 }
