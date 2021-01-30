@@ -190,6 +190,10 @@ localLoadButton.addEventListener('click', function() {
     const keys = Object.keys(localStorage);
     for(let i in keys)
     {
+        // some settings should not be shown
+        if(keys[i].startsWith("__core_"))
+            continue;
+        
         const btn = document.createElement("button");
         const obj = JSON.parse(localStorage[keys[i]]);
         btn.id = "delete";

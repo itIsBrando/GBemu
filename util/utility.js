@@ -205,60 +205,74 @@ function hideMessage() {
     }, 600);
 }
 
-
-// color palette
-const changePaletteButton = document.getElementById('changePaletteButton');
-const paletteSetDiv = document.getElementById('paletteSetDiv');
-const colorPreview = document.getElementById('colorPreview');
-
-// color elements
-const r = document.getElementById('colorR');
-const g = document.getElementById('colorG');
-const b = document.getElementById('colorB');
-
-// color index
-let colorIndex = 0;
-
-
-changePaletteButton.onclick = function() {
-    paletteSetDiv.style.display = 'block';
-}
-
-// hides the palette selection menu
-function hidePaletteMenu() {
-    paletteSetDiv.style.display = 'none';
-}
-
-// sets the preview color's background color
-const setPreviewCol = function() {
-    const col = "rgb(" + r.value + ', ' + g.value + ', ' + b.value + ')';
-
-    colorPreview.style.backgroundColor = col;
-}
-
-/**
- * Called when the color input changes its value
- */
-function onPaletteChange()
-{
-    setPreviewCol();
-    palette[colorIndex][0] = Number(r.value);
-    palette[colorIndex][1] = Number(g.value);
-    palette[colorIndex][2] = Number(b.value);
-}
-
-/**
- * Changes the color index that the user is editing
- * @param dir -1 to move left or 1 to move right
- */
-function onPaletteArrow(dir) {
-    colorIndex = (colorIndex + dir) & 3;
-    document.getElementById('paletteTitle').innerText = "Color " + colorIndex;
+var FrontEndPalette = new function() {
+    // color palette
+    const paletteSetDiv = document.getElementById('paletteSetDiv');
+    const colorPreview = document.getElementById('colorPreview');
     
-    r.value = palette[colorIndex][0];
-    g.value = palette[colorIndex][1];
-    b.value = palette[colorIndex][2];
-    setPreviewCol();
+    // color elements
+    const r = document.getElementById('colorR');
+    const g = document.getElementById('colorG');
+    const b = document.getElementById('colorB');
+    
+    // color index
+    let colorIndex = 0;
+    
+    
+    this.showPaletteMenu = function() {
+        paletteSetDiv.style.display = 'block';
+        this.onPaletteArrow(1);
+    }
+    
+    // hides the palette selection menu
+    this.hidePaletteMenu = function() {
+        paletteSetDiv.style.display = 'none';
+    }
+    
+    // sets the preview color's background color
+    this.setPreviewCol = function() {
+        const col = "rgb(" + r.value + ', ' + g.value + ', ' + b.value + ')';
+    
+        colorPreview.style.backgroundColor = col;
+    }
+    
+    /**
+     * Called when the color input changes its value
+     */
+    this.onPaletteChange = function()
+    {
+        this.setPreviewCol();
+        palette[colorIndex][0] = Number(r.value);
+        palette[colorIndex][1] = Number(g.value);
+        palette[colorIndex][2] = Number(b.value);
+    }
+    
+    /**
+     * Changes the color index that the user is editing
+     * @param dir -1 to move left or 1 to move right
+     */
+    this.onPaletteArrow = function(dir) {
+        colorIndex = (colorIndex + dir) & 3;
+        document.getElementById('paletteTitle').innerText = "Color " + colorIndex;
+        
+        r.value = palette[colorIndex][0];
+        g.value = palette[colorIndex][1];
+        b.value = palette[colorIndex][2];
+        this.setPreviewCol();
+    }
+
+    this.save = function() {
+        const json = JSON.stringify(palette);
+        localStorage.setItem("__core_defaultPalette", json);
+        showMessage("Current Palette saved");
+    }
+
+    this.load = function() {
+        const pal = localStorage.getItem("__core_defaultPalette");
+        palette = JSON.parse(pal);
+        this.onPaletteArrow();
+        showMessage("Palette loaded.");
+    }
 }
 
 

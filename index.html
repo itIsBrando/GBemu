@@ -157,6 +157,22 @@
                 background-color: cyan;
             }
 
+            .iconbtn {
+                width: 25px;
+                height: 25px;
+                margin: 0px;
+                padding: 0px;
+                border: none;
+                font-size:large;
+                background-color: cornflowerblue;
+                cursor: pointer;
+            }
+
+            .iconbtn:hover {
+                background-color: blue;
+                color:aliceblue;
+            }
+
             .x-btn {
                 float: right;
                 background-color: orangered;
@@ -165,6 +181,7 @@
                 border: none;
                 margin: 0px;
                 padding: 5px;
+                cursor: pointer;
             }
 
             .x-btn:hover {
@@ -281,7 +298,7 @@
                 
                 <div id="optionsMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
-                    <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn">Change Palette</button>
+                    <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn" onclick="FrontEndPalette.showPaletteMenu();">Change Palette</button>
                     <button type="button" id="toggleDMGMode" style="width: inherit;" class="menubtn">Force DMG: no</button>
                     <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
                 </div>
@@ -338,16 +355,18 @@
             <!-- Change palette colors -->
             <div class="message-div" style="opacity: 1;" id="paletteSetDiv">
                 <!-- header -->
-                <button type="button" class="x-btn" onclick="hidePaletteMenu()">&times;</button>
+                <button type="button" class="x-btn" onclick="FrontEndPalette.hidePaletteMenu()">&times;</button>
                 <!-- arrows -->
-                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left; height: 25px; border:none;" onclick="onPaletteArrow(-1)">&larr;</button>
-                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="onPaletteArrow(1)">&rarr;</button>
+                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left; height: 25px; border:none;" onclick="FrontEndPalette.onPaletteArrow(-1)">&larr;</button>
+                <button type="button" class="iconbtn" title="save" onclick="FrontEndPalette.save();">&#9113;</button>
+                <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="FrontEndPalette.onPaletteArrow(1)">&rarr;</button>
                 <a id="paletteTitle" style="color: aliceblue; margin-bottom: 8px; padding-bottom: 8px;"><b>Color 0</b></a>
+                <button type="button" class="iconbtn" style="float: right;" title="load" onclick="FrontEndPalette.load();">&#9112;</button>
                 <!-- color inputs -->
                 <div id="colorPreview" style="background-color: #000000; width: 100%; height: 100px; display:block;"></div>
-                <input id="colorR" style="width: 100%;" placeholder="red" type="number" min="0" max="255" oninput="onPaletteChange()">
-                <input id="colorG" style="width: 100%;" placeholder="green" type="number" min="0" max="255" oninput="onPaletteChange()">
-                <input id="colorB" style="width: 100%;" placeholder="blue" type="number" min="0" max="255" oninput="onPaletteChange()">
+                <input id="colorR" style="width: 100%;" placeholder="red" type="number" min="0" max="255" oninput="FrontEndPalette.onPaletteChange()">
+                <input id="colorG" style="width: 100%;" placeholder="green" type="number" min="0" max="255" oninput="FrontEndPalette.onPaletteChange()">
+                <input id="colorB" style="width: 100%;" placeholder="blue" type="number" min="0" max="255" oninput="FrontEndPalette.onPaletteChange()">
             </div>
 
             
