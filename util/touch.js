@@ -238,10 +238,10 @@ changeSize = function() {
     // move fastforward button over if we are in landscape
     if(isLandscape() == true)
     {
-        buttonFF.style.left = "5%";
+        buttonFF.style.right = "5%";
         touchControls.style.marginBottom = "0px";
     } else {
-        buttonFF.style.left = "50%";
+        // buttonFF.style.right = "50%";
         // check for notch
         if(hasNotch()) {
             showMessage("this is a notched iPhone in landscape \n:)", "Nice!");

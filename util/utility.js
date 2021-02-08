@@ -165,6 +165,7 @@ function showROMInfo() {
 
 const messageDiv = document.getElementById('messageID');
 const messageConfirm = document.getElementById('messageConfirm');
+const shadowOverlay = document.getElementById('shadowOverlay');
 
 messageConfirm.onclick = hideMessage;
 
@@ -181,6 +182,8 @@ function showMessage(string, title) {
     // show 
     messageDiv.style.display = "block";
     messageConfirm.focus();
+    // dark the content below to force user to dismiss current message
+    FrontEndMenu.showOverlay();
 
     messageConfirm.onkeydown = function(event)
     {
@@ -194,6 +197,7 @@ function showMessage(string, title) {
     messageDiv.style.opacity = "1";
 }
 
+
 /**
  * Hides the message dialog from `showMessage`
  */
@@ -203,7 +207,25 @@ function hideMessage() {
     setTimeout(function() {
         messageDiv.style.display = "none";
     }, 600);
+
+    FrontEndMenu.hideOverlay();
 }
+
+
+var FrontEndMenu = new function() {
+    let overlays = 0;
+
+    this.showOverlay = function() {
+        overlays++;
+        shadowOverlay.style.display = 'block';
+    }
+
+    this.hideOverlay = function() {   
+        if(--overlays == 0)
+            shadowOverlay.style.display = 'none';
+    }
+}
+
 
 var FrontEndPalette = new function() {
     // color palette
@@ -216,10 +238,10 @@ var FrontEndPalette = new function() {
     const b = document.getElementById('colorB');
     
     // color index
-    let colorIndex = 0;
-    
+    let colorIndex = 0;    
     
     this.showPaletteMenu = function() {
+        FrontEndMenu.showOverlay();
         paletteSetDiv.style.display = 'block';
         this.onPaletteArrow(1);
     }
@@ -227,6 +249,7 @@ var FrontEndPalette = new function() {
     // hides the palette selection menu
     this.hidePaletteMenu = function() {
         paletteSetDiv.style.display = 'none';
+        FrontEndMenu.hideOverlay();
     }
     
     // sets the preview color's background color

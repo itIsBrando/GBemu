@@ -78,6 +78,7 @@ function showPopupMenu(title, buttonText) {
         return false;
     
     popupMenu.style.display = "block";
+    FrontEndMenu.showOverlay();
     // set title
     document.getElementById('popup-title').innerHTML = title;
     popupSubmitButton.innerText = buttonText;
@@ -89,6 +90,7 @@ function showPopupMenu(title, buttonText) {
 
 function hidePopupMenu() {
     popupMenu.style.display = "none";
+    FrontEndMenu.hideOverlay();
 
     // now we must delete buttons from popup menu
     if(popupSubmitButton.innerText != "Save") {
