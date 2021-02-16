@@ -180,6 +180,8 @@ function showMessage(string, title) {
     messageContent.innerHTML = string;
     messageHeader.textContent = title || "ALERT";
     // show 
+    if(messageDiv.style.display == "block")
+        FrontEndMenu.hideOverlay();
     messageDiv.style.display = "block";
     messageConfirm.focus();
     // dark the content below to force user to dismiss current message
@@ -221,8 +223,15 @@ var FrontEndMenu = new function() {
     }
 
     this.hideOverlay = function() {   
-        if(--overlays == 0)
+        if(--overlays <= 0)
+        {
             shadowOverlay.style.display = 'none';
+            overlays = 0;
+        }
+    }
+
+    this.getO = function() {
+        return overlays;
     }
 }
 
@@ -298,6 +307,59 @@ var FrontEndPalette = new function() {
     }
 }
 
+
+var FrontEndKeyBinding = new function() {
+    const changeKeybinding = document.getElementById('changeKeybinding');
+    const keyBindingDiv = document.getElementById('keyBindingDiv');
+    
+    // used by our keyboard event
+    this.isAssigning = false;    
+    this.bindings = {
+        "s" : "A",
+        "a" : "B",
+        "enter" : "START",
+        "shift" : "SELECT",
+        "arrowleft" : "LEFT",
+        "arrowright" : "RIGHT",
+        "arrowup" : "UP",
+        "arrowdown" : "DOWN"
+    };
+
+    this.modifyingButton = "";
+
+    
+    // shows the keybinding menu
+    this.show = function() {
+        FrontEndMenu.showOverlay();
+        keyBindingDiv.style.display = 'block';
+    }
+    
+    this.hide = function() {
+        FrontEndMenu.hideOverlay();
+        keyBindingDiv.style.display = 'none';
+    }
+
+    // buttonName is the string representation of the gameboy button that should be changed. Ex: `A`, `SELECT`, `LEFT`
+    this.assign = function(buttonName) {
+        this.isAssigning = true;
+        this.modifyingButton = buttonName;
+    }
+
+    // @param keyName is the string representation of the keyboard key
+    this.setKey = function(keyName) {
+        if(!this.isAssigning)
+            return;
+        this.isAssigning = false;
+
+        Object.keys(this.bindings).forEach((btn, index) => {
+            if(this.bindings[btn] == this.modifyingButton)
+                delete this.bindings[btn];
+                this.bindings[keyName] = this.modifyingButton;
+                showMessage(" " + this.modifyingButton + " assigned to " + keyName, "Key rebound.");
+                return;
+        });
+    }
+}
 
 
 /**

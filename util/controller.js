@@ -15,18 +15,21 @@ var gamepadButtons = {
  * @param {KeyboardEvent} event 
  */
 document.onkeydown = function(event) {
-    switch(event.key.toLowerCase()) {
-        case "s":           gamepadButtons["A"] = true; break;
-        case "a":           gamepadButtons["B"] = true; break;
-        case "enter":       gamepadButtons["START"] = true; break;
-        case "shift":       gamepadButtons["SELECT"]= true; break;
-        case "arrowleft":   gamepadButtons["LEFT"] = true; break;
-        case "arrowright":  gamepadButtons["RIGHT"] = true; break;
-        case "arrowup":     gamepadButtons["UP"]    = true; break;
-        case "arrowdown":   gamepadButtons["DOWN"]  = true; break;
+    const key = event.key.toLowerCase();
+    if(FrontEndKeyBinding.isAssigning)
+    {
+        FrontEndKeyBinding.setKey(key);
+        return;
+    }
+
+
+    switch(key) {
         case "f": requestFullscreen(); break;
         case "d": c.speed = c.FastForwardSpeed; break;
         case "=": restartEmulation(); break;
+        default:
+            if(FrontEndKeyBinding.bindings[key])
+                gamepadButtons[FrontEndKeyBinding.bindings[key]] = true;
     }
 }
 
@@ -36,16 +39,12 @@ document.onkeydown = function(event) {
  * @param {KeyboardEvent} event 
  */
 document.onkeyup = function(event) {
-    switch(event.key.toLowerCase()) {
-        case "s":           gamepadButtons["A"] = false; break;
-        case "a":           gamepadButtons["B"] = false; break;
-        case "enter":       gamepadButtons["START"] = false; break;
-        case "shift":       gamepadButtons["SELECT"]= false; break;
-        case "arrowleft":   gamepadButtons["LEFT"] = false; break;
-        case "arrowright":  gamepadButtons["RIGHT"] = false; break;
-        case "arrowup":     gamepadButtons["UP"]    = false; break;
-        case "arrowdown":   gamepadButtons["DOWN"]  = false; break;
+    const key = event.key.toLowerCase();
+    switch(key) {
         case "d": c.speed = 1; break;
+        default:
+            if(FrontEndKeyBinding.bindings[key])
+                gamepadButtons[FrontEndKeyBinding.bindings[key]] = false;
     }
 }
 
