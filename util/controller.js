@@ -18,18 +18,24 @@ document.onkeydown = function(event) {
     const key = event.key.toLowerCase();
     if(FrontEndKeyBinding.isAssigning)
     {
+        event.preventDefault();
         FrontEndKeyBinding.setKey(key);
         return;
     }
 
 
     switch(key) {
-        case "f": requestFullscreen(); break;
-        case "d": c.speed = c.FastForwardSpeed; break;
         case "=": restartEmulation(); break;
         default:
-            if(FrontEndKeyBinding.bindings[key])
-                gamepadButtons[FrontEndKeyBinding.bindings[key]] = true;
+            const binding = FrontEndKeyBinding.bindings[key];
+            if(binding)
+            {
+                if(binding == "FAST")
+                    c.speed = c.FastForwardSpeed;
+                else
+                    gamepadButtons[binding] = true;
+
+            }
     }
 }
 
@@ -40,12 +46,15 @@ document.onkeydown = function(event) {
  */
 document.onkeyup = function(event) {
     const key = event.key.toLowerCase();
-    switch(key) {
-        case "d": c.speed = 1; break;
-        default:
-            if(FrontEndKeyBinding.bindings[key])
-                gamepadButtons[FrontEndKeyBinding.bindings[key]] = false;
+
+    const binding = FrontEndKeyBinding.bindings[key];
+    if(binding) {
+        if(binding == "FAST")
+            c.speed = 1;
+        else
+            gamepadButtons[binding] = false;
     }
+
 }
 
 

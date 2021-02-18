@@ -50,6 +50,7 @@ function readFromLocal(key) {
     return new Uint8Array(arr);
 }
 
+
 const localSaveButton = document.getElementById('localSaveButton');
 const localLoadButton = document.getElementById('localLoadButton');
 const localSaveName = document.getElementById('localSaveName');
@@ -72,8 +73,6 @@ localSaveName.onkeydown = function(event) {
  * @returns false if the menu is already open
  */
 function showPopupMenu(title, buttonText) {
-    console.log(popupMenu.style.display);
-
     if(popupMenu.style.display == "block")
         return false;
     
@@ -150,6 +149,7 @@ function pasteLabel() {
 
     injectLocalStorage(this.value);
 }
+
 
 /**
  * Loads a key into MBC ram

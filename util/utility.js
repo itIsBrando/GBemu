@@ -301,9 +301,14 @@ var FrontEndPalette = new function() {
 
     this.load = function() {
         const pal = localStorage.getItem("__core_defaultPalette");
-        palette = JSON.parse(pal);
-        this.onPaletteArrow();
-        showMessage("Palette loaded.");
+        if(pal)
+        {
+            palette = JSON.parse(pal);
+            this.onPaletteArrow();
+            showMessage("Palette loaded.");
+        } else {
+            showMessage("No Palette Saved", "Unable to Load");
+        }
     }
 }
 
@@ -322,20 +327,54 @@ var FrontEndKeyBinding = new function() {
         "arrowleft" : "LEFT",
         "arrowright" : "RIGHT",
         "arrowup" : "UP",
-        "arrowdown" : "DOWN"
+        "arrowdown" : "DOWN",
+        "f" : "FAST"
     };
 
     this.modifyingButton = "";
-
     
     // shows the keybinding menu
     this.show = function() {
         FrontEndMenu.showOverlay();
         keyBindingDiv.style.display = 'block';
+        keyBindingDiv.focus();
+
+        this.fillButtonText();
+    }
+
+    this.fillButtonText = function() {
+        // initialize button texts
+        const keywordbuttons = keyBindingDiv.getElementsByClassName("keypad-binding-btn")
+        const strings = [
+            "A button",
+            "B button",
+            "SELECT button",
+            "START button",
+            "UP",
+            "DOWN",
+            "LEFT",
+            "RIGHT",
+            "FAST FORWARD"
+        ];
+        const keyboardBindings = Object.keys(this.bindings);
+
+        const bindingsValues = Object.values(this.bindings);
+        for(let i = 0; i < keywordbuttons.length; i++)
+        {
+            /* this complicated shiz idek how it works
+                just don't touch it!!
+                the order of `this.bindings` changes whenever a key is reassigned,
+                 so we must ensure that everything lines up in the same order
+            */
+            const index = bindingsValues.findIndex(txt => txt == strings[i].split(' ')[0]);
+            keywordbuttons[i].innerHTML = strings[i] + "<b> " + keyboardBindings[index] + "</b>";
+        }
+        
     }
     
     this.hide = function() {
         FrontEndMenu.hideOverlay();
+        this.isAssigning = false;
         keyBindingDiv.style.display = 'none';
     }
 
@@ -345,7 +384,10 @@ var FrontEndKeyBinding = new function() {
         this.modifyingButton = buttonName;
     }
 
-    // @param keyName is the string representation of the keyboard key
+    /**
+     * @param keyName is the string representation of the keyboard key
+     * for some reason this function gets called 8 times from the keyboard event but whatever
+    */
     this.setKey = function(keyName) {
         if(!this.isAssigning)
             return;
@@ -356,6 +398,7 @@ var FrontEndKeyBinding = new function() {
                 delete this.bindings[btn];
                 this.bindings[keyName] = this.modifyingButton;
                 showMessage(" " + this.modifyingButton + " assigned to " + keyName, "Key rebound.");
+                this.fillButtonText();
                 return;
         });
     }
@@ -371,7 +414,6 @@ function hasTouchscreen() {
 }
 
 
-
 // toggle between emulating in DMG mode or attempting CGB mode
 const toggleDMGMode = document.getElementById('toggleDMGMode');
 
@@ -381,13 +423,11 @@ toggleDMGMode.onclick = function() {
         toggleDMGMode.innerText = "Force DMG: yes";
     } else {
         toggleDMGMode.innerText = "Force DMG: no";
-
     }
 
     c.forceDMG = !c.forceDMG;
 
     if(c.isRunning)
-    {
-        showMessage("Reload the ROM to see an affect.", "Changed Emulation Mode");
-    }
+        showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
+
 }

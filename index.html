@@ -89,7 +89,7 @@
                 /* used for the <div> that hosts all submenu items */
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
                 background-color: none;
-                z-index: 1;
+                z-index: 0;
                 display: none;
                 width: 200px;
                 left: 0;
@@ -142,20 +142,20 @@
             }
 
             .menubtn {
-                background-color: aquamarine;
+                background-color:coral;
                 display: block;   
-                padding: 6px;
+                padding: 5px;
                 margin: none;
                 width: 250px;
                 border-width: 1px;
             }
 
             .menubtn:hover {
-                background-color: cyan;
+                background-color: crimson;
             }
 
             .titlebtn {
-                background-color: coral;
+                background-color:deeppink;
                 display: block;
                 margin: none;
                 border: none;
@@ -163,7 +163,7 @@
             }
 
             .titlebtn:hover {
-                background-color: chocolate;
+                background-color:crimson;
             }
 
             /* Button used for setting keyboard characters */
@@ -198,6 +198,7 @@
                 float: right;
                 background-color: orangered;
                 max-width: 50px;
+                height: auto;
                 max-height: 50px;
                 border: none;
                 margin: 0px;
@@ -309,7 +310,7 @@
                     <!-- ROM Info -->
                     <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="showROMInfo()">ROM Info</button>
                     <!-- Reset Game -->
-                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="restartEmulation()"><b style="color: orangered;">reset game</b></button>
+                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="restartEmulation()"><b style="color:deepskyblue;">reset game</b></button>
                 </div>
             </div>
             
@@ -360,17 +361,20 @@
 
             <!-- pop up menu for changing keyboard controls -->
             <div class="popup" id="keyBindingDiv">
-                <b>Set Keyboard Bindings</b>
+                <b style="border-bottom: 3px solid aliceblue;">Set Keyboard Bindings</b>
                 <button class="x-btn" onclick="FrontEndKeyBinding.hide();">&times;</button>
                 <br>
-                <button onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn">A button</button>
-                <button onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn">B button</button>
-                <button onclick="FrontEndKeyBinding.assign('SELECT');" class="keypad-binding-btn">SELECT button</button>
-                <button onclick="FrontEndKeyBinding.assign('START');" class="keypad-binding-btn">START button</button>
-                <button onclick="FrontEndKeyBinding.assign('UP');" class="keypad-binding-btn">UP</button>
-                <button onclick="FrontEndKeyBinding.assign('DOWN');" class="keypad-binding-btn">DOWN</button>
-                <button onclick="FrontEndKeyBinding.assign('LEFT');" class="keypad-binding-btn">LEFT</button>
-                <button onclick="FrontEndKeyBinding.assign('RIGHT');" class="keypad-binding-btn">RIGHT</button>
+                
+                <button onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('SELECT');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('START');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('UP');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('DOWN');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('LEFT');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('RIGHT');" class="keypad-binding-btn"></button>
+                <br>
+                <button onclick="FrontEndKeyBinding.assign('FAST');" class="keypad-binding-btn"></button>
             </div>
             
             <!-- Pop up menu for saving/loading states -->
@@ -418,7 +422,7 @@
                 <h3 id="messageHeader" style="text-align: center; background-color: #dddddd; width: 100%; margin: 0px; padding: 0px;">ALERT</h3>
                 <!-- <br> -->
                 <!-- body -->
-                <a id="messageContent" style="color: aliceblue;">Message Content</a>
+                <a id="messageContent" style="color: aliceblue; padding: 1px 3px 1px 3px;">Message Content</a>
                 <!-- confirm -->
                 <button class="menubtn" style="max-width: 100%; width: 100%;" id="messageConfirm">Okay</button>
             </div>
