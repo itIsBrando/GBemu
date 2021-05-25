@@ -19,9 +19,9 @@ class Renderer {
     
     constructor() {
         this.context = canvas.getContext('2d');
+        this.context.fillStyle = "#FFFFFF";
+        this.context.fillRect(0, 0, 160, 144);
         this.screen = this.context.getImageData(0, 0, 160, 144);
-        for(let i = 0; i < 160 * 144 * 4; i++)
-            this.screen.data[i] = 0xFF;
 
         this.context.globalAlpha = 1.0;
         this.drawBuffer();
@@ -31,6 +31,10 @@ class Renderer {
         this.context.putImageData(this.screen, 0, 0);
     }
 
+    clearBuffer() {
+        for(let i = 0; i < 160 * 144 * 4; i++)
+            this.screen.data[i] = 0xFF;
+    }
 
     /**
      * Renders a scanline
@@ -43,9 +47,7 @@ class Renderer {
             cpu.framesToSkip++;
             if(cpu.framesToSkip < 144 * 8)
                 return
-            else if(cpu.framesToSkip < 144 * 16)
-            {}
-            else
+            else if(cpu.framesToSkip >= 144 * 16)
                 cpu.framesToSkip = 0;
         }
 
@@ -133,6 +135,7 @@ class Renderer {
             const x = cpu.read8(spriteBase + 1) - 8;
             const tile = cpu.read8(spriteBase + 2);
             const flags= cpu.read8(spriteBase + 3);
+            const t = (tile << 4) + 0x8000;
 
             // draw 8x16 sprites
             if(bigSprite)
@@ -140,15 +143,15 @@ class Renderer {
                 // if y-flip, then then second sprite is drawn above first 
                 if(UInt8.getBit(flags, 6))
                 {
-                    this.drawTile(x, y + 8, tile * 16 + 0x8000, flags, cpu);
-                    this.drawTile(x, y, (tile + 1) * 16 + 0x8000, flags, cpu);
+                    this.drawTile(x, y + 8, t, flags, cpu);
+                    this.drawTile(x, y, t + 16, flags, cpu);
                 } else {
-                    this.drawTile(x, y, tile * 16 + 0x8000, flags, cpu);
-                    this.drawTile(x, y + 8, (tile + 1) * 16 + 0x8000, flags, cpu);
+                    this.drawTile(x, y, t + 16, flags, cpu);
+                    this.drawTile(x, y + 8, t + 16, flags, cpu);
                 }
             } else {
                 
-                this.drawTile(x, y, tile * 16 + 0x8000, flags, cpu);
+                this.drawTile(x, y, t, flags, cpu);
             }
         }
     }
@@ -220,16 +223,17 @@ class Renderer {
 
     /**
      * Only meant for sprites
-     * @param {number} x 
-     * @param {number} y 
+     * @param {Number} x 
+     * @param {Number} y 
      * @param {UInt16} tileAddress 
      * @param {UInt8} flags 
-     * @param {CPU} cpu 
+     * @param {CPU} cpu
+     * @param {Boolean} useBGPal
      */
-    drawTile(x, y, tileAddress, flags, cpu) {
+    drawTile(x, y, tileAddress, flags, cpu, useBGPal) {
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
-        let pal = Renderer.getPalette(cpu, false, flags);
+        let pal = Renderer.getPalette(cpu, useBGPal, flags);
 
         for(let dy = 0; dy < 8; dy++) {
             const addr = tileAddress + (dy << 1);
@@ -259,15 +263,4 @@ class Renderer {
         }
     }
 
-    dumpTiles() {
-        for(let y = 0; y < 15; y++)
-        {
-            for(let x = 0; x < 20; x++)
-            {
-                const add = (x + y * 20) * 16;
-                this.drawTile(x <<3, y << 3, 0x8000 + add, 0, c);
-            }
-        }
-        this.drawBuffer();
-    }
 }

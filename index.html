@@ -63,7 +63,8 @@
                 padding: 0;
                 margin: 0;
                 transform: translate(-50%, 0);
-                outline: 15px solid azure;
+                border: 15px solid azure;
+                border-radius: 10px;
                 left: 50%;
 
             }
@@ -103,10 +104,11 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
                 background-color: #333333;
-                border: 3px solid #dddddd;
+                border: 5px solid #dddddd;
                 color: #f1f1f1;
                 box-shadow: 0px 16px 32px 0px rgba(0,0,0,0.8);
                 z-index: 9;
+                border-radius: 3px;
             }
 
             .message-div {
@@ -138,7 +140,7 @@
             }
 
             input:out-of-range {
-                background-color: darkred;.
+                background-color: darkred;
             }
 
             .menubtn {
@@ -146,8 +148,10 @@
                 display: block;   
                 padding: 5px;
                 margin: none;
+                margin-bottom: 1px;
                 width: 250px;
                 border-width: 1px;
+                border-radius: 4px;
             }
 
             .menubtn:hover {
@@ -160,6 +164,7 @@
                 margin: none;
                 border: none;
                 width: 33vw;
+                border-radius: 5px;
             }
 
             .titlebtn:hover {
@@ -171,6 +176,7 @@
                 background-color: cornflowerblue;
                 display:block;
                 border: none;
+                border-radius: 3px;
                 margin: 2px 0px 1px 2px;
             }
 
@@ -324,7 +330,7 @@
                     <button type="button" id="changeKeybinding" style="width: inherit;" class="menubtn" onclick="FrontEndKeyBinding.show();">Change Keyboard Controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn" onclick="FrontEndPalette.showPaletteMenu();">Change Palette</button>
                     <button type="button" id="toggleDMGMode" style="width: inherit;" class="menubtn">Force DMG: no</button>
-                    <button type="button" id="fullscreenToggle" style="width: inherit;" class="menubtn">Fullscreen</button>
+                    <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn" onclick="Debug.start();">Debugger</button>
                 </div>
             </div>
                 
@@ -342,6 +348,14 @@
             <!-- Screen -->
             <div id="viewport">
                 <canvas id="screen" width="160" height="144"></canvas>
+            </div>
+
+            <!-- New Debug menu -->
+            <div id="DebugDiv" style="width: 100%; z-index: -1; position: relative; display:none;">
+                <button type="button" class="menubtn" onclick="Debug.showTiles();">Tiles</button>
+                <button type="button" class="menubtn" onclick="Debug.showSprites();">OAM</button>
+                <button type="button" class="menubtn" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn" onclick="Debug.quit();">Exit</button>
             </div>
             
             <!-- Virtual Controller -->
@@ -434,6 +448,7 @@
         <script src="util/saveManager.js"></script>
         <script src="util/utility.js"></script>
         <script src="util/controller.js"></script>
+        <script src="util/debug.js"></script>
         <script src="javascript/types.js"></script>
         <script src="javascript/renderer.js"></script>
         <script src="javascript/mbc/MBC1.js"></script>
@@ -487,7 +502,6 @@
             const controlsToggle = document.getElementById('controlsToggle');
             // const optionsMenu = document.getElementById('optionsMenu');
             const optionsMenuToggle = document.getElementById('optionsMenuToggle');
-            const fullscreenToggle = document.getElementById('fullscreenToggle');
 
             // const saveMenu = document.getElementById('saveMenu');
             const saveMenuToggle = document.getElementById('saveMenuToggle');
@@ -506,15 +520,6 @@
             if(hasTouchscreen())
                 controlsToggle.click();
 
-            // for 'fullscreen button'
-            fullscreenToggle.addEventListener('click', function() {
-                if(!requestFullscreen())
-                {
-                    fullscreenToggle.style.display = "none";
-                    alert("This device does not support fullscreen");
-                }
-            });
-
             
             // save file to computer
             exportSaveButton.onclick = function() {
@@ -531,8 +536,6 @@
                     const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
 
                     copyClipMenu(new String(data));
-
-                    fullscreenToggle.style.display = "none";
                 } else {
                     downloadSave();
                 }

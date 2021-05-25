@@ -35,6 +35,28 @@ function startEmulation(rom) {
     c.timer = setInterval(run, INTERVAL_SPEED);
 };
 
+
+
+/**
+ * Pauses the CPU if it is running, otherwise does nothing.
+ */
+function pauseEmulation() {
+    if(!c.isRunning)
+         return;
+
+    clearInterval(c.timer);
+};
+
+
+/**
+ * Starts the CPU from a paused state
+ * @see pauseEmulation
+ */
+function resumeEmulation() {
+	c.timer = setInterval(run, INTERVAL_SPEED);
+}
+
+
 /**
  * Restarts the game that is running
  */
@@ -46,6 +68,7 @@ function restartEmulation() {
     c.reset();
     c.timer = setInterval(run, INTERVAL_SPEED)
 }
+
 
 function run() {
     const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;

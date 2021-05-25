@@ -4,6 +4,7 @@ util/saveManager.js
 util/utility.js
 util/touch.js
 util/controller.js
+util/debug.js
 javascript/types.js
 javascript/renderer.js
 
