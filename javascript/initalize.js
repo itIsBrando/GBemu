@@ -10,18 +10,6 @@ var c = new CPU();
  */
 
 
-document.getElementById("timerStop").onclick = function() {
-    clearInterval(c.timer);
-}
-
-
-document.getElementById("timerStep").onclick = function() {
-    clearInterval(c.timer);
-    console.log("0x"+c.pc.v.toString(16) + " execute: 0x" + c.read8(c.pc.v).toString(16));
-    c.execute();
-}
-
-
 /**
  * Begins the CPU.
  * - initializes a timer and begins running the ROM.

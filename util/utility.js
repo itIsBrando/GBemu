@@ -158,7 +158,7 @@ function showROMInfo() {
         '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +
         '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.ram.length + " bytes": "none") +
         '',
-        "ROM Info"
+        "ROM Info v1.0"
     );
 }
 

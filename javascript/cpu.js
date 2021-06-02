@@ -366,8 +366,9 @@ class CPU {
         } else if(address == 0xFF06) {
             this.timerRegs.regs.tma = byte;
         } else if(address == 0xFF07) {
+            const tac = this.timerRegs.regs.tac;
             this.timerRegs.regs.tac = byte;
-            if((this.timerRegs.regs.tac & 0x3) != (byte & 0x3))
+            if((tac & 0x3) != (byte & 0x3))
                 this.timerRegs.setClockFrequency();
         } else if(address == 0xFF0F) {
             this.interrupt_flag = byte;

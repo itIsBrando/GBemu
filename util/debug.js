@@ -4,16 +4,24 @@ const OAM_BASE = 0xFE00;
 var Debug = new function() {
 	const TileCanvas = document.getElementById("DebugTileCanvas");
 	const DebugDiv = document.getElementById('DebugDiv');
+	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
+	let curObj = 0;
+
+	this.hideOpen = function() {
+		SpriteDetailDiv.style.display = 'none';
+		c.renderer.clearBuffer();
+	}
 
 	this.start = function() {
 		DebugDiv.style.display = "block";
+		this.hideOpen();
 		pauseEmulation();
-		c.renderer.clearBuffer();
+		curObj = 0;
 	}
 
 	this.showTiles = function() {
 		pauseEmulation();
-		c.renderer.clearBuffer();
+		this.hideOpen();
 
 		let t = 0;
 		// all of these are incorrectly drawn with OBJ palette rather than BG palette
@@ -28,9 +36,12 @@ var Debug = new function() {
 
 	this.showSprites = function() {
 		pauseEmulation();
-		c.renderer.clearBuffer();
-
+		this.hideOpen();
+		SpriteDetailDiv.style.display = "inline-block";
 		let s = 0;
+		
+		this.showObj(0);
+
 		for(let y = 0; y < 4; y++)
 		{
 			for(let x = 0; x < 10; x++)
@@ -44,12 +55,11 @@ var Debug = new function() {
 		}
 
 		c.renderer.drawBuffer();
-		console.log("OAM drawn");
 	}
 	
 	this.showMap = function() {
 		let mapBase = c.ppu.mapBase;
-		c.renderer.clearBuffer();
+		this.hideOpen();
 
 		for(let y = 0; y < 16; y++)
 		{
@@ -62,7 +72,42 @@ var Debug = new function() {
 		}
 
 		c.renderer.drawBuffer();
-		console.log("Map drawn");
+	}
+
+	/**
+	 * @todo ADD TILE PREVIEW IMAGE
+	 * @param {Number} num 
+	 */
+	this.showObj = function(num) {
+		const base = OAM_BASE + (num << 2);
+		const y = c.read8(base);
+		const x = c.read8(base + 1);
+		const t = c.read8(base + 2);
+		const f = c.read8(base + 3);
+
+		const a = SpriteDetailDiv.getElementsByTagName("p")[0];
+		const b = SpriteDetailDiv.getElementsByTagName("b")[0];
+		a.innerHTML = "\
+		Byte 0 (Y): ${0}<br>\
+		Byte 1 (X): ${1}<br>\
+		Byte 2 (Tile): ${2}<br>\
+		Byte 3 (Flag): ${3}".format(y, x, t, f);
+
+		b.innerHTML = "Sprite " + num;
+	}
+
+	this.nextObj = function() {
+		if(curObj++ == 39)
+			curObj = 0;
+		
+		this.showObj(curObj);
+	}
+
+	this.prevObj = function() {
+		if(curObj-- == 0)
+			curObj = 39;
+
+		this.showObj(curObj);
 	}
 
 	this.quit = function() {
