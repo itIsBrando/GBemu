@@ -350,6 +350,7 @@
                 <button type="button" class="menubtn" onclick="Debug.showTiles();">Tiles</button>
                 <button type="button" class="menubtn" onclick="Debug.showSprites();">OAM</button>
                 <button type="button" class="menubtn" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn" onclick="Debug.showDisassembly();">Disassembly</button>
                 <button type="button" class="menubtn" onclick="Debug.quit();">Exit</button>
                 <div id="SpriteDetailDiv" style="min-width: fit-content;" class="popup" style="float:right;">
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left;height: 25px; border:none;" onclick="Debug.prevObj();">&larr;</button>
@@ -357,6 +358,12 @@
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="Debug.nextObj();">&rarr;</button>
                     <br>
                     <p style="padding-right: 3px; padding-left: 3px;"></p>
+                </div>
+                <div id="DisassemblyDiv" style="min-width: fit-content;" class="popup">
+                    <b>Disassembler v0.1</b><br>
+                    <a style="font-family: monospace;" width: 100%;></a>
+                    <button type="button" class="menubtn" onclick="Debug.stepDis();">step</button>
+                    <button type="button" class="menubtn" onclick="Debug.stepUntilBreak();">run until break</button>
                 </div>
             </div>
             

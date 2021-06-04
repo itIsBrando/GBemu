@@ -84,7 +84,7 @@ function readROMName() {
  * @param {any} v 
  */
 function hex(v) {
-    return "0x" + v.toString(16);
+    return "0x" + v.toString(16).toUpperCase();
 }
 
 
