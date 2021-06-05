@@ -52,9 +52,14 @@ function restartEmulation() {
     if(!c.isRunning)
         return;
     
+        
     clearInterval(c.timer);
     c.reset();
     c.timer = setInterval(run, INTERVAL_SPEED)
+
+    if(Debug.enabled) {
+        Debug.start();
+    }
 }
 
 

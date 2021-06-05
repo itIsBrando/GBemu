@@ -293,6 +293,8 @@ var Debug = new function() {
 	let curObj = 0;
 	let curPC = 0;
 
+	this.enabled = false;
+
 	this.hideOpen = function() {
 		SpriteDetailDiv.style.display = 'none';
 		DisassemblyDiv.style.display = 'none';
@@ -304,6 +306,7 @@ var Debug = new function() {
 		this.hideOpen();
 		pauseEmulation();
 		curObj = 0;
+		this.enabled = true;
 	}
 
 	this.showTiles = function() {
@@ -398,10 +401,17 @@ var Debug = new function() {
 	}
 
 	this.quit = function() {
-		resumeEmulation();
+		this.enabled = false;
 		DebugDiv.style.display = 'none';
+		resumeEmulation();
 	}
 
+	this.hex = function(num, usePrefix) {
+		let s = hex(num).substring(2);
+		if(usePrefix)
+			s = "$" + s;
+		return s;
+	}
 	
 	const useBrackets = true;
 
@@ -418,14 +428,14 @@ var Debug = new function() {
 			switch(id)
 			{
 				case "u8":
-					append = hex(c.read8(curPC++));
+					append = this.hex(c.read8(curPC++));
 					break;
 				case "s8":
 					const addr = c.read8(curPC++);
-					append = hex(addr > 127 ? curPC - addr: curPC + addr);
+					append = this.hex(addr > 127 ? curPC - addr: curPC + addr);
 					break;
 				case "u16":
-					append = hex(c.read16(curPC));
+					append = this.hex(c.read16(curPC));
 					curPC += 2;
 					break;
 				default:
@@ -498,7 +508,9 @@ var Debug = new function() {
 	}
 
 	this.stepDis = function() {
-		c.execute();
+		do {
+			c.execute();
+		} while(c.isHalted);
 		this.showDisassembly();
 	}
 }
