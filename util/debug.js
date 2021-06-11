@@ -285,13 +285,25 @@ const opcodeLUT = [
 	"rst 0x38",
 ];
 
+
 var Debug = new function() {
+	const DisassemblyGotoInput = document.getElementById('DisassemblyGotoInput');
 	const TileCanvas = document.getElementById("DebugTileCanvas");
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
 	let curObj = 0;
 	let curPC = 0;
+	let prevAddr = 0;
+
+	this.spr_canvas = SpriteDetailDiv.getElementsByTagName("canvas")[0];
+	this.spr_context = this.spr_canvas.getContext("2d");
+	this.spr_data = this.spr_context.getImageData(0, 0, 8, 8);
+
+	this.spr_blit = function() {
+		this.spr_context.putImageData(this.spr_data, 0, 0);
+	}
+
 
 	this.enabled = false;
 
@@ -301,13 +313,29 @@ var Debug = new function() {
 		c.renderer.clearBuffer();
 	}
 
+
 	this.start = function() {
 		DebugDiv.style.display = "block";
 		this.hideOpen();
 		pauseEmulation();
 		curObj = 0;
 		this.enabled = true;
+
+		DisassemblyGotoInput.value = "$";
+
+		DisassemblyGotoInput.oninput = function(e) {
+			if(!e.target.value.startsWith("$"))
+				e.target.value = "$" + e.target.value;
+			
+			e.target.value = e.target.value.replace(/(?![A-Fa-f0-9])\w+/g,'');
+		}
+
+
+		this.spr_context.fillStyle = "#FFFFFF";
+        this.spr_context.fillRect(0, 0, 160, 144);
+        this.spr_context.globalAlpha = 1.0;
 	}
+
 
 	this.showTiles = function() {
 		pauseEmulation();
@@ -323,6 +351,7 @@ var Debug = new function() {
 		c.renderer.drawBuffer();
 		console.log("Tiles drawn");
 	}
+
 
 	this.showSprites = function() {
 		pauseEmulation();
@@ -347,6 +376,7 @@ var Debug = new function() {
 		c.renderer.drawBuffer();
 	}
 	
+
 	this.showMap = function() {
 		let mapBase = c.ppu.mapBase;
 		this.hideOpen();
@@ -363,6 +393,7 @@ var Debug = new function() {
 
 		c.renderer.drawBuffer();
 	}
+
 
 	/**
 	 * @todo ADD TILE PREVIEW IMAGE
@@ -383,8 +414,14 @@ var Debug = new function() {
 		Byte 2 (Tile): ${2}<br>\
 		Byte 3 (Flag): ${3}".format(y, x, t, f);
 
+		this.spr_data.data.fill(0);
+		c.renderer.drawTile(0, 0, VRAM_BASE + t * 16, f, c, false, true);
+		
+		this.spr_blit();
+
 		b.innerHTML = "Sprite " + num;
 	}
+
 
 	this.nextObj = function() {
 		if(curObj++ == 39)
@@ -393,6 +430,7 @@ var Debug = new function() {
 		this.showObj(curObj);
 	}
 
+
 	this.prevObj = function() {
 		if(curObj-- == 0)
 			curObj = 39;
@@ -400,11 +438,13 @@ var Debug = new function() {
 		this.showObj(curObj);
 	}
 
+
 	this.quit = function() {
 		this.enabled = false;
 		DebugDiv.style.display = 'none';
 		resumeEmulation();
 	}
+
 
 	this.hex = function(num, usePrefix) {
 		let s = hex(num).substring(2);
@@ -413,6 +453,7 @@ var Debug = new function() {
 		return s;
 	}
 	
+
 	const useBrackets = true;
 
 	this.getOpString = function(op) {
@@ -428,19 +469,21 @@ var Debug = new function() {
 			switch(id)
 			{
 				case "u8":
-					append = this.hex(c.read8(curPC++));
+					append = this.hex(c.read8(curPC));
+					this.increasePC(1);
 					break;
 				case "s8":
-					const addr = c.read8(curPC++);
+					const addr = c.read8(curPC);
 					append = this.hex(addr > 127 ? curPC - addr: curPC + addr);
+					this.increasePC(1);
 					break;
 				case "u16":
 					append = this.hex(c.read16(curPC));
-					curPC += 2;
+					this.increasePC(2);
 					break;
 				default:
 					append = id;
-					curPC++;
+					this.increasePC(1);
 			}
 
 			s = s.replace("${"+id+"}", append);
@@ -450,9 +493,14 @@ var Debug = new function() {
 	}
 
 
+	this.increasePC = function(dx) {
+			curPC += dx;
+	}
+
+
 	this.parseOp = function(pc) {
 		let op = c.read8(pc);
-		curPC++;
+		this.increasePC(1);
 
 		if(opcodeLUT[op])
 			return hex(op) + " : " + this.getOpString(op);
@@ -462,29 +510,47 @@ var Debug = new function() {
 
 	this.breakpoints = [];
 
-	this.notBreaking = function(pc) {
-		if(this.breakpoints.length == 0)
-			return true;
-		
-		for(i in this.breakpoints)
-			if(this.breakpoints[i] == pc)
-				return true;
+	this.newBreakpoint = function(addr)
+	{
+		this.breakpoints[addr] = true;
+	}
 
-		return false;
+	this.removeBreakpoint = function(addr)
+	{
+		this.breakpoints[addr] = false;
+	}
+
+	this.isBreakpoint = function(pc) {
+		if(this.breakpoints.length == 0)
+			return false;
+
+		return this.breakpoints[pc] == true;
 	}
 
 	this.stepUntilBreak = function() {
-		while(!this.notBreaking(c.pc.v)) {
+		while(!this.isBreakpoint(c.pc.v)) {
 			c.execute();
 		}
-		this.showDisassembly();
+		this.showDisassembly(c.pc.v);
 	}
 
-	this.showDisassembly = function() {
+	/**
+	 * 
+	 * @param {Number} pc PC base to inspect
+	 */
+	this.showDisassembly = function(pc) {
 		const a = DisassemblyDiv.getElementsByTagName("a")[0];
 		this.hideOpen();
 		DisassemblyDiv.style.display = 'block';
-		curPC = c.pc.v;
+		curPC = pc;
+		let curScroll = curPC - prevAddr;
+
+		if(Math.abs(curScroll) < 20) {
+			curPC -= curScroll;
+		} else {
+			prevAddr = pc;
+		}
+
 
 		a.innerHTML = ""
 		for(let i = 0; i < 20; i++)
@@ -495,11 +561,15 @@ var Debug = new function() {
 				str = "<b width: 100%; style='background-color:lime; color: gray;'>";
 			}
 
+			if(this.isBreakpoint(curPC))
+				str += "<b style='color:red;'>*</b>";
+
 			str += hex(curPC) + " : "
 				 + this.parseOp(curPC) + "<br>";
 
 			if(isCurPC)
 				str += "</b>";
+
 
 			a.innerHTML += str;
 		}
@@ -507,10 +577,46 @@ var Debug = new function() {
 
 	}
 
+
 	this.stepDis = function() {
 		do {
 			c.execute();
 		} while(c.isHalted);
-		this.showDisassembly();
+		this.showDisassembly(c.pc.v);
 	}
+
+
+	this.getAddr = function() {
+		let s = DisassemblyGotoInput.value.substring(1);
+		if(s.length == 0)
+			return null;
+		else
+			return Number("0x" + s);
+	}
+
+	this.gotoDis = function() {
+		let addr = this.getAddr();
+		if(addr)
+			this.showDisassembly(addr);
+	}
+
+	this.addBreak = function() {
+		let addr = this.getAddr();
+		if(!addr)
+			return;
+
+		this.newBreakpoint(addr);
+		this.showDisassembly(c.pc.v);
+	}
+
+	this.rmBreak = function() {
+		let addr = this.getAddr();
+		if(!addr)
+			return;
+		
+		this.removeBreakpoint(addr);
+		this.showDisassembly(c.pc.v);
+	}
+
+
 }

@@ -230,10 +230,12 @@ class Renderer {
      * @param {CPU} cpu
      * @param {Boolean} useBGPal
      */
-    drawTile(x, y, tileAddress, flags, cpu, useBGPal) {
+    drawTile(x, y, tileAddress, flags, cpu, useBGPal, isDebug) {
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
         let pal = Renderer.getPalette(cpu, useBGPal, flags);
+        const screen = isDebug ? Debug.spr_data : this.screen;
+        const w = isDebug ? 8 : 160;
 
         for(let dy = 0; dy < 8; dy++) {
             const addr = tileAddress + (dy << 1);
@@ -254,11 +256,11 @@ class Renderer {
                 // check out of bound
                 if((x + xf > 159) || (x + xf < 0))
                     continue;
-                let canvasOffset = (x + xf + (y + yf) * 160) << 2;
-                this.screen.data[canvasOffset + 0] = col[0];
-                this.screen.data[canvasOffset + 1] = col[1];
-                this.screen.data[canvasOffset + 2] = col[2];
-                this.screen.data[canvasOffset + 3] = 255; // alpha
+                let canvasOffset = (x + xf + (y + yf) * w) << 2;
+                screen.data[canvasOffset + 0] = col[0];
+                screen.data[canvasOffset + 1] = col[1];
+                screen.data[canvasOffset + 2] = col[2];
+                screen.data[canvasOffset + 3] = 255; // alpha
             }
         }
     }

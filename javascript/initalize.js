@@ -2,6 +2,7 @@
 
 const INTERVAL_SPEED = 8;
 var c = new CPU();
+var romLoaded = false;
 
 // passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 /**
@@ -17,6 +18,7 @@ var c = new CPU();
  */
 function startEmulation(rom) {
     clearInterval(c.timer);
+    romLoaded = true;
     c.initialize();
     c.loadROM(rom);
     
@@ -41,7 +43,8 @@ function pauseEmulation() {
  * @see pauseEmulation
  */
 function resumeEmulation() {
-	c.timer = setInterval(run, INTERVAL_SPEED);
+    if(romLoaded)
+    	c.timer = setInterval(run, INTERVAL_SPEED);
 }
 
 
@@ -49,7 +52,7 @@ function resumeEmulation() {
  * Restarts the game that is running
  */
 function restartEmulation() {
-    if(!c.isRunning)
+    if(!c.isRunning || !romLoaded)
         return;
     
         
