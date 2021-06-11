@@ -304,6 +304,8 @@
                 <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
+                    <!-- Load from URL -->
+                    <button type="button" style="width: inherit" class="menubtn" id="urlInput">Load ROM from URL</button>
                     <!-- Savefile uploading -->
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
                     <!-- Savefile downloading -->
@@ -480,6 +482,19 @@
         <script src="util/touch.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
+
+            // for url ROM loading
+            document.getElementById('urlInput').addEventListener('click', function() {
+                fetch("https://drive.google.com/uc?id=1MqGg9lXkLCJaZ9dlcX9oWW5KyelUJNhX&export=download").then(
+                    (r)=>{
+                        r.text().then(
+                            (d)=>{
+                                console.log(d);
+                            }
+                        )
+                    }
+                );
+            });
             
             // for loading ROM
             inputForm.addEventListener('change', function() {
