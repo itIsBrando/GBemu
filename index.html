@@ -480,20 +480,22 @@
         <script src="javascript/cpu.js"></script>
         <script src="javascript/initalize.js"></script>
         <script src="util/touch.js"></script>
+        <script src="util/data/test.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
 
             // for url ROM loading
             document.getElementById('urlInput').addEventListener('click', function() {
-                fetch("https://drive.google.com/uc?id=1MqGg9lXkLCJaZ9dlcX9oWW5KyelUJNhX&export=download").then(
-                    (r)=>{
-                        r.text().then(
-                            (d)=>{
-                                console.log(d);
-                            }
-                        )
-                    }
-                );
+                const obj = JSON.parse(data);
+                const arr = new Array();
+
+                // add each element to our array
+                for(let i in obj)
+                {
+                    arr.push(obj[i]);
+                }
+                
+                startEmulation(arr);
             });
             
             // for loading ROM

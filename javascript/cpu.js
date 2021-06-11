@@ -493,7 +493,7 @@ class CPU {
      */
     loadROM(array) {
         const untrimmedROM = new Uint8Array(array);
-
+    
         const trimmed = [...new Uint8Array(array)];
         this.mem.rom = new Uint8Array(trimmed.splice(0, 0x8000));
 
