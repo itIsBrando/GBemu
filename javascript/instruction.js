@@ -806,7 +806,6 @@ var opTable = {
     // HALT
     0x76: function(cpu) {
             cpu.isHalted = true;
-            this.haltedCycles += 4;
     },
     // ld r, a
     0x77: function(cpu) {

@@ -701,11 +701,15 @@ class CPU {
             opTable[opcode](this);
         }
 
-        // if interrupts are disabled but we have something pending, then break from HALT
-        if(this.isHalted && !this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
+        if(this.isHalted)
         {
-            this.skip(1);
-            this.isHalted = false;
+            this.haltedCycles += 4;
+            // if interrupts are disabled but we have something pending, then break from HALT
+            if(!this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
+            {
+                this.skip(1);
+                this.isHalted = false;
+            }
         }
 
         // manage interrupts
