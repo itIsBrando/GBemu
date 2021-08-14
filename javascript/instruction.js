@@ -2,17 +2,17 @@
 
 let errorParagraph = document.getElementById("errorP");
 /**
- * @param {number} op 
- * @param {CPU} cpu 
+ * @param {number} op
+ * @param {CPU} cpu
  * @param {boolean} isCB if the opcode is part of the extended set
  */
 function illegalOpcode(op, cpu, isCB) {
     let out = "Unknown Opcode, 0x";
     if(isCB == true)
         out+="CB 0x";
-    
+
     out +=  hex(op) + ", at address 0x" + hex(cpu.pc.v);
-    
+
     showMessage(out, "Illegal Opcode");
     clearInterval(cpu.timer);
 }
@@ -99,7 +99,7 @@ var opTable = {
     0x0B: function(cpu) {
         cpu.bc.v--;
         cpu.skip(1);
-    },    
+    },
     // inc c
     0x0C: function(cpu) {
         cpu.halfCarry8(cpu.bc.low, 1, Arithmetic.ADD);
@@ -220,7 +220,7 @@ var opTable = {
     0x1B: function(cpu) {
         cpu.de.v--;
         cpu.skip(1);
-    },    
+    },
     // inc e
     0x1C: function(cpu) {
         cpu.halfCarry8(cpu.de.low, 1, Arithmetic.ADD);
@@ -259,7 +259,7 @@ var opTable = {
     },
 
 
-    
+
     // jr nz, d8
     0x20: function(cpu) {
         let d8 = cpu.readImmediate8();
@@ -361,7 +361,7 @@ var opTable = {
     0x2B: function(cpu) {
         cpu.hl.v--;
         cpu.skip(1);
-    },    
+    },
     // inc l
     0x2C: function(cpu) {
         cpu.halfCarry8(cpu.hl.low, 1, Arithmetic.ADD);
@@ -394,7 +394,7 @@ var opTable = {
         cpu.skip(1);
     },
 
-    
+
     // jr nc, d8
     0x30: function(cpu) {
         let d8 = cpu.readImmediate8();
@@ -479,7 +479,7 @@ var opTable = {
     0x3B: function(cpu) {
         cpu.sp.v--;
         cpu.skip(1);
-    },    
+    },
     // inc a
     0x3C: function(cpu) {
         cpu.halfCarry8(cpu.af.high, 1, Arithmetic.ADD);
@@ -514,7 +514,7 @@ var opTable = {
     /*********************************************************
      *                          4X
      ********************************************************/
-    
+
     // ld r, b
     0x40: function(cpu) {
         cpu.bc.high = cpu.bc.high;
@@ -596,11 +596,11 @@ var opTable = {
         cpu.bc.low = cpu.af.high;
         cpu.skip(1);
     },
-    
+
     /*********************************************************
      *                          5X
      ********************************************************/
- 
+
     // ld r, b
     0x50: function(cpu) {
         cpu.de.high = cpu.bc.high;
@@ -682,7 +682,7 @@ var opTable = {
         cpu.de.low = cpu.af.high;
         cpu.skip(1);
     },
-    
+
     /*********************************************************
      *                          0x60-0x6F
      ********************************************************/
@@ -768,7 +768,7 @@ var opTable = {
         cpu.hl.low = cpu.af.high;
         cpu.skip(1);
     },
-    
+
     /*********************************************************
      *                          0x70-0x7F
      ********************************************************/
@@ -805,11 +805,8 @@ var opTable = {
     },
     // HALT
     0x76: function(cpu) {
-        // if(cpu.interrupt_master)
             cpu.isHalted = true;
-        // else
-            // cpu.skip(1);
-        
+            this.haltedCycles += 4;
     },
     // ld r, a
     0x77: function(cpu) {
@@ -857,7 +854,7 @@ var opTable = {
         cpu.af.high = cpu.af.high;
         cpu.skip(1);
     },
-    
+
     /*********************************************************
      *                          0x80-0x8F
      ********************************************************/
@@ -1064,7 +1061,7 @@ var opTable = {
         cpu.zero(cpu.af.high);
         cpu.skip(1);
     },
-    
+
     /*********************************************************
      *                          0x90-0x9F
      ********************************************************/
@@ -1076,7 +1073,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1088,7 +1085,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1100,7 +1097,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1112,7 +1109,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1124,7 +1121,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1136,7 +1133,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1148,7 +1145,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1160,7 +1157,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n;
 
         cpu.zero(cpu.af.high);
@@ -1174,7 +1171,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1187,7 +1184,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1200,7 +1197,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1213,7 +1210,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1226,7 +1223,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1239,7 +1236,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1252,7 +1249,7 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
@@ -1265,13 +1262,13 @@ var opTable = {
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.carry8(cpu.af.high, n, Arithmetic.SBC);
         cpu.flags.n = true;
-        
+
         cpu.af.high -= n + carry;
 
         cpu.zero(cpu.af.high);
         cpu.skip(1);
     },
-        
+
         /*********************************************************
          *                          0xA0-0xAF
          ********************************************************/
@@ -1283,7 +1280,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1295,7 +1292,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1307,7 +1304,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1319,7 +1316,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1331,7 +1328,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1343,7 +1340,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1355,7 +1352,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1367,7 +1364,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -1380,7 +1377,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1392,7 +1389,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1404,7 +1401,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1416,7 +1413,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1428,7 +1425,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1440,7 +1437,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1452,7 +1449,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -1464,13 +1461,13 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high = 0;
 
             cpu.zero(cpu.af.high);
             cpu.skip(1);
         },
-        
+
         /*********************************************************
          *                          0xB0-0xBF
          ********************************************************/
@@ -1482,7 +1479,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1494,10 +1491,10 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
-            
+
             cpu.zero(cpu.af.high);
             cpu.skip(1);
         },
@@ -1507,7 +1504,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1519,7 +1516,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1531,7 +1528,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1543,7 +1540,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1555,7 +1552,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1567,7 +1564,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);
@@ -1646,7 +1643,7 @@ var opTable = {
             cpu.flags.z = true;
             cpu.skip(1);
         },
-        
+
         /*********************************************************
          *                          0xC0-0xCF
          ********************************************************/
@@ -1705,7 +1702,7 @@ var opTable = {
             cpu.carry8(cpu.af.high, n, Arithmetic.ADD);
             cpu.halfCarry8(cpu.af.high, n, Arithmetic.ADD);
             cpu.flags.n = false;
-            
+
             cpu.af.high += n;
 
             cpu.zero(cpu.af.high);
@@ -1759,7 +1756,7 @@ var opTable = {
             } else if(x == 3) {
                 // set y, r[z]
                 let setTable = {
-                    // set y, b 
+                    // set y, b
                     0x00: function(cpu, bit) {
                         cpu.bc.high = UInt8.setBit(cpu.bc.high, bit);
                     },
@@ -1802,7 +1799,7 @@ var opTable = {
                 illegalOpcode(opcode, cpu, true);
                 return;
             }
-            
+
             cpu.skip(2);
         },
         // call z, d16
@@ -1841,7 +1838,7 @@ var opTable = {
             cpu.pushStack(cpu.pc.v + 1);
             cpu.pc.v = 0x08;
         },
-        
+
         /*********************************************************
          *                          0xD0-0xDF
          ********************************************************/
@@ -1870,7 +1867,7 @@ var opTable = {
                 cpu.skip(3);
             }
         },
-        
+
         // call nc, d16
         0xD4: function(cpu) {
             let d16 = cpu.readImmediate16();
@@ -1895,7 +1892,7 @@ var opTable = {
             cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
             cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
             cpu.flags.n = true;
-            
+
             cpu.af.high -= n;
 
             cpu.zero(cpu.af.high);
@@ -1990,7 +1987,7 @@ var opTable = {
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high &= n;
 
             cpu.zero(cpu.af.high);
@@ -2005,13 +2002,13 @@ var opTable = {
         0xE8: function(cpu) {
             let n = UInt16.toSigned(cpu.readImmediate8());
             let result = (cpu.sp.v + n) & 0xFFFF;
-            
+
 
             cpu.flags.c = ((cpu.sp.v ^ n ^ result) & 0x100) == 0x100;
             cpu.flags.hc = ((cpu.sp.v ^ n ^ result) & 0x10) == 0x10;
             cpu.flags.n = false;
             cpu.flags.z = false;
-            
+
             cpu.sp.v = result;
             cpu.skip(2);
         },
@@ -2025,7 +2022,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high ^= n;
 
             cpu.zero(cpu.af.high);
@@ -2089,7 +2086,7 @@ var opTable = {
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;
-            
+
             cpu.af.high |= n;
 
             cpu.zero(cpu.af.high);

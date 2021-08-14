@@ -66,14 +66,19 @@ function restartEmulation() {
 }
 
 
+const powerA = document.getElementById("powerConsumption");
+
 function run() {
     const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;
+
+    c.haltedCycles = 0;
+
     while(c.currentCycles < totalIteration)
     {
         if(c.execute() == false) break;
     }
 
-    console.log(1 - c.haltedCycles / c.currentCycles);
+    powerA.innerHTML = "power consumption: " + (1 - c.haltedCycles / c.currentCycles);
 
     c.currentCycles -= totalIteration;
 }

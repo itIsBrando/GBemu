@@ -704,7 +704,6 @@ class CPU {
         // if interrupts are disabled but we have something pending, then break from HALT
         if(this.isHalted && !this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
         {
-            this.haltedCycles += 4;
             this.skip(1);
             this.isHalted = false;
         }
