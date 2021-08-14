@@ -5,7 +5,7 @@
  *  - recognize tile banking in drawTileLine
  *  - implement the rest of MBC3's RTC
  *  - add an `x` button to the copy text menu
- *  - 
+ *  -
  */
 
 
@@ -137,6 +137,9 @@ class CPU {
         // used to maintain 60fps
         this.framesToSkip = 0;
 
+        // cycles that occurred while halted. Used for power consumption
+        this.haltedCycles = 0;
+
         // cycles ran for this setInterval tick
         this.currentCycles = 0;
 
@@ -146,25 +149,25 @@ class CPU {
         this.cycles = 0;
         this.cgb = false;
         this.mbcHandler = null;
-        
-        
+
+
         this.af = new UInt16();
         this.bc = new UInt16();
         this.de = new UInt16();
         this.hl = new UInt16();
-        
+
         this.pc = new UInt16(0x100);
         this.sp = new UInt16(0xFFFE);
-        
+
         this.flags = {
             z: false,
             c: false,
             hc:false,
             n: false
         }
-        
+
         this.debug = false;
-        
+
         this.isHalted = false;
         this.haltBug = false;
         this.interrupt_master = false;
@@ -183,9 +186,9 @@ class CPU {
             hram: new Uint8Array(0x0100) // HRAM FF00-FFFF
         };
 
-        
+
     }
-    
+
     /**
      * @returns {UInt8} byte
      */
@@ -213,7 +216,7 @@ class CPU {
     initRegisters() {
         this.pc.v = 0x100;
         this.sp.v = 0xFFFE;
-        this.af.v = this.cgb ? 0x11B0 : 0x01B0; 
+        this.af.v = this.cgb ? 0x11B0 : 0x01B0;
         this.bc.v = 0x0013;
         this.de.v = 0x00D8;
         this.hl.v = 0x014D;
@@ -237,10 +240,10 @@ class CPU {
 
         if(this.mbcHandler)
             this.mbcHandler.reset();
-        
+
         for(let i = 0xFF00; i <= 0xFFFF; i++)
             this.write8(i, 0);
-        
+
     }
 
     // true if the CPU is currently running a ROM
@@ -260,7 +263,7 @@ class CPU {
     serviceInterrupts() {
         let handlerAddress = [0x40, 0x48, 0x50, 0x58, 0x60];
         let fired = this.interrupt_flag & this.interrupt_enable;
-        
+
         if(this.interrupt_master && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
                 // if both bits are set
@@ -296,7 +299,7 @@ class CPU {
 
     /**
      * Performs an DMA to OAM transfer for GBC
-     * @param {UInt8} data 
+     * @param {UInt8} data
      */
     DMATransferCGB(data) {
         const mode = UInt8.getBit(data, 7);
@@ -314,10 +317,10 @@ class CPU {
             console.log("mode 1 DMA not supported");
         }
     }
-    
+
     /**
      * Writes a byte to an address in memory
-     * @param {UInt16} address 
+     * @param {UInt16} address
      * @param {UInt8} byte
      */
     write8(address, byte) {
@@ -448,7 +451,7 @@ class CPU {
             // must convert this modified palette into usable RGB
             const palNum = this.ppu.cgb.bgi >> 3;
             this.ppu.cgb.rgbBG[palNum] = PPU.linearToRGB(this.ppu.cgb.bgPal.slice(palNum * 8, palNum * 8 + 8));
-            
+
             if(this.ppu.cgb.bgAutoInc)
                 this.ppu.cgb.bgi = (this.ppu.cgb.bgi + 1) & 0x3F;
         } else if(address == 0xFF6A) {
@@ -458,7 +461,7 @@ class CPU {
         } else if(address == 0xFF6B) {
             // cgb only
             this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
-            
+
             const palNum = this.ppu.cgb.obji >> 3;
             this.ppu.cgb.rgbOBJ[palNum] = PPU.linearToRGB(this.ppu.cgb.objPal.slice(palNum * 8, palNum * 8 + 8));
 
@@ -493,7 +496,7 @@ class CPU {
      */
     loadROM(array) {
         const untrimmedROM = new Uint8Array(array);
-    
+
         const trimmed = [...new Uint8Array(array)];
         this.mem.rom = new Uint8Array(trimmed.splice(0, 0x8000));
 
@@ -525,7 +528,7 @@ class CPU {
             case MBCType.NONE:
                 this.mbcHandler = null;
                 break;
-            
+
         }
 
         console.log("MBC Type:" + MemoryControllerText[this.mem.rom[0x0147]]);
@@ -534,8 +537,8 @@ class CPU {
 
     /**
      * Writes two bytes to memory
-     * @param {Uint16} address 
-     * @param {UInt16} word 
+     * @param {Uint16} address
+     * @param {UInt16} word
      */
     write16(address, word) {
         this.write8(address, word & 0xFF);
@@ -560,7 +563,7 @@ class CPU {
 
     /**
      * Read a byte from an address from memory
-     * @param {UInt16} address 
+     * @param {UInt16} address
      * @returns {UInt8} byte
      */
     read8(address) {
@@ -701,6 +704,7 @@ class CPU {
         // if interrupts are disabled but we have something pending, then break from HALT
         if(this.isHalted && !this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
         {
+            this.haltedCycles += 4;
             this.skip(1);
             this.isHalted = false;
         }
@@ -724,7 +728,7 @@ class CPU {
 
         // handle interrupts
         this.serviceInterrupts();
-        
+
         // update GPU
         this.ppu.step(this);
 
@@ -775,7 +779,7 @@ class CPU {
      * Sets the c flag
      * @param {number} a UInt8
      * @param {number} b UInt8
-     * @param {Arithmetic} arithmetic 
+     * @param {Arithmetic} arithmetic
      */
     carry8(a, b, arithmetic) {
         switch(arithmetic) {
@@ -793,12 +797,12 @@ class CPU {
                 break;
         }
     }
-        
+
     /**
      * Sets the c flag
      * @param {number} a UInt16
      * @param {number} b UInt16
-     * @param {Arithmetic} arithmetic 
+     * @param {Arithmetic} arithmetic
      */
     carry16(a, b, arithmetic) {
         switch(arithmetic) {
@@ -818,7 +822,7 @@ class CPU {
     zero(a) {
         this.flags.z = a == 0;
     }
-    
+
     /**
      * Pops a value from the stack
      * @returns {UInt16} TOS
@@ -841,7 +845,7 @@ class CPU {
 
     /**
      * Increases the program counter
-     * @param {number} dx 
+     * @param {number} dx
      */
     skip(dx) {
         if(this.haltBug) {

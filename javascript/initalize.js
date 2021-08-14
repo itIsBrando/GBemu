@@ -14,14 +14,14 @@ var romLoaded = false;
 /**
  * Begins the CPU.
  * - initializes a timer and begins running the ROM.
- * @param {ArrayBuffer} rom 
+ * @param {ArrayBuffer} rom
  */
 function startEmulation(rom) {
     clearInterval(c.timer);
     romLoaded = true;
     c.initialize();
     c.loadROM(rom);
-    
+
     c.timer = setInterval(run, INTERVAL_SPEED);
 };
 
@@ -54,8 +54,8 @@ function resumeEmulation() {
 function restartEmulation() {
     if(!c.isRunning || !romLoaded)
         return;
-    
-        
+
+
     clearInterval(c.timer);
     c.reset();
     c.timer = setInterval(run, INTERVAL_SPEED)
@@ -72,6 +72,8 @@ function run() {
     {
         if(c.execute() == false) break;
     }
+
+    console.log(1 - c.haltedCycles / c.currentCycles);
 
     c.currentCycles -= totalIteration;
 }

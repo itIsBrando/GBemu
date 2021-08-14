@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <!-- Disable zooming on iOS -->
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
+
     <!-- Desktop web app -->
     <link rel="manifest" href="/manifest.webmanifest">
 
@@ -24,14 +24,14 @@
                 background-color: rgb(54, 54, 54);
                 position: fixed;
                 /* overflow: hidden; */
-                
+
                 image-rendering: optimizeSpeed;
                 image-rendering: -moz-crisp-edges;
                 image-rendering: -webkit-optimize-contrast;
                 image-rendering: optimize-contrast;
                 image-rendering: pixelated;
                 -ms-interpolation-mode: nearest-neighbor;
-                
+
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 -ms-user-select: none;
@@ -55,7 +55,7 @@
                 top: 25px;
                 z-index: -1;
             }
-            
+
             #screen {
                 height: 97vmin;
                 width: 97vmin;
@@ -81,7 +81,7 @@
                 position: relative;
                 display: inline-block;
             }
-            
+
             .dropdown:hover .dropdown-background {
                 display: block;
             }
@@ -96,7 +96,7 @@
                 left: 0;
                 position: absolute;
             }
-            
+
             .popup {
                 display: none;
                 position: fixed;
@@ -145,7 +145,7 @@
 
             .menubtn {
                 background-color:coral;
-                display: block;   
+                display: block;
                 padding: 5px;
                 margin: none;
                 margin-bottom: 1px;
@@ -256,15 +256,15 @@
             .gamepad-button-top {
                 fill: inherit;
             }
-            
+
             .gamepad-button:active .gamepad-button-top {
                 display: none;
             }
-            
+
             .gamepad-button-bottom {
                 fill:black;
             }
-            
+
             .gamepad-button:active .gamepad-button-bottom {
                 fill: inherit;
             }
@@ -292,15 +292,15 @@
                     <rect class="gamepad-button-top" x="0" y="0" rx="5" ry="5" width="40" height="40"/>
                 </g>
             </svg>
-            
+
             <!-- Hidden items used for file reading dialogs -->
             <input type="file" name="inputfile" id="inputfile" accept=".gb, .gbc" style="display: none;" >
             <input type="file" name="inputSaveFile" id="inputSaveFile" accept=".sav" style="display: none;">
-            
+
             <!-- file loading menu -->
             <div class="dropdown" style="float: left;">
                 <button type="button" id="fileMenuToggle" class="titlebtn"><b><code>File</code></b></button>
-                
+
                 <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
@@ -316,11 +316,11 @@
                     <button type="button" style="width: inherit" class="menubtn" onclick="restartEmulation()"><b style="color:deepskyblue;">reset game</b></button>
                 </div>
             </div>
-            
+
             <!-- options menu -->
             <div class="dropdown" style="float: left;">
                 <button type="button" id="optionsMenuToggle" class="titlebtn" style="width: 34vw;"><b><code>Options</code></b></button>
-                
+
                 <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
                     <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
                     <!-- change keyboard controls -->
@@ -330,18 +330,18 @@
                     <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn" onclick="Debug.start();">Debugger</button>
                 </div>
             </div>
-                
+
             <!-- Save Manager menu -->
             <div class="dropdown" style="float: left;">
                 <button type="button" id="saveMenuToggle" class="titlebtn"><b><code>Save Manager</code></b></button>
-                
+
                 <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
                     <button type="button" id="localLoadButton" style="width: inherit;" class="menubtn">Internal Load</button>
                     <button type="button" id="importTextButton" style="width: inherit;" class="menubtn">Import JSON Text</button>
                 </div>
             </div>
-            
+
             <!-- Screen -->
             <div id="viewport">
                 <canvas id="screen" width="160" height="144"></canvas>
@@ -374,7 +374,7 @@
                     <input maxlength="5" id="DisassemblyGotoInput"type="text">
                 </div>
             </div>
-            
+
             <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 10;" class="no-selection">
                 <div id="dpadButtons" style="width: 150px; height: 150px;">
@@ -395,7 +395,7 @@
                 <b style="border-bottom: 3px solid aliceblue;">Set Keyboard Bindings</b>
                 <button class="x-btn" onclick="FrontEndKeyBinding.hide();">&times;</button>
                 <br>
-                
+
                 <button onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
                 <button onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>
                 <button onclick="FrontEndKeyBinding.assign('SELECT');" class="keypad-binding-btn"></button>
@@ -407,7 +407,7 @@
                 <br>
                 <button onclick="FrontEndKeyBinding.assign('FAST');" class="keypad-binding-btn"></button>
             </div>
-            
+
             <!-- Pop up menu for saving/loading states -->
             <div class="popup" id="popup">
                 <label id="popup-title" for="localSaveName"><b>Save File Name</b></label>
@@ -444,9 +444,9 @@
 
             <!-- overlay to dim various buttons -->
             <div id="shadowOverlay" style="z-index: 2; display: none; width: 100%; height: 100%; opacity: 0.5; background-color: #333333;">
-            
+
             </div>
-            
+
             <!-- Prettier messaging system. Call `showMessage()` using JS -->
             <div class="message-div" id="messageID">
                 <!-- header -->
@@ -457,6 +457,9 @@
                 <!-- confirm -->
                 <button class="menubtn" style="max-width: 100%; width: 100%;" id="messageConfirm">Okay</button>
             </div>
+
+            <!-- REMOVE LATER -->
+            <a id="powerConsumption">power consumption: 0%</a>
 
             <!-- Used to save files but is never shown-->
             <a id="saveA" style="display: none;" download></a>
@@ -494,10 +497,10 @@
                 {
                     arr.push(obj[i]);
                 }
-                
+
                 startEmulation(arr);
             });
-            
+
             // for loading ROM
             inputForm.addEventListener('change', function() {
                 let reader = new FileReader();
@@ -509,7 +512,7 @@
                 reader.onloadend = function() {
                   startEmulation(reader.result)
                 }
-                
+
             });
 
             // Save file loading
@@ -519,7 +522,7 @@
                 reader.readAsArrayBuffer(this.files[0]);
 
                 let buffer = this.files[0];
-                
+
                 reader.onloadend = function() {
                     MBC1.useSaveData(reader.result);
                 }
@@ -538,7 +541,7 @@
             // for `file` menu tab
             // const loadMenu = document.getElementById('loadMenu');
             const fileMenuToggle = document.getElementById('fileMenuToggle');
-            
+
             // for `options` menu tab
             const controlsToggle = document.getElementById('controlsToggle');
             // const optionsMenu = document.getElementById('optionsMenu');
@@ -561,7 +564,7 @@
             if(hasTouchscreen())
                 controlsToggle.click();
 
-            
+
             // save file to computer
             exportSaveButton.onclick = function() {
                 if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
@@ -569,7 +572,7 @@
                     showMessage("This ROM does not have a RAM chip", "No RAM");
                     return;
                 }
-            
+
                 // do saving
 
                 // if we are mobile or embeded app, we cannot download files
@@ -580,7 +583,7 @@
                 } else {
                     downloadSave();
                 }
-                
+
             };
         </script>
     </body>
