@@ -300,6 +300,7 @@ var FrontEndPalette = new function() {
     }
 
     this.load = function() {
+        const forceDMG = localStorage.getItem("__core_ForceDMG");
         const pal = localStorage.getItem("__core_defaultPalette");
         if(pal)
         {
@@ -308,6 +309,11 @@ var FrontEndPalette = new function() {
             showMessage("Palette loaded.");
         } else {
             showMessage("No Palette Saved", "Unable to Load");
+        }
+
+        if(forceDMG) {
+            c.forceDMG = !Boolean(forceDMG);
+            toggleDMGMode.click();
         }
     }
 }
@@ -426,6 +432,7 @@ toggleDMGMode.onclick = function() {
     }
 
     c.forceDMG = !c.forceDMG;
+    localStorage.setItem("__core_ForceDMG", c.forceDMG);
 
     if(c.isRunning)
         showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");

@@ -67,6 +67,7 @@ function restartEmulation() {
 
 
 const powerA = document.getElementById("powerConsumption");
+let frames = 0;
 
 function run() {
     const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;
@@ -78,7 +79,8 @@ function run() {
         if(c.execute() == false) break;
     }
 
-    powerA.innerHTML = "power consumption: " + (1 - c.haltedCycles / c.currentCycles);
+    if((frames++ & 7) == 3)
+    powerA.innerHTML = "power consumption: " + (Math.floor((1 - c.haltedCycles) * 100) / c.currentCycles);
 
     c.currentCycles -= totalIteration;
 }
