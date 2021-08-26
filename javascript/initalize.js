@@ -80,7 +80,7 @@ function run() {
     }
 
     if((frames++ & 7) == 3)
-    powerA.innerHTML = "power consumption: " + (Math.floor((1 - c.haltedCycles) * 100) / c.currentCycles);
+    powerA.innerHTML = "power consumption:" + (100 - Math.floor(c.haltedCycles * 100 / c.currentCycles));
 
     c.currentCycles -= totalIteration;
 }
