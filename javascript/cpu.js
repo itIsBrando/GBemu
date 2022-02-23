@@ -130,7 +130,7 @@ class CPU {
         // timer that runs every 100ms
         this.timer = null;
         // used to boot in DMG mode
-        this.forceDMG = false;
+        this.forceDMG = true;
         // speed multiplier
         this.speed = 1;
         this.FastForwardSpeed = 8;
