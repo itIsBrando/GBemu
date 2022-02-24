@@ -146,6 +146,7 @@
 
             .menubtn {
                 background-color:coral;
+                color: black;
                 display: block;
                 padding: 5px;
                 margin: none;
@@ -166,6 +167,7 @@
                 margin: none;
                 border: none;
                 width: 33vw;
+                color: black;
                 border-radius: 5px;
             }
 
@@ -220,7 +222,7 @@
 
             /* Virtual Gamepad Buttons */
             .btn {
-                margin: 10;
+                margin: 10px;
                 background-color:blueviolet;
                 padding: 10px;
                 cursor: pointer;
@@ -304,9 +306,7 @@
 
                 <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
-                    <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();">Load ROM</button>
-                    <!-- Load from URL -->
-                    <button type="button" style="width: inherit" class="menubtn" id="urlInput">Load ROM from URL</button>
+                    <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();" title="Load ROM file from local files.">Load ROM</button>
                     <!-- Savefile uploading -->
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
                     <!-- Savefile downloading -->
@@ -327,7 +327,8 @@
                     <!-- change keyboard controls -->
                     <button type="button" id="changeKeybinding" style="width: inherit;" class="menubtn" onclick="FrontEndKeyBinding.show();">Change Keyboard Controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn" onclick="FrontEndPalette.showPaletteMenu();">Change Palette</button>
-                    <button type="button" id="toggleDMGMode" style="width: inherit;" class="menubtn">Force DMG: yes</button>
+                    <button type="button" style="width: inherit;" title="Show/hide CPU power consumption" class="menubtn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">Power Consumption</button>
+                    <button type="button" id="toggleDMGMode" title="Can run in original GB or GameBoy Color emulation modes" style="width: inherit;" class="menubtn">Force DMG: yes</button>
                     <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn" onclick="Debug.start();">Debugger</button>
                 </div>
             </div>
@@ -350,11 +351,11 @@
 
             <!-- New Debug menu -->
             <div id="DebugDiv" style="width: 100%; z-index: -1; position: absolute; bottom: 0; display:none;">
-                <button type="button" class="menubtn" onclick="Debug.showTiles();">Tiles</button>
-                <button type="button" class="menubtn" onclick="Debug.showSprites();">OAM</button>
-                <button type="button" class="menubtn" onclick="Debug.showMap();">Map</button>
-                <button type="button" class="menubtn" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
-                <button type="button" class="menubtn" onclick="Debug.quit();">Exit</button>
+                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showTiles();">Tiles</button>
+                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showSprites();">OAM</button>
+                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                <button type="button" class="menubtn" style="width:14vw; margin: none; display: inline-block;" onclick="Debug.quit();">Exit</button>
                 <div id="SpriteDetailDiv" style="min-width: fit-content;" class="popup" style="float:right;">
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left;height: 25px; border:none;" onclick="Debug.prevObj();">&larr;</button>
                     <b>Sprite 0</b>
@@ -460,7 +461,7 @@
             </div>
 
             <!-- REMOVE LATER -->
-            <a id="powerConsumption">power consumption: 0%</a>
+            <a id="powerConsumption" style="display: none; color: lightblue;">power consumption: 0%</a>
 
             <!-- Used to save files but is never shown-->
             <a id="saveA" style="display: none;" download></a>
@@ -487,20 +488,6 @@
         <script src="util/data/test.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
-
-            // for url ROM loading
-            document.getElementById('urlInput').addEventListener('click', function() {
-                const obj = JSON.parse(data);
-                const arr = new Array();
-
-                // add each element to our array
-                for(let i in obj)
-                {
-                    arr.push(obj[i]);
-                }
-
-                startEmulation(arr);
-            });
 
             // for loading ROM
             inputForm.addEventListener('change', function() {

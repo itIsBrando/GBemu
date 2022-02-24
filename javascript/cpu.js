@@ -131,6 +131,8 @@ class CPU {
         this.timer = null;
         // used to boot in DMG mode
         this.forceDMG = true;
+        // Bool to show/hide "power consumption"
+        this.powerConsumptionShown = false;
         // speed multiplier
         this.speed = 1;
         this.FastForwardSpeed = 8;

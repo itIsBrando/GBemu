@@ -413,31 +413,3 @@ var FrontEndKeyBinding = new function() {
 function hasTouchscreen() {
     return 'ontouchstart' in window;
 }
-
-
-// toggle between emulating in DMG mode or attempting CGB mode
-const toggleDMGMode = document.getElementById('toggleDMGMode');
-
-toggleDMGMode.onclick = function() {
-    if(c.forceDMG == false)
-    {
-        toggleDMGMode.innerText = "Force DMG: yes";
-    } else {
-        toggleDMGMode.innerText = "Force DMG: no";
-    }
-
-    c.forceDMG = !c.forceDMG;
-    localStorage.setItem("__core_ForceDMG", c.forceDMG);
-
-    if(c.isRunning)
-        showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
-
-}
-
-
-const forceDMG = localStorage.getItem("__core_ForceDMG");
-
-if(forceDMG) {
-    c.forceDMG = !Boolean(forceDMG);
-    toggleDMGMode.click();
-}

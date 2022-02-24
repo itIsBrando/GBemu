@@ -66,7 +66,7 @@ function restartEmulation() {
 }
 
 
-const powerA = document.getElementById("powerConsumption");
+const powerConsumption = document.getElementById("powerConsumption");
 let frames = 0;
 
 function run() {
@@ -79,8 +79,37 @@ function run() {
         if(c.execute() == false) break;
     }
 
-    if((frames++ & 7) == 3)
-    powerA.innerHTML = "power consumption:" + (100 - Math.floor(c.haltedCycles * 100 / c.currentCycles));
+    if(c.powerConsumptionShown && (frames++ & 7) == 3)
+        powerConsumption.innerHTML = "power consumption:" + (100 - Math.floor(c.haltedCycles * 100 / c.currentCycles));
 
     c.currentCycles -= totalIteration;
+}
+
+
+
+// toggle between emulating in DMG mode or attempting CGB mode
+const toggleDMGMode = document.getElementById('toggleDMGMode');
+
+toggleDMGMode.onclick = function() {
+    if(c.forceDMG == false)
+    {
+        toggleDMGMode.innerText = "Force DMG: yes";
+    } else {
+        toggleDMGMode.innerText = "Force DMG: no";
+    }
+
+    c.forceDMG = !c.forceDMG;
+    localStorage.setItem("__core_ForceDMG", c.forceDMG);
+
+    if(c.isRunning)
+        showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
+
+}
+
+
+const forceDMG = localStorage.getItem("__core_ForceDMG");
+
+if(forceDMG) {
+    c.forceDMG = !Boolean(forceDMG);
+    toggleDMGMode.click();
 }
