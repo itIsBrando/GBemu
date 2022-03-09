@@ -181,7 +181,8 @@
                 display:block;
                 border: none;
                 border-radius: 3px;
-                margin: 2px 0px 1px 2px;
+                margin: 2px 2px 1px 2px;
+                width:98%;
             }
 
             .keypad-binding-btn:hover {
@@ -308,9 +309,9 @@
                     <!-- ROM loading -->
                     <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputfile').click();" title="Load ROM file from local files.">Load ROM</button>
                     <!-- Savefile uploading -->
-                    <button type="button" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+                    <button type="button" title="Upload .sav files from your local device" style="width: inherit" class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
                     <!-- Savefile downloading -->
-                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
+                    <button type="button" title="Download a .sav file to you local device" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
                     <!-- ROM Info -->
                     <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="showROMInfo()">ROM Info</button>
                     <!-- Reset Game -->
@@ -408,6 +409,7 @@
                 <button onclick="FrontEndKeyBinding.assign('RIGHT');" class="keypad-binding-btn"></button>
                 <br>
                 <button onclick="FrontEndKeyBinding.assign('FAST');" class="keypad-binding-btn"></button>
+                <button onclick="FrontEndKeyBinding.assign('FULLSCREEN');" class="keypad-binding-btn"></button>
             </div>
 
             <!-- Pop up menu for saving/loading states -->
@@ -418,7 +420,7 @@
                 <!-- input form -->
                 <input type="text" name="localSaveName" id="localSaveName" minlength="1" autocapitalize="none" autocomplete="off" style="font-size: large;">
                 <!-- Submit button -->
-                <button class="menubtn" id="submitSaveName" name="submitSaveName">Save</button>
+                <button class="menubtn" style="width:100%;" id="submitSaveName" name="submitSaveName">Save</button>
             </div>
 
             <!-- allows the user to copy something to the clipboard -->

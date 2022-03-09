@@ -329,7 +329,8 @@ var FrontEndKeyBinding = new function() {
         "arrowright" : "RIGHT",
         "arrowup" : "UP",
         "arrowdown" : "DOWN",
-        "f" : "FAST"
+        "d" : "FAST",
+        "f" : "FULLSCREEN"
     };
 
     this.modifyingButton = "";
@@ -355,7 +356,8 @@ var FrontEndKeyBinding = new function() {
             "DOWN",
             "LEFT",
             "RIGHT",
-            "FAST FORWARD"
+            "FAST FORWARD",
+            "FULLSCREEN"
         ];
         const keyboardBindings = Object.keys(this.bindings);
 

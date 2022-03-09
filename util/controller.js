@@ -32,6 +32,8 @@ document.onkeydown = function(event) {
             {
                 if(binding == "FAST")
                     c.speed = c.FastForwardSpeed;
+                if(binding == "FULLSCREEN")
+                    requestFullscreen();
                 else
                     gamepadButtons[binding] = true;
 

@@ -107,8 +107,12 @@ function hidePopupMenu() {
  * Shows the pop up menu for saving to localStorage
  */
 localSaveButton.addEventListener('click', function() {
+    showElement(localSaveName);
+    showElement(popupSubmitButton);
+
     if(!showPopupMenu("Save Name", "Save"))
         return;
+    
     localSaveName.placeholder = readROMName() || "ROM NAME";
 });
 
@@ -151,6 +155,14 @@ function pasteLabel() {
 }
 
 
+function hideElement(e) {
+    e.style.display = 'none';
+}
+
+function showElement(e) {
+    e.style.display = 'block';
+}
+
 /**
  * Loads a key into MBC ram
  * @param {String} key key name in localStorage
@@ -178,13 +190,15 @@ localLoadButton.addEventListener('click', function() {
     if(popupMenu.style.display == "block")
         return;
 
-    const lbl = document.createElement("a");
     const lineBreak = document.createElement("hr");
+
+    // hide text entry
+    hideElement(localSaveName);
+    hideElement(popupSubmitButton);
+
     lineBreak.id = "delete";
     lineBreak.style = "margin: 0px; border-width 5px;"
-    lbl.innerHTML = "<b>Saved Files</b>";
-    lbl.id = "delete";
-    popupMenu.appendChild(lbl);
+
     popupMenu.appendChild(lineBreak);
 
     // iterate through each value in `localStorage`
@@ -204,7 +218,15 @@ localLoadButton.addEventListener('click', function() {
         btn.value = keys[i];
         btn.onclick = pasteLabel;
         popupMenu.appendChild(btn);
-    };
+    }
+
+    if(keys.length == 0)
+    {
+        const l = document.createElement("b");
+        l.id = "delete";
+        l.innerHTML = "<b>NO FILES SAVED</b>"
+        popupMenu.appendChild(l);
+    }
     
     showPopupMenu("Save Name", "Load");
 })
