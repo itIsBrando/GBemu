@@ -213,7 +213,7 @@
                 max-height: 50px;
                 border: none;
                 margin: 0px;
-                padding: 5px;
+                padding: 6px;
                 cursor: pointer;
             }
 
@@ -414,9 +414,10 @@
 
             <!-- Pop up menu for saving/loading states -->
             <div class="popup" id="popup">
-                <label id="popup-title" for="localSaveName"><b>Save File Name</b></label>
+                <label id="popup-title" style="margin:5px" for="localSaveName"><b>Save Name</b></label>
                 <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
-                <br>
+                <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right;" onclick="">edit</button>
+                <div style="width: 100%; height:2px; background-color: #dddddd; margin-top: 8px; margin-bottom:3px;"></div>
                 <!-- input form -->
                 <input type="text" name="localSaveName" id="localSaveName" minlength="1" autocapitalize="none" autocomplete="off" style="font-size: large;">
                 <!-- Submit button -->

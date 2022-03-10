@@ -56,6 +56,7 @@ const localLoadButton = document.getElementById('localLoadButton');
 const localSaveName = document.getElementById('localSaveName');
 const popupMenu = document.getElementById('popup');
 const popupSubmitButton = document.getElementById('submitSaveName');
+const saveEditButton = document.getElementById('saveEditButton');
 
 
 localSaveName.onkeydown = function(event) {
@@ -79,7 +80,7 @@ function showPopupMenu(title, buttonText) {
     popupMenu.style.display = "block";
     FrontEndMenu.showOverlay();
     // set title
-    document.getElementById('popup-title').innerHTML = title;
+    // document.getElementById('popup-title').innerHTML = title;
     popupSubmitButton.innerText = buttonText;
     
     // give focus to the text input
@@ -109,6 +110,7 @@ function hidePopupMenu() {
 localSaveButton.addEventListener('click', function() {
     showElement(localSaveName);
     showElement(popupSubmitButton);
+    hideElement(saveEditButton);
 
     if(!showPopupMenu("Save Name", "Save"))
         return;
@@ -180,6 +182,43 @@ function injectLocalStorage(key) {
 }
 
 /**
+ * Button event that deletes a localStorage save.
+ * @param {Event} e Event
+ */
+function saveManagerDeleteSelf(e) {
+    e.stopPropagation();
+    key = this.parentElement.value
+    delete localStorage[key];
+    hidePopupMenu();
+    localLoadButton.click();
+}
+
+
+/**
+ * @returns NodeList
+ */
+function getDeleteButtons() {
+    return document.getElementsByName("deleteButton");
+}
+
+
+saveEditButton.addEventListener('click', function() {
+    isEditing = this.innerHTML == "edit";
+
+    this.innerHTML = isEditing == true ? "done" : "edit";
+
+    const btns = getDeleteButtons();
+    
+    btns.forEach(function(e) {
+        if(isEditing)
+            showElement(e);
+        else
+            hideElement(e);
+    });
+});
+
+
+/**
  * Load from local storage
  * - Creates a list of buttons that correspond to all localStorage saves
  */
@@ -195,6 +234,8 @@ localLoadButton.addEventListener('click', function() {
     // hide text entry
     hideElement(localSaveName);
     hideElement(popupSubmitButton);
+    showElement(saveEditButton);
+
 
     lineBreak.id = "delete";
     lineBreak.style = "margin: 0px; border-width 5px;"
@@ -214,18 +255,26 @@ localLoadButton.addEventListener('click', function() {
         const obj = JSON.parse(localStorage[keys[i]]);
         btn.id = "delete";
         btn.className = "menubtn";
-        btn.innerHTML = "<b>NAME:</b> <code>" + keys[i] + " </code><b>ROM:</b> <code>" + obj.label + "</code>";
+        btn.innerHTML = "<b>NAME:</b> <code>" + keys[i] + " </code><b>ROM:</b> <code>" + obj.label + "</code>" + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
         btn.value = keys[i];
         btn.onclick = pasteLabel;
         popupMenu.appendChild(btn);
     }
-
+    
     if(keys.length == 0)
     {
         const l = document.createElement("b");
         l.id = "delete";
         l.innerHTML = "<b>NO FILES SAVED</b>"
         popupMenu.appendChild(l);
+    } else
+    {
+        // Add an onclick event for each delete button
+        const btns = getDeleteButtons();
+
+        btns.forEach(function(curVal) {
+            curVal.onclick = saveManagerDeleteSelf;
+        })
     }
     
     showPopupMenu("Save Name", "Load");
