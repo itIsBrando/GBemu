@@ -152,6 +152,9 @@ class CPU {
         this.cgb = false;
         this.mbcHandler = null;
 
+        // Set to true during HDMA H-Blank at register $FF55
+        this.HMDAInProgress = false;
+
 
         this.af = new UInt16();
         this.bc = new UInt16();
@@ -244,7 +247,9 @@ class CPU {
             this.mbcHandler.reset();
 
         for(let i = 0xFF00; i <= 0xFFFF; i++)
-            this.write8(i, 0);
+            // skip HDMA
+            if(i != 0xFF55)
+                this.write8(i, 0);
 
     }
 
@@ -301,6 +306,9 @@ class CPU {
 
     /**
      * Performs an DMA to OAM transfer for GBC
+     * Bit 7 - 0 = general purpose DMA. All data is done at once.
+     *       - 1 = HBlank DMA. 0x10 bytes are transferred at H-blank (LY in range of 0-143)
+     * Bit 0-6 - length of the transfer. Range is 0x10-0x800 bytes
      * @param {UInt8} data
      */
     DMATransferCGB(data) {
@@ -309,16 +317,19 @@ class CPU {
         // preliminary support for some of the CGB's DMA transfers
         if(mode)
         {
-            for(let i = 0; i < length; i++)
-            {
-                const byte = this.read8(i + this.ppu.cgb.srcDMA);
-                this.write8(i + this.ppu.cgb.destDMA, byte);
+            for(let i = 0; i < (length + 1) * 0x10; i++) {
+                const byte = this.read8(i + this.ppu.cgb.HDMASrc);
+                this.write8(i + this.ppu.cgb.HDMADest, byte);
             }
             this.ppu.cgb.hdma = 0xFF;
         } else {
             console.log("mode 1 DMA not supported");
+            throw "er"
+            this.HMDAInProgress = true;
+            this.ppu.cgb.hdma = length;
         }
     }
+
 
     /**
      * Writes a byte to an address in memory
@@ -426,21 +437,21 @@ class CPU {
             // cgb only
             this.ppu.cgb.vbank = byte & 0x1;
         } else if(address == 0xFF51) {
-            // cgb
-            this.ppu.cgb.srcDMA &= 0xFF;
-            this.ppu.cgb.srcDMA |= byte << 8;
+            // cgb. HDMA src high
+            this.ppu.cgb.HDMASrc &= 0xF0;
+            this.ppu.cgb.HDMASrc |= byte << 8;
         } else if(address == 0xFF52) {
-            // cgb
-            this.ppu.cgb.srcDMA &= 0xFF00;
-            this.ppu.cgb.srcDMA |= byte & 0xF0;
+            // cgb. HDMA src low
+            this.ppu.cgb.HDMASrc &= 0xFF00;
+            this.ppu.cgb.HDMASrc |= byte & 0xF0;
         } else if(address == 0xFF53) {
-            // cgb
-            this.ppu.cgb.destDMA &= 0xFF;
-            this.ppu.cgb.destDMA |= 0x9000 + ((byte & 0xF) << 8);
+            // cgb. HDMA dest high
+            this.ppu.cgb.HDMADest &= 0xFF;
+            this.ppu.cgb.HDMADest |= 0x8000 | ((byte & 0xF) << 8);
         } else if(address == 0xFF54) {
-            // cgb
-            this.ppu.cgb.destDMA &= 0xFF00;
-            this.ppu.cgb.destDMA |= byte & 0xF0;
+            // cgb. HDMA dest low
+            this.ppu.cgb.HDMADest &= 0xFF00;
+            this.ppu.cgb.HDMADest |= byte & 0xF0;
         } else if(address == 0xFF55) {
             this.DMATransferCGB(byte);
         } else if(address == 0xFF68) {
@@ -642,16 +653,16 @@ class CPU {
             return this.ppu.regs.wx;
         } else if(address == 0xFF51) {
             // cgb
-            return this.ppu.cgb.srcDMA >> 8;
+            return this.ppu.cgb.HDMASrc >> 8;
         } else if(address == 0xFF52) {
             // cgb
-            return this.ppu.cgb.srcDMA & 0xFF;
+            return this.ppu.cgb.HDMASrc & 0xFF;
         } else if(address == 0xFF53) {
             // cgb
-            return this.ppu.cgb.destDMA >> 8;
+            return this.ppu.cgb.HDMADest >> 8;
         } else if(address == 0xFF54) {
             // cgb
-            return this.ppu.cgb.destDMA & 0xFF;
+            return this.ppu.cgb.HDMADest & 0xFF;
         } else if(address == 0xFF55) {
             return this.ppu.cgb.hdma
         } else if(address == 0xFF68) {
@@ -676,6 +687,7 @@ class CPU {
             return this.mem.hram[address - 0xFF00];
         } else {
             console.log("ERROR READING FROM ADDRESS: 0x" + address.toString(16));
+            throw "Cannot read here."
         }
 
     };
@@ -736,6 +748,22 @@ class CPU {
 
         // update GPU
         this.ppu.step(this);
+
+        // HDMA stuff
+        if(this.HMDAInProgress && this.ppu.mode == PPUMODE.hblank)
+        {
+            for(let i = 0; i < 0x10; i++)
+                this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));
+
+            this.ppu.cgb.HDMADest += 0x10;
+            this.ppu.cgb.HDMASrc += 0x10;
+            this.ppu.cgb.hdma = (this.ppu.cgb.hdma - 1) | 0x80;
+            // when HDMA ends
+            if(this.ppu.cgb.hdma == 0) {
+                this.HMDAInProgress = false;
+                this.ppu.cgb.hdma = 0;
+            }
+        }
 
         this.currentCycles += this.cycles;
         return true;

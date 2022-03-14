@@ -203,7 +203,7 @@ function getDeleteButtons() {
 
 
 saveEditButton.addEventListener('click', function() {
-    isEditing = this.innerHTML == "edit";
+    const isEditing = this.innerHTML == "edit";
 
     this.innerHTML = isEditing == true ? "done" : "edit";
 

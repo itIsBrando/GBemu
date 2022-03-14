@@ -1,6 +1,6 @@
 // needs RTC support
 
-class MBC3 extends MBC1{
+class MBC3 extends MBC1 {
     constructor(rom, mbc) {
         super(rom, mbc);
 
@@ -34,12 +34,12 @@ class MBC3 extends MBC1{
 
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
-            this.RTCEnable = this.ramEnable = (byte & 0x0F) == 0x0A;
+            this.RTCEnable = this.ramEnable = (byte & 0x0A) != 0;
             return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
             byte &= 0x7F;
-            if(byte == 0) byte++;
+            if(byte == 0) byte = 1;
             this.bank = byte;
             return false;
         // 0x4000-0x5FFF RAM bank or RTC
@@ -49,8 +49,8 @@ class MBC3 extends MBC1{
                 this.RTCReg = byte - 0x8;
                 this.ramBank = -1; // a flag indicating that we are reading from RTC instead of RAM
             // set RAM bank if RAM size is 32K
-            } else if(byte <= 3) {
-                this.ramBank = byte & 3;
+            } else if(byte <= 3 && this.ramEnable) {
+                this.ramBank = byte;
             }
             return false;
         // 0x6000-0x7FFF Latch Clock Data
@@ -105,7 +105,7 @@ class MBC3 extends MBC1{
                 address -= 0xA000;
                 return this.ram[address + (this.ramBank * 0x2000)];
             }
-            else if(this.RTCEnable)
+            else if(this.RTCEnable && this.ramBank == -1)
                 return this.latchedRegs[this.RTCReg];
             else
             {
@@ -117,7 +117,7 @@ class MBC3 extends MBC1{
     }
 
     /**
-     * latches data
+     * latches data using actual time.
      */
     latchRTC() {
         this.latchedRegs[0] = this.date.getSeconds();

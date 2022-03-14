@@ -41,8 +41,8 @@ class PPU {
             rgbOBJ:[],
 
             // some registers
-            srcDMA: 0, // ff53
-            destDMA:0, // ff54
+            HDMASrc: 0, // ff53
+            HDMADest:0, // ff54
             hdma: 0, // ff55
         }
         

@@ -551,6 +551,8 @@ var Debug = new function() {
 			prevAddr = pc;
 		}
 
+		if(c.pc.v < curPC)
+			curPC = c.pc.v;
 
 		a.innerHTML = ""
 		for(let i = 0; i < 20; i++)

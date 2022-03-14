@@ -136,7 +136,6 @@ class MBC1 {
             return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
-            
             this.setLowROMBank(byte);
             
             return false;
