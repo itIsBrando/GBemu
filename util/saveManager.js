@@ -269,13 +269,8 @@ localLoadButton.addEventListener('click', function() {
 
         hasSaves = true;
     }
-<<<<<<< HEAD
 
     if(!hasSaves)
-=======
-    
-    if(keys.length == 0)
->>>>>>> c6bbf4bb0750417e159950f64ebfe89041eaff9d
     {
         const l = document.createElement("b");
         l.id = "delete";
