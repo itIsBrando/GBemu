@@ -7,11 +7,11 @@ let errorParagraph = document.getElementById("errorP");
  * @param {boolean} isCB if the opcode is part of the extended set
  */
 function illegalOpcode(op, cpu, isCB) {
-    let out = "Unknown Opcode, 0x";
+    let out = "Unknown Opcode, ";
     if(isCB == true)
-        out+="CB 0x";
+        out+="0xCB ";
 
-    out +=  hex(op) + ", at address 0x" + hex(cpu.pc.v);
+    out +=  hex(op) + ", at address " + hex(cpu.pc.v);
 
     showMessage(out, "Illegal Opcode");
     clearInterval(cpu.timer);

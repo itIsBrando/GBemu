@@ -153,7 +153,7 @@ class CPU {
         this.mbcHandler = null;
 
         // Set to true during HDMA H-Blank at register $FF55
-        this.HMDAInProgress = false;
+        this.HDMAInProgress = false;
 
 
         this.af = new UInt16();
@@ -329,17 +329,28 @@ class CPU {
         const mode = UInt8.getBit(data, 7);
         const length = data & 0x7F;
         // preliminary support for some of the CGB's DMA transfers
+
+        // if we are in the middle of a HDMA Transfer but we want to stop it.
+        if(UInt8.getBit(this.ppu.cgb.hdma, 7) && !mode)
+        {
+            this.HDMAInProgress = false;
+            this.ppu.cgb.hdma = data;
+            return;
+        }
+
+
         if(mode)
         {
             for(let i = 0; i < (length + 1) * 0x10; i++) {
                 const byte = this.read8(i + this.ppu.cgb.HDMASrc);
                 this.write8(i + this.ppu.cgb.HDMADest, byte);
             }
-            this.ppu.cgb.hdma = 0xFF;
+            this.ppu.cgb.hdma = 0x00;
         } else {
-            this.HMDAInProgress = true;
-            this.ppu.cgb.hdma = length;
+            this.HDMAInProgress = true;
+            this.ppu.cgb.hdma = data;
         }
+        console.log("HDMA mode " + mode);
     }
 
 
@@ -763,7 +774,7 @@ class CPU {
 
 
         // HDMA stuff
-        if(this.HMDAInProgress && this.ppu.mode == PPUMODE.hblank)
+        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (this.currentCycles % 20) == 0)
         {
             for(let i = 0; i < 0x10; i++)
                 this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));
@@ -772,9 +783,9 @@ class CPU {
             this.ppu.cgb.HDMASrc += 0x10;
             this.ppu.cgb.hdma = (this.ppu.cgb.hdma - 1) | 0x80;
             // when HDMA ends
-            if(this.ppu.cgb.hdma == 0) {
-                this.HMDAInProgress = false;
-                this.ppu.cgb.hdma = 0;
+            if((this.ppu.cgb.hdma & 0x7F) == 0) {
+                this.HDMAInProgress = false;
+                this.ppu.cgb.hdma = 0x7F;
             }
         }
 

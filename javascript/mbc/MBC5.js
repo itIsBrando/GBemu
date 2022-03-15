@@ -17,7 +17,7 @@ class MBC5 extends MBC1 {
         // 0x0000-0x1FFF RAM enable (MBC1)
         if(address < 0x2000) {
             if(this.ramSize != 0)
-                this.ramEnable = (byte & 0x0F) == 0x0A;
+                this.ramEnable = (byte & 0x0A) != 0;
  
             return false;
         // 0x2000-0x2FFF low byte of ROM bank
@@ -36,7 +36,7 @@ class MBC5 extends MBC1 {
             this.ramBank = byte & 0x0F;
             this.ramBankAddress = this.ramBank * 0x2000;
             return false;
-        } else if(address >= 0xA000 && address <= 0xBFFF)
+        } else if(address >= 0xA000 && address < 0xC000)
         {
             // only allow writing if RAM is enabled
             if(this.ramEnable)
@@ -57,11 +57,10 @@ class MBC5 extends MBC1 {
      */
     read8(cpu, address) {
 
-        if(address >= 0x4000 && address <= 0x7FFF) {
-            address -= 0x4000;
-            return this.rom[address + this.romBankAddress];
+        if(address >= 0x4000 && address < 0x8000) {
+            return this.rom[address - 0x4000 + this.romBankAddress];
         // RAM A000-BFFF
-        } else if(address >= 0xA000 && address <= 0xBFFF)
+        } else if(address >= 0xA000 && address < 0xC000)
         {
             if(this.ramEnable)
                 return this.ram[address - 0xA000 + this.ramBankAddress];

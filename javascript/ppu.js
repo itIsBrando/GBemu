@@ -159,9 +159,13 @@ class PPU {
         return UInt8.getBit(this.regs.lcdc, 3) ? 0x9C00 : 0x9800;
     }
 
+    get lcdEnabled() {
+        return (this.regs.lcdc & 0x80) != 0;
+    }
+
     step(cpu) {
         this.regs.stat &= 252;
-        if(this.regs.lcdc & 0x80 == 0) {
+        if(!this.lcdEnabled) {
             this.regs.stat |= PPUMODE.vblank;
             return;
         }
