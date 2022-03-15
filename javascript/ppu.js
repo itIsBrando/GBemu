@@ -111,10 +111,13 @@ class PPU {
         this.regs.bgp = 0;
         this.regs.obj0 = 0;
         this.regs.obj1 = 0;
+        
+        this.lcdEnabled = true;
     }
     
     /**
      * Gets the flags byte of a tile in VRAM
+     * @note CGB Mode only
      * @param {UInt16} address points to a tile. Should be an address of in the tile map
      * @returns flag byte
      */
@@ -161,6 +164,13 @@ class PPU {
 
     get lcdEnabled() {
         return (this.regs.lcdc & 0x80) != 0;
+    }
+
+    set lcdEnabled(v) {
+        if(v == true)
+            this.regs.lcdc |= 0x80;
+        else
+            this.regs.lcdc &= 0x7F;
     }
 
     step(cpu) {

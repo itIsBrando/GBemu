@@ -254,17 +254,17 @@ class CPU {
         this.interrupt_master = true;
         this.isHalted = false;
         this.currentCycles = 0;
+        
+        if(this.mbcHandler)
+        this.mbcHandler.reset();
+        
+        for(let i = 0xFF00; i <= 0xFFFF; i++)
+        // skip HDMA
+        if(i != 0xFF55)
+        this.write8(i, 0);
+        
         this.timerRegs.reset();
         this.ppu.reset();
-
-        if(this.mbcHandler)
-            this.mbcHandler.reset();
-
-        for(let i = 0xFF00; i <= 0xFFFF; i++)
-            // skip HDMA
-            if(i != 0xFF55)
-                this.write8(i, 0);
-
     }
 
     // true if the CPU is currently running a ROM
@@ -374,7 +374,7 @@ class CPU {
         } else if(address < 0xA000) {
             // VRAM
             if(this.cgb && this.ppu.cgb.vbank === 1) {
-                this.ppu.cgb.vram[address-0x8000] = byte;
+                this.ppu.cgb.vram[address - 0x8000] = byte;
             }else
                 this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
@@ -505,7 +505,8 @@ class CPU {
                 this.ppu.cgb.obji = (this.ppu.cgb.obji + 1) & 0x3F;
         } else if(address == 0xFF70) {
             // cgb WRAM bank
-            if(byte == 0) byte++;
+            if(byte == 0)
+                byte = 1;
             this.ppu.cgb.svbk = byte & 0x07;
         } else if(address == 0xFFFF) {
             this.interrupt_enable = byte;

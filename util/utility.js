@@ -189,7 +189,6 @@ function showMessage(string, title) {
 
     messageConfirm.onkeydown = function(event)
     {
-        console.log(event.key)
         if(event.key.toLowerCase() == "enter")
         {
             messageConfirm.click();

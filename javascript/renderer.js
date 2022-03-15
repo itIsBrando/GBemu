@@ -146,7 +146,7 @@ class Renderer {
                     this.drawTile(x, y + 8, t, flags, cpu);
                     this.drawTile(x, y, t + 16, flags, cpu);
                 } else {
-                    this.drawTile(x, y, t + 16, flags, cpu);
+                    this.drawTile(x, y, t, flags, cpu);
                     this.drawTile(x, y + 8, t + 16, flags, cpu);
                 }
             } else {
@@ -166,7 +166,7 @@ class Renderer {
      */
     drawTileLine(cpu, mapAddress, x, y, tileAddress) {
         if(y >= 144) { return };
-        const flags = cpu.ppu.getTileAttributes(mapAddress);
+        const flags = cpu.cgb ? cpu.ppu.getTileAttributes(mapAddress) : 0;
         const xFlip = UInt8.getBit(flags, 6);
         // add yflip
 
