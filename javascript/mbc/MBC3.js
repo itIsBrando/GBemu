@@ -5,8 +5,6 @@ class MBC3 extends MBC1 {
         super(rom, mbc);
 
         this.date = new Date();
-        this.RTCEnable = false;
-        this.RTCReg = 0; // index to the currently selected reg
         this.regs = [
             0,      // seconds
             0,      // minutes
@@ -34,7 +32,7 @@ class MBC3 extends MBC1 {
 
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
-            this.RTCEnable = this.ramEnable = (byte & 0x0A) != 0;
+            this.ramEnable = (byte & 0x0A) != 0;
             return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
@@ -44,14 +42,7 @@ class MBC3 extends MBC1 {
             return false;
         // 0x4000-0x5FFF RAM bank or RTC
         } else if(address < 0x6000) {
-            // enable RTC
-            if((byte >= 0x08) && (byte <= 0x0C)) {
-                this.RTCReg = byte - 0x8;
-                this.ramBank = -1; // a flag indicating that we are reading from RTC instead of RAM
-            // set RAM bank if RAM size is 32K
-            } else if(byte <= 3 && this.ramEnable) {
-                this.ramBank = byte;
-            }
+            this.ramBank = byte;
             return false;
         // 0x6000-0x7FFF Latch Clock Data
         } else if(address < 0x8000)
@@ -65,16 +56,18 @@ class MBC3 extends MBC1 {
             this.latch = byte;
             return false;
         // RAM
-        } else if(address >= 0xA000 && address <= 0xBFFF)
+        } else if(address >= 0xA000 && address < 0xC000)
         {
-            if(this.RTCEnable && (this.ramBank == -1)) {
-                this.regs[this.RTCReg] = byte;
+            // ramEnable doubles up as an RTC enable
+            // if ramBank>3, then we are trying to use RTC, not RAM
+            if(this.ramEnable && this.ramBank >= 0x08 && this.ramBank <= 0x0C) {
+                this.regs[this.ramBank - 0x8] = byte;
             // only allow writing if RAM is enabled
             //  and we are not looking at RTC
-            } else if(this.ramEnable && (this.ramBank >= 0))
-            {
+            } else if(this.ramEnable && this.ramBank <= 3) {
                 this.ram[address - 0xA000 + (this.ramBank * 0x2000)] = byte;
             }
+
             return false;
         }
 
@@ -94,23 +87,17 @@ class MBC3 extends MBC1 {
             return null
         // banks 01-7f
         } else if(address < 0x8000) {
-            address -= 0x4000;
-            return this.rom[(this.bank * 0x4000) + address];
+            return this.rom[(this.bank * 0x4000) + address - 0x4000];
         // RAM A000-BFFF or RTC register
-        } else if(address >= 0xA000 && address <= 0xBFFF)
+        } else if(address >= 0xA000 && address < 0xC000)
         {
-            
-            if(this.ramEnable && this.ramBank != -1)
-            {
-                address -= 0xA000;
-                return this.ram[address + (this.ramBank * 0x2000)];
-            }
-            else if(this.RTCEnable && this.ramBank == -1)
-                return this.latchedRegs[this.RTCReg];
+            if(this.ramEnable && this.ramBank <= 3)
+                return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
+            else if(this.ramEnable && this.ramBank >= 0x8 && this.ramBank <= 0xC)
+                return this.latchedRegs[this.ramBank - 0x8];
             else
-            {
                 return 0xFF;
-            }
+
         }
 
         return null;

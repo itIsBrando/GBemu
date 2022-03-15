@@ -266,7 +266,7 @@ const opcodeLUT = [
 	"xor a, ${u8}",
 	"rst 0x28",
 	
-	"ld hl, sp+${i8}",
+	"ldh a, ($FF00+${u8})",
 	"ld sp, hl",
 	"ld a, (${u16})",
 	"ei",

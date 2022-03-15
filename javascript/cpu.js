@@ -161,6 +161,20 @@ class CPU {
         this.de = new UInt16();
         this.hl = new UInt16();
 
+        // this could be useful for debugging
+/*         var _pc = new UInt16(0x100);
+
+        this.pc = {
+            get v() {
+                return _pc.v
+            },
+            set v(val) {
+                if(val >= 0xe000 && val <= 0xf000)
+                    throw "executing mirror RAM: " + hex(val) + " from " + hex(_pc.v);
+                _pc.v = val
+            }
+        }; */
+
         this.pc = new UInt16(0x100);
         this.sp = new UInt16(0xFFFE);
 
@@ -323,8 +337,6 @@ class CPU {
             }
             this.ppu.cgb.hdma = 0xFF;
         } else {
-            console.log("mode 1 DMA not supported");
-            throw "er"
             this.HMDAInProgress = true;
             this.ppu.cgb.hdma = length;
         }
@@ -748,6 +760,7 @@ class CPU {
 
         // update GPU
         this.ppu.step(this);
+
 
         // HDMA stuff
         if(this.HMDAInProgress && this.ppu.mode == PPUMODE.hblank)
