@@ -12,6 +12,7 @@ class SaveStorage {
     }
 }
 
+
 /**
  * Saves a savefile to localStorage
  * - reports an error if ROM does not have external RAM
@@ -29,6 +30,7 @@ function saveToLocal(key) {
         showMessage("ROM does not support saving.", "Saving Error");
     }
 }
+
 
 /**
  * Reads a locally stored save
@@ -88,6 +90,7 @@ function showPopupMenu(title, buttonText) {
     localSaveName.focus();
 }
 
+
 function hidePopupMenu() {
     popupMenu.style.display = "none";
     FrontEndMenu.hideOverlay();
@@ -104,6 +107,7 @@ function hidePopupMenu() {
     }
 }
 
+
 /**
  * Shows the pop up menu for saving to localStorage
  */
@@ -118,11 +122,12 @@ localSaveButton.addEventListener('click', function() {
     localSaveName.placeholder = readROMName() || "ROM NAME";
 });
 
+
 /**
  * When we press the "load" or "save button"
  */
 popupSubmitButton.addEventListener('click', function() {
-    const name = localSaveName.value;
+    const name = localSaveName.value.toUpperCase();
 
     switch(popupSubmitButton.innerText.toLowerCase())
     {
@@ -245,6 +250,8 @@ localLoadButton.addEventListener('click', function() {
     // iterate through each value in `localStorage`
     //  and create a button for each entry
     const keys = Object.keys(localStorage);
+    let hasSaves = false;
+
     for(let i in keys)
     {
         // some settings should not be shown
@@ -259,9 +266,16 @@ localLoadButton.addEventListener('click', function() {
         btn.value = keys[i];
         btn.onclick = pasteLabel;
         popupMenu.appendChild(btn);
+
+        hasSaves = true;
     }
+<<<<<<< HEAD
+
+    if(!hasSaves)
+=======
     
     if(keys.length == 0)
+>>>>>>> c6bbf4bb0750417e159950f64ebfe89041eaff9d
     {
         const l = document.createElement("b");
         l.id = "delete";
