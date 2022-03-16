@@ -166,7 +166,7 @@ popupSubmitButton.addEventListener('click', function() {
         break;
     case "load json":
         // import from clipboard JSON
-        localStorage.setItem("import", name.toString());
+        localStorage.setItem("import", name.toLowerCase());
         
         showMessage("Import successful. Now you can load this save from the menu.", "Success");
         break;
