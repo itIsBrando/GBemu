@@ -243,9 +243,6 @@ changeSize = function() {
     } else {
         // buttonFF.style.right = "50%";
         // check for notch
-        if(hasNotch()) {
-            showMessage("this is a notched iPhone in landscape \n:)", "Nice!");
-        }
         touchControls.style.marginBottom = "75px";
     }
 }

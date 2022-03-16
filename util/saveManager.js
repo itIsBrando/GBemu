@@ -12,6 +12,17 @@ class SaveStorage {
     }
 }
 
+function _canSave()
+{
+    if(_delKey)
+    {
+        localStorage.setItem(_delKey["key"], _delKey["data"]);
+        showMessage("<b style='color:green;'>" + _delKey["key"] + "</b> saved successfully. You can safely close this webpage", "Success");
+    }
+
+    _delKey = null
+}
+
 
 /**
  * Saves a savefile to localStorage
@@ -24,8 +35,22 @@ function saveToLocal(key) {
     {
         const ram = c.mbcHandler.ram;
         let data = JSON.stringify(new SaveStorage(readROMName(), ram));
-        localStorage.setItem(key, data);
-        showMessage("\"" + key + "\" saved successfully. You can safely close this webpage", "Success");
+
+        // prevent user from overwriting a savefile unintentionally
+        if(key in localStorage)
+        {
+            showMessage(
+                "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
+                "Save Already Exists",
+                true,
+                null,
+                _canSave
+            );
+            _delKey = {key, data};
+        } else {
+            localStorage.setItem(key, data);
+            showMessage("<b style='color:green;'>" + key + "</b> saved successfully. You can safely close this webpage", "Success");
+        }
     } else {
         showMessage("ROM does not support saving.", "Saving Error");
     }
@@ -186,6 +211,19 @@ function injectLocalStorage(key) {
     }
 }
 
+
+let _delKey;
+
+const _del = function() {
+    if(_delKey)
+        delete localStorage[_delKey];
+
+    _delKey = null;
+    hidePopupMenu();
+    localLoadButton.click();
+}
+
+
 /**
  * Button event that deletes a localStorage save.
  * @param {Event} e Event
@@ -193,9 +231,16 @@ function injectLocalStorage(key) {
 function saveManagerDeleteSelf(e) {
     e.stopPropagation();
     key = this.parentElement.value
-    delete localStorage[key];
-    hidePopupMenu();
-    localLoadButton.click();
+    showMessage(
+        "Delete <b style='color:green;'>" + key + "</b>?",
+        "Are You Sure?",
+        true,
+        null,
+        _del
+    );
+    _delKey = key;
+    
+    saveEditButton.innerHTML = "edit";
 }
 
 

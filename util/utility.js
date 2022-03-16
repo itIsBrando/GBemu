@@ -1,11 +1,13 @@
 // desktop needs innerWidth
-var getWidth = function() {
+const getWidth = function() {
     return document.documentElement.clientWidth;
 }
 
-var getHeight = function() {
+
+const getHeight = function() {
     return document.documentElement.clientHeight;
 }
+
 
 /**
  * Checks if the game is landscape of potrait
@@ -15,12 +17,14 @@ function isLandscape() {
     return getHeight() < getWidth();
 }
 
+
 /**
  * @returns true if the device is an iPhone with a notch
  */
 function hasNotch() {
     return navigator.userAgent.match(/(iPhone)/) && window.innerWidth * window.innerHeight == "304500";
 }
+
 
 /**
  * Enters full screen if possible, or does nothing
@@ -45,6 +49,7 @@ function requestFullscreen()
     return false;
 }
 
+
 /**
  * Exits full screen mode if possible
  */
@@ -60,6 +65,7 @@ function exitFullscreen() {
         canvas.msExitFullscreen();
     }
 }
+
 
 /**
  * Reads the game title embeded inside the ROM
@@ -79,12 +85,22 @@ function readROMName() {
     return str;
 }
 
+
 /**
  * Converts a value into a hexidemical string
  * @param {any} v 
  */
 function hex(v) {
     return "0x" + v.toString(16).toUpperCase();
+}
+
+
+/**
+ * Converts a value into a binary string
+ * @param {any} v 
+ */
+function bin(v) {
+    return "0b" + v.toString(2).toUpperCase();
 }
 
 
@@ -101,7 +117,7 @@ function copyClipMenu(text) {
     console.log("show clipboard menu");
 
     // show menu
-    menuDiv.style.display = 'block';
+    showElement(menuDiv);
     menuDiv.style.opacity = "1";
 }
 
@@ -165,32 +181,51 @@ function showROMInfo() {
 
 const messageDiv = document.getElementById('messageID');
 const messageConfirm = document.getElementById('messageConfirm');
+const messageCancel = document.getElementById('messageCancel');
 const shadowOverlay = document.getElementById('shadowOverlay');
-
+let oncancel, onconfirm;
 messageConfirm.onclick = hideMessage;
+messageCancel.onclick = hideMessage;
+
 
 /**
  * Shows a message to the user
  * @param {String} string message to tell
  * @param {String?} title string to display at the top
+ * @param {Boolean} useCancel true to have a cancel button
+ * @param {Function} oncancel function called when cancel button is used
+ * @param {Function} onconfirm same as above
  */
-function showMessage(string, title) {
+function showMessage(string, title, useCancel = false, _oncancel = null, _onconfirm = null) {
     const messageContent = document.getElementById('messageContent');
     const messageHeader = document.getElementById('messageHeader');
-    messageContent.innerHTML = string;
+
+    messageContent.innerHTML = string || "";
     messageHeader.textContent = title || "ALERT";
+
     // show 
     if(messageDiv.style.display == "block")
         FrontEndMenu.hideOverlay();
-    messageDiv.style.display = "block";
+    showElement(messageDiv);
+
+    if(useCancel) {
+        messageConfirm.style.width = "50%"
+        showElement(messageCancel);
+    } else {
+        hideElement(messageCancel);
+        messageConfirm.style.width = "100%"
+    }
+
+    oncancel = _oncancel;
+    onconfirm = _onconfirm;
+
     messageConfirm.focus();
     // dark the content below to force user to dismiss current message
     FrontEndMenu.showOverlay();
 
     messageConfirm.onkeydown = function(event)
     {
-        if(event.key.toLowerCase() == "enter")
-        {
+        if(event.key.toLowerCase() == "enter") {
             messageConfirm.click();
         }
     }
@@ -201,13 +236,19 @@ function showMessage(string, title) {
 
 /**
  * Hides the message dialog from `showMessage`
+ * @param {HTMLElement?} e
  */
-function hideMessage() {
+function hideMessage(e) {
     // hide
     messageDiv.style.opacity = "0";
     setTimeout(function() {
-        messageDiv.style.display = "none";
+        hideElement(messageDiv);
     }, 600);
+    
+    if(this && this == messageConfirm && onconfirm)
+        onconfirm();
+    else if(this && this == messageCancel && oncancel)
+        oncancel();
 
     FrontEndMenu.hideOverlay();
 }
@@ -250,13 +291,13 @@ var FrontEndPalette = new function() {
     
     this.showPaletteMenu = function() {
         FrontEndMenu.showOverlay();
-        paletteSetDiv.style.display = 'block';
+        showElement(paletteSetDiv);
         this.onPaletteArrow(1);
     }
     
     // hides the palette selection menu
     this.hidePaletteMenu = function() {
-        paletteSetDiv.style.display = 'none';
+        hideElement(paletteSetDiv);
         FrontEndMenu.hideOverlay();
     }
     
