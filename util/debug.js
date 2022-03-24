@@ -292,6 +292,7 @@ var Debug = new function() {
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
+	const DissaemblyRegisters = document.getElementById('DissaemblyRegisters');
 	let curObj = 0;
 	let curPC = 0;
 	let prevAddr = 0;
@@ -445,11 +446,21 @@ var Debug = new function() {
 		resumeEmulation();
 	}
 
-
-	this.hex = function(num, usePrefix) {
+	/**
+	 * Converts a number to a formatted hex string
+	 * @param {Number} num Number to convert
+	 * @param {Boolean} usePrefix Use a '$' or not
+	 * @param {Number} digits Min number of digits to display
+	 * @returns {Number}
+	 */
+	this.hex = function(num, usePrefix, digits = 0) {
 		let s = hex(num).substring(2);
+
+		s = s.padStart(digits, 0);
+
 		if(usePrefix)
 			s = "$" + s;
+
 		return s;
 	}
 	
@@ -517,7 +528,12 @@ var Debug = new function() {
 
 	this.removeBreakpoint = function(addr)
 	{
-		this.breakpoints[addr] = false;
+		if(addr in this.breakpoints) {
+			delete this.breakpoints[addr];
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	this.isBreakpoint = function(pc) {
@@ -528,10 +544,85 @@ var Debug = new function() {
 	}
 
 	this.stepUntilBreak = function() {
+		if(this.breakpoints.length == 0) {
+			showMessage("Add a breakpoint first.", "No Breakpoints");
+			return;
+		}
+
 		while(!this.isBreakpoint(c.pc.v)) {
 			c.execute();
 		}
 		this.showDisassembly(c.pc.v);
+	}
+
+	this.showRegister = function() {
+		const regs = [
+			[c.af.v, 4],
+			[c.bc.v, 4],
+			[c.de.v, 4],
+			[c.hl.v, 4],
+			[c.pc.v, 4],
+			[c.sp.v, 4],
+			[c.ppu.regs.stat, 2],
+			[c.ppu.regs.lcdc, 2],
+			[c.ppu.regs.scy, 2],
+			[c.ppu.regs.scx, 2],
+			[c.ppu.regs.scanline, 2],
+			[c.ppu.regs.dma, 2],
+			[c.ppu.regs.obj0, 2],
+			[c.ppu.regs.obj1, 2],
+			[c.ppu.regs.wy, 2],
+			[c.ppu.regs.wx, 2],
+
+		];
+		const names = [
+			"AF",
+			"BC",
+			"DE",
+			"HL",
+			'\n',
+			"PC",
+			"SP",
+			'\n',
+			"STAT",
+			"LCDC",
+			"SCY",
+			"SCX",
+			"LY",
+			"DMA",
+			"OBJ0",
+			"OBJ1",
+			"WY",
+			"WX",
+		];
+		let str = "", j = 0;
+
+		for(let i in names)
+		{
+			if(names[i] == '\n')
+				str += '<tr><td><hr style="width:200%;" /></td></tr>';
+			else
+				str += `<tr><td>${names[i]}:</td> <td style='float:right;'>${this.hex(regs[j][0], true, regs[j++][1])}</td></tr>`;
+		}
+
+		DissaemblyRegisters.innerHTML = str;
+/* 		`AF: ${this.hex(c.af.v, true)}
+		<br>BC: ${this.hex(c.bc.v, true)}
+		<br>DE: ${this.hex(c.de.v, true)}
+		<br>HL: ${this.hex(c.hl.v, true)}
+		<br><br>PC: ${this.hex(c.pc.v, true)}
+		<br>SP: ${this.hex(c.sp.v, true)}
+		<br><br>STAT: ${this.hex(c.ppu.regs.stat, true)}
+		<br>LCDC: ${this.hex(c.ppu.regs.lcdc, true)}
+		<br>SCY: ${this.hex(c.ppu.regs.scy, true)}
+		<br>SCX: ${this.hex(c.ppu.regs.scx, true)}
+		<br>LY: ${this.hex(c.ppu.regs.scanline, true)}
+		<br>DMA: ${this.hex(c.ppu.regs.dma, true)}
+		<br>OBJ0: ${this.hex(c.ppu.regs.obj0, true)}
+		<br>OBJ1: ${this.hex(c.ppu.regs.obj1, true)}
+		<br>WX: ${this.hex(c.ppu.regs.wx, true)}
+		<br>WY: ${this.hex(c.ppu.regs.wy, true)}
+ 		`;*/
 	}
 
 	/**
@@ -564,7 +655,7 @@ var Debug = new function() {
 			}
 
 			if(this.isBreakpoint(curPC))
-				str += "<b style='color:red;'>*</b>";
+				str += "<b style='color:red;' title='breakpoint'>**</b>";
 
 			str += hex(curPC) + " : "
 				 + this.parseOp(curPC) + "<br>";
@@ -574,6 +665,8 @@ var Debug = new function() {
 
 
 			a.innerHTML += str;
+
+			this.showRegister();
 		}
 
 
@@ -609,15 +702,20 @@ var Debug = new function() {
 
 		this.newBreakpoint(addr);
 		this.showDisassembly(c.pc.v);
+		showMessage("Added breakpoint at " + this.hex(addr, true), "New Breakpoint");
 	}
 
 	this.rmBreak = function() {
 		let addr = this.getAddr();
-		if(!addr)
+		if(!addr) {
+			showMessage("Could not find breakpoint at " + this.hex(addr, true), "Not a Valid Breakpoint");
 			return;
-		
-		this.removeBreakpoint(addr);
+		}
+		if(!this.removeBreakpoint(addr))
+			return;
 		this.showDisassembly(c.pc.v);
+		showMessage("Removed breakpoint at " + this.hex(addr, true), "Removed Breakpoint");
+
 	}
 
 

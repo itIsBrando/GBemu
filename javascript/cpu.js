@@ -331,7 +331,7 @@ class CPU {
         // preliminary support for some of the CGB's DMA transfers
 
         // if we are in the middle of a HDMA Transfer but we want to stop it.
-        if(UInt8.getBit(this.ppu.cgb.hdma, 7) && !mode)
+        if(UInt8.getBit(this.ppu.cgb.hdma, 7) && !mode && this.HDMAInProgress)
         {
             this.HDMAInProgress = false;
             this.ppu.cgb.hdma = data;
@@ -339,18 +339,18 @@ class CPU {
         }
 
 
-        if(mode)
+        if(!mode)
         {
             for(let i = 0; i < (length + 1) * 0x10; i++) {
-                const byte = this.read8(i + this.ppu.cgb.HDMASrc);
-                this.write8(i + this.ppu.cgb.HDMADest, byte);
+                const byte = this.read8(this.ppu.cgb.HDMASrc++);
+                this.write8(this.ppu.cgb.HDMADest++, byte);
             }
-            this.ppu.cgb.hdma = 0x00;
+            this.ppu.cgb.hdma = 0xFF;
         } else {
             this.HDMAInProgress = true;
             this.ppu.cgb.hdma = data;
         }
-        console.log("HDMA mode " + mode);
+        // console.log("HDMA mode " + mode);
     }
 
 
@@ -688,7 +688,10 @@ class CPU {
             // cgb
             return this.ppu.cgb.HDMADest & 0xFF;
         } else if(address == 0xFF55) {
-            return this.ppu.cgb.hdma
+            if(this.HDMAInProgress)
+                return 0x80;
+            else
+                return this.ppu.cgb.hdma
         } else if(address == 0xFF68) {
             // cgb only
             return this.cgb ? this.ppu.cgb.bgi : 0xff;
