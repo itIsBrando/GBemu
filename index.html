@@ -1,5 +1,5 @@
 <!doctype html>
-<html manifest="game.manifest">
+<html manifest="game.manifest" lang="en">
     <head>
     <!-- iOS web app info -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +23,6 @@
                 width: 100%;
                 background-color: rgb(54, 54, 54);
                 position: fixed;
-                /* overflow: hidden; */
 
                 image-rendering: optimizeSpeed;
                 image-rendering: -moz-crisp-edges;
@@ -47,27 +46,26 @@
             }
 
             #viewport {
+                display: flex;
+                justify-content: center;
                 position: absolute;
-                padding: 0;
-                margin: 0;
                 margin-bottom: 5px;
                 left: 2px;
                 right: 2px;
-                top: 25px;
+                top: 15px;
                 z-index: -1;
             }
 
             #screen {
-                height: 97vmin;
-                width: 97vmin;
-                position: absolute;
-                padding: 0;
-                margin: 0;
-                transform: translate(-50%, 0);
+                width: clamp(160px, 100%, 98vmin);
                 border: 15px solid azure;
                 border-radius: 10px;
-                left: 50%;
+            }
 
+            #screen::after {
+                content: "";
+                display: block;
+                padding-bottom: 100%;
             }
 
             /* Disable right click/highlighting */
@@ -110,9 +108,7 @@
                 box-shadow: 0px 16px 32px 0px rgba(0,0,0,0.8);
                 z-index: 9;
                 border-radius: 3px;
-                /* overflow: auto;
-                max-height: min-content;
-                height: inherit; */
+                width: clamp(350px, 450px, 550px);
 
             }
 
@@ -134,8 +130,8 @@
                 min-height: 30px;
                 min-width: 60px;
                 width: 100%;
-                box-sizing: border-box;
                 -moz-box-sizing: border-box;
+                box-sizing: border-box;
                 background: #424141;
                 color:aliceblue;
             }
@@ -182,6 +178,7 @@
             /* Button used for setting keyboard characters */
             .keypad-binding-btn {
                 background-color: cornflowerblue;
+                color:black;
                 display:block;
                 border: none;
                 border-radius: 3px;
@@ -287,6 +284,7 @@
             }
 
         </style>
+            <title>GBemu</title>
             <!-- test button -->
             <svg id="sampleSVG" style="display: none; margin:none; padding:none;" width="50" height="50" class="gamepad-button no-selection">
                 <g>
@@ -311,7 +309,7 @@
                     <!-- Savefile downloading -->
                     <button type="button" title="Download a .sav file to you local device" style="width: inherit" id="exportSaveButton" class="menubtn">Export Save File</button>
                     <!-- ROM Info -->
-                    <button type="button" style="width: inherit" id="exportSaveButton" class="menubtn" onclick="showROMInfo()">ROM Info</button>
+                    <button type="button" style="width: inherit" class="menubtn" onclick="showROMInfo()">ROM Info</button>
                     <!-- Reset Game -->
                     <button type="button" style="width: inherit" class="menubtn" onclick="restartEmulation()"><b style="color:deepskyblue;">reset game</b></button>
                 </div>
@@ -363,8 +361,8 @@
                     <canvas width="8" height="8" style="width: 100%;"></canvas>
                     <p style="padding-right: 3px; padding-left: 3px;"></p>
                 </div>
-                <div id="DisassemblyDiv" style="width: minmax(350px, 90vw);" class="popup">
-                    <div style="float:left; margin-right: 5px;  overflow-x: scroll;">
+                <div id="DisassemblyDiv" style="width: clamp(350px, 425px, 90vw);" class="popup">
+                    <div style="float:left; margin-right: 5px;"
                         <b>Disassembler v0.3</b><br>
                         <a style="font-family: monospace; width:100%;"></a>
                     </div>
@@ -404,17 +402,17 @@
                 <button class="x-btn" onclick="FrontEndKeyBinding.hide();">&times;</button>
                 <br>
 
-                <button onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('SELECT');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('START');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('UP');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('DOWN');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('LEFT');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('RIGHT');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('SELECT');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('START');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('UP');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('DOWN');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('LEFT');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('RIGHT');" class="keypad-binding-btn"></button>
                 <br>
-                <button onclick="FrontEndKeyBinding.assign('FAST');" class="keypad-binding-btn"></button>
-                <button onclick="FrontEndKeyBinding.assign('FULLSCREEN');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('FAST');" class="keypad-binding-btn"></button>
+                <button type="button" onclick="FrontEndKeyBinding.assign('FULLSCREEN');" class="keypad-binding-btn"></button>
             </div>
 
             <!-- Pop up menu for saving/loading states -->

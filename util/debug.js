@@ -514,9 +514,9 @@ var Debug = new function() {
 		this.increasePC(1);
 
 		if(opcodeLUT[op])
-			return hex(op) + " : " + this.getOpString(op);
+			return hex(op, 2) + " : " + this.getOpString(op);
 		else
-			return hex(op);
+			return hex(op, 2);
 	}
 
 	this.breakpoints = [];
@@ -606,23 +606,6 @@ var Debug = new function() {
 		}
 
 		DissaemblyRegisters.innerHTML = str;
-/* 		`AF: ${this.hex(c.af.v, true)}
-		<br>BC: ${this.hex(c.bc.v, true)}
-		<br>DE: ${this.hex(c.de.v, true)}
-		<br>HL: ${this.hex(c.hl.v, true)}
-		<br><br>PC: ${this.hex(c.pc.v, true)}
-		<br>SP: ${this.hex(c.sp.v, true)}
-		<br><br>STAT: ${this.hex(c.ppu.regs.stat, true)}
-		<br>LCDC: ${this.hex(c.ppu.regs.lcdc, true)}
-		<br>SCY: ${this.hex(c.ppu.regs.scy, true)}
-		<br>SCX: ${this.hex(c.ppu.regs.scx, true)}
-		<br>LY: ${this.hex(c.ppu.regs.scanline, true)}
-		<br>DMA: ${this.hex(c.ppu.regs.dma, true)}
-		<br>OBJ0: ${this.hex(c.ppu.regs.obj0, true)}
-		<br>OBJ1: ${this.hex(c.ppu.regs.obj1, true)}
-		<br>WX: ${this.hex(c.ppu.regs.wx, true)}
-		<br>WY: ${this.hex(c.ppu.regs.wy, true)}
- 		`;*/
 	}
 
 	/**
@@ -646,6 +629,7 @@ var Debug = new function() {
 			curPC = c.pc.v;
 
 		a.innerHTML = ""
+
 		for(let i = 0; i < 20; i++)
 		{
 			const isCurPC = c.pc.v == curPC;
@@ -657,7 +641,7 @@ var Debug = new function() {
 			if(this.isBreakpoint(curPC))
 				str += "<b style='color:red;' title='breakpoint'>**</b>";
 
-			str += hex(curPC) + " : "
+			str += hex(curPC, 4) + " : "
 				 + this.parseOp(curPC) + "<br>";
 
 			if(isCurPC)

@@ -89,9 +89,10 @@ function readROMName() {
 /**
  * Converts a value into a hexidemical string
  * @param {any} v 
+ * @param {Number} pad number of min digits to display
  */
-function hex(v) {
-    return "0x" + v.toString(16).toUpperCase();
+function hex(v, pad=0) {
+    return "0x" + v.toString(16).toUpperCase().padStart(pad, "0");
 }
 
 
