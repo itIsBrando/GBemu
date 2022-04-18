@@ -1,6 +1,8 @@
 "use strict"
 
 const INTERVAL_SPEED = 8;
+
+const powerLED = document.getElementById("power-LED-circle");
 var c = new CPU();
 var romLoaded = false;
 
@@ -23,6 +25,7 @@ function startEmulation(rom) {
     c.loadROM(rom);
 
     c.timer = setInterval(run, INTERVAL_SPEED);
+    powerLED.style.fill = "limegreen";
 };
 
 
@@ -35,6 +38,8 @@ function pauseEmulation() {
          return;
 
     clearInterval(c.timer);
+    powerLED.style.fill = "red";
+    
 };
 
 
@@ -43,8 +48,11 @@ function pauseEmulation() {
  * @see pauseEmulation
  */
 function resumeEmulation() {
-    if(romLoaded)
-    	c.timer = setInterval(run, INTERVAL_SPEED);
+    if(!romLoaded)
+        return;
+
+    c.timer = setInterval(run, INTERVAL_SPEED);
+    powerLED.style.fill = "limegreen";
 }
 
 

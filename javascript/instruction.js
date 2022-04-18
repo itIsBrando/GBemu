@@ -14,7 +14,7 @@ function illegalOpcode(op, cpu, isCB) {
     out +=  hex(op) + ", at address " + hex(cpu.pc.v);
 
     showMessage(out, "Illegal Opcode");
-    clearInterval(cpu.timer);
+    pauseEmulation();
 }
 
 

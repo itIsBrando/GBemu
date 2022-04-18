@@ -16,10 +16,29 @@
         <style>
 
             :root {
-                --screen-shadow: rgba(99, 4, 207, 0.692);
+                --screen-shadow: rgba(99, 4, 207, 0.69);
                 --bg-color: rgba(49, 5, 98, 0.69);
+                --dpad-color: #454545;
+                --screen-border-color: rgba(89, 17, 127, 0.9);
+                --gamepad-btn-color: orangered;
             }
             
+            .icy-blue-theme {
+                --bg-color: rgb(10, 10, 60, 0.69);
+                --screen-shadow: rgb(100, 160, 255, 0.69);
+                --screen-border-color: skyblue;
+                --dpad-color: #555555;
+                --gamepad-btn-color: lightblue;
+            }
+            
+            .dmg-theme {
+                --bg-color: rgb(198, 191, 198, 0.69);
+                --screen-shadow: rgb(95, 107, 121, 0.90);
+                --dpad-color: #3A3A3A;
+                --screen-border-color: rgb(95, 107, 121, 0.90);
+                --gamepad-btn-color: orangered;
+            }
+
             html, body {
                 padding: 0px;
                 margin: 0px;
@@ -54,24 +73,37 @@
                 display: flex;
                 justify-content: center;
                 position: absolute;
-                margin-bottom: 5px;
                 left: 2px;
                 right: 2px;
                 top: 15px;
                 z-index: -1;
             }
 
-            #screen {
+            #screen-container {
+                display: flex;
+                background-color: var(--screen-border-color);
                 width: clamp(160px, 100%, 98vmin);
-                /* border: 15px solid azure; */
+
                 border-radius: 10px;
-                box-shadow: 0px 8px 16px 10px var(--screen-shadow)
+                box-shadow: 0px 8px 16px 10px var(--screen-shadow);
             }
 
-            #screen::after {
-                content: "";
-                display: block;
-                padding-bottom: 100%;
+            #screen-container-border {
+                height: 100%;
+                width: clamp(20px, 8%, 60px);
+            }
+            
+            #power-LED {
+                position: relative;
+                left: 50%;
+                transform: translate(-50%, 0%);
+                top: 20%;
+                filter: drop-shadow(0px 0px 8px black);
+            }
+
+            #screen {
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
             }
 
             /* Disable right click/highlighting */
@@ -254,7 +286,7 @@
                 z-index: 8;
                 cursor: pointer;
                 touch-action: manipulation;
-                fill: orangered;
+                fill: var(--gamepad-btn-color);
             }
 
             .gamepad-button-top {
@@ -336,7 +368,8 @@
                     <!-- change keyboard controls -->
                     <button type="button" id="changeKeybinding" style="width: inherit;" class="menubtn" onclick="FrontEndKeyBinding.show();">Keyboard Controls</button>
                     <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn" onclick="FrontEndPalette.showPaletteMenu();">Change Palette</button>
-                    <button type="button" style="width: inherit;" title="Show/hide CPU power consumption" class="menubtn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">Power Consumption</button>
+                    <!-- <button type="button" style="width: inherit;" title="Show/hide CPU power consumption" class="menubtn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">Power Consumption</button> -->
+                    <button type="button" style="width: inherit;" class="menubtn" onclick="Themes.next();">Themes</button>
                     <button type="button" id="toggleDMGMode" title="Can run in original GB or GameBoy Color emulation modes" style="width: inherit;" class="menubtn">Force DMG: yes</button>
                     <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn" onclick="Debug.start();">Debugger</button>
                 </div>
@@ -355,7 +388,16 @@
 
             <!-- Screen -->
             <div id="viewport">
-                <canvas id="screen" width="160" height="144"></canvas>
+                <div id="screen-container">
+                    <div id="screen-container-border">
+                        <svg id="power-LED" width="20" height="20">
+                            <g>
+                                <circle id="power-LED-circle" cx="10" cy="10" width="10" height="10" r="5" fill="red"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <canvas id="screen" style="width: 100%; height: 100%; float: right" width="160" height="144"> </canvas>
+                </div>
             </div>
 
             <!-- New Debug menu -->
@@ -396,10 +438,10 @@
             <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;" class="no-selection">
                 <div id="dpadButtons" style="width: 150px; height: 150px;">
-                    <svg class="gamepad-button" width="50" height="50" style="fill: #333333; position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: #333333; position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: #333333; position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: #333333; position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
+                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
                 </div>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 10px; bottom: 80px" name="A" id="controllerA"></svg>
                 <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 70px; bottom: 40px;" name="B" id="controllerB"></svg>
@@ -491,6 +533,7 @@
         <script src="util/utility.js"></script>
         <script src="util/controller.js"></script>
         <script src="util/debug.js"></script>
+        <script src="util/themes.js"></script>
         <script src="javascript/types.js"></script>
         <script src="javascript/renderer.js"></script>
         <script src="javascript/mbc/MBC1.js"></script>
@@ -541,7 +584,6 @@
                 }
                 return a
             }
-
 
 
             // for `file` menu tab
