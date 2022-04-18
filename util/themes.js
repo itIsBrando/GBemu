@@ -1,11 +1,13 @@
 
 
 var Themes = new function() {
-    this.curTheme = 2;
+    this.curTheme = 0;
     const themes = [
+        "none",
         "icy-blue-theme",
+        "dark-theme",
+        "light-theme",
         "dmg-theme",
-        "none"
     ];
 
     this.next = function() {

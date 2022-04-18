@@ -21,14 +21,44 @@
                 --dpad-color: #454545;
                 --screen-border-color: rgba(89, 17, 127, 0.9);
                 --gamepad-btn-color: orangered;
+                /* v UI Elements v */
+                --title-btn-color: blueviolet;
+                --menu-btn-color: hotpink;
+                --text-color: black;
             }
             
             .icy-blue-theme {
-                --bg-color: rgb(10, 10, 60, 0.69);
-                --screen-shadow: rgb(100, 160, 255, 0.69);
+                --bg-color: rgba(10, 10, 60, 0.69);
+                --screen-shadow: rgba(100, 160, 255, 0.69);
                 --screen-border-color: skyblue;
-                --dpad-color: #555555;
+                --dpad-color: rgb(38, 100, 255);
                 --gamepad-btn-color: lightblue;
+                /* v UI Elements v */
+                --title-btn-color: cornflowerblue;
+                --menu-btn-color: cadetblue;
+            }
+
+            .dark-theme {
+                --bg-color: #222222;
+                --screen-shadow: rgba(100, 100, 100, 0.69);
+                --screen-border-color: #404040;
+                --dpad-color: #454545;
+                --gamepad-btn-color: darkgray;
+                /* v UI Elements v */
+                --title-btn-color: gray;
+                --menu-btn-color: lightblue;
+            }
+            
+            .light-theme {
+                --bg-color: aliceblue;
+                --screen-shadow: rgba(126, 126, 126, 0.69);
+                --screen-border-color: lightgray;
+                --dpad-color: darkgray;
+                --gamepad-btn-color: darkgray;
+                /* v UI Elements v */
+                --title-btn-color: #333333;
+                --menu-btn-color: lightslategray;
+                --text-color: white;
             }
             
             .dmg-theme {
@@ -37,6 +67,10 @@
                 --dpad-color: #3A3A3A;
                 --screen-border-color: rgb(95, 107, 121, 0.90);
                 --gamepad-btn-color: orangered;
+                
+                /* v UI Elements v */
+                --title-btn-color: crimson;
+                --menu-btn-color: coral;
             }
 
             html, body {
@@ -61,7 +95,7 @@
                 -webkit-touch-callout: none;
 
                 font-size: medium;
-                color: black;
+                color: var(--text-color);
             }
 
             #touchControls {
@@ -183,8 +217,8 @@
             }
 
             .menubtn {
-                background-color:coral;
-                color: black;
+                background-color: var(--menu-btn-color);
+                color: var(--text-color);
                 display: block;
                 padding: 5px;
                 margin: none;
@@ -196,21 +230,21 @@
             }
 
             .menubtn:hover {
-                background-color: crimson;
+                filter: brightness(0.8);
             }
 
             .titlebtn {
-                background-color:deeppink;
+                background-color: var(--title-btn-color);
+                color: var(--text-color);
                 display: block;
-                margin: none;
+                margin: 0px 0px 2px 0px;
                 border: none;
                 width: 33vw;
-                color: black;
                 border-radius: 5px;
             }
 
             .titlebtn:hover {
-                background-color:crimson;
+                filter: brightness(0.6)
             }
 
             /* Button used for setting keyboard characters */
