@@ -307,6 +307,7 @@ localLoadButton.addEventListener('click', function() {
         const obj = JSON.parse(localStorage[keys[i]]);
         btn.id = "delete";
         btn.className = "menubtn";
+        btn.style.width = "100%";
         btn.innerHTML = "<b>NAME:</b> <code>" + keys[i] + " </code><b>ROM:</b> <code>" + obj.label + "</code>" + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
         btn.value = keys[i];
         btn.onclick = pasteLabel;
