@@ -19,7 +19,8 @@ const buttonElements = [
     buttonFF,
 ];
 
-const sampleButton = document.getElementById("sampleSVG");
+const squareSample = document.getElementById("sampleSVG");
+const smallSample = document.getElementById("smallSampleSVG");
 
 const ids = [
         "A",
@@ -36,7 +37,7 @@ const ids = [
 // show regular buttons
 for(let i = 0; i < buttonElements.length; i++) {
     buttonElements[i].id = ids[i];
-    buttonElements[i].innerHTML = sampleButton.innerHTML;
+    buttonElements[i].innerHTML = (ids[i] == "SELECT" || ids[i] == "START") ? smallSample.innerHTML : squareSample.innerHTML;
     buttonElements[i].addEventListener('touchstart', touchStart);
     buttonElements[i].addEventListener('touchend', touchEnd);
     buttonElements[i].addEventListener('touchcancel', touchEnd);
@@ -55,7 +56,7 @@ const d = [
 for(let i = 0; i < d.length; i++)
 {
     d[i].id = ids[i + 5];
-    d[i].innerHTML = sampleButton.innerHTML;
+    d[i].innerHTML = squareSample.innerHTML;
 }
 delete d;
 
