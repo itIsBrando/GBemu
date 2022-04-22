@@ -100,7 +100,7 @@
 
             #touchControls {
                 position: fixed;
-                bottom: 0;
+                bottom: 0px;
             }
 
             #viewport {
@@ -395,20 +395,53 @@
             #A {
                 position: absolute;
                 right: calc(10px + env(safe-area-inset-right));
-                bottom: 80px;
+                bottom: 110px;
             }
             
             #B {
                 position: absolute;
                 right: calc(70px + env(safe-area-inset-right));
-                bottom: 40px;
+                bottom: 70px;
             }
 
             #FF {
                 position: absolute;
                 fill: var(--dpad-color);
                 right: calc(5px + env(safe-area-inset-right));
-                bottom: 150px;
+                bottom: 175px;
+            }
+            
+            #START {
+                fill: gray;
+                position: absolute;
+                left: 50%;
+                bottom: 10px;
+              }
+              
+              #SELECT {
+                fill: gray;
+                position: absolute;
+                left: 50%;
+                transform: translate(-100%, 0);
+                bottom: 10px;
+              }
+            
+            @media screen and (orientation: landscape) {
+              #START {
+                left: unset;
+                right: calc(10px + env(safe-area-inset-right));
+              }
+              
+              #SELECT {
+                left: unset;
+                right: calc(10px + env(safe-area-inset-right));
+              }
+            }
+            
+            @media screen and (orientation: portrait) {
+              #touchControls {
+                bottom: calc(env(safe-area-inset-bottom) + 10px);
+              }
             }
 
         </style>
@@ -536,8 +569,8 @@
                 <svg class="gamepad-button" width="50" height="50" name="A" id="controllerA"></svg>
                 <svg class="gamepad-button" width="50" height="50" name="B" id="controllerB"></svg>
 
-                <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
-                <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; transform: translate(-100%, 0); bottom: 0;" name="SELECT" id="controllerSelect"></svg>
+                <svg class="gamepad-button" width="50" height="25" name="START" id="controllerStart"></svg>
+                <svg class="gamepad-button" width="50" height="25" name="SELECT" id="controllerSelect"></svg>
                 <svg class="gamepad-button" width="50" height="50" id="controllerFastForward"></svg>
             </div>
 

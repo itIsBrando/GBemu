@@ -233,21 +233,3 @@ function getRelativePosition(elem, touch) {
         y: Math.min(1, Math.max(0, (touch.clientY - rect.top) / rect.height))
     };
 }
-
-
-changeSize = function() {
-    // move fastforward button over if we are in landscape
-    if(isLandscape() == true)
-    {
-        buttonFF.style.right = "5%";
-        touchControls.style.marginBottom = "0px";
-    } else {
-        // buttonFF.style.right = "50%";
-        // check for notch
-        touchControls.style.marginBottom = "75px";
-    }
-}
-
-window.onresize = changeSize();
-
-changeSize();
