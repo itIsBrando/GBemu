@@ -367,7 +367,7 @@
 
             #UP {
                 position: absolute;
-                left: 70px;
+                left: calc(70px + env(safe-area-inset-left));
                 bottom: 90px;
                 fill: var(--dpad-color);
             }
@@ -387,7 +387,7 @@
 
             #DOWN {
                 position: absolute;
-                left: 70px;
+                left: calc(70px + env(safe-area-inset-left));
                 bottom: 10px;
                 fill: var(--dpad-color);
             }
@@ -402,6 +402,13 @@
                 position: absolute;
                 right: calc(70px + env(safe-area-inset-right));
                 bottom: 40px;
+            }
+
+            #FF {
+                position: absolute;
+                fill: var(--dpad-color);
+                right: calc(5px + env(safe-area-inset-right));
+                bottom: 150px;
             }
 
         </style>
@@ -531,7 +538,7 @@
 
                 <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
                 <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; transform: translate(-100%, 0); bottom: 0;" name="SELECT" id="controllerSelect"></svg>
-                <svg class="gamepad-button" width="50" height="50" style="fill:#444444; position: absolute; right: 5%; transform: translate(50%, 0); bottom: 150px;" id="controllerFastForward"></svg>
+                <svg class="gamepad-button" width="50" height="50" id="controllerFastForward"></svg>
             </div>
 
             <!-- pop up menu for changing keyboard controls -->
