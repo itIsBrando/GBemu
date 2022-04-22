@@ -1,5 +1,5 @@
 <!doctype html>
-<html manifest="game.manifest" lang="en">
+<html lang="en">
     <head>
     <!-- iOS web app info -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -109,7 +109,7 @@
                 position: absolute;
                 left: 2px;
                 right: 2px;
-                top: 15px;
+                top: 20px;
                 z-index: -1;
             }
 
@@ -120,6 +120,16 @@
 
                 border-radius: 10px;
                 box-shadow: 0px 8px 16px 10px var(--screen-shadow);
+                border-style: solid;
+                border-color: var(--screen-border-color);
+                border-bottom-width: 20px;
+                border-right-width: 35px;
+                border-top-width: 25px;
+            }
+            
+            @media screen and (orientation: landscape) {
+                /* #screen-container { */
+                /* } */
             }
 
             #screen-container-border {
@@ -137,7 +147,7 @@
 
             #screen {
                 border-top-right-radius: 10px;
-                border-bottom-right-radius: 10px;
+                border-bottom-right-radius: 25px;
             }
 
             /* Disable right click/highlighting */
@@ -355,6 +365,45 @@
                 fill:inherit;
             }
 
+            #UP {
+                position: absolute;
+                left: 70px;
+                bottom: 90px;
+                fill: var(--dpad-color);
+            }
+            #LEFT {
+                position: absolute;
+                left: calc(20px + env(safe-area-inset-left));
+                bottom: 50px;
+                fill: var(--dpad-color);
+            }
+
+            #RIGHT {
+                position: absolute;
+                left: calc(120px + env(safe-area-inset-left));
+                bottom: 50px;
+                fill: var(--dpad-color);
+            }
+
+            #DOWN {
+                position: absolute;
+                left: 70px;
+                bottom: 10px;
+                fill: var(--dpad-color);
+            }
+
+            #A {
+                position: absolute;
+                right: calc(10px + env(safe-area-inset-right));
+                bottom: 80px;
+            }
+            
+            #B {
+                position: absolute;
+                right: calc(70px + env(safe-area-inset-right));
+                bottom: 40px;
+            }
+
         </style>
             <title>GBemu</title>
             <!-- test button -->
@@ -472,13 +521,13 @@
             <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;" class="no-selection">
                 <div id="dpadButtons" style="width: 150px; height: 150px;">
-                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 50px; bottom: 80px" name="UP" id="controllerUp"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 50px; bottom: 0" name="DOWN" id="controllerDown"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 0; bottom: 40px" name="LEFT" id="controllerLeft"></svg>
-                    <svg class="gamepad-button" width="50" height="50" style="fill: var(--dpad-color); position: absolute; left: 100px; bottom: 40px" name="RIGHT" id="controllerRight"></svg>
+                    <svg class="gamepad-button" width="50" height="50" name="UP" id="controllerUp"></svg>
+                    <svg class="gamepad-button" width="50" height="50" name="DOWN" id="controllerDown"></svg>
+                    <svg class="gamepad-button" width="50" height="50" name="LEFT" id="controllerLeft"></svg>
+                    <svg class="gamepad-button" width="50" height="50" name="RIGHT" id="controllerRight"></svg>
                 </div>
-                <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 10px; bottom: 80px" name="A" id="controllerA"></svg>
-                <svg class="gamepad-button" width="50" height="50" style="position: absolute; right: 70px; bottom: 40px;" name="B" id="controllerB"></svg>
+                <svg class="gamepad-button" width="50" height="50" name="A" id="controllerA"></svg>
+                <svg class="gamepad-button" width="50" height="50" name="B" id="controllerB"></svg>
 
                 <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; bottom: 0;" name="START" id="controllerStart"></svg>
                 <svg class="gamepad-button" width="50" height="25" style="fill: gray; position: absolute; left: 50%; transform: translate(-100%, 0); bottom: 0;" name="SELECT" id="controllerSelect"></svg>
