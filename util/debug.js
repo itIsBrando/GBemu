@@ -292,7 +292,7 @@ var Debug = new function() {
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
-	const DissaemblyRegisters = document.getElementById('DissaemblyRegisters');
+	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
 	let curObj = 0;
 	let curPC = 0;
 	let prevAddr = 0;
@@ -316,7 +316,7 @@ var Debug = new function() {
 
 
 	this.start = function() {
-		DebugDiv.style.display = "block";
+		DebugDiv.style.display = "grid";
 		this.hideOpen();
 		pauseEmulation();
 		curObj = 0;
@@ -605,7 +605,7 @@ var Debug = new function() {
 				str += `<tr><td>${names[i]}:</td> <td style='float:right;'>${this.hex(regs[j][0], true, regs[j++][1])}</td></tr>`;
 		}
 
-		DissaemblyRegisters.innerHTML = str;
+		DisassemblyRegisters.innerHTML = str;
 	}
 
 	/**

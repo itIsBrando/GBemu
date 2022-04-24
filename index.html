@@ -520,13 +520,13 @@
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" style="width: 100%; z-index: -1; position: absolute; bottom: 0; display:none;">
-                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showTiles();">Tiles</button>
-                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showSprites();">OAM</button>
-                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showMap();">Map</button>
-                <button type="button" class="menubtn" style="width:20vw; margin: none; display: inline-block;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
-                <button type="button" class="menubtn" style="width:14vw; margin: none; display: inline-block;" onclick="Debug.quit();">Exit</button>
-                <div id="SpriteDetailDiv" style="min-width: fit-content;" class="popup" style="float:right;">
+            <div id="DebugDiv" class="popup" style="width: clamp(350px, 425px, 90vw); display:none; grid-template-columns: repeat(5, 20%); grid-template-rows: 45px min-content;">
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showTiles();">Tiles</button>
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showSprites();">OAM</button>
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.quit();">Exit</button>
+                <div id="SpriteDetailDiv" style="grid-column: 1 / 6;">
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left;height: 25px; border:none;" onclick="Debug.prevObj();">&larr;</button>
                     <b>Sprite 0</b>
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="Debug.nextObj();">&rarr;</button>
@@ -534,15 +534,18 @@
                     <canvas width="8" height="8" style="width: 100%;"></canvas>
                     <p style="padding-right: 3px; padding-left: 3px;"></p>
                 </div>
-                <div id="DisassemblyDiv" style="width: clamp(350px, 425px, 90vw);" class="popup">
-                    <div style="float:left; margin-right: 5px;">
-                        <b>Disassembler v0.3</b><br>
-                        <a style="font-family: monospace; width:100%;"></a>
-                    </div>
-                    <div style="height: 100%; float: right; border: 3px solid #777777;">
-                        <b>Registers</b>
-                        <br>
-                        <table id="DissaemblyRegisters" style="font-family:monospace;"></table>
+                <div id="DisassemblyDiv" style="grid-column: 1 / 6;">
+                    <div style="width:100%; display: grid; grid-template-columns: 75% 25%;">
+                        <div style="margin-right: 5px;">
+                            <b>Disassembler</b><br>
+                            <a style="font-family: monospace; width:100%;"></a>
+                        </div>
+                        <!-- Register DIV -->
+                        <div style="border: 3px solid #777777;">
+                            <b>Registers</b>
+                            <br>
+                            <table id="DisassemblyRegisters" style="font-family:monospace;"></table>
+                        </div>
                     </div>
                     <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepDis();">step</button>
                     <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepUntilBreak();">run until break</button>
