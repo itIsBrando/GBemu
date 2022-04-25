@@ -373,9 +373,9 @@ class CPU {
             console.log("illegal ROM write: " + hex(address, 4));
         } else if(address < 0xA000) {
             // VRAM
-            if(this.cgb && this.ppu.cgb.vbank === 1) {
+            if(this.cgb && this.ppu.cgb.vbank != 0)
                 this.ppu.cgb.vram[address - 0x8000] = byte;
-            }else
+            else
                 this.mem.vram[address - 0x8000] = byte;
         } else if(address < 0xC000) {
             // cart RAM
@@ -619,7 +619,7 @@ class CPU {
             return this.mem.rom[address];
         } else if(address < 0xA000) {
             // VRAM read from bank
-            if(this.cgb && this.ppu.cgb.vbank == 1)
+            if(this.cgb && this.ppu.cgb.vbank != 0)
                 return this.ppu.cgb.vram[address - 0x8000];
             else
                 return this.mem.vram[address - 0x8000];

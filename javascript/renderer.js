@@ -172,7 +172,7 @@ class Renderer {
 
         const pal = Renderer.getPalette(cpu, true, flags);
 
-        // override VRAM bank
+        // override VRAM bank reading
         tileAddress -= 0x8000;
         const vram = (flags & 0x8) === 0x8 ? cpu.ppu.cgb.vram : cpu.mem.vram;
         let byte1 = vram[tileAddress];
@@ -229,12 +229,12 @@ class Renderer {
      * @param {UInt8} flags 
      * @param {CPU} cpu
      * @param {Boolean} useBGPal
+     * @returns screen object
      */
-    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen) {
+    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen, w = 160) {
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
         let pal = Renderer.getPalette(cpu, useBGPal, flags);
-        const w = 160;
 
         for(let dy = 0; dy < 8; dy++) {
             const addr = tileAddress + (dy << 1);
@@ -253,7 +253,7 @@ class Renderer {
                 const yf = yFlip ? (7 - dy): dy;
                 const xf = xFlip ? i : (7 - i);
                 // check out of bound
-                if((x + xf > 159) || (x + xf < 0))
+                if((x + xf > w) || (x + xf < 0))
                     continue;
                 let canvasOffset = (x + xf + (y + yf) * w) << 2;
                 screen.data[canvasOffset + 0] = col[0];

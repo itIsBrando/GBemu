@@ -343,18 +343,25 @@ var Debug = new function() {
 
 
 	this.showTiles = function() {
-		pauseEmulation();
+		const can = MapDiv.getElementsByTagName('canvas')[0];
 		this.hideOpen();
+		showElement(MapDiv);
+
+        const context = can.getContext('2d');
+        context.fillStyle = "#e0e0e0";
+        context.fillRect(0, 0, 256, 256);
+		context.globalAlpha = 1.0
+        let screen = context.getImageData(0, 0, 256, 256);
 
 		let t = 0;
 		// all of these are incorrectly drawn with OBJ palette rather than BG palette
-		for(let y = 0; y < 16; y++) {
-			for(let x = 0; x < 16; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, true);
+		for(let y = 0; y < 32; y++) {
+			for(let x = 0; x < 32; x++) {
+				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256);
 			}
 		}
-		c.renderer.drawBuffer();
-		console.log("Tiles drawn");
+		
+		context.putImageData(screen, 0, 0);
 	}
 
 
@@ -385,27 +392,32 @@ var Debug = new function() {
 	this.showMap = function() {
 		let mapBase = c.ppu.mapBase;
         let a = MapDiv.getElementsByTagName('p')[0];
-        const canvas = MapDiv.getElementsByTagName('canvas')[0];
+        const can = MapDiv.getElementsByTagName('canvas')[0];
 		this.hideOpen();
-        
-        const context = canvas.getContext('2d');
-        context.fillStyle = "#FFFFFF";
-        context.fillRect(0, 0, 256, 256);
-        const screen = this.context.getImageData(0, 0, 256, 256);
-        
-		for(let y = 0; y < 16; y++)
-		{
-			for(let x = 0; x < 16; x++)
-			{
-				const t = c.read8(mapBase++);
-				c.renderer.drawTile(x << 3, y << 3, t * 16 + VRAM_BASE, 0, c, false, screen);
-			}
-			mapBase += 12;
-		}
+		showElement(MapDiv);
 
+        const context = can.getContext('2d');
+        context.fillStyle = "#e0e0e0";
+        context.fillRect(0, 0, 256, 256);
+		context.globalAlpha = 1.0
+        let screen = context.getImageData(0, 0, 256, 256);
+		const TILE_BASE = c.ppu.tileBase;
+
+		for(let y = 0; y < 32; y++)
+		{
+			for(let x = 0; x < 32; x++)
+			{
+				let tileNumber = c.read8(mapBase++);
+				// adjust tile number for stinky signed tiles
+				if(TILE_BASE == 0x9000 && tileNumber > 127)
+                	tileNumber -= 256;
+
+				c.renderer.drawTile(x << 3, y << 3, tileNumber * 16 + TILE_BASE, 0, c, false, screen, 256);
+			}
+		}
+		 
 		context.putImageData(screen, 0, 0);
 
-        showElement(MapDiv);
         const labels = ["Map address", "Tile address"];
         const values = [hex(c.ppu.mapBase, 4), hex(c.ppu.tileBase, 4)];
         a.innerHTML = "";
