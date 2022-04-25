@@ -442,7 +442,8 @@ var Debug = new function() {
 
 	this.quit = function() {
 		this.enabled = false;
-		DebugDiv.style.display = 'none';
+		hideElement(DebugDiv);
+        this.hideBreak();
 		resumeEmulation();
 	}
 
@@ -686,6 +687,7 @@ var Debug = new function() {
 
 		this.newBreakpoint(addr);
 		this.showDisassembly(c.pc.v);
+        this.drawBreaks();
 		showMessage("Added breakpoint at " + this.hex(addr, true), "New Breakpoint");
 	}
 
@@ -699,8 +701,29 @@ var Debug = new function() {
 			return;
 		this.showDisassembly(c.pc.v);
 		showMessage("Removed breakpoint at " + this.hex(addr, true), "Removed Breakpoint");
+        this.drawBreaks();
 
 	}
+    
+    this.drawBreaks = function() {
+        const breakList = document.getElementById("DisBreakpointList");
+        breakList.innerHTML = "";
+        
+        for(let i in this.breakpoints)
+            if(this.breakpoints[i] != false)
+                breakList.innerHTML += hex(Number(i), 4) + "<br>";
+    }
+    
+    this.showBreak = function() {
+        const breakpointMenu = document.getElementById("DisassemblyBreakpoints");
+        
+        showElement(breakpointMenu);
+        this.drawBreaks();
+    }
+    
+    this.hideBreak = function() {
+        hideElement(document.getElementById("DisassemblyBreakpoints"));
+    }
 
 
 }
