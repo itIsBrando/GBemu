@@ -496,7 +496,7 @@ var Debug = new function() {
 					break;
 				case "s8":
 					const addr = c.read8(curPC);
-					append = this.hex(addr > 127 ? curPC - addr: curPC + addr);
+					append = hex(addr > 127 ? curPC - addr: curPC + addr, 4);
 					this.increasePC(1);
 					break;
 				case "u16":
@@ -719,7 +719,7 @@ var Debug = new function() {
                 c.execute();
                 cnt++;
                 this.showRegister();
-            } while(c.isHalted || c.pc.v != addr || cnt > 1000);
+            } while(c.isHalted && c.pc.v != addr && cnt < 10000);
         }
         
         this.showDisassembly(c.pc.v);
