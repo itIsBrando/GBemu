@@ -520,11 +520,12 @@
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" class="popup" style="width: clamp(350px, 425px, 90vw); display:none; grid-template-columns: repeat(5, 20%); grid-template-rows: 45px min-content;">
+            <div id="DebugDiv" class="popup" style="width: clamp(350px, 425px, 90vw); display:none; grid-template-columns: repeat(6, 1fr); grid-template-rows: 45px min-content;">
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showTiles();">Tiles</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showSprites();">OAM</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMap();">Map</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMemory();">Memory</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.quit();">Exit</button>
                 <div id="SpriteDetailDiv" style="grid-column: 1 / 6;">
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left;height: 25px; border:none;" onclick="Debug.prevObj();">&larr;</button>
@@ -534,11 +535,14 @@
                     <canvas width="8" height="8" style="width: 100%;"></canvas>
                     <p style="padding-right: 3px; padding-left: 3px;"></p>
                 </div>
-                <div id="DisassemblyDiv" style="grid-column: 1 / 6;">
+                <div id="MemoryDiv" style="grid-column: 1 / 7;">
+                    <p style="font-family: monospace; width:100%; max-height: 450px; overflow: scroll;"></p>
+                </div>
+                <div id="DisassemblyDiv" style="grid-column: 1 / 7;">
                     <div style="width:100%; display: grid; grid-template-columns: 75% 25%;">
                         <div style="margin-right: 5px;">
                             <b>Disassembler</b><br>
-                            <a style="font-family: monospace; width:100%;"></a>
+                            <p style="font-family: monospace; width:100%;"></p>
                         </div>
                         <!-- Register DIV -->
                         <div style="border: 3px solid #777777;">

@@ -292,6 +292,7 @@ var Debug = new function() {
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
+    const MemDiv = document.getElementById('MemoryDiv');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
 	let curObj = 0;
 	let curPC = 0;
@@ -309,8 +310,9 @@ var Debug = new function() {
 	this.enabled = false;
 
 	this.hideOpen = function() {
-		SpriteDetailDiv.style.display = 'none';
-		DisassemblyDiv.style.display = 'none';
+		hideElement(SpriteDetailDiv);
+		hideElement(DisassemblyDiv);
+        hideElement(MemDiv);
 		c.renderer.clearBuffer();
 	}
 
@@ -616,15 +618,31 @@ var Debug = new function() {
 
 		DisassemblyRegisters.innerHTML = str;
 	}
+    
+    this.showMemory = function() {
+        const a = MemDiv.getElementsByTagName("p")[0];
+        let s = "";
+        
+        this.hideOpen();
+        showElement(MemDiv);
+        
+        for(let i = 0; i < 0xFFFF >> 3; i++)
+        {
+            s += this.dumpMemory(i << 3) + "<br>";
+        }
+        
+        a.innerHTML = s;
+    }
 
 	/**
 	 * 
 	 * @param {Number} pc PC base to inspect
 	 */
 	this.showDisassembly = function(pc) {
-		const a = DisassemblyDiv.getElementsByTagName("a")[0];
+		const a = DisassemblyDiv.getElementsByTagName("p")[0];
+        
 		this.hideOpen();
-		DisassemblyDiv.style.display = 'block';
+		showElement(DisassemblyDiv);
 		curPC = pc;
 		let curScroll = curPC - prevAddr;
 
@@ -664,6 +682,16 @@ var Debug = new function() {
 
 
 	}
+    
+    this.dumpMemory = function(pc) {
+        let s = hex(pc, 4, "$") + " : ";
+        
+        for(let i = 0; i < 8; i++) {
+            s += " " + hex(c.read8(pc + i), 2, "$");
+        }
+        
+        return s;
+    }
 
 
 	this.stepDis = function() {
