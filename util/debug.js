@@ -4,7 +4,7 @@ const OAM_BASE = 0xFE00;
 
 const opcodeLUT = [
 	"nop",
-	"ld ${bc}, ${u16}",
+	"ld bc, ${u16}",
 	"ld (${bc}), a",
 	"inc ${bc}",
 	"inc ${b}",
@@ -267,22 +267,22 @@ const opcodeLUT = [
 	"rst 0x28",
 	
 	"ldh a, ($FF00+${u8})",
-	"ld sp, hl",
-	"ld a, (${u16})",
-	"ei",
+    "pop af",
+    "ld a, ($FF00+c)",
+	"di",
 	"<b>Not defined</b>",
 	"push af",
 	"or a, ${u8}",
 	"rst 0x30",
 
-	"ldh a, ($FF00+${u8})",
-	"pop af",
-	"ld a, ($FF00+c)",
-	"di",
-	"<b>Not defined</b>",
-	"<b>Not defined</b>",
-	"cp a, ${u8}",
-	"rst 0x38",
+    "ld hl, sp+${u8}", // this should be 'i8' but has not been implemented yet @TODO
+    "ld sp, hl",
+    "ld a, (${u16})",
+    "ei",
+    "<b>Not defined</b>",
+    "<b>Not defined</b>",
+    "cp a, ${u8}",
+    "rst 0x38",
 ];
 
 
@@ -454,19 +454,27 @@ var Debug = new function() {
 	 * @param {Number} digits Min number of digits to display
 	 * @returns {Number}
 	 */
-	this.hex = function(num, usePrefix, digits = 0) {
-		let s = hex(num).substring(2);
-
-		s = s.padStart(digits, 0);
-
-		if(usePrefix)
-			s = "$" + s;
-
-		return s;
+	this.hex = function(num, usePrefix = true, digits = 2) {
+		return hex(num, digits, usePrefix ? "$" : "");
 	}
 	
 
-	const useBrackets = true;
+	const useBrackets = true; // add option to change
+    
+    this.getInsLength = function(op) {
+        const s = opcodeLUT[op];
+        const special = s.indexOf("${");
+        let id = s.substring(special+2, s.indexOf("}"));
+        
+        if(op == 0xCB)
+            return 2;
+        else if (special == -1)
+            return 1;
+        else if(id == "s8" || id == "u8" || id == "i8")
+            return 2;
+        else
+            return 3;
+    }
 
 	this.getOpString = function(op) {
 		let s = opcodeLUT[op];
@@ -490,7 +498,7 @@ var Debug = new function() {
 					this.increasePC(1);
 					break;
 				case "u16":
-					append = this.hex(c.read16(curPC));
+					append = this.hex(c.read16(curPC), true, 4);
 					this.increasePC(2);
 					break;
 				default:
@@ -664,6 +672,28 @@ var Debug = new function() {
 		} while(c.isHalted);
 		this.showDisassembly(c.pc.v);
 	}
+    
+    // Skips subroutines
+    this.stepDisSkipSub = function() {
+        const exclude = [0xE9, 0xC3, 0x18, 0xC0, 0xD0, 0xC8, 0xC9, 0xD8, 0xD9];
+        
+        const op = c.read8(c.pc.v);
+        let addr = c.pc.v + this.getInsLength(op);
+        let cnt = 0; // max iterations
+        
+        // if we are a branch or return, then we do not want to go to next line
+        if(exclude.includes(op)) {
+            c.execute();
+            console.log("excluded");
+        } else { 
+            do {
+                c.execute();
+                cnt++;
+            } while(c.isHalted || c.pc.v != addr || cnt > 10000);
+        }
+        
+        this.showDisassembly(c.pc.v);
+    }
 
 
 	this.getAddr = function() {
