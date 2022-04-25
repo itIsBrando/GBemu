@@ -717,9 +717,9 @@ var Debug = new function() {
         } else { 
             do {
                 c.execute();
-                cnt++;
-                this.showRegister();
-            } while(c.isHalted && c.pc.v != addr && cnt < 10000);
+                if(cnt++ > 10000)
+                    break;
+            } while(c.isHalted || c.pc.v != addr);
         }
         
         this.showDisassembly(c.pc.v);
