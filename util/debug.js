@@ -704,20 +704,22 @@ var Debug = new function() {
     // Skips subroutines
     this.stepDisSkipSub = function() {
         const exclude = [0xE9, 0xC3, 0x18, 0xC0, 0xD0, 0xC8, 0xC9, 0xD8, 0xD9];
+        const condBranches = [0x20, 0x30, 0x28, 0x38, 0xC2, 0xD2, 0xCA, 0xDA];
         
         const op = c.read8(c.pc.v);
         let addr = c.pc.v + this.getInsLength(op);
         let cnt = 0; // max iterations
         
         // if we are a branch or return, then we do not want to go to next line
-        if(exclude.includes(op)) {
+        if(exclude.includes(op) || (condBranches.includes(op) && c.read8(c.pc.v + 1) < 0x80)) {
             c.execute();
             console.log("excluded");
         } else { 
             do {
                 c.execute();
                 cnt++;
-            } while(c.isHalted || c.pc.v != addr || cnt > 10000);
+                this.showRegister();
+            } while(c.isHalted || c.pc.v != addr || cnt > 1000);
         }
         
         this.showDisassembly(c.pc.v);
