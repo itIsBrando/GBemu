@@ -16,14 +16,15 @@
         <style>
 
             :root {
-                --screen-shadow: rgba(99, 4, 207, 0.69);
-                --bg-color: rgba(49, 5, 98, 0.69);
-                --dpad-color: #454545;
-                --screen-border-color: rgba(89, 17, 127, 0.9);
+                --bg-color: rgb(198, 191, 198, 0.69);
+                --screen-shadow: rgb(95, 107, 121, 0.90);
+                --dpad-color: #3A3A3A;
+                --screen-border-color: rgb(95, 107, 121, 0.90);
                 --gamepad-btn-color: orangered;
+                
                 /* v UI Elements v */
-                --title-btn-color: blueviolet;
-                --menu-btn-color: hotpink;
+                --title-btn-color: crimson;
+                --menu-btn-color: coral;
                 --text-color: black;
             }
             
@@ -61,16 +62,15 @@
                 --text-color: white;
             }
             
-            .dmg-theme {
-                --bg-color: rgb(198, 191, 198, 0.69);
-                --screen-shadow: rgb(95, 107, 121, 0.90);
-                --dpad-color: #3A3A3A;
-                --screen-border-color: rgb(95, 107, 121, 0.90);
-                --gamepad-btn-color: orangered;
-                
+            .purple-theme {
+                --screen-shadow: rgba(99, 4, 207, 0.69);
+                --bg-color: rgba(49, 5, 98, 0.69);
+                --screen-border-color: rgba(89, 17, 127, 0.9);
+                --dpad-color: purple;
+                --gamepad-btn-color: violet;
                 /* v UI Elements v */
-                --title-btn-color: crimson;
-                --menu-btn-color: coral;
+                --title-btn-color: blueviolet;
+                --menu-btn-color: hotpink;
             }
 
             html, body {
@@ -753,8 +753,14 @@
                 // do saving
 
                 // if we are mobile or embeded app, we cannot download files
-                if(window.navigator.standalone) {
-                    const data = JSON.stringify(new SaveStorage(readROMName(), c.mbcHandler.ram));
+                if(true || window.navigator.standalone) {
+                    let str = "";
+                    for(let i = 0; i < c.mbcHandler.ram.length; i++)
+                    {
+                        str += hex(c.mbcHandler.ram[i], 2, "")
+                    }
+                    console.log(str);
+                    const data = JSON.stringify(new SaveStorage(readROMName(), str));
 
                     copyClipMenu(new String(data));
                 } else {

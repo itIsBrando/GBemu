@@ -7,7 +7,7 @@ var Themes = new function() {
         "icy-blue-theme",
         "dark-theme",
         "light-theme",
-        "dmg-theme",
+        "purple-theme",
     ];
 
     this.next = function() {

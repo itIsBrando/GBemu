@@ -90,9 +90,10 @@ function readROMName() {
  * Converts a value into a hexidemical string
  * @param {any} v 
  * @param {Number} pad number of min digits to display
+ * @param {String} prefix string to use as a prefix. Defaults to 0x
  */
-function hex(v, pad=0) {
-    return "0x" + v.toString(16).toUpperCase().padStart(pad, "0");
+function hex(v, pad=0, prefix="0x") {
+    return prefix + v.toString(16).toUpperCase().padStart(pad, "0");
 }
 
 

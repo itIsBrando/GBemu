@@ -370,7 +370,7 @@ class CPU {
         }
 
         if(address < 0x8000) {
-            console.log("illegal ROM write: " + address.toString(16));
+            console.log("illegal ROM write: " + hex(address, 4));
         } else if(address < 0xA000) {
             // VRAM
             if(this.cgb && this.ppu.cgb.vbank === 1) {
@@ -413,8 +413,6 @@ class CPU {
             this.interrupt_flag = byte;
         } else if(address == 0xFF40) {
             this.ppu.regs.lcdc = byte;
-            // if(this.debug==true)
-                // console.log("PC: 0x"+this.pc.v.toString(16)+" | AF: 0x"+this.af.v.toString(16)+" | opcode: 0x"+this.read8(this.pc.v).toString(16))
         } else if(address == 0xFF41) {
             this.ppu.regs.stat = byte & 0xF8;
         } else if(address == 0xFF42) {
@@ -513,7 +511,7 @@ class CPU {
         } else if(address < 0xFFFF) {
             this.mem.hram[address - 0xFF00] = byte;
         } else {
-            console.log("ERROR WRITING FROM ADDRESS: 0x" + address.toString(16));
+            console.log("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
         }
 
     };
@@ -623,7 +621,7 @@ class CPU {
                 return this.mem.vram[address - 0x8000];
         } else if(address < 0xC000) {
             // cart RAM
-            console.log("illegal read: " + address.toString(16));
+            console.log("illegal read: " + hex(address, 4));
             return this.mem.cram[address - 0xA000];
         } else if(address < 0xE000) {
             address -= 0xC000;
@@ -713,7 +711,7 @@ class CPU {
         } else if(address < 0xFFFF) {
             return this.mem.hram[address - 0xFF00];
         } else {
-            console.log("ERROR READING FROM ADDRESS: 0x" + address.toString(16));
+            console.log("ERROR READING FROM ADDRESS: " + hex(address, 4));
             throw "Cannot read here."
         }
 
