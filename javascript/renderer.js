@@ -230,12 +230,11 @@ class Renderer {
      * @param {CPU} cpu
      * @param {Boolean} useBGPal
      */
-    drawTile(x, y, tileAddress, flags, cpu, useBGPal, isDebug) {
+    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen) {
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
         let pal = Renderer.getPalette(cpu, useBGPal, flags);
-        const screen = isDebug ? Debug.spr_data : this.screen;
-        const w = isDebug ? 8 : 160;
+        const w = 160;
 
         for(let dy = 0; dy < 8; dy++) {
             const addr = tileAddress + (dy << 1);

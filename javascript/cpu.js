@@ -381,9 +381,13 @@ class CPU {
             // cart RAM
             console.log("illegal RAM read");
             this.mem.cram[address - 0xA000] = byte;
+        } else if(address < 0xD000) {
+            // this is unbanked WRAM
+            address -= 0xC000;
+            this.mem.wram[address] = byte;
         } else if(address < 0xE000) {
             // working RAM
-            address -= 0xC000;
+            address -= 0xD000;
             if(this.cgb)
                 this.mem.wram[address + this.ppu.cgb.svbk * 0x2000] = byte;
             else
@@ -623,8 +627,12 @@ class CPU {
             // cart RAM
             console.log("illegal read: " + hex(address, 4));
             return this.mem.cram[address - 0xA000];
-        } else if(address < 0xE000) {
+        } else if(address < 0xD000) {
+            // unbanked WRAM
             address -= 0xC000;
+            return this.mem.wram[address];
+        } else if(address < 0xE000) {
+            address -= 0xD000;
             if(this.cgb)
                 return this.mem.wram[address + this.ppu.cgb.svbk * 0x2000];
             else

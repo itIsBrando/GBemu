@@ -527,7 +527,11 @@
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMemory();">Memory</button>
                 <button type="button" class="menubtn" style="width: auto;" onclick="Debug.quit();">Exit</button>
-                <div id="SpriteDetailDiv" style="grid-column: 1 / 6;">
+                <div id="MapDiv" style="grid-column: 1 / 7;">
+                    <p style="width: 100%"></p>
+                    <canvas width="256" height="256" style="width:256px; height: 256px;"></canvas>
+                </div>
+                <div id="SpriteDetailDiv" style="grid-column: 1 / 7;">
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: left;height: 25px; border:none;" onclick="Debug.prevObj();">&larr;</button>
                     <b>Sprite 0</b>
                     <button type="button" class="menubtn" style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;" onclick="Debug.nextObj();">&rarr;</button>
@@ -536,7 +540,7 @@
                     <p style="padding-right: 3px; padding-left: 3px;"></p>
                 </div>
                 <div id="MemoryDiv" style="grid-column: 1 / 7;">
-                    <p style="font-family: monospace; width:100%; max-height: 450px; overflow: scroll;"></p>
+                    <p style="font-family: monospace; padding-left: 5px; width:100%; max-height: 450px; overflow-y: scroll;"></p>
                 </div>
                 <div id="DisassemblyDiv" style="grid-column: 1 / 7;">
                     <div style="width:100%; display: grid; grid-template-columns: 75% 25%;">
@@ -554,7 +558,7 @@
                         <div id="DisassemblyBreakpoints" class="popup">
                             <b>Breakpoints</b>
                             <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
-                            <p id="DisBreakpointList" style="height: min(350px); overflow-y: auto; padding-left: 10px; font-family: monospace;"></p>
+                            <p id="DisBreakpointList" style="height: min(300px); overflow-y: auto; padding-left: 10px; font-family: monospace;"></p>
                             <button onclick="Debug.addBreak();" class="menubtn" type="button">Add Breakpoint</button>
                             <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.rmBreak();">remove breakpoint</button>
                             <input maxlength="5" id="DisassemblyGotoInput" type="text">

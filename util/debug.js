@@ -293,6 +293,7 @@ var Debug = new function() {
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
     const MemDiv = document.getElementById('MemoryDiv');
+    const MapDiv = document.getElementById('MapDiv');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
 	let curObj = 0;
 	let curPC = 0;
@@ -313,6 +314,7 @@ var Debug = new function() {
 		hideElement(SpriteDetailDiv);
 		hideElement(DisassemblyDiv);
         hideElement(MemDiv);
+        hideElement(MapDiv);
 		c.renderer.clearBuffer();
 	}
 
@@ -382,19 +384,36 @@ var Debug = new function() {
 
 	this.showMap = function() {
 		let mapBase = c.ppu.mapBase;
+        let a = MapDiv.getElementsByTagName('p')[0];
+        const canvas = MapDiv.getElementsByTagName('canvas')[0];
 		this.hideOpen();
-
+        
+        const context = canvas.getContext('2d');
+        context.fillStyle = "#FFFFFF";
+        context.fillRect(0, 0, 256, 256);
+        const screen = this.context.getImageData(0, 0, 256, 256);
+        
 		for(let y = 0; y < 16; y++)
 		{
-			for(let x = 0; x < 20; x++)
+			for(let x = 0; x < 16; x++)
 			{
 				const t = c.read8(mapBase++);
-				c.renderer.drawTile(x << 3, y << 3, t * 16 + VRAM_BASE, 0, c, false);
+				c.renderer.drawTile(x << 3, y << 3, t * 16 + VRAM_BASE, 0, c, false, screen);
 			}
 			mapBase += 12;
 		}
 
-		c.renderer.drawBuffer();
+		context.putImageData(screen, 0, 0);
+
+        showElement(MapDiv);
+        const labels = ["Map address", "Tile address"];
+        const values = [hex(c.ppu.mapBase, 4), hex(c.ppu.tileBase, 4)];
+        a.innerHTML = "";
+        
+        
+        for(let i = 0; i < labels.length; i++) {
+            a.innerHTML += labels[i] + " : " + values[i] + "<br>";
+        }
 	}
 
 
@@ -717,7 +736,7 @@ var Debug = new function() {
         } else { 
             do {
                 c.execute();
-                if(cnt++ > 10000)
+                if(cnt++ > 20000)
                     break;
             } while(c.isHalted || c.pc.v != addr);
         }
@@ -748,7 +767,6 @@ var Debug = new function() {
 		this.newBreakpoint(addr);
 		this.showDisassembly(c.pc.v);
         this.drawBreaks();
-		showMessage("Added breakpoint at " + this.hex(addr, true), "New Breakpoint");
 	}
 
 	this.rmBreak = function() {
@@ -760,7 +778,6 @@ var Debug = new function() {
 		if(!this.removeBreakpoint(addr))
 			return;
 		this.showDisassembly(c.pc.v);
-		showMessage("Removed breakpoint at " + this.hex(addr, true), "Removed Breakpoint");
         this.drawBreaks();
 
 	}
