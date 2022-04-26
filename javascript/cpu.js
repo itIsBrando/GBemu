@@ -135,6 +135,8 @@ class CPU {
         this.forceDMG = false;
         // Bool to show/hide "power consumption"
         this.powerConsumptionShown = false;
+        // Incremented every instruction execution
+        this.ticks = 0;
         // speed multiplier
         this.speed = 1;
         this.FastForwardSpeed = 8;
@@ -337,7 +339,6 @@ class CPU {
         {
             this.HDMAInProgress = false;
             this.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
-            this.ppu.cgb.hdma |= 0x80; // indicate that we have stopped
             return;
         }
 
@@ -347,7 +348,8 @@ class CPU {
                 const byte = this.read8(this.ppu.cgb.HDMASrc + i);
                 this.write8(this.ppu.cgb.HDMADest + i, byte);
             }
-            this.ppu.cgb.hdma = 0xFF;
+            this.HDMAInProgress = false;
+            this.ppu.cgb.hdma = 0x7F;
         } else {
             this.HDMAInProgress = true;
             this.ppu.cgb.hdma = data;
@@ -792,18 +794,17 @@ class CPU {
 
 
         // HDMA stuff
-        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (this.currentCycles % 20) == 0)
+        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (++this.ticks % 20) == 0)
         {
             for(let i = 0; i < 0x10; i++)
                 this.write8(this.ppu.cgb._HDMADest + i, this.read8(this.ppu.cgb._HDMASrc + i));
 
             this.ppu.cgb._HDMADest += 0x10;
             this.ppu.cgb._HDMASrc += 0x10;
-            this.ppu.cgb.hdma = (this.ppu.cgb.hdma & 0x7F) - 1;
             // when HDMA ends
-            if(this.ppu.cgb.hdma < 0) {
+            if(this.ppu.cgb.hdma-- == 0) {
                 this.HDMAInProgress = false;
-                this.ppu.cgb.hdma = 0xFF;
+                this.ppu.cgb.hdma = 0x7F;
             }
         }
 
