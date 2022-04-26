@@ -6,8 +6,13 @@ const PPUMODE = {
 }
 
 class PPU {
-    constructor() {
+    /**
+     * Creates a PPU object to be used in conjuction with a CPU object
+     * @param {CPU} cpu parent
+     */
+    constructor(cpu) {
 
+        this.parent = cpu;
         this.mode = PPUMODE.vblank;
         this.cycles = 0;
     
@@ -32,7 +37,6 @@ class PPU {
             obji: 0,    // ff6A object palette index
             bgPal: new Uint8Array(0x40),
             objPal: new Uint8Array(0x40),
-            vram: new Uint8Array(0x2000),
             bgAutoInc: false,
             objAutoInc: false,
             vbank: 0,   // VRAM bank 0-1
@@ -43,7 +47,8 @@ class PPU {
             // some registers
             HDMASrc: 0, // ff53
             HDMADest:0, // ff54
-            hdma: 0, // ff55
+            _HDMASrc: 0,
+            _HDMADest:0,
         }
         
         this.reset();
@@ -116,13 +121,16 @@ class PPU {
     }
     
     /**
-     * Gets the flags byte of a tile in VRAM
+     * Safely gets the flags byte of a tile in VRAM
      * @note CGB Mode only
      * @param {UInt16} address points to a tile. Should be an address of in the tile map
      * @returns flag byte
      */
     getTileAttributes(address) {
-        return this.cgb.vram[address - 0x8000];
+        if(!this.parent.cgb)
+            return 0;
+
+        return this.parent.mem.vram[address - 0x8000 + 0x2000];
     }
 
     /**
@@ -173,6 +181,16 @@ class PPU {
             this.regs.lcdc &= 0x7F;
     }
 
+    /**
+     * Safely checks current VRAM bank
+     * @returns 1 if we are using first VRAM bank, otherwise 0
+     */
+    getVRAMBank() {
+        if(this.parent.cgb && this.cgb.vbank)
+            return 1;
+        return 0;
+    }
+
     step(cpu) {
         this.regs.stat &= 252;
         if(!this.lcdEnabled) {
@@ -189,7 +207,7 @@ class PPU {
                     this.mode = PPUMODE.scanlineVRAM
                     this.cycles -= 80;
                     // scanline equivalence
-                    this.checkCoincidence(cpu);
+                    this.checkCoincidence();
                 }
                 break;
             case PPUMODE.scanlineVRAM:
@@ -214,7 +232,7 @@ class PPU {
                         if(UInt8.getBit(this.regs.stat, 3))
                             cpu.requestInterrupt(InterruptType.lcd);
                         
-                            this.checkCoincidence(cpu);
+                            this.checkCoincidence();
                     } else {
                         this.mode = PPUMODE.scanlineOAM;
                         // check for OAM interrupt
@@ -227,7 +245,7 @@ class PPU {
                 break;
             case PPUMODE.vblank:
                 if(this.cycles >= 456) {
-                    this.checkCoincidence(cpu);
+                    this.checkCoincidence();
                     this.regs.scanline++;
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;
@@ -242,7 +260,7 @@ class PPU {
         this.regs.stat |= this.mode;
     }
 
-    checkCoincidence(cpu) {
+    checkCoincidence() {
         // reset coincidence flag
         this.regs.stat &= 0xFB;
 
@@ -251,7 +269,7 @@ class PPU {
             // coincidence interrupt
             if(UInt8.getBit(this.regs.stat, 6))
             {
-                cpu.requestInterrupt(InterruptType.lcd);
+                this.parent.requestInterrupt(InterruptType.lcd);
             }
             // set coincidence flag
             this.regs.stat |= 0x04;

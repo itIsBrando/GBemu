@@ -24,6 +24,9 @@ function startEmulation(rom) {
     c.initialize();
     c.loadROM(rom);
 
+    if(Debug.enabled)
+        return;
+        
     c.timer = setInterval(run, INTERVAL_SPEED);
     powerLED.style.fill = "limegreen";
 };
@@ -101,23 +104,14 @@ const toggleDMGMode = document.getElementById('toggleDMGMode');
 toggleDMGMode.onclick = function() {
     if(c.forceDMG == false)
     {
-        toggleDMGMode.innerText = "Force DMG: yes";
+        toggleDMGMode.innerText = "Enable GBC: no";
     } else {
-        toggleDMGMode.innerText = "Force DMG: no";
+        toggleDMGMode.innerText = "Enable GBC: yes";
     }
 
     c.forceDMG = !c.forceDMG;
-    localStorage.setItem("__core_ForceDMG", c.forceDMG);
 
     if(c.isRunning)
         showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
 
-}
-
-
-const forceDMG = localStorage.getItem("__core_ForceDMG");
-
-if(forceDMG) {
-    c.forceDMG = !Boolean(forceDMG);
-    toggleDMGMode.click();
 }

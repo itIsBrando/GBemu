@@ -1,5 +1,7 @@
 "use strict";
 
+const USE_LOG = false;
+
 /**
  * TODO:
  *  - recognize tile banking in drawTileLine
@@ -130,7 +132,7 @@ class CPU {
         // timer that runs every 100ms
         this.timer = null;
         // used to boot in DMG mode
-        this.forceDMG = true;
+        this.forceDMG = false;
         // Bool to show/hide "power consumption"
         this.powerConsumptionShown = false;
         // speed multiplier
@@ -146,7 +148,7 @@ class CPU {
         this.currentCycles = 0;
 
         this.timerRegs = new Timer();
-        this.ppu = new PPU();
+        this.ppu = new PPU(this);
         this.renderer = new Renderer();
         this.cycles = 0;
         this.cgb = false;
@@ -198,7 +200,7 @@ class CPU {
 
         this.mem = {
             rom: new Uint8Array(0x8000), // ROM 0000-7FFF
-            vram: new Uint8Array(0x2000), // RAM 8000-9FFF
+            vram: new Uint8Array(0x2000 * 2), // RAM 8000-9FFF
             cram: new Uint8Array(0x2000), // RAM A000-BFFF (cart RAM)
             wram: new Uint8Array(0x2000 * 8), // RAM C000-CFFF & D000-DFFF (working RAM) (mirror RAM = E000-FDFF)
             oam : new Uint8Array(0x00A0), // OAM RAM FE00-FE9F
@@ -331,26 +333,30 @@ class CPU {
         // preliminary support for some of the CGB's DMA transfers
 
         // if we are in the middle of a HDMA Transfer but we want to stop it.
-        if(UInt8.getBit(this.ppu.cgb.hdma, 7) && !mode && this.HDMAInProgress)
+        if(!mode && this.HDMAInProgress)
         {
             this.HDMAInProgress = false;
-            this.ppu.cgb.hdma = data;
+            this.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
+            this.ppu.cgb.hdma |= 0x80; // indicate that we have stopped
             return;
         }
-
 
         if(!mode)
         {
             for(let i = 0; i < (length + 1) * 0x10; i++) {
-                const byte = this.read8(this.ppu.cgb.HDMASrc++);
-                this.write8(this.ppu.cgb.HDMADest++, byte);
+                const byte = this.read8(this.ppu.cgb.HDMASrc + i);
+                this.write8(this.ppu.cgb.HDMADest + i, byte);
             }
             this.ppu.cgb.hdma = 0xFF;
         } else {
             this.HDMAInProgress = true;
             this.ppu.cgb.hdma = data;
+            
+            this.ppu.cgb._HDMASrc = this.ppu.cgb.HDMASrc;
+            this.ppu.cgb._HDMADest = this.ppu.cgb.HDMADest;
         }
-        // console.log("HDMA mode " + mode);
+
+        this.LOG("hdma mode:" + mode + ". Dest addr:" + hex(this.ppu.cgb.HDMADest, 4) + ". Src addr:" + hex(this.ppu.cgb.HDMASrc, 4));
     }
 
 
@@ -370,16 +376,14 @@ class CPU {
         }
 
         if(address < 0x8000) {
-            console.log("illegal ROM write: " + hex(address, 4));
+            this.LOG("illegal ROM write: " + hex(address, 4));
         } else if(address < 0xA000) {
             // VRAM
-            if(this.cgb && this.ppu.cgb.vbank != 0)
-                this.ppu.cgb.vram[address - 0x8000] = byte;
-            else
-                this.mem.vram[address - 0x8000] = byte;
+            address -= 0x8000;
+            this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()] = byte;
         } else if(address < 0xC000) {
             // cart RAM
-            console.log("illegal RAM read");
+            this.LOG("illegal RAM read");
             this.mem.cram[address - 0xA000] = byte;
         } else if(address < 0xD000) {
             // this is unbanked WRAM
@@ -472,7 +476,7 @@ class CPU {
         } else if(address == 0xFF53) {
             // cgb. HDMA dest high
             this.ppu.cgb.HDMADest &= 0xFF;
-            this.ppu.cgb.HDMADest |= 0x8000 | ((byte & 0xF) << 8);
+            this.ppu.cgb.HDMADest |= 0x8000 | ((byte & 0x1F) << 8);
         } else if(address == 0xFF54) {
             // cgb. HDMA dest low
             this.ppu.cgb.HDMADest &= 0xFF00;
@@ -515,9 +519,9 @@ class CPU {
         } else if(address < 0xFFFF) {
             this.mem.hram[address - 0xFF00] = byte;
         } else {
-            console.log("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
+            this.LOG("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
         }
-
+        
     };
 
     /**
@@ -570,8 +574,17 @@ class CPU {
 
         }
 
-        console.log("MBC Type:" + MemoryControllerText[this.mem.rom[0x0147]]);
-        console.log("ROM Name: " + readROMName());
+        this.LOG("MBC Type:" + MemoryControllerText[this.mem.rom[0x0147]]);
+        this.LOG("ROM Name: " + readROMName());
+    }
+
+    /**
+     * Logs an error/warning
+     * @param {String} str output
+     */
+    LOG(str) {
+        if(USE_LOG)
+            console.log(str);
     }
 
     /**
@@ -619,13 +632,11 @@ class CPU {
             return this.mem.rom[address];
         } else if(address < 0xA000) {
             // VRAM read from bank
-            if(this.cgb && this.ppu.cgb.vbank != 0)
-                return this.ppu.cgb.vram[address - 0x8000];
-            else
-                return this.mem.vram[address - 0x8000];
+            address -= 0x8000;
+            return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
         } else if(address < 0xC000) {
             // cart RAM
-            console.log("illegal read: " + hex(address, 4));
+            this.LOG("illegal read: " + hex(address, 4));
             return this.mem.cram[address - 0xA000];
         } else if(address < 0xD000) {
             // unbanked WRAM
@@ -694,10 +705,7 @@ class CPU {
             // cgb
             return this.ppu.cgb.HDMADest & 0xFF;
         } else if(address == 0xFF55) {
-            if(this.HDMAInProgress)
-                return 0x80;
-            else
-                return this.ppu.cgb.hdma
+                return this.ppu.cgb.hdma | (this.HDMAInProgress ? 0 : 0x80);
         } else if(address == 0xFF68) {
             // cgb only
             return this.cgb ? this.ppu.cgb.bgi : 0xff;
@@ -719,7 +727,7 @@ class CPU {
         } else if(address < 0xFFFF) {
             return this.mem.hram[address - 0xFF00];
         } else {
-            console.log("ERROR READING FROM ADDRESS: " + hex(address, 4));
+            this.LOG("ERROR READING FROM ADDRESS: " + hex(address, 4));
             throw "Cannot read here."
         }
 
@@ -787,15 +795,15 @@ class CPU {
         if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (this.currentCycles % 20) == 0)
         {
             for(let i = 0; i < 0x10; i++)
-                this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));
+                this.write8(this.ppu.cgb._HDMADest + i, this.read8(this.ppu.cgb._HDMASrc + i));
 
-            this.ppu.cgb.HDMADest += 0x10;
-            this.ppu.cgb.HDMASrc += 0x10;
-            this.ppu.cgb.hdma = (this.ppu.cgb.hdma - 1) | 0x80;
+            this.ppu.cgb._HDMADest += 0x10;
+            this.ppu.cgb._HDMASrc += 0x10;
+            this.ppu.cgb.hdma = (this.ppu.cgb.hdma & 0x7F) - 1;
             // when HDMA ends
-            if((this.ppu.cgb.hdma & 0x7F) == 0) {
+            if(this.ppu.cgb.hdma < 0) {
                 this.HDMAInProgress = false;
-                this.ppu.cgb.hdma = 0x7F;
+                this.ppu.cgb.hdma = 0xFF;
             }
         }
 

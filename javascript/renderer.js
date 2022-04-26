@@ -143,15 +143,14 @@ class Renderer {
                 // if y-flip, then then second sprite is drawn above first 
                 if(UInt8.getBit(flags, 6))
                 {
-                    this.drawTile(x, y + 8, t, flags, cpu);
-                    this.drawTile(x, y, t + 16, flags, cpu);
+                    this.drawTile(x, y + 8, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y, t + 16, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
                 } else {
-                    this.drawTile(x, y, t, flags, cpu);
-                    this.drawTile(x, y + 8, t + 16, flags, cpu);
+                    this.drawTile(x, y, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y + 8, t + 16, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
                 }
             } else {
-                
-                this.drawTile(x, y, t, flags, cpu);
+                this.drawTile(x, y, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
             }
         }
     }
@@ -166,7 +165,7 @@ class Renderer {
      */
     drawTileLine(cpu, mapAddress, x, y, tileAddress) {
         if(y >= 144) { return };
-        const flags = cpu.cgb ? cpu.ppu.getTileAttributes(mapAddress) : 0;
+        const flags = cpu.ppu.getTileAttributes(mapAddress);
         const xFlip = UInt8.getBit(flags, 6);
         // add yflip
 
@@ -174,9 +173,12 @@ class Renderer {
 
         // override VRAM bank reading
         tileAddress -= 0x8000;
-        const vram = (flags & 0x8) === 0x8 ? cpu.ppu.cgb.vram : cpu.mem.vram;
-        let byte1 = vram[tileAddress];
-        let byte2 = vram[tileAddress + 1];
+        // if we are using bank 1
+        if(UInt8.getBit(flags, 3)) {
+            tileAddress += 0x2000;
+        }
+        let byte1 = cpu.mem.vram[tileAddress];
+        let byte2 = cpu.mem.vram[tileAddress + 1];
         // since there are four bytes per pixel, we must times by 4
         let canvasOffset = (x + (xFlip?0:7) + y * 160) << 2;
 
@@ -229,17 +231,19 @@ class Renderer {
      * @param {UInt8} flags 
      * @param {CPU} cpu
      * @param {Boolean} useBGPal
+     * @param screen canvas's screen to draw onto
      * @returns screen object
+     * @param {Boolean} useVBK true to use CGB's VRAM bank
      */
-    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen, w = 160) {
+    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen, w = 160, useVBK = false) {
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
         let pal = Renderer.getPalette(cpu, useBGPal, flags);
 
         for(let dy = 0; dy < 8; dy++) {
-            const addr = tileAddress + (dy << 1);
-            const byte1 = cpu.read8(addr);
-            const byte2 = cpu.read8(addr + 1);
+            const addr = tileAddress + (dy << 1) - 0x8000 + (useVBK ? 0x2000 : 0);
+            const byte1 = cpu.mem.vram[addr];
+            const byte2 = cpu.mem.vram[addr + 1];
             // skip this line if we are off screen
             if(y + dy < 0)
                 continue;

@@ -353,11 +353,15 @@ var Debug = new function() {
 		context.globalAlpha = 1.0
         let screen = context.getImageData(0, 0, 256, 256);
 
-		let t = 0;
+		let t = 0, vbk = false;
 		// all of these are incorrectly drawn with OBJ palette rather than BG palette
 		for(let y = 0; y < 32; y++) {
 			for(let x = 0; x < 32; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256);
+				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256, vbk);
+				if(++t >= 768) {
+					t = 0;
+					vbk = true;
+				}
 			}
 		}
 		
