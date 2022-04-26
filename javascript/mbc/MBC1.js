@@ -45,9 +45,9 @@ class MBC1 {
 
         this.mode = 0; // determine whether we read from ROM or RAM
 
-        console.log("RAM size: 0x" + this.ramSize);
-        console.log("ROM size: 0x" + this.romSize + " Size: " + rom.length);
-        console.log("Total Banks: " + this.TOTAL_BANKS);
+        c.LOG("RAM size: 0x" + this.ramSize);
+        c.LOG("ROM size: 0x" + this.romSize + " Size: " + rom.length);
+        c.LOG("Total Banks: " + this.TOTAL_BANKS);
     }
 
     /**

@@ -143,7 +143,7 @@ var opTable = {
 
     // stop
     0x10: function(cpu) {
-        console.log("STOP PC: " + hex(cpu.pc.v));
+        cpu.LOG("STOP PC: " + hex(cpu.pc.v));
         cpu.skip(2);
     },
     // ld de, nn

@@ -345,8 +345,8 @@ class CPU {
         if(!mode)
         {
             for(let i = 0; i < (length + 1) * 0x10; i++) {
-                const byte = this.read8(this.ppu.cgb.HDMASrc + i);
-                this.write8(this.ppu.cgb.HDMADest + i, byte);
+                const byte = this.read8(this.ppu.cgb.HDMASrc++);
+                this.write8(this.ppu.cgb.HDMADest++, byte);
             }
             this.HDMAInProgress = false;
             this.ppu.cgb.hdma = 0x7F;
@@ -354,8 +354,7 @@ class CPU {
             this.HDMAInProgress = true;
             this.ppu.cgb.hdma = data;
             
-            this.ppu.cgb._HDMASrc = this.ppu.cgb.HDMASrc;
-            this.ppu.cgb._HDMADest = this.ppu.cgb.HDMADest;
+            
         }
 
         this.LOG("hdma mode:" + mode + ". Dest addr:" + hex(this.ppu.cgb.HDMADest, 4) + ". Src addr:" + hex(this.ppu.cgb.HDMASrc, 4));
@@ -797,10 +796,10 @@ class CPU {
         if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (++this.ticks % 20) == 0)
         {
             for(let i = 0; i < 0x10; i++)
-                this.write8(this.ppu.cgb._HDMADest + i, this.read8(this.ppu.cgb._HDMASrc + i));
+                this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));
 
-            this.ppu.cgb._HDMADest += 0x10;
-            this.ppu.cgb._HDMASrc += 0x10;
+            this.ppu.cgb.HDMADest += 0x10;
+            this.ppu.cgb.HDMASrc += 0x10;
             // when HDMA ends
             if(this.ppu.cgb.hdma-- == 0) {
                 this.HDMAInProgress = false;

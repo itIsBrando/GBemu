@@ -453,7 +453,7 @@ var Debug = new function() {
 		Byte 3 (Flag): ${3}".format(y, x, t, f);
 
 		this.spr_data.data.fill(0);
-		c.renderer.drawTile(0, 0, VRAM_BASE + t * 16, f, c, false, true);
+		c.renderer.drawTile(0, 0, VRAM_BASE + t * 16, f, c, true, this.spr_data, 8);
 		
 		this.spr_blit();
 

@@ -47,8 +47,6 @@ class PPU {
             // some registers
             HDMASrc: 0, // ff53
             HDMADest:0, // ff54
-            _HDMASrc: 0,
-            _HDMADest:0,
         }
         
         this.reset();
