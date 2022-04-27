@@ -131,6 +131,7 @@
             #screen-container-border {
                 height: 100%;
                 width: clamp(20px, 8%, 60px);
+                background-color: var(--screen-border-color);
             }
             
             #power-LED {
@@ -520,13 +521,13 @@
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" class="popup" style="width: clamp(350px, 425px, 90vw); display:none; grid-template-columns: repeat(6, 1fr); grid-template-rows: 45px min-content;">
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showTiles();">Tiles</button>
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showSprites();">OAM</button>
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMap();">Map</button>
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.showMemory();">Memory</button>
-                <button type="button" class="menubtn" style="width: auto;" onclick="Debug.quit();">Exit</button>
+            <div id="DebugDiv" class="popup" style="width: clamp(350px, 425px, 90vw); display:none; grid-template-columns: repeat(6, 1fr); grid-template-rows: fit-content fit-content;">
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showTiles();">Tiles</button>
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showSprites();">OAM</button>
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showMemory();">Memory</button>
+                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.quit();">Exit</button>
                 <div id="MapDiv" style="grid-column: 1 / 7;">
                     <p style="width: 100%"></p>
                     <canvas width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
@@ -762,13 +763,12 @@
                 // do saving
 
                 // if we are mobile or embeded app, we cannot download files
-                if(true || window.navigator.standalone) {
+                if(window.navigator.standalone) {
                     let str = "";
                     for(let i = 0; i < c.mbcHandler.ram.length; i++)
                     {
                         str += hex(c.mbcHandler.ram[i], 2, "")
                     }
-                    console.log(str);
                     const data = JSON.stringify(new SaveStorage(readROMName(), str));
 
                     copyClipMenu(new String(data));

@@ -42,7 +42,7 @@ class MBC5 extends MBC1 {
             if(this.ramEnable)
                 this.ram[address - 0xA000 + this.ramBankAddress] = byte;
             else
-                console.log("Illegal write to RAM while disabled");
+                cpu.LOG("Illegal write to RAM while disabled", true);
             return false;
         }
 

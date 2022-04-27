@@ -81,6 +81,8 @@ class PPU {
         this.cgb.svbk = 1;
         this.cgb.bgPal.fill(0);
         this.cgb.objPal.fill(0);
+        this.HDMADest = 0;
+        this.HDMASrc = 0;
 
         this.cgb.rgbOBJ = [
             [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],

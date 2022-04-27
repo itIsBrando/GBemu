@@ -258,14 +258,15 @@ class CPU {
         this.interrupt_master = true;
         this.isHalted = false;
         this.currentCycles = 0;
+        this.ticks = 0;
         
         if(this.mbcHandler)
-        this.mbcHandler.reset();
+            this.mbcHandler.reset();
         
         for(let i = 0xFF00; i <= 0xFFFF; i++)
-        // skip HDMA
-        if(i != 0xFF55)
-        this.write8(i, 0);
+            // skip HDMA
+            if(i != 0xFF55)
+                this.write8(i, 0);
         
         this.timerRegs.reset();
         this.ppu.reset();
@@ -334,6 +335,9 @@ class CPU {
         const length = data & 0x7F;
         // preliminary support for some of the CGB's DMA transfers
 
+        if(!this.cgb)
+            return;
+
         // if we are in the middle of a HDMA Transfer but we want to stop it.
         if(!mode && this.HDMAInProgress)
         {
@@ -394,9 +398,9 @@ class CPU {
             // working RAM
             address -= 0xD000;
             if(this.cgb)
-                this.mem.wram[address + this.ppu.cgb.svbk * 0x2000] = byte;
+                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000] = byte; // @TODO does this need to be +0x1000???
             else
-                this.mem.wram[address] = byte;
+                this.mem.wram[address + 0x1000] = byte;
         } else if(address < 0xFE00) {
             // mirror WRAM
             this.mem.wram[address - 0xE000] = byte;
@@ -583,8 +587,12 @@ class CPU {
      * Logs an error/warning
      * @param {String} str output
      */
-    LOG(str) {
-        if(USE_LOG)
+    LOG(str, throwException = false) {
+        if(!USE_LOG)
+            return;
+        if(throwException)
+            throw str;
+        else
             console.log(str);
     }
 
@@ -646,9 +654,9 @@ class CPU {
         } else if(address < 0xE000) {
             address -= 0xD000;
             if(this.cgb)
-                return this.mem.wram[address + this.ppu.cgb.svbk * 0x2000];
+                return this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000];
             else
-                return this.mem.wram[address];
+                return this.mem.wram[address + 0x1000];
         } else if(address < 0xFE00) {
             // mirror WRAM
             return this.mem.wram[address - 0xE000]

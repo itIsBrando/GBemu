@@ -24,60 +24,6 @@ function _canSave()
 }
 
 
-/**
- * Saves a savefile to localStorage
- * - reports an error if ROM does not have external RAM
- * - does not warn about overriding an existing savefile
- * @param {String} key name of save
- */
-function saveToLocal(key) {
-    if(c.mbcHandler)
-    {
-        const ram = c.mbcHandler.ram;
-        let data = JSON.stringify(new SaveStorage(readROMName(), ram));
-
-        // prevent user from overwriting a savefile unintentionally
-        if(key in localStorage)
-        {
-            showMessage(
-                "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
-                "Save Already Exists",
-                true,
-                null,
-                _canSave
-            );
-            _delKey = {key, data};
-        } else {
-            localStorage.setItem(key, data);
-            showMessage("<b style='color:green;'>" + key + "</b> saved successfully. You can safely close this webpage", "Success");
-        }
-    } else {
-        showMessage("ROM does not support saving.", "Saving Error");
-    }
-}
-
-
-/**
- * Reads a locally stored save
- * @param {String} key name of save
- */
-function readFromLocal(key) {
-    const data = localStorage.getItem(key);
-    if(!data)
-        return null;
-    const obj = JSON.parse(data);
-    const arr = new Array();
-
-    // add each element to our array
-    for(let i in obj.ram)
-    {
-        arr.push(obj.ram[i]);
-    }
-
-    return new Uint8Array(arr);
-}
-
-
 const localSaveButton = document.getElementById('localSaveButton');
 const localLoadButton = document.getElementById('localLoadButton');
 const localSaveName = document.getElementById('localSaveName');
@@ -104,7 +50,7 @@ function showPopupMenu(title, buttonText) {
     if(popupMenu.style.display == "block")
         return false;
     
-    popupMenu.style.display = "block";
+    showElement(popupMenu);
     FrontEndMenu.showOverlay();
     // set title
     // document.getElementById('popup-title').innerHTML = title;
@@ -117,7 +63,7 @@ function showPopupMenu(title, buttonText) {
 
 
 function hidePopupMenu() {
-    popupMenu.style.display = "none";
+    hideElement(popupMenu);
     FrontEndMenu.hideOverlay();
 
     // now we must delete buttons from popup menu
@@ -158,7 +104,10 @@ popupSubmitButton.addEventListener('click', function() {
     {
     case "save":
         if(name.length > 0)
-            saveToLocal(name);
+            if(c.mbcHandler)
+                SaveManager.save(name, c.mbcHandler.ram, readROMName());
+            else
+                showMessage("ROM does not support saving.", "Could not Save");
         break;
     case "load":
         // loading from localStorage
@@ -166,7 +115,7 @@ popupSubmitButton.addEventListener('click', function() {
         break;
     case "load json":
         // import from clipboard JSON
-        localStorage.setItem("import", name.toLowerCase());
+        SaveManager.save("import", name.toLowerCase());
         
         showMessage("Import successful. Now you can load this save from the menu.", "Success");
         break;
@@ -195,52 +144,151 @@ function showElement(e) {
     e.style.display = 'block';
 }
 
+
+
+var SaveManager = new function() {
+    /**
+     * 
+     * @param {Uint8Array} arr 
+     */
+    this.pack = function(arr) {
+        let str = "";
+
+        for(let i = 0; i < arr.length; i++)
+        {
+            str += hex(arr[i] & 0xFF, 2, "");    
+        }
+
+        return str;
+    }
+
+    /**
+     * Uncondenses a string. String must have even length
+     * @param {String} str 8-bit hex formatted string
+     * @returns Uint8Array
+     */
+    this.unpack = function(str) {
+        // if we are not a string or if we are a JSON object in a string
+        if(typeof str != "string" || String(str) == "" || str.indexOf("[") != -1)
+            return null;
+        
+        let arr = new Uint8Array(str.length >> 1);
+        for(let i = 0; i < str.length; i += 2)
+        {
+            const byte = `0x${str[i]}${str[i + 1]}`;
+
+            arr[i >> 1] = Number(byte);
+        }
+
+        return arr;
+    }
+
+    /**
+     * 
+     * @param {String} key string in localStorage
+     * @returns null if not found, otherwise a Uint8Array of the save data
+     */
+    this.getSave = function(key) {
+        const data = localStorage.getItem(key);
+    
+        if(!data)
+            return null;
+            
+        const obj = JSON.parse(data);
+        const arr = new Array();
+
+        const unpacked = this.unpack(obj.ram);
+
+        // using new, condensed format
+        if(unpacked != null)
+            return unpacked
+    
+        // add each element to our array
+        for(let i in obj.ram)
+        {
+            arr.push(obj.ram[i]);
+        }
+    
+        return new Uint8Array(arr);
+    }
+
+
+    /**
+     * Saves a savefile to localStorage
+     * - reports an error if ROM does not have external RAM
+     * - does not warn about overriding an existing savefile
+     * @param {String} key becomes the key for localStorage
+     * @param {String} ROMName optional name of the ROM
+     * @param {Uint8Array} arr array containing saveable data
+     */
+    this.save = function(key, arr, ROMName = "import") {
+        const ram = SaveManager.pack(arr);
+        let data = JSON.stringify(new SaveStorage(ROMName, ram));
+
+        // prevent user from overwriting a savefile unintentionally
+        if(key in localStorage)
+        {
+            showMessage(
+                "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
+                "Save Already Exists",
+                true,
+                null,
+                _canSave
+            );
+            _delKey = {key, data};
+        } else {
+            localStorage.setItem(key, data);
+            showMessage(`<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`, "Success");
+        }
+
+    }
+
+
+    
+    /**
+     * Attach to button event to delete a localStorage save.
+     * @param {ButtonEvent} e 
+     */
+    this.deleteSelf = function(e) {
+        e.stopPropagation();
+        key = this.parentElement.value
+        showMessage(
+            "Delete <b style='color:green;'>" + key + "</b>?",
+            "Are You Sure?",
+            true,
+            null,
+            function() {
+                if(_delKey)
+                    delete localStorage[_delKey];
+            
+                _delKey = null;
+                hidePopupMenu();
+                localLoadButton.click();
+            }
+        );
+
+        _delKey = key;
+        
+        saveEditButton.innerHTML = "edit";
+    }
+    
+}
+
 /**
  * Loads a key into MBC ram
  * @param {String} key key name in localStorage
  */
 function injectLocalStorage(key) {
     // loading from localStorage
-    const data = readFromLocal(key);
+    const data = SaveManager.getSave(key);
+
     if(!data)
         showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error");
     else
     {
         MBC1.useSaveData(data);
-        showMessage("Loaded <b style=\"color:green;\">" + key + "</b> successfully.", "Completed");
+        showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed");
     }
-}
-
-
-let _delKey;
-
-const _del = function() {
-    if(_delKey)
-        delete localStorage[_delKey];
-
-    _delKey = null;
-    hidePopupMenu();
-    localLoadButton.click();
-}
-
-
-/**
- * Button event that deletes a localStorage save.
- * @param {Event} e Event
- */
-function saveManagerDeleteSelf(e) {
-    e.stopPropagation();
-    key = this.parentElement.value
-    showMessage(
-        "Delete <b style='color:green;'>" + key + "</b>?",
-        "Are You Sure?",
-        true,
-        null,
-        _del
-    );
-    _delKey = key;
-    
-    saveEditButton.innerHTML = "edit";
 }
 
 
@@ -328,7 +376,7 @@ localLoadButton.addEventListener('click', function() {
         const btns = getDeleteButtons();
 
         btns.forEach(function(curVal) {
-            curVal.onclick = saveManagerDeleteSelf;
+            curVal.onclick = SaveManager.deleteSelf;
         })
     }
     
