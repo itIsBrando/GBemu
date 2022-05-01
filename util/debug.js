@@ -295,6 +295,7 @@ var Debug = new function() {
     const MemDiv = document.getElementById('MemoryDiv');
     const MapDiv = document.getElementById('MapDiv');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
+    this.DebugLog = document.getElementById('DebugLog');
 	let curObj = 0;
 	let curPC = 0;
 	let prevAddr = 0;
@@ -317,6 +318,16 @@ var Debug = new function() {
         hideElement(MapDiv);
 		c.renderer.clearBuffer();
 	}
+    
+    this.useLog = function(v = null) {
+        if(v == null)
+            return this.DebugLog.style.display != "none";
+        if(v)
+            showElement(this.DebugLog);
+        else {
+            hideElement(this.DebugLog);
+        }
+    }
 
 
 	this.start = function() {

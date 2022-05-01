@@ -588,9 +588,11 @@ class CPU {
      * @param {String} str output
      */
     LOG(str, throwException = false) {
-        if(!USE_LOG)
+        if(Debug.useLog()) {
+            Debug.DebugLog.innerHTML += `${str}<br>`;
+        } else if(!USE_LOG)
             return;
-        if(throwException)
+        else if(throwException)
             throw str;
         else
             console.log(str);

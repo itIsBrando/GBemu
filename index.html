@@ -205,7 +205,7 @@
                 transition: opacity 0.5s;
             }
 
-            input {
+            input(type="text") {
                 min-height: 30px;
                 min-width: 60px;
                 width: 100%;
@@ -440,6 +440,16 @@
                 bottom: calc(env(safe-area-inset-bottom) + 10px);
               }
             }
+            
+            #DebugLog {
+                width: 100%;
+                height: fit-content;
+                max-height: 150px;
+                overflow-y: auto;
+                display: none;
+                font-family: monospace;
+                border: 3px solid #777777;
+            }
 
         </style>
             <title>GBemu</title>
@@ -548,6 +558,8 @@
                         <div style="margin-right: 5px;">
                             <b>Disassembler</b><br>
                             <p style="font-family: monospace; width:100%;"></p>
+                            <p id="DebugLog"><br></p>
+                            <input type="checkbox" name="debugLogEnable" id="debugLogEnable"><label for="debugLogEnable">Enable Debug log</label>
                         </div>
                         <!-- Register DIV -->
                         <div style="border: 3px solid #777777;">
@@ -742,14 +754,18 @@
             controlsToggle.addEventListener('click', function() {
                 const buttons = document.getElementById("touchControls");
                 if(buttons.style.display == "block")
-                    buttons.style.display = "none";
+                    hideElement(buttons);
                 else
-                    buttons.style.display = "block";
+                    showElement(buttons);
             })
 
             // auto enable if using a touch device
             if(hasTouchscreen())
                 controlsToggle.click();
+                
+            document.getElementById("debugLogEnable").addEventListener('change', function(e) {
+                Debug.useLog(e.target.checked == 1);
+            });
 
 
             // save file to computer

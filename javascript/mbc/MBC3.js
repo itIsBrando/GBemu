@@ -16,9 +16,13 @@ class MBC3 extends MBC1 {
                     //  - bit 7: Day Counter carry (1=overflow)
         ]
 
-        this.latchedRegs = [
-            0, 0, 0, 0, 0
-        ]
+        this.latSeconds = 0;
+        this.latMinutes = 0;
+        this.latHours = 0;
+        this.latDays = 0;
+        
+        this.isHalted = false;
+        this.start = this.date.getTime();
     }
     
     /**
@@ -61,7 +65,7 @@ class MBC3 extends MBC1 {
             // ramEnable doubles up as an RTC enable
             // if ramBank>3, then we are trying to use RTC, not RAM
             if(this.ramEnable && this.ramBank >= 0x08 && this.ramBank <= 0x0C) {
-                this.regs[this.ramBank - 0x8] = byte;
+                this.setRTC(this.ramBank, byte);
             // only allow writing if RAM is enabled
             //  and we are not looking at RTC
             } else if(this.ramEnable && this.ramBank <= 3) {
@@ -81,7 +85,6 @@ class MBC3 extends MBC1 {
      * @returns the byte of memory if possible, or NULL
      */
     read8(cpu, address) {
-
         // ROM bank 0
         if(address < 0x4000) {
             return null
@@ -94,7 +97,7 @@ class MBC3 extends MBC1 {
             if(this.ramEnable && this.ramBank <= 3)
                 return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
             else if(this.ramEnable && this.ramBank >= 0x8 && this.ramBank <= 0xC)
-                return this.latchedRegs[this.ramBank - 0x8];
+                return this.getRTC(this.ramBank);
             else
                 return 0xFF;
 
@@ -107,9 +110,115 @@ class MBC3 extends MBC1 {
      * latches data using actual time.
      */
     latchRTC() {
-        this.latchedRegs[0] = this.date.getSeconds();
-        this.latchedRegs[1] = this.date.getMinutes();
-        this.latchedRegs[2] = this.date.getHours();
-        this.latchedRegs[3] = this.date.getDate(); // gets day
+        this.latchedStart = this.date.getTime();
+    }
+    
+    unlatchRTC() {
+        this.latchedStart = 0;
+    }
+    
+    setHalt(h) {
+        if(h && !this.isHalted) {
+            this.latchRTC();
+            this.latSeconds = this.seconds;
+            this.latMinutes = this.minutes;
+            this.latHours = this.hours;
+            this.latDays = this.days;
+            this.unlatchRTC();
+        } else if(!h && this.isHalted) {
+            this.start = this.date.getTime();
+        }
+    }
+    
+    setRTC(i, val) {
+        switch(i) {
+            case 0x8:
+                this.seconds = val;
+                break;
+            case 0x9:
+                this.minutes = val;
+                break;
+            case 0xA:
+                this.hours = val;
+                break;
+            case 0xB:
+                this.days &= 0x100;
+                this.days |= val;
+                break;
+            case 0xC:
+                this.days &= 0xFF;
+                this.days |= (val & 1) << 8;
+                this.isHalted = UInt8.getBit(val, 6);
+                break;
+        }
+    }
+    
+    getRTC(i) {
+        switch(i) {
+            case 0x8:
+                return this.seconds;
+            case 0x9:
+                return this.minutes;
+            case 0xA:
+                return this.hours;
+            case 0xB:
+                return this.days & 0xFF;
+            case 0xC:
+                let out = (this.days & 0x100) >> 8;
+                return out | (this.isHalted ?  0x40 : 0);
+            default:
+                return 0xFF;
+        }
+    }
+    
+    get seconds() {
+        return this.getTimeInSeconds() % 60;
+    }
+    
+    get minutes() {
+        return (this.getTimeInSeconds() % (60 * 60)) / 60;
+    }
+    
+    get hours() {
+        return (this.getTimeInSeconds() % (60 * 60 * 24)) / (60 * 60);
+    }
+    
+    get days() {
+        return (this.getTimeInSeconds() % (60 * 60 * 24 * 512)) / (60 * 60 * 24);
+    }
+    
+    set seconds(sec) {
+        if(this.isHalted)
+            this.latSeconds = sec;
+    }
+    
+    
+    set minutes(min) {
+        if(this.isHalted)
+            this.latMinutes = min;
+    }
+    
+    
+    set hours(hours) {
+        if(this.isHalted)
+            this.latHours = hours;
+    }
+    
+    set days(days) {
+        if(this.isHalted)
+            this.latDays = days;
+    }
+    
+    
+    getTimeInSeconds() {
+        let sec = 0;
+        
+        if(this.latchedStart == 0) {
+            sec = this.date.getTime();
+        } else {
+            sec = this.latchedStart;
+        }
+        
+        return Math.floor(sec - this.start) / 1000;
     }
 }
