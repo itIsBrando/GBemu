@@ -9,12 +9,19 @@ var gamepadButtons = {
     "DOWN": false,
 }
 
+function keydown_init(event) {
+    if(hasTouchscreen())
+        hideElement(document.getElementById('touchControls'))
+    
+    keydown(event);
+    document.onkeydown = keydown
+}
 
 /**
  * Key Pressed
  * @param {KeyboardEvent} event 
  */
-document.onkeydown = function(event) {
+function keydown(event) {
     const key = event.key.toLowerCase();
     if(FrontEndKeyBinding.isAssigning)
     {
@@ -59,6 +66,8 @@ document.onkeyup = function(event) {
 
 }
 
+
+document.onkeydown = keydown_init;
 
 class Controller {
     /**
