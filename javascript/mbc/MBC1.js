@@ -45,9 +45,11 @@ class MBC1 {
 
         this.mode = 0; // determine whether we read from ROM or RAM
 
-        c.LOG("RAM size: 0x" + this.ramSize);
-        c.LOG("ROM size: 0x" + this.romSize + " Size: " + rom.length);
-        c.LOG("Total Banks: " + this.TOTAL_BANKS);
+        this.overrideSizeCheck = false; // can be overriden in the debug menu
+
+        c.LOG(`RAM size: ${hex(this.ramSize, 2)}`);
+        c.LOG(`ROM size: ${hex(this.romSize, 2)} Size: ${hex(rom.length, 4)} bytes`);
+        c.LOG(`Total Banks: ${this.TOTAL_BANKS}`);
     }
 
     /**
@@ -55,17 +57,22 @@ class MBC1 {
      *   RAM will be allocated
      */
     initRAM() {
+        const expectedSize = getRAMSize(this.ramSize, this.mbcNumber);
         // if the user loaded an incompatible save, then do not use it
-        if(useExternalSaveFile && externalSave.length != getRAMSize(this.ramSize, this.mbcNumber))
-        {
-            showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
-            useExternalSaveFile = false;
+        if(useExternalSaveFile) {
+            if(externalSave.length == expectedSize || this.overrideSizeCheck) {
+                this.ram = externalSave;
+            } else {
+                showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
+                c.LOG("RAM with mismatching sizes was used.");
+                c.LOG(`Attempted: ${hex(externalSave.length, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
+                useExternalSaveFile = false;
+            }
+
+            return;
         }
 
-        if(useExternalSaveFile) {
-            this.ram = externalSave;
-        } else
-            this.ram = new Uint8Array(getRAMSize(this.ramSize, this.mbcNumber));
+        this.ram = new Uint8Array(expectedSize);
     }
 
     /**
@@ -162,7 +169,7 @@ class MBC1 {
                     this.ramBank = 0;
                 }
             } else
-                console.log("Attempted to change MBC1 to mode1");
+                c.LOG("Attempted to change MBC1 to mode1");
             return false;
         // RAM
         } else if(address >= 0xA000 && address <= 0xBFFF)

@@ -318,6 +318,10 @@ var Debug = new function() {
         hideElement(MapDiv);
 		c.renderer.clearBuffer();
 	}
+
+	this.clearLog = function() {
+		this.DebugLog.innerHTML = "<br>";
+	}
     
     this.useLog = function(v = null) {
         if(v == null)
@@ -457,11 +461,11 @@ var Debug = new function() {
 
 		const a = SpriteDetailDiv.getElementsByTagName("p")[0];
 		const b = SpriteDetailDiv.getElementsByTagName("b")[0];
-		a.innerHTML = "\
-		Byte 0 (Y): ${0}<br>\
-		Byte 1 (X): ${1}<br>\
-		Byte 2 (Tile): ${2}<br>\
-		Byte 3 (Flag): ${3}".format(y, x, t, f);
+		a.innerHTML = `\
+		Byte 0 (Y): ${y}<br>\
+		Byte 1 (X): ${x}<br>\
+		Byte 2 (Tile): ${t}<br>\
+		Byte 3 (Flag): ${hex(f, 2, "$")}`;
 
 		this.spr_data.data.fill(0);
 		c.renderer.drawTile(0, 0, VRAM_BASE + t * 16, f, c, true, this.spr_data, 8);
@@ -542,8 +546,8 @@ var Debug = new function() {
 					break;
 				case "s8":
 					const addr = c.read8(curPC);
-					append = hex(addr > 127 ? curPC - addr: curPC + addr, 4);
 					this.increasePC(1);
+					append = hex(addr > 127 ? curPC - addr: curPC + addr, 4);
 					break;
 				case "u16":
 					append = this.hex(c.read16(curPC), true, 4);
@@ -668,42 +672,100 @@ var Debug = new function() {
     this.showMemory = function() {
         const a = MemDiv.getElementsByTagName("p")[0];
         let s = "";
+		let type = "ROM0 ";
+		const mem_types = [
+			"ROM0 ", // 0x0000
+			"ROM0 ", // 0x1000
+			"ROM0 ", // 0x2000
+			"ROM0 ", // 0x3000
+			"ROMX ", // 0x4000
+			"ROMX ", // 0x5000
+			"ROMX ", // 0x6000
+			"ROMX ", // 0x7000
+			"VRAM ", // 0x8000
+			"VRAM ", // 0x9000
+			"RAM0 ", // 0xA000
+			"RAM0 ", // 0xB000
+			"WRAM0", // 0xC000
+			"WRAMX", // 0xD000
+			"MIRR ", // 0xE000
+			"IORAM", // 0xF000
+		];
         
         this.hideOpen();
-        showElement(MemDiv);
+		showElement(MemDiv);
+
+		if(!c.loadedROM) {
+			a.innerHTML = "Load a ROM before viewing memory";
+			return;
+		}
         
         for(let i = 0; i < 0xFFFF >> 3; i++)
         {
-            s += this.dumpMemory(i << 3) + "<br>";
+            s += `<b style="color:white";>${mem_types[i >> 9]}</b>:${this.dumpMemory(i << 3)}<br>`;
         }
         
         a.innerHTML = s;
     }
 
 	/**
+	 * The presence of this function allows for the PC to step through the entire
+	 * 	visible disassembler window. Previously, the disassembler would scroll when
+	 *  the PC exceeded `NUM_INSTR` bytes, but now it will scroll once we have
+	 *  exceeded `NUM_INSTR` instructions
+	 * - This function will calculate the number of instructions that occur
+	 *    between the addresses. If this value exceeds `range`, then it will
+	 *    `true`, otherwise false 
+	 */
+	this.isInsOutOfRange = function(addr1, addr2, range) {
+		let low = addr1 > addr2 ? addr2 : addr1;
+		const high = addr1 > addr2 ? addr1 : addr2;
+		let ins = 0;
+
+		while(low < high) {
+			low += this.getInsLength(c.read8(low));
+			if(++ins >= range)
+				return true;
+
+		}
+		
+		return false;
+	}
+
+	/**
 	 * 
 	 * @param {Number} pc PC base to inspect
 	 */
 	this.showDisassembly = function(pc) {
+		/*
+			prevAddr -> address of the last instruction ran. Can be >, <, or = to c.pc.v
+			curScroll-> difference betweeen last instruction and current instruction
+			curPC -> before the loop, this holds the address of the FIRST instruction written
+				- this will always be >= c.pc.v
+			c.pc.v -> actual instruction being executed.
+		*/
 		const a = DisassemblyDiv.getElementsByTagName("p")[0];
+		const NUM_INSTR = 18;
         
 		this.hideOpen();
 		showElement(DisassemblyDiv);
 		curPC = pc;
 		let curScroll = curPC - prevAddr;
 
-		if(Math.abs(curScroll) < 20) {
-			curPC -= curScroll;
-		} else {
+		if(this.isInsOutOfRange(curPC - curScroll, pc, NUM_INSTR)) {
 			prevAddr = pc;
+		} else {
+			curPC -= curScroll;
 		}
+
+		console.log(`prevAddr:${hex(prevAddr,4)}	curScroll:${curScroll}	curPC:${hex(curPC,4)}	PC:${hex(pc,4)}`)
 
 		if(c.pc.v < curPC)
 			curPC = c.pc.v;
 
-		a.innerHTML = ""
+		a.innerHTML = "";
 
-		for(let i = 0; i < 20; i++)
+		for(let i = 0; i < NUM_INSTR; i++)
 		{
 			const isCurPC = c.pc.v == curPC;
 			let str = "";
@@ -730,13 +792,16 @@ var Debug = new function() {
 	}
     
     this.dumpMemory = function(pc) {
-        let s = hex(pc, 4, "$") + " : ";
+        let s = `${hex(pc, 4, "$")} : `;
+		let c = '';
         
         for(let i = 0; i < 8; i++) {
-            s += " " + hex(c.read8(pc + i), 2, "$");
+			const byte = c.read8(pc + i);
+            s += " " + hex(byte, 2, '');
+			c += String.fromCharCode(byte);
         }
         
-        return s;
+        return s + c;
     }
 
 
