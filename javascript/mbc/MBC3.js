@@ -70,7 +70,7 @@ class MBC3 extends MBC1 {
             
             const addr = address - 0xA000 + (this.ramBank * 0x2000);
             
-            if(this.ramBank > 3)
+            if(this.ramBank > 3) {
                 this.setRTC(this.ramBank, byte);
             // only allow writing if RAM is enabled
             //  and we are not looking at RTC
