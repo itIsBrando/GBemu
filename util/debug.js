@@ -685,7 +685,6 @@ var Debug = new function() {
     this.showMemory = function() {
         const a = MemDiv.getElementsByTagName("p")[0];
         let s = "";
-		let type = "ROM0 ";
 		const mem_types = [
 			"ROM0 ", // 0x0000
 			"ROM0 ", // 0x1000
@@ -697,13 +696,13 @@ var Debug = new function() {
 			"ROMX ", // 0x7000
 			"VRAM ", // 0x8000
 			"VRAM ", // 0x9000
-			"RAM0 ", // 0xA000
-			"RAM0 ", // 0xB000
+			"CRAM0", // 0xA000
+			"CRAM0", // 0xB000
 			"WRAM0", // 0xC000
 			"WRAMX", // 0xD000
 			"MIRR ", // 0xE000
 			"IORAM", // 0xF000
-		];
+        ];
         
         this.hideOpen();
 		showElement(MemDiv);
@@ -773,8 +772,8 @@ var Debug = new function() {
 
 		//console.log(`prevAddr:${hex(prevAddr,4)}	curScroll:${curScroll}	curPC:${hex(curPC,4)}	PC:${hex(pc,4)}`)
 
-		if(c.pc.v < curPC)
-			curPC = c.pc.v;
+		if(pc < curPC)
+			curPC = pc;
 
 		a.innerHTML = "";
 
@@ -836,7 +835,6 @@ var Debug = new function() {
         // if we are a branch or return, then we do not want to go to next line
         if(exclude.includes(op) || (condBranches.includes(op) && c.read8(c.pc.v + 1) < 0x80)) {
             c.execute();
-            console.log("excluded");
         } else { 
             do {
                 c.execute();
@@ -858,9 +856,11 @@ var Debug = new function() {
 	}
 
 	this.gotoDis = function() {
-		let addr = this.getAddr();
-		if(addr)
-			this.showDisassembly(addr);
+        const m = PromptMenu.new("Enter Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
+            Debug.showDisassembly(Number("0x" + a));
+        });
+        
+        PromptMenu.show(m);
 	}
 
 	this.addBreak = function() {
@@ -907,4 +907,58 @@ var Debug = new function() {
     }
 
 
+}
+
+const MENU_EX = {
+    "rejects": "regex", // regular expression with all characters that will be rejected by the input
+    "title": "string", // name
+    "onsubmit": "func", // accepts a function with one parameter (contains input value)
+    "oncancel": "func", // accepts an optional function
+};
+
+
+var PromptMenu = new function() {
+    const textInput = document.getElementById("PromptText");
+    const menu = document.getElementById("PromptMenu");
+    const title = document.getElementById("PromptTitle");
+    
+    this._onsubmit = null;
+    this._oncancel = null;
+    
+    this.new = function(t, p, rejects = '', maxlen = 999999, onsubmit = null, oncancel = null) {
+        return {
+            "rejects": rejects,
+            "title": t,
+            "placeholder": p,
+            "maxlength": maxlen,
+            "onsubmit": onsubmit,
+            "oncancel": oncancel,
+        };
+    }
+    
+    this.show = function(m) {
+        textInput.oninput = function(e) {
+            e.target.value = e.target.value.replace(m["rejects"],'').toUpperCase().slice(0, m["maxlength"]);
+        }
+        
+        textInput.value = "";
+        title.innerHTML = m["title"];
+        
+        this._onsubmit = m["onsubmit"];
+        this._oncancel = m["oncancel"];
+        // @TODO add placeholder attribute
+        
+        showElement(menu);
+    }
+    
+    this.submit = function() {
+        if(this._onsubmit)
+            this._onsubmit(textInput.value);
+        
+        this.hide();
+    }
+    
+    this.hide = function() {
+        hideElement(menu);
+    }
 }
