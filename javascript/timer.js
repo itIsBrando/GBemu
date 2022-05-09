@@ -39,13 +39,19 @@ class Timer {
 
         this.frequency -= cycles;
     
-        if(this.frequency > 0) { return }
+        if(this.frequency > 0)
+            return
+            
+        const f = this.frequency;
         
         this.setClockFrequency();
+        
+        this.frequency += f;
 
         // if we are about to overflow
-        if(this.regs.tima == 0xFF)
+        if(this.regs.tima == 0xFF) {
             this.shouldReload = true;
+        }
 
         this.regs.tima++;
         this.regs.tima &= 255;

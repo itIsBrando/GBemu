@@ -299,6 +299,7 @@ var Debug = new function() {
 	let curObj = 0;
 	let curPC = 0;
 	let prevAddr = 0;
+    this.timer = null;
 
 	this.spr_canvas = SpriteDetailDiv.getElementsByTagName("canvas")[0];
 	this.spr_context = this.spr_canvas.getContext("2d");
@@ -603,17 +604,29 @@ var Debug = new function() {
 
 		return this.breakpoints[pc] == true;
 	}
-
+    
+    this._runTilBreak = function() {
+        c.execute();
+        if(Debug.isBreakpoint(c.pc.v)) {
+            clearInterval(Debug.timer);
+            Debug.timer = null;
+        }
+        
+        Debug.showDisassembly(c.pc.v);
+    }
+    
 	this.stepUntilBreak = function() {
 		if(this.breakpoints.length == 0) {
 			showMessage("Add a breakpoint first.", "No Breakpoints");
 			return;
 		}
-
-		while(!this.isBreakpoint(c.pc.v)) {
-			c.execute();
-		}
-		this.showDisassembly(c.pc.v);
+        
+        if(this.timer) {
+            clearInterval(this.timer)
+            this.timer = null;
+        }
+        else
+            this.timer = setInterval(Debug._runTilBreak, 25);
 	}
 
 	this.showRegister = function() {
@@ -758,7 +771,7 @@ var Debug = new function() {
 			curPC -= curScroll;
 		}
 
-		console.log(`prevAddr:${hex(prevAddr,4)}	curScroll:${curScroll}	curPC:${hex(curPC,4)}	PC:${hex(pc,4)}`)
+		//console.log(`prevAddr:${hex(prevAddr,4)}	curScroll:${curScroll}	curPC:${hex(curPC,4)}	PC:${hex(pc,4)}`)
 
 		if(c.pc.v < curPC)
 			curPC = c.pc.v;
@@ -793,15 +806,14 @@ var Debug = new function() {
     
     this.dumpMemory = function(pc) {
         let s = `${hex(pc, 4, "$")} : `;
-		let c = '';
         
         for(let i = 0; i < 8; i++) {
 			const byte = c.read8(pc + i);
             s += " " + hex(byte, 2, '');
-			c += String.fromCharCode(byte);
+			//chr += String.fromCharCode(byte);
         }
         
-        return s + c;
+        return s;
     }
 
 

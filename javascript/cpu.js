@@ -413,14 +413,14 @@ class CPU {
         } else if(address == 0xFF00) {
             this.mem.hram[0] = byte & 0b00110000;
         } else if(address == 0xFF04) {
-            this.timerRegs.regs.div = byte;
+            this.timerRegs.regs.div = 0;
         } else if(address == 0xFF05) {
             this.timerRegs.regs.tima = byte;
         } else if(address == 0xFF06) {
             this.timerRegs.regs.tma = byte;
         } else if(address == 0xFF07) {
             const tac = this.timerRegs.regs.tac;
-            this.timerRegs.regs.tac = byte;
+            this.timerRegs.regs.tac = byte & 0x7;
             if((tac & 0x3) != (byte & 0x3))
                 this.timerRegs.setClockFrequency();
         } else if(address == 0xFF0F) {
@@ -679,7 +679,7 @@ class CPU {
         } else if(address == 0xFF06) {
             return this.timerRegs.regs.tma;
         } else if(address == 0xFF07) {
-            return this.timerRegs.regs.tac;
+            return this.timerRegs.regs.tac | 0xF8;
         } else if(address == 0xFF0F) {
             return this.interrupt_flag;
         } else if(address == 0xFF40) {
@@ -855,10 +855,10 @@ class CPU {
     halfCarry16(a, b, arithmetic) {
         switch(arithmetic) {
             case Arithmetic.ADD:
-                this.flags.hc = (a & 0xFFF) + (b & 0xFFF) > 0xFFF;
+                this.flags.hc = (a & 0x7FF) + (b & 0x7FF) > 0x7FF;
                 break;
             case Arithmetic.SUB:
-                this.flags.hc = (a & 0xFFF) - (b & 0xFFF) < 0x0;
+                this.flags.hc = (a & 0x7FF) - (b & 0x7FF) < 0x0;
                 break;
         }
     }

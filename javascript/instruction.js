@@ -2002,9 +2002,8 @@ var opTable = {
             let n = UInt16.toSigned(cpu.readImmediate8());
             let result = (cpu.sp.v + n) & 0xFFFF;
 
-
             cpu.flags.c = ((cpu.sp.v ^ n ^ result) & 0x100) == 0x100;
-            cpu.flags.hc = ((cpu.sp.v ^ n ^ result) & 0x10) == 0x10;
+            cpu.halfCarry8(cpu.sp.v, n, Arithmetic.ADD);
             cpu.flags.n = false;
             cpu.flags.z = false;
 
