@@ -742,7 +742,7 @@ class CPU {
             return this.mem.hram[address - 0xFF00];
         } else {
             this.LOG("ERROR READING FROM ADDRESS: " + hex(address, 4));
-            throw "Cannot read here."
+            throw "Cannot read here:" + hex(address, 4);
         }
 
     };

@@ -301,16 +301,8 @@ var Debug = new function() {
 	let prevAddr = 0;
     this.timer = null;
 
-	this.spr_canvas = SpriteDetailDiv.getElementsByTagName("canvas")[0];
-	this.spr_context = this.spr_canvas.getContext("2d");
-	this.spr_data = this.spr_context.getImageData(0, 0, 8, 8);
-
-	this.spr_blit = function() {
-		this.spr_context.putImageData(this.spr_data, 0, 0);
-	}
-
-
 	this.enabled = false;
+    this.initialized = false;
 
 	this.hideOpen = function() {
 		hideElement(SpriteDetailDiv);
@@ -327,7 +319,7 @@ var Debug = new function() {
     this.useLog = function(v = null) {
         if(v == null)
             return this.DebugLog.style.display != "none";
-        if(v)
+        if(v == true)
             showElement(this.DebugLog);
         else {
             hideElement(this.DebugLog);
@@ -341,6 +333,9 @@ var Debug = new function() {
 		pauseEmulation();
 		curObj = 0;
 		this.enabled = true;
+        
+        if(this.initialized)
+            return;
 
 		DisassemblyGotoInput.value = "$";
 
@@ -350,11 +345,26 @@ var Debug = new function() {
 			
 			e.target.value = e.target.value.replace(/(?![A-Fa-f0-9])\w+/g,'');
 		}
-
-
-		this.spr_context.fillStyle = "#FFFFFF";
-        this.spr_context.fillRect(0, 0, 160, 144);
-        this.spr_context.globalAlpha = 1.0;
+        
+        const spriteDiv = document.getElementById("DebugSprites");
+        
+        for(let i = 0; i < 40; i++) {
+            const canv = document.createElement("canvas");
+            
+            canv.width = 8;
+            canv.height = 8;
+            canv.style.width = "100%";
+            canv.style.padding = "1px";
+            canv.id = "sprite" + i;
+            
+            canv.addEventListener("click", function() {
+                Debug.showObj(this.id[6]);
+            });
+            
+            spriteDiv.appendChild(canv);
+        }
+        
+        this.initialized = true;
 	}
 
 
@@ -386,23 +396,28 @@ var Debug = new function() {
 
 
 	this.showSprites = function() {
-		pauseEmulation();
 		this.hideOpen();
 		SpriteDetailDiv.style.display = "inline-block";
-		let s = 0;
-		
+
 		this.showObj(0);
 
-		for(let y = 0; y < 4; y++)
+		for(let s = 0; s < 40; s++)
 		{
-			for(let x = 0; x < 10; x++)
-			{
-				const spriteBase = OAM_BASE + ((s++) << 2);
-				const tile  = c.read8(spriteBase + 2);
-				const flags = c.read8(spriteBase + 3);
-	
-				c.renderer.drawTile(x << 3, y << 3, tile * 16 + VRAM_BASE, flags, c, false);
-			}
+			const spriteBase = OAM_BASE + (s << 2);
+			const tile  = c.read8(spriteBase + 2);
+			const flags = c.read8(spriteBase + 3);
+            const canv = document.getElementById("sprite" + s);
+            
+            const context = canv.getContext('2d');
+            context.fillStyle = "#e0e0e0";
+            context.fillRect(0, 0, 8, 8);
+            context.globalAlpha = 1.0;
+    
+            let screen = context.getImageData(0, 0, 8, 8);
+            
+			c.renderer.drawTile(0, 0, tile * 16 + VRAM_BASE, flags, c, false, screen, 8);
+            
+            context.putImageData(screen, 0, 0);
 		}
 
 		c.renderer.drawBuffer();
@@ -467,11 +482,6 @@ var Debug = new function() {
 		Byte 1 (X): ${x}<br>\
 		Byte 2 (Tile): ${t}<br>\
 		Byte 3 (Flag): ${hex(f, 2, "$")}`;
-
-		this.spr_data.data.fill(0);
-		c.renderer.drawTile(0, 0, VRAM_BASE + t * 16, f, c, true, this.spr_data, 8);
-		
-		this.spr_blit();
 
 		b.innerHTML = "Sprite " + num;
 	}
@@ -857,7 +867,9 @@ var Debug = new function() {
 
 	this.gotoDis = function() {
         const m = PromptMenu.new("Enter Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
-            Debug.showDisassembly(Number("0x" + a));
+            a = Number("0x" + a);
+            if(a)
+                Debug.showDisassembly(a);
         });
         
         PromptMenu.show(m);
