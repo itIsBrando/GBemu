@@ -65,15 +65,11 @@ class MBC3 extends MBC1 {
         {
             // ramEnable doubles up as an RTC enable
             // if ramBank>3, then we are trying to use RTC, not RAM
-            if(!this.ramEnable)
-                return false;
             
             const addr = address - 0xA000 + (this.ramBank * 0x2000);
             
             if(this.ramBank > 3) {
                 this.setRTC(this.ramBank, byte);
-            // only allow writing if RAM is enabled
-            //  and we are not looking at RTC
             } else if(this.ramBank <= 3 && addr < this.ram.length) {
                 this.ram[addr] = byte;
             }
@@ -93,7 +89,7 @@ class MBC3 extends MBC1 {
     read8(cpu, address) {
         // ROM bank 0
         if(address < 0x4000) {
-            return null
+            return this.getROMByte(address, 0);
         // banks 01-7f
         } else if(address < 0x8000) {
             return this.getROMByte(address - 0x4000, this.bank);
