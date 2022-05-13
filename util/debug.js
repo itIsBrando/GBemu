@@ -300,6 +300,7 @@ var Debug = new function() {
 	let curPC = 0;
 	let prevAddr = 0;
     this.timer = null;
+    this.basePC = 0;
 
 	this.enabled = false;
     this.initialized = false;
@@ -331,6 +332,7 @@ var Debug = new function() {
 		DebugDiv.style.display = "grid";
 		this.hideOpen();
 		pauseEmulation();
+        Debug.stopRunTilBreak();
 		curObj = 0;
 		this.enabled = true;
         
@@ -615,14 +617,23 @@ var Debug = new function() {
 		return this.breakpoints[pc] == true;
 	}
     
-    this._runTilBreak = function() {
-        c.execute();
-        if(Debug.isBreakpoint(c.pc.v)) {
+    
+    this.stopRunTilBreak = function() {
+        setLEDStatus(false);
+        if(Debug.timer)
             clearInterval(Debug.timer);
-            Debug.timer = null;
+        Debug.timer = null;
+    }
+    
+    this._runTilBreak = function() {
+        for(let i = 0; i < 0x400000 / 1000; i++) {
+            c.execute();
+            
+            if(Debug.isBreakpoint(c.pc.v)) {
+                Debug.stopRunTilBreak();
+                return;
+            }
         }
-        
-        Debug.showDisassembly(c.pc.v);
     }
     
 	this.stepUntilBreak = function() {
@@ -632,11 +643,14 @@ var Debug = new function() {
 		}
         
         if(this.timer) {
-            clearInterval(this.timer)
-            this.timer = null;
+            Debug.stopRunTilBreak();
         }
-        else
-            this.timer = setInterval(Debug._runTilBreak, 25);
+        else {
+            this.timer = setInterval(Debug._runTilBreak, 1);
+            setLEDStatus(true);
+        }
+        
+        Debug.showDisassembly(c.pc.v);
 	}
 
 	this.showRegister = function() {
@@ -784,6 +798,8 @@ var Debug = new function() {
 
 		if(pc < curPC)
 			curPC = pc;
+            
+        this.basePC = curPC;
 
 		a.innerHTML = "";
 
@@ -809,8 +825,6 @@ var Debug = new function() {
 
 			this.showRegister();
 		}
-
-
 	}
     
     this.dumpMemory = function(pc) {
@@ -824,7 +838,6 @@ var Debug = new function() {
         
         return s;
     }
-
 
 	this.stepDis = function() {
 		do {
@@ -868,12 +881,34 @@ var Debug = new function() {
 	this.gotoDis = function() {
         const m = PromptMenu.new("Enter Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
             a = Number("0x" + a);
-            if(a)
+            if(a != null)
                 Debug.showDisassembly(a);
         });
         
         PromptMenu.show(m);
 	}
+    
+    this.searchByte = function() {
+        const m = PromptMenu.new("Search for Data", "00-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
+            a = Number("0x" + a);
+            if(a == null)
+                return;
+            
+            let p = Debug.basePC; // we will start searching from the currently shown address in the disassembler
+            const low = a & 0xFF, high = (a >> 8) & 0xFF;
+            
+            while(++p < 0xFFFF) {
+                if(c.read8(p) == low) {
+                    Debug.showDisassembly(p);
+                    return;
+                }
+            }
+            
+            showMessage(`Byte $${hex(a, 2)} not found.`, `Started searching at ${hex(Debug.basePC, 4)}`);
+        });
+        
+        PromptMenu.show(m);
+    }
 
 	this.addBreak = function() {
 		let addr = this.getAddr();

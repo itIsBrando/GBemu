@@ -121,7 +121,7 @@ const opcodeCycles = [
     4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // A
     4,   4,  4,  4,  4,  4,  8,  4,  4,  4,  4, 4,  4,  4, 8,  4, // B
     20, 12, 16, 16, 24, 16,  8, 16, 20, 16, 16, 4, 24, 24, 8, 16, // C
-    20, 12, 16,  0, 24, 16,  8, 16, 20, 16, 16, 0, 24, 0, 8, 16, // D
+    20, 12, 16,  0, 24, 16,  8, 16, 20, 16, 16, 0, 24,  0, 8, 16, // D
     12, 12, 8,   0,  0, 16,  8, 16, 16,  4, 16, 0,  0,  0, 8, 16, // E
     12, 12, 8,   4,  0, 16,  8, 16, 12,  8, 16, 4,  0,  0, 8, 16, // F
 ];
@@ -397,9 +397,9 @@ class CPU {
             this.mem.wram[address] = byte;
         } else if(address < 0xE000) {
             // working RAM
-            address -= 0xD000;
+            address -= 0xC000;
             if(this.cgb)
-                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000] = byte; // @TODO does this need to be +0x1000???
+                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000] = byte; // @TODO does this need to be +0x1000???
             else
                 this.mem.wram[address + 0x1000] = byte;
         } else if(address < 0xFE00) {
@@ -413,16 +413,13 @@ class CPU {
         } else if(address == 0xFF00) {
             this.mem.hram[0] = byte & 0b00110000;
         } else if(address == 0xFF04) {
-            this.timerRegs.regs.div = 0;
+            this.timerRegs.resetDiv();
         } else if(address == 0xFF05) {
             this.timerRegs.regs.tima = byte;
         } else if(address == 0xFF06) {
             this.timerRegs.regs.tma = byte;
         } else if(address == 0xFF07) {
-            const tac = this.timerRegs.regs.tac;
-            this.timerRegs.regs.tac = byte & 0x7;
-            if((tac & 0x3) != (byte & 0x3))
-                this.timerRegs.setClockFrequency();
+            this.timerRegs.writeTAC(byte);
         } else if(address == 0xFF0F) {
             this.interrupt_flag = byte;
         } else if(address == 0xFF40) {
@@ -517,9 +514,10 @@ class CPU {
                 this.ppu.cgb.obji = (this.ppu.cgb.obji + 1) & 0x3F;
         } else if(address == 0xFF70) {
             // cgb WRAM bank
+            byte &= 7;
             if(byte == 0)
                 byte = 1;
-            this.ppu.cgb.svbk = byte & 0x07;
+            this.ppu.cgb.svbk = byte;
         } else if(address == 0xFFFF) {
             this.interrupt_enable = byte;
         } else if(address < 0xFFFF) {
@@ -657,6 +655,7 @@ class CPU {
             address -= 0xC000;
             return this.mem.wram[address];
         } else if(address < 0xE000) {
+            // banked WRAM (CGB only)
             address -= 0xD000;
             if(this.cgb)
                 return this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000];

@@ -41,9 +41,16 @@ function pauseEmulation() {
          return;
 
     clearInterval(c.timer);
-    powerLED.style.fill = "red";
+    setLEDStatus(false);
     
 };
+
+function setLEDStatus(on) {
+    if(on)
+        powerLED.style.fill = "limegreen";
+    else
+        powerLED.style.fill = "red";
+}
 
 
 /**
@@ -55,7 +62,7 @@ function resumeEmulation() {
         return;
 
     c.timer = setInterval(run, INTERVAL_SPEED);
-    powerLED.style.fill = "limegreen";
+    setLEDStatus(true);
 }
 
 

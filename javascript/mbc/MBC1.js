@@ -216,7 +216,7 @@ class MBC1 {
                 {
                     return this.ram[address];
                 } else {
-                    return this.ram[address + (this.ramBankAddress)];
+                    return this.ram[address + this.ramBankAddress];
                 }
             }
             else
