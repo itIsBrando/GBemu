@@ -2,15 +2,6 @@
 
 const USE_LOG = false;
 
-/**
- * TODO:
- *  - recognize tile banking in drawTileLine
- *  - implement the rest of MBC3's RTC
- *  - add an `x` button to the copy text menu
- *  -
- */
-
-
 const Arithmetic = {
     ADD: 'add',
     ADC: 'adc',// only supports 8-bit operations
@@ -397,9 +388,9 @@ class CPU {
             this.mem.wram[address] = byte;
         } else if(address < 0xE000) {
             // working RAM
-            address -= 0xC000;
+            address -= 0xD000;
             if(this.cgb)
-                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000] = byte; // @TODO does this need to be +0x1000???
+                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000] = byte; // @TODO does this need to be +0x1000???
             else
                 this.mem.wram[address + 0x1000] = byte;
         } else if(address < 0xFE00) {

@@ -5,11 +5,11 @@ const OAM_BASE = 0xFE00;
 const opcodeLUT = [
 	"nop",
 	"ld bc, ${u16}",
-	"ld (${bc}), a",
-	"inc ${bc}",
-	"inc ${b}",
-	"dec ${b}",
-	"ld ${b}, ${u8}",
+	"ld (bc), a",
+	"inc bc",
+	"inc b",
+	"dec b",
+	"ld b, ${u8}",
 	"rcla",
 	"ld (${u16}), sp",
 	"add hl, bc",
@@ -386,7 +386,7 @@ var Debug = new function() {
 		for(let y = 0; y < 32; y++) {
 			for(let x = 0; x < 32; x++) {
 				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256, vbk);
-				if(++t >= 768) {
+				if(t >= 768) {
 					t = 0;
 					vbk = true;
 				}
@@ -400,6 +400,8 @@ var Debug = new function() {
 	this.showSprites = function() {
 		this.hideOpen();
 		SpriteDetailDiv.style.display = "inline-block";
+        
+        c.renderer.renderSprites(c.ppu, c);
 
 		this.showObj(0);
 
@@ -531,23 +533,49 @@ var Debug = new function() {
         const special = s.indexOf("${");
         let id = s.substring(special+2, s.indexOf("}"));
         
-        if(op == 0xCB)
-            return 2;
-        else if (special == -1)
+        if (special == -1)
             return 1;
-        else if(id == "s8" || id == "u8" || id == "i8")
+        else if(id == "s8" || id == "u8" || id == "i8" || op == 0xCB)
             return 2;
         else
             return 3;
     }
 
 	this.getOpString = function(op) {
-		let s = opcodeLUT[op];
+        let s = opcodeLUT[op];
+        
+        if(op == 0xCB) {
+            op = c.read8(curPC);
+            this.increasePC(1);
+            const x = (op & 0b11000000) >> 6;
+            const y = ((op & 0b00111000) >> 3) & 0x07;
+            const z = (op & 0b00000111);
+            const r = ["b","c", "d", "e", "h", "l", "(hl)", "a"];
+            
+            switch(x) {
+                case 1:
+                    s = `bit ${y}, ${r[z]}`;
+                    break;
+                case 2:
+                    s = `res ${y}, ${r[z]}`;
+                    break;
+                case 3:
+                    s = `set ${y}, ${r[z]}`;
+                    break;
+                case 0:
+                    const names = ["rlc", "rrc", "rl", "rr", "sla", "sra", "swap", "srl"]
+                    s = ` ${names[y]} ${r[z]}`;
+                    break;
+            }
+            
+            return s; // CB prefixes never have immediate addressing modes
+        }
 
 		if(useBrackets)
 			s = s.replace("(", "[").replace(")", "]");
 
 		let special = s.indexOf("${");
+        
 		if(special != -1) {
 			let id = s.substring(special+2, s.indexOf("}"));
 			let append = "";
@@ -563,12 +591,13 @@ var Debug = new function() {
 					append = hex(addr > 127 ? curPC - addr: curPC + addr, 4);
 					break;
 				case "u16":
-					append = this.hex(c.read16(curPC), true, 4);
+					append = hex(c.read16(curPC), 4);
 					this.increasePC(2);
 					break;
 				default:
 					append = id;
 					this.increasePC(1);
+                    c.LOG(`Unknown string id: ${id}`);
 			}
 
 			s = s.replace("${"+id+"}", append);
