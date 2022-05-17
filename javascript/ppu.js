@@ -169,6 +169,10 @@ class PPU {
     get mapBase() {
         return UInt8.getBit(this.regs.lcdc, 3) ? 0x9C00 : 0x9800;
     }
+    
+    get winBase() {
+        return UInt8.getBit(this.regs.lcdc, 6) ? 0x9C00 : 0x9800;
+    }
 
     get lcdEnabled() {
         return (this.regs.lcdc & 0x80) != 0;

@@ -204,7 +204,18 @@
                 opacity: 0;
                 transition: opacity 0.5s;
             }
-
+            
+            fieldset {
+                margin-bottom: 5px;
+            }
+            
+            legend {
+                color: aliceblue;
+                background-color: #111111;
+                padding: 2px;
+                border-radius: 3px;
+            }
+            
             input[type="text"] {
                 min-height: 30px;
                 min-width: 60px;
@@ -539,7 +550,14 @@
                 <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showMemory();">Memory</button>
                 <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.quit();">Exit</button>
                 <div id="MapDiv" style="grid-column: 1 / 7;">
-                    <p style="width: 100%"></p>
+                    <p style="width: 100%; font-family: monospace;"></p>
+                    <fieldset>
+                        <legend>Display Mode:</legend>
+                        <input type="radio" name="displayMode" value="map" checked/>
+                        <label for="map">Map</label>
+                        <input type="radio" name="displayMode" value="window"/>
+                        <label for="window">Window</label>
+                    </fieldset>
                     <canvas width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
                 </div>
                 <div id="SpriteDetailDiv" style="font-family: monospace; grid-column: 1 / 7;">

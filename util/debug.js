@@ -295,6 +295,7 @@ var Debug = new function() {
     const MemDiv = document.getElementById('MemoryDiv');
     const MapDiv = document.getElementById('MapDiv');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
+    const radioButtons = document.getElementsByName("displayMode");
     this.DebugLog = document.getElementById('DebugLog');
 	let curObj = 0;
 	let curPC = 0;
@@ -360,11 +361,17 @@ var Debug = new function() {
             canv.id = "sprite" + i;
             
             canv.addEventListener("click", function() {
-                Debug.showObj(this.id[6]);
+                Debug.showObj(this.id.substring(6));
             });
             
             spriteDiv.appendChild(canv);
         }
+        
+        for(let i = 0; i < radioButtons.length; i++) {
+            radioButtons[i].addEventListener("change", function() {
+                Debug.showMap();
+            });
+        };
         
         this.initialized = true;
 	}
@@ -429,7 +436,8 @@ var Debug = new function() {
 	
 
 	this.showMap = function() {
-		let mapBase = c.ppu.mapBase;
+        const isMap = radioButtons[0].checked;
+		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
         let a = MapDiv.getElementsByTagName('p')[0];
         const can = MapDiv.getElementsByTagName('canvas')[0];
 		this.hideOpen();
@@ -437,8 +445,9 @@ var Debug = new function() {
 
         const context = can.getContext('2d');
         context.fillStyle = "#e0e0e0";
-        context.fillRect(0, 0, 256, 256);
-		context.globalAlpha = 1.0
+        context.fillRect(0, 0, can.width, can.height);
+		context.globalAlpha = 1.0;
+        
         let screen = context.getImageData(0, 0, 256, 256);
 		const TILE_BASE = c.ppu.tileBase;
 
@@ -449,21 +458,35 @@ var Debug = new function() {
 				let tileNumber = c.read8(mapBase++);
 				// adjust tile number for stinky signed tiles
 				if(TILE_BASE == 0x9000 && tileNumber > 127)
-                	tileNumber -= 256;
+                    tileNumber -= 256;
 
 				c.renderer.drawTile(x << 3, y << 3, tileNumber * 16 + TILE_BASE, 0, c, false, screen, 256);
 			}
 		}
 		 
 		context.putImageData(screen, 0, 0);
+        
+        // draw a rectangle showing viewport
+        const x = isMap ? c.ppu.regs.scx : 0;
+        const y = isMap ? c.ppu.regs.scy : 0;
+        const yOverflow = y + 144, xOverflow = x + 160;
+        
+        context.beginPath();
+        context.fillStyle = "#111111";
+        context.rect(x, y, 160, 144);
+        
+        if(yOverflow > 255)
+            context.rect(x, 0, 160, yOverflow & 255);
+        if(xOverflow > 255)
+            context.rect(0, y, xOverflow & 255, 144);
+        context.stroke();
 
-        const labels = ["Map address", "Tile address"];
-        const values = [hex(c.ppu.mapBase, 4), hex(c.ppu.tileBase, 4)];
+        const labels = ["Map address", "    Window Address", "Tile address"];
+        const values = [hex(c.ppu.mapBase, 4), `${hex(c.ppu.winBase, 4)}<br>`, hex(c.ppu.tileBase, 4)];
         a.innerHTML = "";
         
-        
         for(let i = 0; i < labels.length; i++) {
-            a.innerHTML += labels[i] + " : " + values[i] + "<br>";
+            a.innerHTML += `${labels[i]} : ${values[i]}`;
         }
 	}
 
