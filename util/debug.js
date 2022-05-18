@@ -672,9 +672,12 @@ var Debug = new function() {
     
     this.stopRunTilBreak = function() {
         setLEDStatus(false);
+
         if(Debug.timer)
             clearInterval(Debug.timer);
+			
         Debug.timer = null;
+		Debug.showDisassembly(c.pc.v);
     }
     
     this._runTilBreak = function() {
