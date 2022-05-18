@@ -97,7 +97,7 @@ class Renderer {
         const wy = ppu.regs.wy;
 
         const tileBase = ppu.tileBase;
-        const mapBase = UInt8.getBit(ppu.regs.lcdc, 6) ? 0x9C00 : 0x9800;
+        const mapBase = ppu.winBase;
         const scanline= ppu.regs.scanline;
         
         if(scanline < wy && scanline < 144)

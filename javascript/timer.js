@@ -1,6 +1,5 @@
 class Timer {
     constructor() {
-        this.divCycles = 0;
         this.shouldReload = false;
 
         this.regs = {
@@ -9,6 +8,9 @@ class Timer {
             tma: 0,
             tac: 0
         }
+        
+        this.tima_cycles = 0;
+        this.div_cycles = 0;
 
         this.frequency = 0;
     }
@@ -18,7 +20,8 @@ class Timer {
         this.regs.div  = 0; 
         this.regs.tma  = 0;
         this.regs.tac  = 0;
-        this.divCycles = 0; 
+        this.div_cycles = 0;
+        this.tima_cycles = 0;
     }
 
     updateTimers(cpu) {
@@ -26,48 +29,59 @@ class Timer {
         
         this.increaseDiv(cycles);
 
-        if(this.shouldReload)
-        {
-            this.regs.tima = this.regs.tma;
-            this.shouldReload = false;
-            cpu.requestInterrupt(InterruptType.timer);
-        }
-        
         // return if timer is disabled
         if(!UInt8.getBit(this.regs.tac, 2))
             return;
 
-        this.frequency -= cycles;
-    
-        if(this.frequency > 0) { return }
+        this.tima_cycles += cycles;
         
         this.setClockFrequency();
-
-        // if we are about to overflow
-        if(this.regs.tima == 0xFF)
-            this.shouldReload = true;
-
-        this.regs.tima++;
-        this.regs.tima &= 255;
+        
+        while(this.tima_cycles >= this.frequency) {
+            this.tima_cycles -= this.frequency;
+            
+            // if we are about to overflow
+            if(this.regs.tima == 0xFF) {
+                //this.shouldReload = true;
+                this.regs.tima = this.regs.tma;
+                cpu.requestInterrupt(InterruptType.timer);
+            } else {
+                this.regs.tima++;
+            }
+            
+            this.regs.tima &= 255;
+        }
     }
     
-    
     increaseDiv(cycles) {
-        this.divCycles += cycles;
-        if(this.divCycles >= 256) {
+        this.div_cycles += cycles;
+        
+        while(this.div_cycles >= 256) {
             this.regs.div++;
             this.regs.div &= 0xFF;
-            this.divCycles -= 256;
+            this.div_cycles -= 256;
         }
 
     }
 
     setClockFrequency() {
-        switch(this.regs.tac & 0x3) {
-            case 0: this.frequency = 1024; break;
-            case 1: this.frequency = 16; break;
-            case 2: this.frequency = 64; break;
-            case 3: this.frequency = 256; break;
+        const freqs = [1024, 16, 64, 256];
+        this.frequency = freqs[this.regs.tac & 0x3];
+    }
+    
+    
+    resetDiv() {
+        this.regs.div = 0;
+        this.regs.div_cycles = 0;
+    }
+    
+    writeTAC(v) {
+        const tac = this.regs.tac;
+        this.regs.tac = v & 0x7;
+        
+        if((tac & 0x3) != (v & 0x3)) {
+            this.tima_cycles = 0;
+            this.regs.tima = this.regs.tma;
         }
     }
 }

@@ -41,7 +41,8 @@ class MBC3 extends MBC1 {
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
             byte &= 0x7F;
-            if(byte == 0) byte = 1;
+            if(byte == 0)
+                byte = 1;
             this.bank = byte;
             return false;
         // 0x4000-0x5FFF RAM bank or RTC
@@ -64,12 +65,13 @@ class MBC3 extends MBC1 {
         {
             // ramEnable doubles up as an RTC enable
             // if ramBank>3, then we are trying to use RTC, not RAM
-            if(this.ramEnable && this.ramBank >= 0x08 && this.ramBank <= 0x0C) {
+            
+            const addr = address - 0xA000 + (this.ramBank * 0x2000);
+            
+            if(this.ramBank > 3) {
                 this.setRTC(this.ramBank, byte);
-            // only allow writing if RAM is enabled
-            //  and we are not looking at RTC
-            } else if(this.ramEnable && this.ramBank <= 3) {
-                this.ram[address - 0xA000 + (this.ramBank * 0x2000)] = byte;
+            } else if(this.ramBank <= 3 && addr < this.ram.length) {
+                this.ram[addr] = byte;
             }
 
             return false;
@@ -87,23 +89,32 @@ class MBC3 extends MBC1 {
     read8(cpu, address) {
         // ROM bank 0
         if(address < 0x4000) {
-            return null
+            return this.getROMByte(address, 0);
         // banks 01-7f
         } else if(address < 0x8000) {
-            return this.rom[(this.bank * 0x4000) + address - 0x4000];
+            return this.getROMByte(address - 0x4000, this.bank);
         // RAM A000-BFFF or RTC register
         } else if(address >= 0xA000 && address < 0xC000)
         {
-            if(this.ramEnable && this.ramBank <= 3)
-                return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
-            else if(this.ramEnable && this.ramBank >= 0x8 && this.ramBank <= 0xC)
-                return this.getRTC(this.ramBank);
-            else
+            if(!this.ramEnable)
                 return 0xFF;
-
+                
+            if(this.ramBank <= 3)
+                return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
+            else
+                return this.getRTC(this.ramBank);
         }
 
         return null;
+    }
+    
+    getROMByte(addr, bank) {
+        const off = addr + (bank * 0x4000);
+        
+        if(off > this.rom.length)
+            return 0xFF;
+        
+        return this.rom[off];
     }
 
     /**

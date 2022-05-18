@@ -28,6 +28,7 @@ var opBIT_CB = {
     // bit y, [hl]
     0x06: function(cpu, bit) {
         cpu.flags.z = !UInt8.getBit(cpu.indirect_hl, bit);
+        cpu.cycles = 16;
     },
     // bit y, a
     0x07: function(cpu, bit) {
@@ -63,6 +64,7 @@ var opRES_CB = {
     // res y, [hl]
     0x06: function(cpu, bit) {
         cpu.indirect_hl = UInt8.clearBit(cpu.indirect_hl, bit);
+        cpu.cycles = 16;
     },
     // res y, a
     0x07: function(cpu, bit) {
@@ -70,6 +72,41 @@ var opRES_CB = {
     },
 }
 
+var opSET_CB = {
+    // set y, b
+    0x00: function(cpu, bit) {
+        cpu.bc.high = UInt8.setBit(cpu.bc.high, bit);
+    },
+    // set y, c
+    0x01: function(cpu, bit) {
+        cpu.bc.low = UInt8.setBit(cpu.bc.low, bit);
+    },
+    // set y, d
+    0x02: function(cpu, bit) {
+        cpu.de.high = UInt8.setBit(cpu.de.high, bit);
+    },
+    // set y, e
+    0x03: function(cpu, bit) {
+        cpu.de.low = UInt8.setBit(cpu.de.low, bit);
+    },
+    // set y, h
+    0x04: function(cpu, bit) {
+        cpu.hl.high = UInt8.setBit(cpu.hl.high, bit);
+    },
+    // set y, l
+    0x05: function(cpu, bit) {
+        cpu.hl.low = UInt8.setBit(cpu.hl.low, bit);
+    },
+    // set y, [hl]
+    0x06: function(cpu, bit) {
+        cpu.indirect_hl = UInt8.setBit(cpu.indirect_hl, bit);
+        cpu.cycles = 16;
+    },
+    // set y, a
+    0x07: function(cpu, bit) {
+        cpu.af.high = UInt8.setBit(cpu.af.high, bit);
+    },
+};
 
 
 // neg & half carry flags are bit logically 
@@ -150,7 +187,7 @@ var opTable_CB = {
         cpu.indirect_hl = byte;
 
         cpu.zero(byte);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // rlc a
     0x07: function(cpu) {
@@ -239,7 +276,7 @@ var opTable_CB = {
         cpu.indirect_hl = byte;
 
         cpu.zero(byte);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // rrc a
     0x0F: function(cpu) {
@@ -314,7 +351,7 @@ var opTable_CB = {
 
         cpu.flags.c = c;
         cpu.zero(cpu.indirect_hl);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // rl a
     0x17: function(cpu) {
@@ -324,7 +361,6 @@ var opTable_CB = {
 
         cpu.flags.c = c;
         cpu.zero(cpu.af.high);
-        cpu.cycles += 8;
     },
     // rr b
     0x18: function(cpu) {
@@ -388,7 +424,7 @@ var opTable_CB = {
 
         cpu.flags.c = c;
         cpu.zero(cpu.indirect_hl);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // rr a
     0x1F: function(cpu) {
@@ -447,7 +483,7 @@ var opTable_CB = {
         cpu.indirect_hl <<= 1;
 
         cpu.zero(cpu.indirect_hl);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // sla a
     0x27: function(cpu) {
@@ -518,7 +554,7 @@ var opTable_CB = {
         cpu.indirect_hl |= bit7;
 
         cpu.zero(cpu.indirect_hl);
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     },
     // sra a
     0x2F: function(cpu) {
@@ -612,7 +648,7 @@ var opTable_CB = {
         cpu.flags.c = false;
 
         cpu.indirect_hl = byte;
-        cpu.cycles += 8;
+        cpu.cycles = 16;
     }, 
     // swap a
     0x37: function(cpu) {
@@ -663,6 +699,7 @@ var opTable_CB = {
         cpu.flags.c = Boolean(cpu.indirect_hl & 1);
         cpu.indirect_hl >>= 1;
         cpu.zero(cpu.indirect_hl);
+        cpu.cycles = 16;
     },
     // srl a
     0x3F: function(cpu) {

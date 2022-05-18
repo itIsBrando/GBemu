@@ -264,8 +264,12 @@ var opTable = {
     0x20: function(cpu) {
         let d8 = cpu.readImmediate8();
         cpu.skip(2);
-        if(cpu.flags.z == false)
+        if(cpu.flags.z == false) {
             cpu.skip(UInt16.toSigned(d8));
+            cpu.cycles = 12;
+        } else {
+            cpu.cycles = 8;
+        }
 
     },
     // ld hl, nn
@@ -338,8 +342,12 @@ var opTable = {
         let d8 = UInt16.toSigned(cpu.readImmediate8());
         cpu.skip(2);
 
-        if(cpu.flags.z == true)
+        if(cpu.flags.z == true) {
             cpu.skip(d8);
+            cpu.cycles = 12;
+        } else {
+            cpu.cycles = 8;
+        }
 
     },
     // add hl, hl
@@ -397,10 +405,14 @@ var opTable = {
 
     // jr nc, d8
     0x30: function(cpu) {
-        let d8 = cpu.readImmediate8();
+        let d8 = UInt16.toSigned(cpu.readImmediate8());
         cpu.skip(2);
-        if(cpu.flags.c == false)
-            cpu.skip(UInt16.toSigned(d8));
+        if(cpu.flags.c == false) {
+            cpu.skip(d8);
+            cpu.cycles = 12;
+        } else {
+            cpu.cycles = 8;
+        }
 
     },
     // ld sp, nn
@@ -456,8 +468,12 @@ var opTable = {
         let d8 = UInt16.toSigned(cpu.readImmediate8());
         cpu.skip(2);
 
-        if(cpu.flags.c == true)
+        if(cpu.flags.c == true) {
             cpu.skip(d8);
+            cpu.cycles = 12;
+        } else {
+            cpu.cycles = 8;
+        }
 
     },
     // add hl, sp
@@ -1686,7 +1702,7 @@ var opTable = {
                 cpu.pushStack(cpu.pc.v);
                 cpu.pc.v = d16;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 12;
             }
         },
         // push bc
@@ -1754,42 +1770,7 @@ var opTable = {
                 opRES_CB[z](cpu, y);
             } else if(x == 3) {
                 // set y, r[z]
-                let setTable = {
-                    // set y, b
-                    0x00: function(cpu, bit) {
-                        cpu.bc.high = UInt8.setBit(cpu.bc.high, bit);
-                    },
-                    // set y, c
-                    0x01: function(cpu, bit) {
-                        cpu.bc.low = UInt8.setBit(cpu.bc.low, bit);
-                    },
-                    // set y, d
-                    0x02: function(cpu, bit) {
-                        cpu.de.high = UInt8.setBit(cpu.de.high, bit);
-                    },
-                    // set y, e
-                    0x03: function(cpu, bit) {
-                        cpu.de.low = UInt8.setBit(cpu.de.low, bit);
-                    },
-                    // set y, h
-                    0x04: function(cpu, bit) {
-                        cpu.hl.high = UInt8.setBit(cpu.hl.high, bit);
-                    },
-                    // set y, l
-                    0x05: function(cpu, bit) {
-                        cpu.hl.low = UInt8.setBit(cpu.hl.low, bit);
-                    },
-                    // set y, [hl]
-                    0x06: function(cpu, bit) {
-                        cpu.indirect_hl = UInt8.setBit(cpu.indirect_hl, bit);
-                    },
-                    // set y, a
-                    0x07: function(cpu, bit) {
-                        cpu.af.high = UInt8.setBit(cpu.af.high, bit);
-                    },
-                };
-
-                setTable[z](cpu, y);
+                opSET_CB[z](cpu, y);
             } else if(opcode < 0x40 && opTable_CB[opcode] != undefined) {
                 cpu.flags.n = false;
                 cpu.flags.hc = false;
@@ -2002,9 +1983,8 @@ var opTable = {
             let n = UInt16.toSigned(cpu.readImmediate8());
             let result = (cpu.sp.v + n) & 0xFFFF;
 
-
             cpu.flags.c = ((cpu.sp.v ^ n ^ result) & 0x100) == 0x100;
-            cpu.flags.hc = ((cpu.sp.v ^ n ^ result) & 0x10) == 0x10;
+            cpu.halfCarry8(cpu.sp.v, n, Arithmetic.ADD);
             cpu.flags.n = false;
             cpu.flags.z = false;
 

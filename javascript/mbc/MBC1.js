@@ -36,10 +36,11 @@ class MBC1 {
         this.ramEnable = false;
         this.ramSize = rom[0x0149];
         this.romSize = rom[0x0148];
-        this.TOTAL_BANKS = Math.floor(rom.length / 0x4000);
         this.ramBankAddress = 0; // RAM address for the bank number
         this.romBankAddress = 0x4000; // ROM address for the bank number
         this.initRAM();
+        this.TOTAL_BANKS = Math.floor(rom.length / 0x4000);
+        this.RAM_BANKS = Math.floor(this.ram.length / 0x2000);
         this.ramBank = 0;
         this.bank = 1;
 
@@ -149,10 +150,11 @@ class MBC1 {
         // 0x4000-0x5FFF RAM bank or upper bits of ROM bank
         } else if(address < 0x6000) {
             // set RAM bank if RAM size is 32K
-            if(this.mode == 1)
-                this.ramBank = byte & 3;
+            if(this.mode == 1) {
+                this.ramBank = (byte & 3) % this.RAM_BANKS;
+                this.ramBankAddress = this.ramBank * 0x2000;
             // set bank upper bit if ROM size is greater than 1MB
-            else {
+            } else {
                 this.setHighROMBank(byte);
             }
             return false;
@@ -167,6 +169,7 @@ class MBC1 {
                     this.romBankAddress = this.bank * 0x4000;
                 } else {
                     this.ramBank = 0;
+                    this.ramBankAddress = 0;
                 }
             } else
                 c.LOG("Attempted to change MBC1 to mode1");
@@ -174,18 +177,18 @@ class MBC1 {
         // RAM
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
-            // only allow writing if RAM is enabled
-            if(this.ramEnable)
-            {
-                address -= 0xA000;
-                if(this.mode == 0)
-                {
-                    this.ram[address] = byte;
-                } else {
-                    this.ram[address + this.ramBank * 0x2000] = byte;
-                }
+            if(!this.ramEnable)
                 return false;
+                
+            address -= 0xA000;
+            if(this.mode == 0)
+            {
+                this.ram[address] = byte;
+            } else {
+                this.ram[address + this.ramBankAddress] = byte;
             }
+            
+            return false;
         }
 
         return true;
@@ -213,7 +216,7 @@ class MBC1 {
                 {
                     return this.ram[address];
                 } else {
-                    return this.ram[address + (this.ramBank * 0x2000)];
+                    return this.ram[address + this.ramBankAddress];
                 }
             }
             else
