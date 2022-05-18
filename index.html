@@ -89,6 +89,7 @@
                 image-rendering: pixelated;
                 -ms-interpolation-mode: nearest-neighbor;
 
+                user-select: none;
                 -webkit-user-select: none;
                 -moz-user-select: none;
                 -ms-user-select: none;
@@ -153,6 +154,7 @@
                 -moz-user-select: none;
                 -ms-user-select: none;
                 -webkit-touch-callout: none;
+                user-select: none;
             }
 
             .dropdown {
@@ -205,7 +207,7 @@
                 transition: opacity 0.5s;
             }
 
-            input(type="text") {
+            input[type="text"], input[type="number"] {
                 min-height: 30px;
                 min-width: 60px;
                 width: 100%;
@@ -451,6 +453,11 @@
                 border: 3px solid #777777;
             }
 
+            .debug-title-btn {
+                width: auto;
+                padding: 10px 3px 10px 3px;
+            }
+
         </style>
             <title>GBemu</title>
             <!-- test button -->
@@ -532,12 +539,12 @@
 
             <!-- New Debug menu -->
             <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 350px; display:none; grid-template-columns: repeat(6, 1fr); grid-template-rows: fit-content fit-content;">
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showTiles();">Tiles</button>
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showSprites();">OAM</button>
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showMap();">Map</button>
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.showMemory();">Memory</button>
-                <button type="button" class="menubtn" style="width: auto; padding: 10px 3px 10px 3px;" onclick="Debug.quit();">Exit</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
+                <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
                 <div id="MapDiv" style="grid-column: 1 / 7;">
                     <p style="width: 100%"></p>
                     <canvas width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
@@ -641,7 +648,7 @@
             </div>
 
             <!-- Change palette colors -->
-            <div class="message-div" style="opacity: 1;" id="paletteSetDiv">
+            <div class="message-div" style="opacity: 1; min-width: 250px;" id="paletteSetDiv">
                 <!-- header -->
                 <button type="button" class="x-btn" onclick="FrontEndPalette.hidePaletteMenu()">&times;</button>
                 <!-- arrows -->
@@ -728,72 +735,10 @@
                     MBC1.useSaveData(reader.result);
                 }
             });
-
-            String.prototype.format = function() {
-                let a = this;
-                for (k in arguments) {
-                    a = a.replace("${" + k + "}", arguments[k])
-                }
-                return a
-            }
-
-
-            // for `file` menu tab
-            // const loadMenu = document.getElementById('loadMenu');
-            const fileMenuToggle = document.getElementById('fileMenuToggle');
-
-            // for `options` menu tab
-            const controlsToggle = document.getElementById('controlsToggle');
-            // const optionsMenu = document.getElementById('optionsMenu');
-            const optionsMenuToggle = document.getElementById('optionsMenuToggle');
-
-            // const saveMenu = document.getElementById('saveMenu');
-            const saveMenuToggle = document.getElementById('saveMenuToggle');
-            const exportSaveButton = document.getElementById('exportSaveButton');
-
-            // touch controls
-            controlsToggle.addEventListener('click', function() {
-                const buttons = document.getElementById("touchControls");
-                if(buttons.style.display == "block")
-                    hideElement(buttons);
-                else
-                    showElement(buttons);
-            })
-
-            // auto enable if using a touch device
-            if(hasTouchscreen())
-                controlsToggle.click();
                 
             document.getElementById("debugLogEnable").addEventListener('change', function(e) {
                 Debug.useLog(e.target.checked == 1);
             });
-
-
-            // save file to computer
-            exportSaveButton.onclick = function() {
-                if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
-                {
-                    showMessage("This ROM does not have a RAM chip", "No RAM");
-                    return;
-                }
-
-                // do saving
-
-                // if we are mobile or embeded app, we cannot download files
-                if(window.navigator.standalone) {
-                    let str = "";
-                    for(let i = 0; i < c.mbcHandler.ram.length; i++)
-                    {
-                        str += hex(c.mbcHandler.ram[i], 2, "")
-                    }
-                    const data = JSON.stringify(new SaveStorage(readROMName(), str));
-
-                    copyClipMenu(new String(data));
-                } else {
-                    downloadSave();
-                }
-
-            };
         </script>
     </body>
 </head>

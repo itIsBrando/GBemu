@@ -111,7 +111,7 @@ popupSubmitButton.addEventListener('click', function() {
         break;
     case "load":
         // loading from localStorage
-        injectLocalStorage(name);
+        SaveManager.injectLocalStorage(name);
         break;
     case "load json":
         // import from clipboard JSON
@@ -128,11 +128,11 @@ popupSubmitButton.addEventListener('click', function() {
 /**
  * Populates the text form with the name of a localStorage key
  */
-function pasteLabel() {
+const pasteLabel = function() {
     localSaveName.value = this.value;
     hidePopupMenu();
 
-    injectLocalStorage(this.value);
+    SaveManager.injectLocalStorage(this.value);
 }
 
 
@@ -243,7 +243,6 @@ var SaveManager = new function() {
 
     }
 
-
     
     /**
      * Attach to button event to delete a localStorage save.
@@ -272,23 +271,22 @@ var SaveManager = new function() {
         saveEditButton.innerHTML = "edit";
     }
     
-}
-
-/**
- * Loads a key into MBC ram
- * @param {String} key key name in localStorage
- */
-function injectLocalStorage(key) {
-    // loading from localStorage
-    const data = SaveManager.getSave(key);
-
-    if(!data)
-        showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error");
-    else
-    {
-        MBC1.useSaveData(data);
-        showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed");
-    }
+    /**
+    * Loads a key into MBC ram
+    * @param {String} key key name in localStorage
+    */
+   this.injectLocalStorage = function(key) {
+       // loading from localStorage
+       const data = SaveManager.getSave(key);
+   
+       if(!data)
+           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error");
+       else
+       {
+           MBC1.useSaveData(data);
+           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed");
+       }
+   }
 }
 
 
@@ -382,6 +380,32 @@ localLoadButton.addEventListener('click', function() {
     
     showPopupMenu("Save Name", "Load");
 })
+
+
+const exportSaveButton = document.getElementById('exportSaveButton');
+
+// save file to computer
+exportSaveButton.onclick = function() {
+    if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
+    {
+        showMessage("This ROM does not have a RAM chip", "No RAM");
+        return;
+    }
+
+    // do saving
+
+    // if we are mobile or embeded app, we cannot download files
+    if(window.navigator.standalone) {
+        let str = SaveManager.pack(c.mbcHandler.ram);
+        const data = JSON.stringify(new SaveStorage(readROMName(), str));
+
+        copyClipMenu(new String(data));
+    } else {
+        downloadSave();
+    }
+
+};
+
 
 
 /**

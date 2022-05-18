@@ -58,6 +58,7 @@ for(let i = 0; i < d.length; i++)
     d[i].id = ids[i + 5];
     d[i].innerHTML = squareSample.innerHTML;
 }
+
 delete d;
 
 // add event listeners to DPAD
@@ -71,10 +72,6 @@ dpad.addEventListener('touchmove', function(event) {
 });
 dpad.addEventListener('touchend', function(event) {
     touchDPAD(event, false);
-    touchDPADReset(buttonLeft);
-    touchDPADReset(buttonRight);
-    touchDPADReset(buttonUp);
-    touchDPADReset(buttonDown);
 });
 dpad.addEventListener('touchcancel', function(event) {
     touchDPAD(event, false);
@@ -187,6 +184,12 @@ function touchDPAD(event, state) {
     gamepadButtons["RIGHT"] = false;
     gamepadButtons["UP"] = false;
     gamepadButtons["DOWN"] = false;
+
+    // this graphically updates the DPAD button
+    touchDPADReset(buttonDown);
+    touchDPADReset(buttonUp);
+    touchDPADReset(buttonLeft);
+    touchDPADReset(buttonRight);
     
     if(state == false)
         return;
@@ -194,11 +197,6 @@ function touchDPAD(event, state) {
     const xy = getRelativePosition(dpad, event.changedTouches[0]);
     const x = xy.x, y = xy.y;
 
-    // this graphically updates the DPAD button
-    touchDPADReset(buttonDown);
-    touchDPADReset(buttonUp);
-    touchDPADReset(buttonLeft);
-    touchDPADReset(buttonRight);
 
     // sets button state and graphical state
     if(x <= 0.33) {
@@ -233,3 +231,18 @@ function getRelativePosition(elem, touch) {
         y: Math.min(1, Math.max(0, (touch.clientY - rect.top) / rect.height))
     };
 }
+
+
+const controlsToggle = document.getElementById('controlsToggle');
+
+// touch controls
+controlsToggle.addEventListener('click', function() {
+    if(touchControls.style.display == "block")
+        hideElement(touchControls);
+    else
+        showElement(touchControls);
+})
+
+// auto enable if using a touch device
+if(hasTouchscreen())
+    controlsToggle.click();
