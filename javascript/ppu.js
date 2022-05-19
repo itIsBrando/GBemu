@@ -134,6 +134,19 @@ class PPU {
     }
 
     /**
+     * 
+     * @param {Number} tile 0-255
+     * @returns 
+     */
+    getBGTileAddress(tile) {
+        // check for signed tile
+        if(this.tileBase == 0x9000 && tile > 127)
+            tile -= 256;
+        return this.tileBase + 16 * tile;   
+    }
+
+
+    /**
      * Converts a single CGB palette into an RGB encoded palette
      * - the length should be 8 bytes long
      * - Ex: [a, b, c, d, e, f, g, h...] converts to [[ab, cd, ef], [gh,...]]

@@ -55,7 +55,6 @@ class Renderer {
         this.renderWindow(ppu, cpu);
     }
 
-
     /**
      * Renders a background scanline
      * @param {PPU} ppu PPU instance
@@ -72,13 +71,11 @@ class Renderer {
             const yOffset = ((scanline + scy) >> 3) & 0x1F;
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
-            let tileNumber = cpu.read8(mapAddress);
-            // check for signed tile
-            if(tileBase == 0x9000 && tileNumber > 127)
-                tileNumber -= 256;
-            const dataAddress = tileBase + 16 * tileNumber + (y << 1);
+            let tileNum = cpu.read8(mapAddress);
             
-            this.drawTileLine(cpu, mapAddress, (i << 3) - (scx & 7), scanline, dataAddress)
+            const tileAddr = ppu.getBGTileAddress(tileNum) + (y << 1);
+            
+            this.drawTileLine(cpu, mapAddress, (i << 3) - (scx & 7), scanline, tileAddr)
         }
     }
 

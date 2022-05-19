@@ -137,7 +137,7 @@ const opcodeLUT = [
 	"ld a, e",
 	"ld a, h",
 	"ld a, l",
-	"ld a, (hl)",
+	"ld a, (hl+)",
 	"ld a, a",
 
 	"add a, b",
@@ -233,7 +233,7 @@ const opcodeLUT = [
 	"ret nc",
 	"pop de",
 	"jp nc, ${u16}",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
 	"call nc, ${u16}",
 	"push de",
 	"sub a, ${u8}",
@@ -242,17 +242,17 @@ const opcodeLUT = [
 	"ret c",
 	"reti",
 	"jp c, ${u16}",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
 	"call c, ${u16}",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
 	"sbc a, ${u8}",
 	"rst 0x18",
 	
 	"ldh ($FF00+${u8}), a",
 	"pop hl",
 	"ld ($FF00+c), a",
-	"<b>Not defined</b>",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
+	'<b style="color:gray;">Not defined</b>',
 	"push hl",
 	"and a, ${u8}",
 	"rst 0x20",
@@ -260,9 +260,9 @@ const opcodeLUT = [
 	"add sp, {$i8}",
 	"jp hl",
 	"ld (${u16}), a",
-	"<b>Not defined</b>",
-	"<b>Not defined</b>",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
+	'<b style="color:gray;">Not defined</b>',
+	'<b style="color:gray;">Not defined</b>',
 	"xor a, ${u8}",
 	"rst 0x28",
 	
@@ -270,7 +270,7 @@ const opcodeLUT = [
     "pop af",
     "ld a, ($FF00+c)",
 	"di",
-	"<b>Not defined</b>",
+	'<b style="color:gray;">Not defined</b>',
 	"push af",
 	"or a, ${u8}",
 	"rst 0x30",
@@ -279,8 +279,8 @@ const opcodeLUT = [
     "ld sp, hl",
     "ld a, (${u16})",
     "ei",
-    "<b>Not defined</b>",
-    "<b>Not defined</b>",
+    '<b style="color:gray;">Not defined</b>',
+    '<b style="color:gray;">Not defined</b>',
     "cp a, ${u8}",
     "rst 0x38",
 ];
@@ -288,12 +288,12 @@ const opcodeLUT = [
 
 var Debug = new function() {
 	const DisassemblyGotoInput = document.getElementById('DisassemblyGotoInput');
-	const TileCanvas = document.getElementById("DebugTileCanvas");
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
     const MemDiv = document.getElementById('MemoryDiv');
     const MapDiv = document.getElementById('MapDiv');
+	const MapInfo = document.getElementById('MapInfo');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
     const radioButtons = document.getElementsByName("displayMode");
     this.DebugLog = document.getElementById('DebugLog');
@@ -315,7 +315,7 @@ var Debug = new function() {
 	}
 
 	this.clearLog = function() {
-		this.DebugLog.innerHTML = "<br>";
+		this.DebugLog.innerHTML = "New Messages will appear here<br>";
 	}
     
     this.useLog = function(v = null) {
@@ -340,6 +340,8 @@ var Debug = new function() {
         if(this.initialized)
             return;
 
+		this.clearLog();
+		
 		DisassemblyGotoInput.value = "$";
 
 		DisassemblyGotoInput.oninput = function(e) {
@@ -356,8 +358,7 @@ var Debug = new function() {
             
             canv.width = 8;
             canv.height = 8;
-            canv.style.width = "100%";
-            canv.style.padding = "1px";
+			canv.className = "obj-canvas";
             canv.id = "sprite" + i;
             
             canv.addEventListener("click", function() {
@@ -378,9 +379,12 @@ var Debug = new function() {
 
 
 	this.showTiles = function() {
-		const can = MapDiv.getElementsByTagName('canvas')[0];
+		const can = document.getElementById('MapCanvas');
 		this.hideOpen();
 		showElement(MapDiv);
+		hideElement(MapInfo);
+
+		can.name = "tile";
 
         const context = can.getContext('2d');
         context.fillStyle = "#e0e0e0";
@@ -406,7 +410,7 @@ var Debug = new function() {
 
 	this.showSprites = function() {
 		this.hideOpen();
-		SpriteDetailDiv.style.display = "inline-block";
+		showElement(SpriteDetailDiv);
         
         c.renderer.renderSprites(c.ppu, c);
 
@@ -418,7 +422,6 @@ var Debug = new function() {
 			const tile  = c.read8(spriteBase + 2);
 			const flags = c.read8(spriteBase + 3);
             const canv = document.getElementById("sprite" + s);
-            
             const context = canv.getContext('2d');
             context.fillStyle = "#e0e0e0";
             context.fillRect(0, 0, 8, 8);
@@ -434,14 +437,74 @@ var Debug = new function() {
 		c.renderer.drawBuffer();
 	}
 	
+	
+	this.showTilePreview = function(tile) {
+		const canv = document.getElementById('TilePreview');
+		const ctx = canv.getContext('2d');
+		
+		ctx.globalAlpha = 1.0;
+		ctx.fillStyle = "#f0f0f0";
+		ctx.fillRect(0, 0, 8, 8);
+
+		const img = ctx.getImageData(0, 0, 8, 8);
+		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, c, false, img, 8);
+
+		ctx.putImageData(img, 0, 0);
+	}
+	
+	this.printMapTileInfo = function(mapBase, tx, ty) {
+		const TileInfo = document.getElementById("TileInfo");
+		let s = "<br>";
+
+		tx &= 31, ty &= 31;
+
+		const offset = tx + ty * 32 + mapBase;
+		const tile = c.read8(offset);
+
+		s += `Tile: ${hex(tile, 2, "$")}<br>Tile Address: ${hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
+        
+		TileInfo.innerHTML = s;
+		this.showTilePreview(tile);
+	}
+
+	this.printTileInfo = function(tx, ty) {
+		const TileInfo = document.getElementById("TileInfo");
+		let s = "<br>";
+
+		tx &= 31, ty &= 31;
+
+		const tile = tx + ty * 32;
+
+		s += `Tile: ${hex(tile, 2, "$")}<br>Tile Address: ${hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
+        
+		TileInfo.innerHTML = s;
+		this.showTilePreview(tile);
+	}
+
 
 	this.showMap = function() {
         const isMap = radioButtons[0].checked;
 		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
         let a = MapDiv.getElementsByTagName('p')[0];
-        const can = MapDiv.getElementsByTagName('canvas')[0];
+        const can = document.getElementById('MapCanvas');
 		this.hideOpen();
 		showElement(MapDiv);
+		showElement(MapInfo);
+
+		can.name = "map";
+
+		can.addEventListener("click", function(e) {
+			const rect = this.getBoundingClientRect();
+			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
+			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
+			
+			if(this.name == "map")
+				Debug.printMapTileInfo(isMap ? c.ppu.mapBase : c.ppu.winBase, x, y);
+			else
+				Debug.printTileInfo(x, y);
+		});
+
+		can.click();
 
         const context = can.getContext('2d');
         context.fillStyle = "#e0e0e0";
@@ -455,12 +518,9 @@ var Debug = new function() {
 		{
 			for(let x = 0; x < 32; x++)
 			{
-				let tileNumber = c.read8(mapBase++);
-				// adjust tile number for stinky signed tiles
-				if(TILE_BASE == 0x9000 && tileNumber > 127)
-                    tileNumber -= 256;
+				let tileNum = c.read8(mapBase++);
 
-				c.renderer.drawTile(x << 3, y << 3, tileNumber * 16 + TILE_BASE, 0, c, false, screen, 256);
+				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, c, false, screen, 256);
 			}
 		}
 		 
@@ -481,6 +541,7 @@ var Debug = new function() {
             context.rect(0, y, xOverflow & 255, 144);
         context.stroke();
 
+		// show Map/tile/window addresses
         const labels = ["Map address", "    Window Address", "Tile address"];
         const values = [hex(c.ppu.mapBase, 4), `${hex(c.ppu.winBase, 4)}<br>`, hex(c.ppu.tileBase, 4)];
         a.innerHTML = "";
@@ -535,19 +596,7 @@ var Debug = new function() {
 		hideElement(DebugDiv);
         this.hideBreak();
 		resumeEmulation();
-	}
-
-	/**
-	 * Converts a number to a formatted hex string
-	 * @param {Number} num Number to convert
-	 * @param {Boolean} usePrefix Use a '$' or not
-	 * @param {Number} digits Min number of digits to display
-	 * @returns {Number}
-	 */
-	this.hex = function(num, usePrefix = true, digits = 2) {
-		return hex(num, digits, usePrefix ? "$" : "");
-	}
-	
+	}	
 
 	const useBrackets = true; // add option to change
     
@@ -605,7 +654,7 @@ var Debug = new function() {
 			switch(id)
 			{
 				case "u8":
-					append = this.hex(c.read8(curPC));
+					append = hex(c.read8(curPC), 2);
 					this.increasePC(1);
 					break;
 				case "s8":
@@ -755,7 +804,7 @@ var Debug = new function() {
 			if(names[i] == '\n')
 				str += '<tr><td><hr style="width:200%;" /></td></tr>';
 			else
-				str += `<tr><td>${names[i]}:</td> <td style='float:right;'>${this.hex(regs[j][0], true, regs[j++][1])}</td></tr>`;
+				str += `<tr><td>${names[i]}:</td> <td style='float:right;'>${hex(regs[j][0], regs[j++][1])}</td></tr>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
@@ -978,7 +1027,7 @@ var Debug = new function() {
 	this.rmBreak = function() {
 		let addr = this.getAddr();
 		if(!addr) {
-			showMessage("Could not find breakpoint at " + this.hex(addr, true), "Not a Valid Breakpoint");
+			showMessage("Could not find breakpoint at " + hex(addr, 4), "Not a Valid Breakpoint");
 			return;
 		}
 		if(!this.removeBreakpoint(addr))

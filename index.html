@@ -98,6 +98,14 @@
                 font-size: medium;
                 color: var(--text-color);
             }
+            
+            ::-webkit-scrollbar {
+                background-color: #111;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background-color: #333;
+            }
 
             #touchControls {
                 position: fixed;
@@ -119,6 +127,7 @@
                 background-color: var(--screen-border-color);
                 width: clamp(160px, 100%, 98vmin);
 
+                margin: 5px;
                 border-radius: 10px;
                 box-shadow: 0px 8px 16px 10px var(--screen-shadow);
                 border-style: solid;
@@ -206,12 +215,6 @@
                 opacity: 0;
                 transition: opacity 0.5s;
             }
-
-            input[type="text"], input[type="number"] {
-                min-height: 30px;
-                min-width: 60px;
-                width: 100%;
-            }
             
             fieldset {
                 margin-bottom: 5px;
@@ -224,7 +227,7 @@
                 border-radius: 3px;
             }
             
-            input[type="text"] {
+            input[type="text"], input[type="number"] {
                 min-height: 30px;
                 min-width: 60px;
                 width: 100%;
@@ -247,8 +250,7 @@
                 color: var(--text-color);
                 display: block;
                 padding: 5px;
-                margin: none;
-                margin-bottom: 1px;
+                margin: 0px 0px 1px 0px;
                 width: 250px;
                 border-width: 1px;
                 border-radius: 4px;
@@ -468,11 +470,38 @@
                 display: none;
                 font-family: monospace;
                 border: 3px solid #777777;
+                margin: 0px;
             }
 
             .debug-title-btn {
                 width: auto;
                 padding: 10px 3px 10px 3px;
+            }
+
+            .debug-text {
+                font-family: monospace;
+                padding-left: 5px;
+                width:100%;
+                max-height: 450px;
+                margin: 0px;
+                scrollbar-color:#333333;
+            }
+
+            .obj-canvas {
+                width: 100%;
+			    padding: 0px;
+
+            }
+
+            .obj-canvas:hover {
+                filter: brightness(0.8);
+            }
+
+            #DebugSprites {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                grid-template-rows: repeat(5, 1fr);
+                gap: 1px;
             }
 
         </style>
@@ -563,33 +592,39 @@
                 <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
                 <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
                 <div id="MapDiv" style="grid-column: 1 / 7;">
-                    <p style="width: 100%; font-family: monospace;"></p>
-                    <fieldset>
-                        <legend>Display Mode:</legend>
-                        <input type="radio" name="displayMode" value="map" checked/>
-                        <label for="map">Map</label>
-                        <input type="radio" name="displayMode" value="window"/>
-                        <label for="window">Window</label>
-                    </fieldset>
-                    <canvas width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
+                    <div id="MapInfo">
+                        <fieldset>
+                            <legend>Display Mode:</legend>
+                            <input type="radio" name="displayMode" value="map" checked/>
+                            <label for="map">Map</label>
+                            <input type="radio" name="displayMode" value="window"/>
+                            <label for="window">Window</label>
+                        </fieldset>
+                        <p class="debug-text"></p>
+                    </div>
+                    <div style="width: 100%; display: grid; grid-template-columns: 3fr 1fr; max-height: fit-content;">
+                        <a id="TileInfo" class="debug-text"></a>
+                        <canvas id="TilePreview" width="8" height="8" style="display: inline; width: 100%; aspect-ratio: 1 / 1;"></canvas>
+                    </div>
+                    <canvas id="MapCanvas" width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
                 </div>
                 <div id="SpriteDetailDiv" style="font-family: monospace; grid-column: 1 / 7;">
                     <b>Sprite 0</b>
                     <br>
-                    <div id="DebugSprites" style="display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(5, 1fr);"></div>
-                    <p style="padding-right: 3px; padding-left: 3px;"></p>
+                    <div id="DebugSprites"></div>
+                    <p class="debug-text"></p>
                 </div>
-                <div id="MemoryDiv" style="grid-column: 1 / 7;">
-                    <p style="font-family: monospace; padding-left: 5px; width:100%; max-height: 450px; overflow-y: auto;"></p>
+                <div id="MemoryDiv" style="grid-column: 1 / 7; padding-right: 5px;">
+                    <p class="debug-text" style="overflow-y: auto; line-height: 150%;"></p>
                 </div>
                 <div id="DisassemblyDiv" style="grid-column: 1 / 7;">
-                    <div style="width:100%; display: grid; grid-template-columns: 75% 25%;">
+                    <div style="width:100%; display: grid; grid-template-columns: 3fr 1fr;">
                         <div style="margin-right: 5px;">
                             <b>Disassembler</b><br>
-                            <p style="font-family: monospace; width:100%; line-height: 150%;"></p>
-                            <p id="DebugLog"><br></p>
+                            <p class="debug-text" style="overflow-y: auto; line-height: 150%; padding-bottom: 5px;"></p>
+                            <p id="DebugLog" style="display:none;"><br></p>
                             <input type="checkbox" name="debugLogEnable" id="debugLogEnable"><label for="debugLogEnable">Enable Debug log</label>
-                            <button type="button" onclick="Debug.clearLog();">clear</button>
+                            <button type="button" class="menubtn" style="width:fit-content; display: inline-block;" onclick="Debug.clearLog();">clear</button>
                         </div>
                         <!-- Register DIV -->
                         <div style="border: 3px solid #777777;">
