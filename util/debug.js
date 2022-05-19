@@ -233,7 +233,7 @@ const opcodeLUT = [
 	"ret nc",
 	"pop de",
 	"jp nc, ${u16}",
-	'<b style="color:gray;">Not defined</b>',
+	null,
 	"call nc, ${u16}",
 	"push de",
 	"sub a, ${u8}",
@@ -242,17 +242,17 @@ const opcodeLUT = [
 	"ret c",
 	"reti",
 	"jp c, ${u16}",
-	'<b style="color:gray;">Not defined</b>',
+	null,
 	"call c, ${u16}",
-	'<b style="color:gray;">Not defined</b>',
+	null,
 	"sbc a, ${u8}",
 	"rst 0x18",
 	
 	"ldh ($FF00+${u8}), a",
 	"pop hl",
 	"ld ($FF00+c), a",
-	'<b style="color:gray;">Not defined</b>',
-	'<b style="color:gray;">Not defined</b>',
+	null,
+	null,
 	"push hl",
 	"and a, ${u8}",
 	"rst 0x20",
@@ -260,9 +260,9 @@ const opcodeLUT = [
 	"add sp, {$i8}",
 	"jp hl",
 	"ld (${u16}), a",
-	'<b style="color:gray;">Not defined</b>',
-	'<b style="color:gray;">Not defined</b>',
-	'<b style="color:gray;">Not defined</b>',
+	null,
+	null,
+	null,
 	"xor a, ${u8}",
 	"rst 0x28",
 	
@@ -270,7 +270,7 @@ const opcodeLUT = [
     "pop af",
     "ld a, ($FF00+c)",
 	"di",
-	'<b style="color:gray;">Not defined</b>',
+	null,
 	"push af",
 	"or a, ${u8}",
 	"rst 0x30",
@@ -279,8 +279,8 @@ const opcodeLUT = [
     "ld sp, hl",
     "ld a, (${u16})",
     "ei",
-    '<b style="color:gray;">Not defined</b>',
-    '<b style="color:gray;">Not defined</b>',
+    null,
+    null,
     "cp a, ${u8}",
     "rst 0x38",
 ];
@@ -602,6 +602,10 @@ var Debug = new function() {
     
     this.getInsLength = function(op) {
         const s = opcodeLUT[op];
+
+		if(s == null)
+			return 1;
+
         const special = s.indexOf("${");
         let id = s.substring(special+2, s.indexOf("}"));
         
@@ -614,7 +618,7 @@ var Debug = new function() {
     }
 
 	this.getOpString = function(op) {
-        let s = opcodeLUT[op];
+        let s = opcodeLUT[op] ? opcodeLUT[op] : '<b style="color:gray;">Illegal Opcode</b>';
         
         if(op == 0xCB) {
             op = c.read8(curPC);
@@ -688,10 +692,8 @@ var Debug = new function() {
 		let op = c.read8(pc);
 		this.increasePC(1);
 
-		if(opcodeLUT[op])
-			return hex(op, 2) + " : " + this.getOpString(op);
-		else
-			return hex(op, 2);
+		return hex(op, 2) + " : " + this.getOpString(op);
+
 	}
 
 	this.breakpoints = [];
@@ -811,7 +813,7 @@ var Debug = new function() {
 	}
     
     this.showMemory = function() {
-        const a = MemDiv.getElementsByTagName("p")[0];
+        const a = MemDiv.getElementsByTagName("pre")[0];
         let s = "";
 		const mem_types = [
 			"ROM0 ", // 0x0000
@@ -936,8 +938,7 @@ var Debug = new function() {
         
         for(let i = 0; i < 8; i++) {
 			const byte = c.read8(pc + i);
-            s += " " + hex(byte, 2, '');
-			//chr += String.fromCharCode(byte);
+            s += "  " + hex(byte, 2, '');
         }
         
         return s;

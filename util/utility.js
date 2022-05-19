@@ -412,7 +412,7 @@ var FrontEndKeyBinding = new function() {
                  so we must ensure that everything lines up in the same order
             */
             const index = bindingsValues.findIndex(txt => txt == strings[i].split(' ')[0]);
-            keywordbuttons[i].innerHTML = strings[i] + "<b> " + keyboardBindings[index] + "</b>";
+            keywordbuttons[i].innerHTML = strings[i] + "<br><b> " + keyboardBindings[index] + "</b>";
         }
         
     }

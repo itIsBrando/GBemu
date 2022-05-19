@@ -73,6 +73,17 @@
                 --menu-btn-color: hotpink;
             }
 
+            .yellow-theme {
+                --screen-shadow: rgba(251, 255, 0, 0.747);
+                --bg-color: rgb(255, 210, 0);
+                --screen-border-color:#333;
+                --dpad-color:#222;
+                --gamepad-btn-color:#222;
+                /* v UI Elements v */
+                --title-btn-color: gold;
+                --menu-btn-color: khaki;
+            }
+
             html, body {
                 padding: 0px;
                 margin: 0px;
@@ -199,6 +210,7 @@
                 z-index: 9;
                 border-radius: 3px;
                 width: minmax(fit-content, 550px);
+                min-width: 350px;
 
             }
 
@@ -323,23 +335,6 @@
                 background-color: darkred;
             }
 
-            /* Virtual Gamepad Buttons */
-            .btn {
-                margin: 10px;
-                background-color:blueviolet;
-                padding: 10px;
-                cursor: pointer;
-                z-index: 5;
-                border: none;
-                display: inline-block;
-                min-width: 40px;
-                min-height: 0px;
-                max-width: 200px;
-                max-height: 250px;
-                touch-action: manipulation;
-                cursor: pointer;
-            }
-
             .btn:active {
                 background-color:indigo;
             }
@@ -461,6 +456,27 @@
                 bottom: calc(env(safe-area-inset-bottom) + 10px);
               }
             }
+
+            #MapCanvas {
+                aspect-ratio: 1 / 1;
+                width: 100%;
+            }
+
+            @media (max-width: 450px), (max-height: 800px) {
+                #MapCanvas {
+                    width: 512px;
+                    display: block;
+                    aspect-ratio: 1 / 1;
+                    overflow: auto;
+                }
+
+                #MapCanvasDiv {
+                    max-width: 512px;
+                    max-height: 512px;
+                    aspect-ratio: 1 / 1;
+                    overflow: auto;
+                }
+            }
             
             #DebugLog {
                 width: 100%;
@@ -471,6 +487,7 @@
                 font-family: monospace;
                 border: 3px solid #777777;
                 margin: 0px;
+                user-select: text;
             }
 
             .debug-title-btn {
@@ -485,6 +502,7 @@
                 max-height: 450px;
                 margin: 0px;
                 scrollbar-color:#333333;
+                user-select: text;
             }
 
             .obj-canvas {
@@ -560,7 +578,7 @@
 
             <!-- Save Manager menu -->
             <div class="dropdown" style="float: left;">
-                <button type="button" id="saveMenuToggle" class="titlebtn"><b><code>Save Manager</code></b></button>
+                <button type="button" id="saveMenuToggle" class="titlebtn"><b><code>Saves</code></b></button>
 
                 <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
@@ -604,9 +622,11 @@
                     </div>
                     <div style="width: 100%; display: grid; grid-template-columns: 3fr 1fr; max-height: fit-content;">
                         <a id="TileInfo" class="debug-text"></a>
-                        <canvas id="TilePreview" width="8" height="8" style="display: inline; width: 100%; aspect-ratio: 1 / 1;"></canvas>
+                        <canvas id="TilePreview" width="8" height="8" style="display: inline; width: 100%; max-width: 128px; aspect-ratio: 1 / 1;"></canvas>
                     </div>
-                    <canvas id="MapCanvas" width="256" height="256" style="width:100%; aspect-ratio: 1 / 1;"></canvas>
+                    <div id="MapCanvasDiv">
+                        <canvas id="MapCanvas" width="256" height="256"></canvas>
+                    </div>
                 </div>
                 <div id="SpriteDetailDiv" style="font-family: monospace; grid-column: 1 / 7;">
                     <b>Sprite 0</b>
@@ -615,7 +635,7 @@
                     <p class="debug-text"></p>
                 </div>
                 <div id="MemoryDiv" style="grid-column: 1 / 7; padding-right: 5px;">
-                    <p class="debug-text" style="overflow-y: auto; line-height: 150%;"></p>
+                    <pre class="debug-text" style="overflow-y: auto; line-height: 175%;"></pre>
                 </div>
                 <div id="DisassemblyDiv" style="grid-column: 1 / 7;">
                     <div style="width:100%; display: grid; grid-template-columns: 3fr 1fr;">
@@ -680,9 +700,9 @@
 
             <!-- pop up menu for changing keyboard controls -->
             <div class="popup" style="width: fit-content;" id="keyBindingDiv">
-                <b style="border-bottom: 3px solid aliceblue;">Set Keyboard Bindings</b>
+                <b>Set Keyboard Bindings</b>
                 <button class="x-btn" onclick="FrontEndKeyBinding.hide();">&times;</button>
-                <br>
+                <div style="border-bottom: 2px solid aliceblue;"></div>
 
                 <button type="button" onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
                 <button type="button" onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>

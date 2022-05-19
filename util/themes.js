@@ -8,6 +8,7 @@ var Themes = new function() {
         "dark-theme",
         "light-theme",
         "purple-theme",
+        "yellow-theme",
     ];
 
     this.next = function() {
