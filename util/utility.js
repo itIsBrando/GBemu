@@ -357,7 +357,6 @@ var FrontEndPalette = new function() {
 
 
 var FrontEndKeyBinding = new function() {
-    const changeKeybinding = document.getElementById('changeKeybinding');
     const keyBindingDiv = document.getElementById('keyBindingDiv');
     
     // used by our keyboard event
@@ -371,6 +370,7 @@ var FrontEndKeyBinding = new function() {
         "arrowright" : "RIGHT",
         "arrowup" : "UP",
         "arrowdown" : "DOWN",
+        "=" : "RESET",
         "d" : "FAST",
         "f" : "FULLSCREEN"
     };
@@ -380,7 +380,7 @@ var FrontEndKeyBinding = new function() {
     // shows the keybinding menu
     this.show = function() {
         FrontEndMenu.showOverlay();
-        keyBindingDiv.style.display = 'block';
+        showElement(keyBindingDiv);
         keyBindingDiv.focus();
 
         this.fillButtonText();
@@ -398,6 +398,7 @@ var FrontEndKeyBinding = new function() {
             "DOWN",
             "LEFT",
             "RIGHT",
+            "RESET",
             "FAST FORWARD",
             "FULLSCREEN"
         ];
@@ -420,7 +421,7 @@ var FrontEndKeyBinding = new function() {
     this.hide = function() {
         FrontEndMenu.hideOverlay();
         this.isAssigning = false;
-        keyBindingDiv.style.display = 'none';
+        hideElement(keyBindingDiv);
     }
 
     // buttonName is the string representation of the gameboy button that should be changed. Ex: `A`, `SELECT`, `LEFT`

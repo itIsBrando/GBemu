@@ -296,6 +296,8 @@ var Debug = new function() {
 	const MapInfo = document.getElementById('MapInfo');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
     const radioButtons = document.getElementsByName("displayMode");
+	const MapCanvas = document.getElementById('MapCanvas');
+
     this.DebugLog = document.getElementById('DebugLog');
 	let curObj = 0;
 	let curPC = 0;
@@ -350,7 +352,22 @@ var Debug = new function() {
 			
 			e.target.value = e.target.value.replace(/(?![A-Fa-f0-9])\w+/g,'');
 		}
+
+		// map canvas
+
+		MapCanvas.addEventListener("click", function(e) {
+			const rect = this.getBoundingClientRect();
+			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
+			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
+			
+			if(this.name == "map")
+				Debug.printTileInfo(radioButtons[0].checked ? c.ppu.mapBase : c.ppu.winBase, x, y);
+			else
+				Debug.printTileInfo(null, x, y);
+		});
+
         
+		// each sprite needs its own canvas
         const spriteDiv = document.getElementById("DebugSprites");
         
         for(let i = 0; i < 40; i++) {
@@ -379,32 +396,13 @@ var Debug = new function() {
 
 
 	this.showTiles = function() {
-		const can = document.getElementById('MapCanvas');
 		this.hideOpen();
 		showElement(MapDiv);
 		hideElement(MapInfo);
 
-		can.name = "tile";
+		MapCanvas.name = "tile";
 
-        const context = can.getContext('2d');
-        context.fillStyle = "#e0e0e0";
-        context.fillRect(0, 0, 256, 256);
-		context.globalAlpha = 1.0
-        let screen = context.getImageData(0, 0, 256, 256);
-
-		let t = 0, vbk = false;
-		// all of these are incorrectly drawn with OBJ palette rather than BG palette
-		for(let y = 0; y < 32; y++) {
-			for(let x = 0; x < 32; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256, vbk);
-				if(t >= 768) {
-					t = 0;
-					vbk = true;
-				}
-			}
-		}
-		
-		context.putImageData(screen, 0, 0);
+		this._tiledraw();
 	}
 
 
@@ -451,95 +449,113 @@ var Debug = new function() {
 
 		ctx.putImageData(img, 0, 0);
 	}
+
+	let lx = -1, ly = -1, img_data = null;
 	
-	this.printMapTileInfo = function(mapBase, tx, ty) {
+	this.printTileInfo = function(mapBase = null, tx, ty) {
 		const TileInfo = document.getElementById("TileInfo");
 		let s = "<br>";
 
 		tx &= 31, ty &= 31;
 
-		const offset = tx + ty * 32 + mapBase;
-		const tile = c.read8(offset);
+		const offset = tx + ty * 32;
+		const tile = mapBase ? c.read8(offset + mapBase) : offset;
 
 		s += `Tile: ${hex(tile, 2, "$")}<br>Tile Address: ${hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
         
 		TileInfo.innerHTML = s;
 		this.showTilePreview(tile);
+
+		const ctx = MapCanvas.getContext("2d");
+		tx <<= 3, ty <<= 3;
+		ty += 0.5;
+
+		if(mapBase != null)
+			this._mapdraw();
+		else
+			this._tiledraw();
+
+		ctx.beginPath();
+		ctx.lineWidth = 1;
+		ctx.lineCap = 'square';
+		ctx.strokeStyle = 'blue';
+		ctx.rect(tx, ty, 7.5, 7);
+		ctx.stroke();
 	}
 
-	this.printTileInfo = function(tx, ty) {
-		const TileInfo = document.getElementById("TileInfo");
-		let s = "<br>";
 
-		tx &= 31, ty &= 31;
-
-		const tile = tx + ty * 32;
-
-		s += `Tile: ${hex(tile, 2, "$")}<br>Tile Address: ${hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
-        
-		TileInfo.innerHTML = s;
-		this.showTilePreview(tile);
-	}
-
-
-	this.showMap = function() {
-        const isMap = radioButtons[0].checked;
-		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
-        let a = MapDiv.getElementsByTagName('p')[0];
-        const can = document.getElementById('MapCanvas');
-		this.hideOpen();
-		showElement(MapDiv);
-		showElement(MapInfo);
-
-		can.name = "map";
-
-		can.addEventListener("click", function(e) {
-			const rect = this.getBoundingClientRect();
-			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
-			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
-			
-			if(this.name == "map")
-				Debug.printMapTileInfo(isMap ? c.ppu.mapBase : c.ppu.winBase, x, y);
-			else
-				Debug.printTileInfo(x, y);
-		});
-
-		can.click();
-
-        const context = can.getContext('2d');
+	this._tiledraw = function() {
+		const context = MapCanvas.getContext('2d');
         context.fillStyle = "#e0e0e0";
-        context.fillRect(0, 0, can.width, can.height);
-		context.globalAlpha = 1.0;
-        
+        context.fillRect(0, 0, 256, 256);
         let screen = context.getImageData(0, 0, 256, 256);
-		const TILE_BASE = c.ppu.tileBase;
+
+		let t = 0, vbk = false;
+		// all of these are incorrectly drawn with OBJ palette rather than BG palette
+		for(let y = 0; y < 32; y++) {
+			for(let x = 0; x < 32; x++) {
+				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256, vbk);
+				if(t >= 768) {
+					t = 0;
+					vbk = true;
+				}
+			}
+		}
+		
+		context.putImageData(screen, 0, 0);
+	}
+
+	this._mapdraw = function() {
+		const isMap = radioButtons[0].checked;
+		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
+        
+        const context = MapCanvas.getContext('2d');
+        context.fillStyle = "#e0e0e0";
+        context.fillRect(0, 0, MapCanvas.width, MapCanvas.height);
+        
+		let screen = context.getImageData(0, 0, 256, 256);
 
 		for(let y = 0; y < 32; y++)
 		{
 			for(let x = 0; x < 32; x++)
 			{
-				let tileNum = c.read8(mapBase++);
+				const tileNum = c.read8(mapBase++);
 
 				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, c, false, screen, 256);
 			}
 		}
 		 
 		context.putImageData(screen, 0, 0);
-        
-        // draw a rectangle showing viewport
-        const x = isMap ? c.ppu.regs.scx : 0;
-        const y = isMap ? c.ppu.regs.scy : 0;
-        const yOverflow = y + 144, xOverflow = x + 160;
-        
+		
+		// draw a rectangle showing viewport
+		const x = isMap ? c.ppu.regs.scx: 0;
+		const y = isMap ? c.ppu.regs.scy + 0.5 : 0;
+		const yOverflow = y + 144, xOverflow = x + 160;
+
         context.beginPath();
-        context.fillStyle = "#111111";
-        context.rect(x, y, 160, 144);
-        
-        if(yOverflow > 255)
-            context.rect(x, 0, 160, yOverflow & 255);
-        if(xOverflow > 255)
-            context.rect(0, y, xOverflow & 255, 144);
-        context.stroke();
+		context.lineCap = 'square';
+        context.strokeStyle = "#111111";
+        context.rect(x, y, 160.5, 144);
+
+		if(yOverflow > 255)
+			context.rect(x, 0, 160, yOverflow & 255);
+		if(xOverflow > 255)
+			context.rect(0, y, xOverflow & 255, 144);
+		context.stroke();
+	}
+
+
+	this.showMap = function() {
+        let a = MapDiv.getElementsByTagName('p')[0];
+		this.hideOpen();
+		showElement(MapDiv);
+		showElement(MapInfo);
+
+		MapCanvas.name = "map";
+
+		MapCanvas.click();
+
+		this._mapdraw();
 
 		// show Map/tile/window addresses
         const labels = ["Map address", "    Window Address", "Tile address"];

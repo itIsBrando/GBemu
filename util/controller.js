@@ -30,21 +30,17 @@ function keydown(event) {
         return;
     }
 
+    const binding = FrontEndKeyBinding.bindings[key];
+    if(binding) {
+        if(binding == "RESET")
+            restartEmulation();
+        else if(binding == "FAST")
+            c.speed = c.FastForwardSpeed;
+        else if(binding == "FULLSCREEN")
+            requestFullscreen();
+        else
+            gamepadButtons[binding] = true;
 
-    switch(key) {
-        case "=": restartEmulation(); break;
-        default:
-            const binding = FrontEndKeyBinding.bindings[key];
-            if(binding)
-            {
-                if(binding == "FAST")
-                    c.speed = c.FastForwardSpeed;
-                if(binding == "FULLSCREEN")
-                    requestFullscreen();
-                else
-                    gamepadButtons[binding] = true;
-
-            }
     }
 }
 
