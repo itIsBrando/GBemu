@@ -23,7 +23,7 @@
                 --gamepad-btn-color: orangered;
                 
                 /* v UI Elements v */
-                --title-btn-color: crimson;
+                --title-btn-color: var(--bg-color);
                 --menu-btn-color: coral;
                 --text-color: black;
             }
@@ -51,11 +51,11 @@
             }
             
             .light-theme {
-                --bg-color: aliceblue;
+                --bg-color: oldlace;
                 --screen-shadow: rgba(126, 126, 126, 0.69);
                 --screen-border-color: lightgray;
-                --dpad-color: darkgray;
-                --gamepad-btn-color: darkgray;
+                --dpad-color: lightslategray;
+                --gamepad-btn-color: lightsteelblue;
                 /* v UI Elements v */
                 --title-btn-color: #333333;
                 --menu-btn-color: lightslategray;
@@ -76,12 +76,23 @@
             .yellow-theme {
                 --screen-shadow: rgba(251, 255, 0, 0.747);
                 --bg-color: rgb(255, 210, 0);
-                --screen-border-color:#333;
-                --dpad-color:#222;
-                --gamepad-btn-color:#222;
+                --screen-border-color:#343434;
+                --dpad-color:#333;
+                --gamepad-btn-color:#444;
                 /* v UI Elements v */
                 --title-btn-color: gold;
                 --menu-btn-color: khaki;
+            }
+
+            .green-theme {
+                --screen-shadow: rgba(0, 255, 26, 0.747);
+                --bg-color: greenyellow;
+                --screen-border-color:#333;
+                --dpad-color: green;
+                --gamepad-btn-color:mediumseagreen;
+                /* v UI Elements v */
+                --title-btn-color: var(--screen-shadow);
+                --menu-btn-color: darkgreen;
             }
 
             html, body {
@@ -143,9 +154,7 @@
                 box-shadow: 0px 8px 16px 10px var(--screen-shadow);
                 border-style: solid;
                 border-color: var(--screen-border-color);
-                border-bottom-width: 20px;
-                border-right-width: 35px;
-                border-top-width: 25px;
+                border-width: 25px 35px 20px 0px;
                 border-bottom-right-radius: 25px;
             }
             
@@ -378,30 +387,39 @@
                 fill:inherit;
             }
 
+            #dpadButtons {
+                position: absolute;
+                width: 180px;
+                height: 180px;
+                left: calc(15px + env(safe-area-inset-left));
+                bottom: calc(env(safe-area-inset-bottom));
+            }
+
             #UP {
                 position: absolute;
-                left: calc(70px + env(safe-area-inset-left));
-                bottom: 90px;
+                left: 55px;
+                bottom: 105px;
                 fill: var(--dpad-color);
             }
+
             #LEFT {
                 position: absolute;
-                left: calc(20px + env(safe-area-inset-left));
-                bottom: 50px;
+                left: 0px;
+                bottom: 60px;
                 fill: var(--dpad-color);
             }
 
             #RIGHT {
                 position: absolute;
-                left: calc(120px + env(safe-area-inset-left));
-                bottom: 50px;
+                left: 110px;
+                bottom: 60px;
                 fill: var(--dpad-color);
             }
 
             #DOWN {
                 position: absolute;
-                left: calc(70px + env(safe-area-inset-left));
-                bottom: 10px;
+                left: 55px;
+                bottom: 15px;
                 fill: var(--dpad-color);
             }
 
@@ -527,8 +545,8 @@
             <!-- test button -->
             <svg id="sampleSVG" style="display: none;">
                 <g>
-                    <rect class="gamepad-button-bottom" x="5" y="5" rx="5" ry="5" width="40" height="40"/>
-                    <rect class="gamepad-button-top" x="0" y="0" rx="5" ry="5" width="40" height="40"/>
+                    <rect class="gamepad-button-bottom" x="5" y="5" rx="5" ry="5" width="45" height="45"/>
+                    <rect class="gamepad-button-top" x="0" y="0" rx="5" ry="5" width="45" height="45"/>
                 </g>
             </svg>
             <svg id="smallSampleSVG" style="display: none;">
@@ -684,7 +702,7 @@
 
             <!-- Virtual Controller -->
             <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;" class="no-selection">
-                <div id="dpadButtons" style="width: 150px; height: 150px;">
+                <div id="dpadButtons">
                     <svg class="gamepad-button" width="50" height="50" name="UP" id="controllerUp"></svg>
                     <svg class="gamepad-button" width="50" height="50" name="DOWN" id="controllerDown"></svg>
                     <svg class="gamepad-button" width="50" height="50" name="LEFT" id="controllerLeft"></svg>
