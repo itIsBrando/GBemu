@@ -600,7 +600,7 @@ var Debug = new function() {
 
 	const useBrackets = true; // add option to change
     
-    this.getInsLength = function(op) {
+    this.getOpLength = function(op) {
         const s = opcodeLUT[op];
 
 		if(s == null)
@@ -664,7 +664,7 @@ var Debug = new function() {
 				case "s8":
 					const addr = c.read8(curPC);
 					this.increasePC(1);
-					append = hex(addr > 127 ? curPC - addr: curPC + addr, 4);
+					append = hex(addr > 127 ? curPC - ((~addr&255) + 1): curPC + addr, 4);
 					break;
 				case "u16":
 					append = hex(c.read16(curPC), 4);
@@ -689,10 +689,23 @@ var Debug = new function() {
 
 
 	this.parseOp = function(pc) {
-		let op = c.read8(pc);
+		const op = c.read8(pc);
+		const opLen = this.getOpLength(op);
 		this.increasePC(1);
+		let s = hex(op, 2, "");
 
-		return hex(op, 2) + " : " + this.getOpString(op);
+		if(opLen == 2)
+			s += `${hex(c.read8(curPC), 2, "")}     `;
+		else if(opLen == 3)
+			s += `${hex(c.read8(curPC), 2, "")}${hex(c.read8(curPC + 1), 2, "")}   `;
+		else
+			s += "       ";
+
+		s += this.getOpString(op);
+
+
+
+		return s;
 
 	}
 
@@ -777,6 +790,8 @@ var Debug = new function() {
 			[c.ppu.regs.obj1, 2],
 			[c.ppu.regs.wy, 2],
 			[c.ppu.regs.wx, 2],
+			[c.interrupt_enable, 2],
+			[c.interrupt_master ? 1 : 0, 2],
 
 		];
 		const names = [
@@ -798,15 +813,18 @@ var Debug = new function() {
 			"OBJ1",
 			"WY",
 			"WX",
+			"\n",
+			"IE",
+			"IME",
 		];
 		let str = "", j = 0;
 
 		for(let i in names)
 		{
 			if(names[i] == '\n')
-				str += '<tr><td><hr style="width:200%;" /></td></tr>';
+				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 10px 5px 10px 5px;"></div>';
 			else
-				str += `<tr><td>${names[i]}:</td> <td style='float:right;'>${hex(regs[j][0], regs[j++][1])}</td></tr>`;
+				str += `${(names[i] + ":").padEnd(6)} ${hex(regs[j][0], regs[j++][1])}<br>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
@@ -865,7 +883,7 @@ var Debug = new function() {
 		let ins = 0;
 
 		while(low < high) {
-			low += this.getInsLength(c.read8(low));
+			low += this.getOpLength(c.read8(low));
 			if(++ins >= range)
 				return true;
 
@@ -886,7 +904,7 @@ var Debug = new function() {
 				- this will always be >= c.pc.v
 			c.pc.v -> actual instruction being executed.
 		*/
-		const a = DisassemblyDiv.getElementsByTagName("p")[0];
+		const a = DisassemblyDiv.getElementsByTagName("pre")[0];
 		const NUM_INSTR = 18;
         
 		this.hideOpen();
@@ -900,8 +918,6 @@ var Debug = new function() {
 			curPC -= curScroll;
 		}
 
-		//console.log(`prevAddr:${hex(prevAddr,4)}	curScroll:${curScroll}	curPC:${hex(curPC,4)}	PC:${hex(pc,4)}`)
-
 		if(pc < curPC)
 			curPC = pc;
             
@@ -912,25 +928,25 @@ var Debug = new function() {
 		for(let i = 0; i < NUM_INSTR; i++)
 		{
 			const isCurPC = c.pc.v == curPC;
-			let str = "";
-			if(isCurPC) {
-				str = "<b width: 100%; style='background-color:lime; color: gray;'>";
-			}
+			const isBreak = this.isBreakpoint(curPC);
+			let str = isCurPC ? "<b width: 100%; style='background-color:lime; color: gray;'>" : "";
 
-			if(this.isBreakpoint(curPC))
-				str += "<b style='color:red;' title='breakpoint'>**</b>";
+			str += isBreak ? "<b style='color:red;' title='breakpoint'>*" : " ";
 
-			str += hex(curPC, 4) + " : "
-				 + this.parseOp(curPC) + "<br>";
+			str += hex(curPC, 4, "") + " : "
+				 + this.parseOp(curPC);
 
 			if(isCurPC)
 				str += "</b>";
+			if(isBreak)
+				str += "</b>";
 
 
-			a.innerHTML += str;
+			a.innerHTML += str + "<br>";
 
-			this.showRegister();
 		}
+
+		this.showRegister();
 	}
     
     this.dumpMemory = function(pc) {
@@ -957,7 +973,7 @@ var Debug = new function() {
         const condBranches = [0x20, 0x30, 0x28, 0x38, 0xC2, 0xD2, 0xCA, 0xDA];
         
         const op = c.read8(c.pc.v);
-        let addr = c.pc.v + this.getInsLength(op);
+        let addr = c.pc.v + this.getOpLength(op);
         let cnt = 0; // max iterations
         
         // if we are a branch or return, then we do not want to go to next line

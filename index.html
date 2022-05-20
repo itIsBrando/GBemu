@@ -178,6 +178,7 @@
             }
 
             /* Disable right click/highlighting */
+            /* Is this repetitive?? It is already present in html/body @TODO */
             .no-selection {
                 -webkit-user-select: none;
                 -moz-user-select: none;
@@ -521,6 +522,10 @@
                 margin: 0px;
                 scrollbar-color:#333333;
                 user-select: text;
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                -webkit-touch-callout: text;
             }
 
             .obj-canvas {
@@ -659,7 +664,7 @@
                     <div style="width:100%; display: grid; grid-template-columns: 3fr 1fr;">
                         <div style="margin-right: 5px;">
                             <b>Disassembler</b><br>
-                            <p class="debug-text" style="overflow-y: auto; line-height: 150%; padding-bottom: 5px;"></p>
+                            <pre class="debug-text" style="overflow-y: auto; line-height: 150%; padding-bottom: 5px; overflow-x: auto;"></pre>
                             <p id="DebugLog" style="display:none;"><br></p>
                             <input type="checkbox" name="debugLogEnable" id="debugLogEnable"><label for="debugLogEnable">Enable Debug log</label>
                             <button type="button" class="menubtn" style="width:fit-content; display: inline-block;" onclick="Debug.clearLog();">clear</button>
@@ -668,14 +673,14 @@
                         <div style="border: 3px solid #777777;">
                             <b>Registers</b>
                             <br>
-                            <table id="DisassemblyRegisters" style="font-family:monospace;"></table>
+                            <pre id="DisassemblyRegisters" class="debug-text"></pre>
                         </div>
                         <!-- A new menu for managing breakpoints -->
                         <div id="DisassemblyBreakpoints" class="popup">
                             <b>Breakpoints</b>
                             <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
                             <p id="DisBreakpointList" style="height: min(300px); overflow-y: auto; padding-left: 10px; font-family: monospace;"></p>
-                            <button onclick="Debug.addBreak();" class="menubtn" type="button">Add Breakpoint</button>
+                            <button onclick="Debug.addBreak();" class="menubtn" style="width:100%;" type="button">Add Breakpoint</button>
                             <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.rmBreak();">remove breakpoint</button>
                             <input maxlength="5" id="DisassemblyGotoInput" type="text"/>
                         </div>
@@ -684,11 +689,10 @@
                         <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepDis();">step</button>
                         <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepDisSkipSub();">run to next line</button>
                         <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepUntilBreak();">run until break</button>
-                        <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.gotoDis();">goto</button>
                         <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.searchByte();">search byte</button>
+                        <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.gotoDis();">goto</button>
+                        <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.showBreak();">breakpoints</button>
                     </div>
-                    <br>
-                    <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.showBreak();">breakpoints</button>
                 </div>
                 <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
                 <div id="PromptMenu" class="popup">
@@ -696,7 +700,7 @@
                     <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
                     <br>
                     <input type="text" name="PromptText" id="PromptText" />
-                    <button type="button" id="PromptSubmit" class="menubtn" onclick="PromptMenu.submit();">Submit</button>
+                    <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;" onclick="PromptMenu.submit();">Submit</button>
                 </div>
             </div>
 
