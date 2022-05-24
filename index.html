@@ -135,12 +135,14 @@
             }
 
             #viewport {
+                /* Why have i positioned this like a piece of dumbo? */
+                /* don't use absolute poistioning D: */
                 display: flex;
                 justify-content: center;
                 position: absolute;
                 left: 2px;
                 right: 2px;
-                top: 20px;
+                top: 30px;
                 z-index: -1;
             }
 
@@ -291,7 +293,7 @@
                 border: none;
                 width: 33vw;
                 border-radius: 5px;
-                padding-top: calc(5px + env(safe-area-inset-top));
+                padding: 5px;
             }
 
             .titlebtn:hover {
@@ -471,10 +473,16 @@
               }
             }
             
-            @media screen and (orientation: portrait) {
+            @media (orientation: portrait) {
               #touchControls {
                 bottom: calc(env(safe-area-inset-bottom) + 10px);
               }
+            }
+
+            @media (max-width: 768px) {
+                body {
+                    padding: env(safe-area-inset-top);
+                }
             }
 
             #MapCanvas {
