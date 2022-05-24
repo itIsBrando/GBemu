@@ -20,9 +20,7 @@ var Themes = new function() {
         {
             if(tags[i].name == "theme-color")
             {
-                console.log(tags[i]);
                 tags[i].setAttribute("content", color.trim());
-                console.log(tags[i], color);
             }
         }
     }

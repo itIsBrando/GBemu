@@ -5,10 +5,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GBemu">
     <link rel="apple-touch-icon" href="icons/icon.jpg">
-    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
     <!-- Disable zooming on iOS -->
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#00fea0">
+    <meta name="theme-color" content="#aaaaaa">
     <!-- Desktop web app -->
     <link rel="manifest" href="/manifest.webmanifest">
 
@@ -24,7 +23,7 @@
                 
                 /* v UI Elements v */
                 --title-btn-color: var(--bg-color);
-                --menu-btn-color: coral;
+                --menu-btn-color: orangered;
                 --text-color: black;
             }
             
@@ -822,7 +821,6 @@
         <script src="javascript/cpu.js"></script>
         <script src="javascript/initalize.js"></script>
         <script src="util/touch.js"></script>
-        <script src="util/data/test.js"></script>
         <script type="text/javascript">
             let inputForm = document.getElementById('inputfile');
 
@@ -854,6 +852,10 @@
             document.getElementById("debugLogEnable").addEventListener('change', function(e) {
                 Debug.useLog(e.target.checked == 1);
             });
+
+            if('serviceworker' in navigator) {
+                navigator.serviceWorker.register('/util/sw.js');
+            }
         </script>
     </body>
 </head>
