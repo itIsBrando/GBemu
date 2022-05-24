@@ -20,7 +20,9 @@ var Themes = new function() {
         {
             if(tags[i].name == "theme-color")
             {
-                tags[i].setAttribute("content", color.substring(0, 8));
+                console.log(tags[i]);
+                tags[i].setAttribute("content", color.trim());
+                console.log(tags[i], color);
             }
         }
     }
@@ -40,7 +42,7 @@ var Themes = new function() {
         document.body.classList.remove(...themes);
         document.body.classList.add(themes[i]);
 
-        this.set_theme_color(getComputedStyle(document.documentElement).getPropertyValue('--bg-color'));
+        this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--bg-color'));
         localStorage.setItem("__core_theme", String(i));
     }
 

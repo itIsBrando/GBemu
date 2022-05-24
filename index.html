@@ -5,7 +5,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GBemu">
     <link rel="apple-touch-icon" href="icons/icon.jpg">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
     <!-- Disable zooming on iOS -->
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#00fea0">
@@ -293,8 +293,8 @@
                 border: none;
                 width: 33vw;
                 border-radius: 5px;
-                padding-top: calc(2px + env(safe-area-inset-top) / 2);
-                padding-bottom: calc(2px + env(safe-area-inset-top) / 2);
+                padding-top: calc(2px + env(safe-area-inset-top));
+                padding-bottom: 2;
             }
 
             .titlebtn:hover {
