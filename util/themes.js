@@ -12,6 +12,20 @@ var Themes = new function() {
         "green-theme",
     ];
 
+
+    this.set_theme_color = function(color) {
+        const tags = document.getElementsByTagName('meta');
+
+        for(let i = 0; i < tags.length; i++)
+        {
+            if(tags[i].name == "theme-color");
+            {
+                tags[i].setAttribute("content", color.substring(0, 8));
+            }
+        }
+    }
+    
+
     this.next = function() {
         this.curTheme++;
         if(this.curTheme > themes.length - 1)
@@ -25,6 +39,8 @@ var Themes = new function() {
         Themes.curTheme = i;
         document.body.classList.remove(...themes);
         document.body.classList.add(themes[i]);
+
+        this.set_theme_color(getComputedStyle(document.documentElement).getPropertyValue('--bg-color'));
         localStorage.setItem("__core_theme", String(i));
     }
 
