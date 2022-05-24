@@ -18,13 +18,13 @@ var Themes = new function() {
 
         for(let i = 0; i < tags.length; i++)
         {
-            if(tags[i].name == "theme-color");
+            if(tags[i].name == "theme-color")
             {
                 tags[i].setAttribute("content", color.substring(0, 8));
             }
         }
     }
-    
+
 
     this.next = function() {
         this.curTheme++;
