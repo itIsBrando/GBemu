@@ -135,12 +135,14 @@
             }
 
             #viewport {
+                /* Why have i positioned this like a piece of dumbo? */
+                /* don't use absolute poistioning D: */
                 display: flex;
                 justify-content: center;
                 position: absolute;
                 left: 2px;
                 right: 2px;
-                top: 20px;
+                top: calc(30px + env(safe-area-inset-top));
                 z-index: -1;
             }
 
@@ -291,7 +293,7 @@
                 border: none;
                 width: 33vw;
                 border-radius: 5px;
-                padding-top: calc(5px + env(safe-area-inset-top));
+                padding: calc(5px + env(safe-area-inset-top)) 5px 5px 5px;
             }
 
             .titlebtn:hover {
@@ -459,7 +461,7 @@
                 bottom: 10px;
               }
             
-            @media screen and (orientation: landscape) {
+            @media (orientation: landscape) {
               #START {
                 left: unset;
                 right: calc(10px + env(safe-area-inset-right));
@@ -471,7 +473,7 @@
               }
             }
             
-            @media screen and (orientation: portrait) {
+            @media (orientation: portrait) {
               #touchControls {
                 bottom: calc(env(safe-area-inset-bottom) + 10px);
               }
