@@ -30,6 +30,7 @@ const localSaveName = document.getElementById('localSaveName');
 const popupMenu = document.getElementById('popup');
 const popupSubmitButton = document.getElementById('submitSaveName');
 const saveEditButton = document.getElementById('saveEditButton');
+const saveButtonDiv = document.getElementById('saveButtonDiv');
 
 
 localSaveName.onkeydown = function(event) {
@@ -67,15 +68,7 @@ function hidePopupMenu() {
     FrontEndMenu.hideOverlay();
 
     // now we must delete buttons from popup menu
-    if(popupSubmitButton.innerText != "Save") {
-        for(let i = 0; i < popupMenu.children.length; i++)
-        {
-            if(popupMenu.children[i].id == "delete") {
-                popupMenu.removeChild(popupMenu.children[i]);
-                i--;
-            }
-        }
-    }
+    saveButtonDiv.innerHTML = "";
 }
 
 
@@ -319,6 +312,7 @@ saveEditButton.addEventListener('click', function() {
  * - Creates a list of buttons that correspond to all localStorage saves
  */
 localLoadButton.addEventListener('click', function() {
+    const saveButtonDiv = document.getElementById('saveButtonDiv');
     localSaveName.placeholder = "LABEL NAME";
 
     // prevent the menu from reappearing if it is already active
@@ -332,44 +326,35 @@ localLoadButton.addEventListener('click', function() {
     hideElement(popupSubmitButton);
     showElement(saveEditButton);
 
-
-    lineBreak.id = "delete";
     lineBreak.style = "margin: 0px; border-width 5px;"
 
-    popupMenu.appendChild(lineBreak);
+    saveButtonDiv.appendChild(lineBreak);
 
     // iterate through each value in `localStorage`
     //  and create a button for each entry
     const keys = Object.keys(localStorage);
     let hasSaves = false;
 
-    for(let i in keys)
-    {
+    for(let i in keys) {
         // some settings should not be shown
         if(keys[i].startsWith("__core_"))
             continue;
         
         const btn = document.createElement("button");
         const obj = JSON.parse(localStorage[keys[i]]);
-        btn.id = "delete";
         btn.className = "menubtn";
         btn.style.width = "100%";
-        btn.innerHTML = "<b>NAME:</b> <code>" + keys[i] + " </code><b>ROM:</b> <code>" + obj.label + "</code>" + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
+        btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
         btn.value = keys[i];
         btn.onclick = pasteLabel;
-        popupMenu.appendChild(btn);
+        saveButtonDiv.appendChild(btn);
 
         hasSaves = true;
     }
 
-    if(!hasSaves)
-    {
-        const l = document.createElement("b");
-        l.id = "delete";
-        l.innerHTML = "<b>NO FILES SAVED</b>"
-        popupMenu.appendChild(l);
-    } else
-    {
+    if(!hasSaves) {
+        saveButtonDiv.innerHTML = "<b>NO FILES SAVED</b>"
+    } else {
         // Add an onclick event for each delete button
         const btns = getDeleteButtons();
 
