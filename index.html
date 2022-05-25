@@ -284,19 +284,19 @@
                 filter: brightness(0.8);
             }
 
-            .titlebtn {
+            .title-btn {
                 background-color: var(--title-btn-color);
                 color: var(--text-color);
                 display: block;
                 margin: 0px 0px 2px 0px;
                 border: none;
                 width: 33vw;
-                border-radius: 5px;
+                border-radius: 2px;
                 padding-top: calc(2px + env(safe-area-inset-top));
                 padding-bottom: 2;
             }
 
-            .titlebtn:hover {
+            .title-btn:hover {
                 filter: brightness(0.6)
             }
 
@@ -484,7 +484,7 @@
                 width: 100%;
             }
 
-            @media (max-width: 450px), (max-height: 800px) {
+            @media (max-width: 450px), (max-height: 768px) {
                 #MapCanvas {
                     width: 512px;
                     display: block;
@@ -531,6 +531,24 @@
                 -webkit-touch-callout: text;
             }
 
+            .debug-breakpoint-radio {
+                display: none;
+            }
+
+            .debug-breakpoint-radio:checked + label {
+                background-color: #222;
+                color:aliceblue;
+            }
+
+            .debug-breakpoint-name {
+                padding: 3px 10px 3px 10px;
+                border-radius: 4px;
+            }
+
+            .debug-breakpoint-name:hover {
+                background-color: gray;
+            }
+
             .obj-canvas {
                 width: 100%;
 			    padding: 0px;
@@ -570,7 +588,7 @@
 
             <!-- file loading menu -->
             <div class="dropdown" style="float: left;">
-                <button type="button" id="fileMenuToggle" class="titlebtn"><b><code>File</code></b></button>
+                <button type="button" id="fileMenuToggle" class="title-btn"><b><code>File</code></b></button>
 
                 <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
                     <!-- ROM loading -->
@@ -588,7 +606,7 @@
 
             <!-- options menu -->
             <div class="dropdown" style="float: left;">
-                <button type="button" id="optionsMenuToggle" class="titlebtn" style="width: 34vw;"><b><code>Options</code></b></button>
+                <button type="button" id="optionsMenuToggle" class="title-btn" style="width: 34vw;"><b><code>Options</code></b></button>
 
                 <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
                     <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch controls</button>
@@ -604,7 +622,7 @@
 
             <!-- Save Manager menu -->
             <div class="dropdown" style="float: left;">
-                <button type="button" id="saveMenuToggle" class="titlebtn"><b><code>Saves</code></b></button>
+                <button type="button" id="saveMenuToggle" class="title-btn"><b><code>Saves</code></b></button>
 
                 <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
@@ -680,12 +698,11 @@
                         </div>
                         <!-- A new menu for managing breakpoints -->
                         <div id="DisassemblyBreakpoints" class="popup">
-                            <b>Breakpoints</b>
+                            <b style="padding-bottom: 5px;">Breakpoints</b>
                             <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
-                            <p id="DisBreakpointList" style="height: min(300px); overflow-y: auto; padding-left: 10px; font-family: monospace;"></p>
+                            <fieldset id="DisBreakpointList" style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;"></fieldset>
                             <button onclick="Debug.addBreak();" class="menubtn" style="width:100%;" type="button">Add Breakpoint</button>
                             <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.rmBreak();">remove breakpoint</button>
-                            <input maxlength="5" id="DisassemblyGotoInput" type="text"/>
                         </div>
                     </div>
                     <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr;">
@@ -833,12 +850,14 @@
                 reader.onloadend = function() {
                   startEmulation(reader.result)
                 }
-
             });
 
             // Save file loading
             document.getElementById("inputSaveFile").addEventListener('change', function() {
                 let reader = new FileReader();
+
+                if(!this.files[0])
+                    return;
 
                 reader.readAsArrayBuffer(this.files[0]);
 
@@ -850,7 +869,7 @@
             });
                 
             document.getElementById("debugLogEnable").addEventListener('change', function(e) {
-                Debug.useLog(e.target.checked == 1);
+                Debug.useLog(e.target.checked);
             });
 
             if('serviceworker' in navigator) {

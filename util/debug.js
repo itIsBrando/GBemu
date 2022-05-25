@@ -287,7 +287,6 @@ const opcodeLUT = [
 
 
 var Debug = new function() {
-	const DisassemblyGotoInput = document.getElementById('DisassemblyGotoInput');
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
@@ -344,17 +343,7 @@ var Debug = new function() {
 
 		this.clearLog();
 		
-		DisassemblyGotoInput.value = "$";
-
-		DisassemblyGotoInput.oninput = function(e) {
-			if(!e.target.value.startsWith("$"))
-				e.target.value = "$" + e.target.value;
-			
-			e.target.value = e.target.value.replace(/(?![A-Fa-f0-9])\w+/g,'');
-		}
-
 		// map canvas
-
 		MapCanvas.addEventListener("click", function(e) {
 			const rect = this.getBoundingClientRect();
 			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
@@ -461,7 +450,7 @@ var Debug = new function() {
 		const offset = tx + ty * 32;
 		const tile = mapBase ? c.read8(offset + mapBase) : offset;
 
-		s += `Tile: ${hex(tile, 2, "$")}<br>Tile Address: ${hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
+		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${Debug.hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
         
 		TileInfo.innerHTML = s;
 		this.showTilePreview(tile);
@@ -584,8 +573,8 @@ var Debug = new function() {
 		a.innerHTML = `\
 		Byte 0 (Y): ${y}<br>\
 		Byte 1 (X): ${x}<br>\
-		Byte 2 (Tile): ${t}<br>\
-		Byte 3 (Flag): ${hex(f, 2, "$")}`;
+		Byte 2 (Tile): ${Debug.hex(t)}<br>\
+		Byte 3 (Flag): ${Debug.hex(f, 2)}`;
 
 		b.innerHTML = "Sprite " + num;
 	}
@@ -674,16 +663,16 @@ var Debug = new function() {
 			switch(id)
 			{
 				case "u8":
-					append = hex(c.read8(curPC), 2);
+					append = Debug.hex(c.read8(curPC));
 					this.increasePC(1);
 					break;
 				case "s8":
 					const addr = c.read8(curPC);
 					this.increasePC(1);
-					append = hex(addr > 127 ? curPC - ((~addr&255) + 1): curPC + addr, 4);
+					append = Debug.hex(addr > 127 ? curPC - ((~addr&255) + 1): curPC + addr, 4);
 					break;
 				case "u16":
-					append = hex(c.read16(curPC), 4);
+					append = Debug.hex(c.read16(curPC), 4);
 					this.increasePC(2);
 					break;
 				default:
@@ -808,8 +797,8 @@ var Debug = new function() {
 			[c.ppu.regs.wx, 2],
 			[c.interrupt_enable, 2],
 			[c.interrupt_master ? 1 : 0, 2],
-
 		];
+
 		const names = [
 			"AF",
 			"BC",
@@ -833,6 +822,7 @@ var Debug = new function() {
 			"IE",
 			"IME",
 		];
+
 		let str = "", j = 0;
 
 		for(let i in names)
@@ -840,7 +830,7 @@ var Debug = new function() {
 			if(names[i] == '\n')
 				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 10px 5px 10px 5px;"></div>';
 			else
-				str += `${(names[i] + ":").padEnd(6)} ${hex(regs[j][0], regs[j++][1])}<br>`;
+				str += `${(names[i] + ":").padEnd(6)} ${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
@@ -912,7 +902,7 @@ var Debug = new function() {
 	 * 
 	 * @param {Number} pc PC base to inspect
 	 */
-	this.showDisassembly = function(pc) {
+	this.showDisassembly = function(pc, highlightPC = false) {
 		/*
 			prevAddr -> address of the last instruction ran. Can be >, <, or = to c.pc.v
 			curScroll-> difference betweeen last instruction and current instruction
@@ -945,7 +935,10 @@ var Debug = new function() {
 		{
 			const isCurPC = c.pc.v == curPC;
 			const isBreak = this.isBreakpoint(curPC);
-			let str = isCurPC ? "<b width: 100%; style='background-color:lime; color: gray;'>" : "";
+			let str = isCurPC ? "<b style='background-color:lime; color: gray;'>" : "";
+
+			if(highlightPC && pc == curPC)
+				str += "<b style='background-color:lightblue; color: black;'>";
 
 			str += isBreak ? "<b style='color:red;' title='breakpoint'>*" : " ";
 
@@ -953,6 +946,8 @@ var Debug = new function() {
 				 + this.parseOp(curPC);
 
 			if(isCurPC)
+				str += "</b>";
+			if(highlightPC && pc == curPC)
 				str += "</b>";
 			if(isBreak)
 				str += "</b>";
@@ -1006,20 +1001,11 @@ var Debug = new function() {
         this.showDisassembly(c.pc.v);
     }
 
-
-	this.getAddr = function() {
-		let s = DisassemblyGotoInput.value.substring(1);
-		if(s.length == 0)
-			return null;
-		else
-			return Number("0x" + s);
-	}
-
 	this.gotoDis = function() {
         const m = PromptMenu.new("Enter Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
             a = Number("0x" + a);
             if(a != null)
-                Debug.showDisassembly(a);
+                Debug.showDisassembly(a, true);
         });
         
         PromptMenu.show(m);
@@ -1027,56 +1013,79 @@ var Debug = new function() {
     
     this.searchByte = function() {
         const m = PromptMenu.new("Search for Data", "00-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
-            a = Number("0x" + a);
-            if(a == null)
+			let high = -1;
+			if(a.length > 2)
+				high = Number("0x" + a) >> 8;
+
+            let low = Number("0x" + a);
+			const useHigh = high > -1;
+			
+            if(low == null || high == null)
                 return;
+
+			low &= 0xFF;
+			if(useHigh)
+				high &= 0xFF;
             
             let p = Debug.basePC; // we will start searching from the currently shown address in the disassembler
-            const low = a & 0xFF, high = (a >> 8) & 0xFF;
             
             while(++p < 0xFFFF) {
                 if(c.read8(p) == low) {
-                    Debug.showDisassembly(p);
-                    return;
+					if(!useHigh || (useHigh && c.read8(p + 1) == high))
+					{
+						Debug.showDisassembly(p, true);
+						return;
+					}
                 }
             }
             
-            showMessage(`Byte $${hex(a, 2)} not found.`, `Started searching at ${hex(Debug.basePC, 4)}`);
+            showMessage(`Byte ${Debug.hex(a)} not found.`, `Started searching at ${Debug.hex(Debug.basePC, 4)} high:${high} low:${low} p:${p}`);
         });
         
         PromptMenu.show(m);
     }
 
-	this.addBreak = function() {
-		let addr = this.getAddr();
-		if(!addr)
-			return;
+	this.hex = function(n, padding = 2) {
+		return hex(n, padding, "$");
+	}
 
-		this.newBreakpoint(addr);
-		this.showDisassembly(c.pc.v);
-        this.drawBreaks();
+	this.addBreak = function() {
+		const m = PromptMenu.new("Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, (addr) => {
+			addr = Number("0x" + addr);
+
+			if(addr == null || Number.isNaN(addr))
+				return;
+
+			this.newBreakpoint(addr);
+			this.drawBreaks();
+		});
+
+		PromptMenu.show(m);
 	}
 
 	this.rmBreak = function() {
-		let addr = this.getAddr();
-		if(!addr) {
-			showMessage("Could not find breakpoint at " + hex(addr, 4), "Not a Valid Breakpoint");
-			return;
-		}
-		if(!this.removeBreakpoint(addr))
-			return;
-		this.showDisassembly(c.pc.v);
-        this.drawBreaks();
+		for(let i = 0; i < DisBreakpointList.children.length; i++) {
+			const child = DisBreakpointList.children[i];
 
+			if(child.checked) {
+				if(!this.removeBreakpoint(Number(child.value)))
+					return;
+
+				this.drawBreaks();
+				return;
+			}
+		}
 	}
     
     this.drawBreaks = function() {
         const breakList = document.getElementById("DisBreakpointList");
         breakList.innerHTML = "";
         
-        for(let i in this.breakpoints)
+        for(let i in this.breakpoints) {
+			let addr = Debug.hex(Number(i), 4);
             if(this.breakpoints[i] != false)
-                breakList.innerHTML += hex(Number(i), 4) + "<br>";
+                breakList.innerHTML += `<input type="radio" id="break${addr}" name="breakpoints" value="${i}" class="debug-breakpoint-radio"><label class="debug-breakpoint-name" for="break${addr}">${addr}</label><br>`;
+		}
     }
     
     this.showBreak = function() {
@@ -1088,6 +1097,7 @@ var Debug = new function() {
     
     this.hideBreak = function() {
         hideElement(document.getElementById("DisassemblyBreakpoints"));
+		this.showDisassembly(c.pc.v);
     }
 
 
@@ -1109,11 +1119,12 @@ var PromptMenu = new function() {
     this._onsubmit = null;
     this._oncancel = null;
     
-    this.new = function(t, p, rejects = '', maxlen = 999999, onsubmit = null, oncancel = null) {
+    this.new = function(t, p, rejects = '', maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '') {
         return {
             "rejects": rejects,
             "title": t,
             "placeholder": p,
+			"value": defaulttext,
             "maxlength": maxlen,
             "onsubmit": onsubmit,
             "oncancel": oncancel,
@@ -1124,8 +1135,18 @@ var PromptMenu = new function() {
         textInput.oninput = function(e) {
             e.target.value = e.target.value.replace(m["rejects"],'').toUpperCase().slice(0, m["maxlength"]);
         }
+
+		textInput.setAttribute("placeholder", m["placeholder"]);
+
+		textInput.onkeydown = function(event) {
+			if(event.keyCode === 13)
+			{
+				event.preventDefault();
+				PromptMenu.submit();
+			}
+		}
         
-        textInput.value = "";
+        textInput.value = m["value"];
         title.innerHTML = m["title"];
         
         this._onsubmit = m["onsubmit"];
@@ -1133,6 +1154,8 @@ var PromptMenu = new function() {
         // @TODO add placeholder attribute
         
         showElement(menu);
+
+		textInput.focus();
     }
     
     this.submit = function() {
