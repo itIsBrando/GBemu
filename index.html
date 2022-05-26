@@ -23,7 +23,7 @@
                 
                 /* v UI Elements v */
                 --title-btn-color: var(--bg-color);
-                --menu-btn-color: gray;
+                --menu-btn-color: lightgray;
                 --text-color: black;
             }
             
@@ -91,7 +91,7 @@
                 --gamepad-btn-color:mediumseagreen;
                 /* v UI Elements v */
                 --title-btn-color: var(--screen-shadow);
-                --menu-btn-color: darkgreen;
+                --menu-btn-color: mediumseagreen;
             }
 
             html, body {
@@ -185,7 +185,7 @@
                 left: 50%;
                 transform: translate(-50%, 0%);
                 top: 20%;
-                filter: drop-shadow(0px 0px 8px black);
+                filter: drop-shadow(0px 0px 8px limegreen);
             }
 
             #screen {
@@ -680,7 +680,7 @@
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 200px; display:none;">
+            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 350px; display:none;">
                 <div style="display: flex; grid-template-columns: repeat(7, 1fr);">
                     <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
                     <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
@@ -691,12 +691,8 @@
                     <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
                 </div>
                 <div id="PalDiv" style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px;">
-                    <div id="PalBG" class="debug-pal-prev">
-
-                    </div>
-                    <div id="PalOBJ" class="debug-pal-prev">
-                        
-                    </div>
+                    <div id="PalBG" class="debug-pal-prev"></div>
+                    <div id="PalOBJ" class="debug-pal-prev"></div>
                 </div>
                 <div id="MapDiv">
                     <div id="MapInfo">
