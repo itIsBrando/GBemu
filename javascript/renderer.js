@@ -63,14 +63,14 @@ class Renderer {
     renderMap(ppu, cpu) {
         const scy = ppu.regs.scy, scx = ppu.regs.scx;
         const scanline = ppu.regs.scanline;
+        const yOffset = ((scanline + scy) >> 3) & 0x1F;
+        const y = (scanline + scy) & 7; // same as % 8
         
-        let y = (scanline + scy) & 7; // same as % 8
         
         for(let i = 0; i <= 20; i++) {
-            const yOffset = ((scanline + scy) >> 3) & 0x1F;
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
-            let tileNum = cpu.read8(mapAddress);
+            const tileNum = cpu.read8(mapAddress);
             
             const tileAddr = ppu.getBGTileAddress(tileNum) + (y << 1);
             
@@ -94,15 +94,15 @@ class Renderer {
 
         const tileBase = ppu.tileBase;
         const mapBase = ppu.winBase;
-        const scanline= ppu.regs.scanline;
+        const scanline = ppu.regs.scanline;
+        const yMap = (scanline - wy) & 255;
         
         if(scanline < wy && scanline < 144)
             return;
         
-        for(let x = wx>>3; x <= 160 / 8; x++)
+        for(let x = wx >> 3; x <= 160 / 8; x++)
         {
             const xMap = (x & 0xFF);
-            const yMap = (scanline - wy) & 255;
             const y = yMap & 7;
             const mapAddress = mapBase + ( (yMap >> 3) * 32) + xMap-(wx>>3);
             let tile = cpu.read8(mapAddress);
@@ -208,8 +208,7 @@ class Renderer {
                 return cpu.ppu.bgPal;
             
             return UInt8.getBit(flags, 4) ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
-        } else
-        {
+        } else {
             // CGB palettes
             const palNum = flags & 0x7;
             if(isBG)

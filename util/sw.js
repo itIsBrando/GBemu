@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'gbemu-v1.4';
+const CACHE_NAME = 'gbemu-v1.5';
 const FILES = [
     "util/",
     "javascript/",

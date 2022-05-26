@@ -15,6 +15,7 @@
         <style>
 
             :root {
+                --power-led-color: red;
                 --bg-color: #c6bfc6b0;
                 --screen-shadow: rgb(95, 107, 121, 0.90);
                 --dpad-color: #3A3A3A;
@@ -179,13 +180,17 @@
                 background-color: var(--screen-border-color);
 
             }
+
+            #power-LED-circle {
+                fill: var(--power-led-color);
+            }
             
             #power-LED {
                 position: relative;
-                left: 50%;
                 transform: translate(-50%, 0%);
+                left: 50%;
                 top: 20%;
-                filter: drop-shadow(0px 0px 8px limegreen);
+                filter: drop-shadow(0px 0px 8px var(--power-led-color));
             }
 
             #screen {

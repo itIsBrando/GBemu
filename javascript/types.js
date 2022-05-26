@@ -125,4 +125,17 @@ class UInt8 {
         return (v & ~(1<<bit)) & 0xFF;
     }
 
+    /**
+     * 
+     * @param {Number} v number
+     * @param {Number} start bit to start at.
+     * @param {Number} length number of bits to return
+     * @returns 
+     */
+    static getRange(v, start, length) {
+        v >>= start;
+        v &= (1 << length) - 1;
+        return v;
+    }
+
 }

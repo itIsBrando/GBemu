@@ -77,6 +77,8 @@ class PPU {
 
         this.cgb.bgAutoInc = 0;
         this.cgb.objAutoInc = 0;
+        this.cgb.bgi = 0;
+        this.cgb.obji = 0;
         this.cgb.vbank = 0;
         this.cgb.svbk = 1;
         this.cgb.bgPal.fill(0);
@@ -84,6 +86,17 @@ class PPU {
         this.HDMADest = 0;
         this.HDMASrc = 0;
 
+        /**
+         * These are both 3D arrays
+         * rgbOBJ[0-7] grabs the first palette
+         * rgbOBJ[x][0] grabs the first color of a palette
+         * rgbOBJ[x][y][0] grabs the 'red' intensity of a palette
+         * 
+         * they are 8x4x3
+         *  - num of palettes
+         *  - num of colors in each palette
+         *  - rgb of the color
+         */
         this.cgb.rgbOBJ = [
             [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
             [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -105,7 +118,6 @@ class PPU {
             [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
             [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
         ];
-
 
         this.regs.lcdc = 0;
         this.regs.stat = 0;
@@ -143,29 +155,6 @@ class PPU {
         if(this.tileBase == 0x9000 && tile > 127)
             tile -= 256;
         return this.tileBase + 16 * tile;   
-    }
-
-
-    /**
-     * Converts a single CGB palette into an RGB encoded palette
-     * - the length should be 8 bytes long
-     * - Ex: [a, b, c, d, e, f, g, h...] converts to [[ab, cd, ef], [gh,...]]
-     * @param {[]} arr
-     */
-    static linearToRGB(arr) {
-        let out = [[], [], [], []];
-        for(let i = 0; i < 4; i++)
-        {
-            const idx = (i << 1);
-            const bgr = (arr[idx + 1] << 8) | arr[idx];
-            const r = (bgr & 0x1f);
-            const g = (bgr >> 5) & 0x1F;
-            const b = (bgr >> 10) & 0x1F;
-            out[i][0] = Math.min(r * 10,255);
-            out[i][1] = Math.min(g * 10,255).toFixed();
-            out[i][2] = Math.min(b * 10,255);
-        }
-        return out;
     }
 
     /**
@@ -210,6 +199,7 @@ class PPU {
 
     step(cpu) {
         this.regs.stat &= 252;
+
         if(!this.lcdEnabled) {
             this.regs.stat |= PPUMODE.vblank;
             return;
@@ -284,8 +274,7 @@ class PPU {
         if(this.regs.syc == this.regs.scanline)
         {
             // coincidence interrupt
-            if(UInt8.getBit(this.regs.stat, 6))
-            {
+            if(UInt8.getBit(this.regs.stat, 6)) {
                 this.parent.requestInterrupt(InterruptType.lcd);
             }
             // set coincidence flag

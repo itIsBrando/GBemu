@@ -2,7 +2,6 @@
 
 const INTERVAL_SPEED = 8;
 
-const powerLED = document.getElementById("power-LED-circle");
 var c = new CPU();
 var romLoaded = false;
 
@@ -46,10 +45,14 @@ function pauseEmulation() {
 };
 
 function setLEDStatus(on) {
-    if(on)
-        powerLED.style.fill = "limegreen";
-    else
-        powerLED.style.fill = "red";
+    const r = document.querySelector(':root');
+
+    if(on) {
+        r.style.setProperty("--power-led-color", "limegreen");
+
+    } else {
+        r.style.setProperty("--power-led-color", "red");
+    }
 }
 
 

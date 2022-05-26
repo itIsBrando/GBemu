@@ -469,26 +469,82 @@ class CPU {
             this.ppu.cgb.bgAutoInc = (byte & 0x80) == 0x80;
         } else if(address == 0xFF69) {
             // cgb only
-            this.ppu.cgb.bgPal[this.ppu.cgb.bgi] = byte;
-            // must convert this modified palette into usable RGB
-            const palNum = this.ppu.cgb.bgi >> 3;
-            this.ppu.cgb.rgbBG[palNum] = PPU.linearToRGB(this.ppu.cgb.bgPal.slice(palNum * 8, palNum * 8 + 8));
-
+            const bgi = this.ppu.cgb.bgi;
+            
             if(this.ppu.cgb.bgAutoInc)
                 this.ppu.cgb.bgi = (this.ppu.cgb.bgi + 1) & 0x3F;
+
+            if(this.ppu.mode == PPUMODE.scanlineVRAM)
+                return;
+
+            this.ppu.cgb.bgPal[bgi] = byte;
+            // ^ this is only used for reading. Functionality is in `rgbBG`
+            // must convert this modified palette into usable RGB
+            const palNum = bgi >> 3;
+            const colorIndex = (bgi >> 1) & 3;
+            const a = bgi & 0x1;
+
+            if(a == 0) {
+                // write r and g
+                const r = byte & 0x1F;
+                const green_low = UInt8.getRange(byte, 5, 3);
+                const green_high = UInt8.getRange(this.ppu.cgb.bgPal[bgi + 1], 0, 2);
+                const g = (green_high << 3) | green_low;
+                this.ppu.cgb.rgbBG[palNum][colorIndex][0] = r * 8;
+                this.ppu.cgb.rgbBG[palNum][colorIndex][1] = g * 8;
+            } else {
+                // write g
+                const green_low = UInt8.getRange(this.ppu.cgb.bgPal[bgi - 1], 5, 3);
+                const green_high = UInt8.getRange(byte, 0, 2);
+                const g = (green_high << 3) | green_low;
+                this.ppu.cgb.rgbBG[palNum][colorIndex][1] = g * 8;
+                // write b
+                const b = UInt8.getRange(byte, 2, 5);
+                this.ppu.cgb.rgbBG[palNum][colorIndex][2] = b * 8;
+            }
+            // ( r  )(  |g )(  b )u
+            // 0123 4567| 89AB CDEF
+            // 1111 1111|
+        
         } else if(address == 0xFF6A) {
             // cgb only (OCPS/OBPI)
             this.ppu.cgb.obji = byte & 0x3F;
             this.ppu.cgb.objAutoInc = (byte & 0x80) == 0x80;
         } else if(address == 0xFF6B) {
             // cgb only
-            this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
-
-            const palNum = this.ppu.cgb.obji >> 3;
-            this.ppu.cgb.rgbOBJ[palNum] = PPU.linearToRGB(this.ppu.cgb.objPal.slice(palNum * 8, palNum * 8 + 8));
+            const obji = this.ppu.cgb.obji;
 
             if(this.ppu.cgb.objAutoInc)
                 this.ppu.cgb.obji = (this.ppu.cgb.obji + 1) & 0x3F;
+                
+            if(this.ppu.mode == PPUMODE.scanlineVRAM)
+                return;
+
+            this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
+
+            const palNum = this.ppu.cgb.obji >> 3;
+            const colorIndex = (obji >> 1) & 3;
+            const a = obji & 0x1;
+
+            if(a == 0) {
+                // write r and g
+                const r = byte & 0x1F;
+                const green_low = UInt8.getRange(byte, 5, 3);
+                const green_high = UInt8.getRange(this.ppu.cgb.objPal[obji + 1], 0, 2);
+                const g = (green_high << 3) | green_low;
+                this.ppu.cgb.rgbOBJ[palNum][colorIndex][0] = r << 3;
+                this.ppu.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
+            } else {
+                // write g and b
+                const green_low = UInt8.getRange(this.ppu.cgb.objPal[obji - 1], 5, 3);
+                const green_high = UInt8.getRange(byte, 0, 2);
+                const g = (green_high << 3) | green_low;
+                const b = UInt8.getRange(byte, 2, 5);
+                this.ppu.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
+                this.ppu.cgb.rgbOBJ[palNum][colorIndex][2] = b << 3;
+            }
+
+            
         } else if(address == 0xFF70) {
             // cgb WRAM bank
             byte &= 7;
