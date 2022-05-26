@@ -152,29 +152,14 @@ class CPU {
         // Set to true during HDMA H-Blank at register $FF55
         this.HDMAInProgress = false;
 
-
         this.af = new UInt16();
         this.bc = new UInt16();
         this.de = new UInt16();
         this.hl = new UInt16();
 
-        // this could be useful for debugging
-/*         var _pc = new UInt16(0x100);
-
-        this.pc = {
-            get v() {
-                return _pc.v
-            },
-            set v(val) {
-                if(val >= 0xe000 && val <= 0xf000)
-                    throw "executing mirror RAM: " + hex(val) + " from " + hex(_pc.v);
-                _pc.v = val
-            }
-        }; */
-
         this.pc = new UInt16(0x100);
         this.sp = new UInt16(0xFFFE);
-
+        
         this.flags = {
             z: false,
             c: false,
@@ -199,8 +184,8 @@ class CPU {
             oam : new Uint8Array(0x00A0), // OAM RAM FE00-FE9F
             hram: new Uint8Array(0x0100) // HRAM FF00-FFFF
         };
-
-
+        
+        this.cheats = new Cheats()
     }
 
     /**
@@ -261,6 +246,7 @@ class CPU {
         
         this.timerRegs.reset();
         this.ppu.reset();
+        this.cheats.reset();
         Debug.clearLog();
     }
 
@@ -622,6 +608,11 @@ class CPU {
      * @returns {UInt8} byte
      */
     read8(address) {
+        const v = this.cheats.read(address, this.mbcHandler ? this.mbcHandler.bank : 0);
+
+        if(v)
+            return v;
+        
         if(this.mbcHandler)
         {
             // if our address was read properly by our MBC, return it

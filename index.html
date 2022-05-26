@@ -243,6 +243,14 @@
                 opacity: 0;
                 transition: opacity 0.5s;
             }
+
+            .div-separator {
+                width: 100%;
+                height: 2px;
+                background-color: #dddddd;
+                margin-top: 8px;
+                margin-bottom:3px;
+            }
             
             fieldset {
                 margin-bottom: 5px;
@@ -339,8 +347,8 @@
             .x-btn {
                 float: right;
                 background-color: orangered;
-                height: 100%;
-                aspect-ratio: 1 / 1;
+                width: 30px;
+                height: 30px;
                 border: 2px solid coral;
                 border-radius: 2px;
                 margin: 0px;
@@ -706,6 +714,7 @@
                         <div id="DisassemblyBreakpoints" class="popup">
                             <b style="padding-bottom: 5px;">Breakpoints</b>
                             <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
+                            <div class="div-separator"></div>
                             <fieldset id="DisBreakpointList" style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;"></fieldset>
                             <button onclick="Debug.addBreak();" class="menubtn" style="width:100%;" type="button">Add Breakpoint</button>
                             <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.rmBreak();">remove breakpoint</button>
@@ -720,14 +729,15 @@
                         <button style="width: 100%;" type="button" class="menubtn" onclick="Debug.showBreak();">breakpoints</button>
                     </div>
                 </div>
-                <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
-                <div id="PromptMenu" class="popup">
-                    <b id="PromptTitle">Title</b>
-                    <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
-                    <br>
-                    <input type="text" name="PromptText" id="PromptText" />
-                    <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;" onclick="PromptMenu.submit();">Submit</button>
-                </div>
+            </div>
+
+            <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
+            <div id="PromptMenu" class="popup" style="z-index:10;">
+                <b id="PromptTitle">Title</b>
+                <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
+                <br>
+                <input type="text" name="PromptText" id="PromptText" />
+                <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;" onclick="PromptMenu.submit();">Submit</button>
             </div>
 
             <!-- Virtual Controller -->
@@ -770,12 +780,10 @@
             <div class="popup" id="popup">
                 <label id="popup-title" style="margin:5px" for="localSaveName"><b>Save Name</b></label>
                 <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
-                <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right;" onclick="">edit</button>
-                <div style="width: 100%; height:2px; background-color: #dddddd; margin-top: 8px; margin-bottom:3px;"></div>
-                <!-- input form -->
-                <input type="text" name="localSaveName" id="localSaveName" minlength="1" autocapitalize="none" autocomplete="off" style="font-size: large;">
-                <!-- Submit button -->
-                <button class="menubtn" style="width:100%;" id="submitSaveName" name="submitSaveName">Save</button>
+                <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right;">edit</button>
+                <button id="plusButton" type="button" class="menubtn" style="width: fit-content; float:right; margin-right: 2px;" onclick="SaveManager.addSave();">+</button>
+                <div class="div-separator"></div>
+                <!-- Holds all of the save's button -->
                 <div id="saveButtonDiv" style="max-height:50vh; overflow-y: auto;"></div>
             </div>
 
@@ -842,6 +850,7 @@
         <script src="javascript/instruction.js"></script>
         <script src="javascript/timer.js"></script>
         <script src="javascript/register.js"></script>
+        <script src="util/cheats.js"></script>
         <script src="javascript/cpu.js"></script>
         <script src="javascript/initalize.js"></script>
         <script src="util/touch.js"></script>

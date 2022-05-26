@@ -26,20 +26,12 @@ function _canSave()
 
 const localSaveButton = document.getElementById('localSaveButton');
 const localLoadButton = document.getElementById('localLoadButton');
-const localSaveName = document.getElementById('localSaveName');
 const popupMenu = document.getElementById('popup');
-const popupSubmitButton = document.getElementById('submitSaveName');
+const plusButton = document.getElementById('plusButton');
 const saveEditButton = document.getElementById('saveEditButton');
 const saveButtonDiv = document.getElementById('saveButtonDiv');
 
 
-localSaveName.onkeydown = function(event) {
-    if(event.keyCode === 13)
-    {
-        event.preventDefault();
-        popupSubmitButton.click();
-    }
-}
 /**
  * Shows the popup menu
  * - does nothing if this menu is already open
@@ -53,13 +45,6 @@ function showPopupMenu(title, buttonText) {
     
     showElement(popupMenu);
     FrontEndMenu.showOverlay();
-    // set title
-    // document.getElementById('popup-title').innerHTML = title;
-    popupSubmitButton.innerText = buttonText;
-    
-    // give focus to the text input
-    localSaveName.value = null;
-    localSaveName.focus();
 }
 
 
@@ -76,45 +61,21 @@ function hidePopupMenu() {
  * Shows the pop up menu for saving to localStorage
  */
 localSaveButton.addEventListener('click', function() {
-    showElement(localSaveName);
-    showElement(popupSubmitButton);
     hideElement(saveEditButton);
+    showElement(plusButton);
+    
+    SaveManager.populateSaveHTML(function() {
+        hidePopupMenu();
+
+        if(c.mbcHandler)
+            SaveManager.save(this.value, c.mbcHandler.ram, readROMName());
+        else
+        showMessage("ROM does not support saving.", "Could not Save");
+        
+    });
 
     if(!showPopupMenu("Save Name", "Save"))
         return;
-    
-    localSaveName.placeholder = readROMName() || "ROM NAME";
-});
-
-
-/**
- * When we press the "load" or "save button"
- */
-popupSubmitButton.addEventListener('click', function() {
-    const name = localSaveName.value.toUpperCase();
-
-    switch(popupSubmitButton.innerText.toLowerCase())
-    {
-    case "save":
-        if(name.length > 0)
-            if(c.mbcHandler)
-                SaveManager.save(name, c.mbcHandler.ram, readROMName());
-            else
-                showMessage("ROM does not support saving.", "Could not Save");
-        break;
-    case "load":
-        // loading from localStorage
-        SaveManager.injectLocalStorage(name);
-        break;
-    case "load json":
-        // import from clipboard JSON
-        SaveManager.save("import", name.toLowerCase());
-        
-        showMessage("Import successful. Now you can load this save from the menu.", "Success");
-        break;
-    }
-
-    hidePopupMenu();
 });
 
 
@@ -122,10 +83,8 @@ popupSubmitButton.addEventListener('click', function() {
  * Populates the text form with the name of a localStorage key
  */
 const pasteLabel = function() {
-    localSaveName.value = this.value;
-    hidePopupMenu();
-
     SaveManager.injectLocalStorage(this.value);
+    hidePopupMenu();
 }
 
 
@@ -236,6 +195,66 @@ var SaveManager = new function() {
 
     }
 
+
+    this.populateSaveHTML = function(onLabelClick) {
+        const saveButtonDiv = document.getElementById('saveButtonDiv');
+
+        const keys = Object.keys(localStorage);
+        let hasSaves = false;
+    
+        for(let i in keys) {
+            // some settings should not be shown
+            if(keys[i].startsWith("__core_"))
+                continue;
+            
+            const btn = document.createElement("button");
+            const obj = JSON.parse(localStorage[keys[i]]);
+            btn.className = "menubtn";
+            btn.style.width = "100%";
+            btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
+            btn.value = keys[i];
+            btn.onclick = onLabelClick;
+            saveButtonDiv.appendChild(btn);
+    
+            hasSaves = true;
+        }
+    
+        if(!hasSaves) {
+            saveButtonDiv.innerHTML = "<b>NO FILES SAVED</b>"
+        } else {
+            // Add an onclick event for each delete button
+            const btns = getDeleteButtons();
+    
+            btns.forEach(function(curVal) {
+                curVal.onclick = SaveManager.deleteSelf;
+            })
+        }
+        
+    
+    }
+
+
+    /**
+     * Called by the `+` button in `id=popup`
+     */
+    this.addSave = function() {
+        const m = PromptMenu.new("Save Name", "Title", "", 20, (v) => {
+            if(v.length == 0)
+                return;
+
+            if(!c.mbcHandler) {
+                showMessage("ROM does not support saving.", "Could not Save");
+                return;
+            }
+            
+            this.save(v, c.mbcHandler.ram, readROMName());
+            hidePopupMenu();
+        });
+
+        PromptMenu.show(m);
+    }
+
+
     
     /**
      * Attach to button event to delete a localStorage save.
@@ -312,57 +331,18 @@ saveEditButton.addEventListener('click', function() {
  * - Creates a list of buttons that correspond to all localStorage saves
  */
 localLoadButton.addEventListener('click', function() {
-    const saveButtonDiv = document.getElementById('saveButtonDiv');
-    localSaveName.placeholder = "LABEL NAME";
 
     // prevent the menu from reappearing if it is already active
     if(popupMenu.style.display == "block")
         return;
 
-    const lineBreak = document.createElement("hr");
-
     // hide text entry
-    hideElement(localSaveName);
-    hideElement(popupSubmitButton);
     showElement(saveEditButton);
+    hideElement(plusButton);
 
-    lineBreak.style = "margin: 0px; border-width 5px;"
-
-    saveButtonDiv.appendChild(lineBreak);
-
+    SaveManager.populateSaveHTML(pasteLabel);
     // iterate through each value in `localStorage`
     //  and create a button for each entry
-    const keys = Object.keys(localStorage);
-    let hasSaves = false;
-
-    for(let i in keys) {
-        // some settings should not be shown
-        if(keys[i].startsWith("__core_"))
-            continue;
-        
-        const btn = document.createElement("button");
-        const obj = JSON.parse(localStorage[keys[i]]);
-        btn.className = "menubtn";
-        btn.style.width = "100%";
-        btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
-        btn.value = keys[i];
-        btn.onclick = pasteLabel;
-        saveButtonDiv.appendChild(btn);
-
-        hasSaves = true;
-    }
-
-    if(!hasSaves) {
-        saveButtonDiv.innerHTML = "<b>NO FILES SAVED</b>"
-    } else {
-        // Add an onclick event for each delete button
-        const btns = getDeleteButtons();
-
-        btns.forEach(function(curVal) {
-            curVal.onclick = SaveManager.deleteSelf;
-        })
-    }
-    
     showPopupMenu("Save Name", "Load");
 })
 
