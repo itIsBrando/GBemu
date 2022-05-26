@@ -92,8 +92,8 @@ function hideElement(e) {
     e.style.display = 'none';
 }
 
-function showElement(e) {
-    e.style.display = 'block';
+function showElement(e, style = 'block') {
+    e.style.display = style;
 }
 
 
@@ -211,7 +211,7 @@ var SaveManager = new function() {
             const obj = JSON.parse(localStorage[keys[i]]);
             btn.className = "menubtn";
             btn.style.width = "100%";
-            btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='display:none;' name='deleteButton'>&times;</button>";
+            btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>";
             btn.value = keys[i];
             btn.onclick = onLabelClick;
             saveButtonDiv.appendChild(btn);
@@ -254,8 +254,6 @@ var SaveManager = new function() {
         PromptMenu.show(m);
     }
 
-
-    
     /**
      * Attach to button event to delete a localStorage save.
      * @param {ButtonEvent} e 
@@ -264,7 +262,7 @@ var SaveManager = new function() {
         e.stopPropagation();
         key = this.parentElement.value
         showMessage(
-            "Delete <b style='color:green;'>" + key + "</b>?",
+            `Delete <b style="color:green;">${key}</b>?`,
             "Are You Sure?",
             true,
             null,
@@ -275,12 +273,12 @@ var SaveManager = new function() {
                 _delKey = null;
                 hidePopupMenu();
                 localLoadButton.click();
+                saveEditButton.innerHTML = "edit";
             }
         );
 
         _delKey = key;
         
-        saveEditButton.innerHTML = "edit";
     }
     
     /**
@@ -299,6 +297,35 @@ var SaveManager = new function() {
            showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed");
        }
    }
+
+
+    /**
+    * Called when the `importTextButton` button is pressed
+    */
+    this.importJSON = function() {
+        const m = PromptMenu.new("JSON Save", "JSON string", "", null, (v) => {
+            let data;
+
+            try {
+                data = JSON.parse(v.toLowerCase());
+            } catch {
+                showMessage("Could not import data.", "Invalid JSON", );
+                return;
+            }
+
+            if(!data || !('label' in data) || !('ram' in data)) {
+                showMessage("Could not import data.", "Invalid JSON", );
+                return;
+            }
+
+            const ram = SaveManager.unpack(data["ram"]);
+            const name = data['label'].toUpperCase();
+            
+            this.save(name, ram, name);
+        });
+
+        PromptMenu.show(m);
+    }
 }
 
 
@@ -319,9 +346,9 @@ saveEditButton.addEventListener('click', function() {
     
     btns.forEach(function(e) {
         if(isEditing)
-            showElement(e);
+            e.style.visibility = 'visible';
         else
-            hideElement(e);
+            e.style.visibility = 'hidden';
     });
 });
 
@@ -387,10 +414,3 @@ function downloadSave(){
     a.download = name;
     a.click();
 }
-
-/**
- * Imports a savefile based on the text from a clipboard
- */
-document.getElementById('importTextButton').onclick = function() {
-    showPopupMenu("Paste Clipboard", "Load JSON");
-};

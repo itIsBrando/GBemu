@@ -292,6 +292,7 @@ var Debug = new function() {
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
     const MemDiv = document.getElementById('MemoryDiv');
     const MapDiv = document.getElementById('MapDiv');
+	const PalDiv = document.getElementById('PalDiv');
 	const MapInfo = document.getElementById('MapInfo');
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
     const radioButtons = document.getElementsByName("displayMode");
@@ -312,6 +313,7 @@ var Debug = new function() {
 		hideElement(DisassemblyDiv);
         hideElement(MemDiv);
         hideElement(MapDiv);
+		hideElement(PalDiv);
 		c.renderer.clearBuffer();
 	}
 
@@ -331,7 +333,7 @@ var Debug = new function() {
 
 
 	this.start = function() {
-		DebugDiv.style.display = "grid";
+		showElement(DebugDiv);
 		this.hideOpen();
 		pauseEmulation();
         Debug.stopRunTilBreak();
@@ -423,7 +425,7 @@ var Debug = new function() {
 
 		c.renderer.drawBuffer();
 	}
-	
+
 	
 	this.showTilePreview = function(tile) {
 		const canv = document.getElementById('TilePreview');
@@ -434,12 +436,11 @@ var Debug = new function() {
 		ctx.fillRect(0, 0, 8, 8);
 
 		const img = ctx.getImageData(0, 0, 8, 8);
-		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, c, false, img, 8);
+		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, c, true, img, 8);
 
 		ctx.putImageData(img, 0, 0);
 	}
-
-	let lx = -1, ly = -1, img_data = null;
+	
 	
 	this.printTileInfo = function(mapBase = null, tx, ty) {
 		const TileInfo = document.getElementById("TileInfo");
@@ -483,7 +484,7 @@ var Debug = new function() {
 		// all of these are incorrectly drawn with OBJ palette rather than BG palette
 		for(let y = 0; y < 32; y++) {
 			for(let x = 0; x < 32; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, false, screen, 256, vbk);
+				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, true, screen, 256, vbk);
 				if(t >= 768) {
 					t = 0;
 					vbk = true;
@@ -510,7 +511,7 @@ var Debug = new function() {
 			{
 				const tileNum = c.read8(mapBase++);
 
-				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, c, false, screen, 256);
+				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, c, true, screen, 256);
 			}
 		}
 		 
@@ -579,22 +580,43 @@ var Debug = new function() {
 		b.innerHTML = "Sprite " + num;
 	}
 
+	this.drawPalettes = function(div, isBG) {
+		div.innerHTML = `<code>${isBG ? "Background<br>" : "Object<br>"}</code>`;
+		for(let i = 0; i < 8; i++)
+		{
+			const canv = document.createElement("canvas");
+			
+			canv.width = "4";
+			canv.height = "1";
+			canv.className = "pal-canvas";
+			
+			const ctx = canv.getContext("2d");
+			const img = ctx.getImageData(0, 0, 4, 1);
+			// this expression for the third parameter is sneaky and bad
+			// for DMG games, this will alternate between drawing obj0 and obj1
+			//  hehehe delightfully devilish seymour!
+			const pal = Renderer.getPalette(c, isBG, i + ((i & 1) << 4));
 
-	this.nextObj = function() {
-		if(curObj++ == 39)
-			curObj = 0;
-		
-		this.showObj(curObj);
+			for(let j = 0; j < 4; j++)
+			{
+				for(let k = 0; k < 3; k++)
+					img.data[j * 4 + k] = pal[j][k];
+				img.data[j * 4 + 3] = 255;
+			}
+			
+			ctx.putImageData(img, 0, 0);
+
+			div.appendChild(canv);
+		}
 	}
 
+	this.showPalette = function() {
+		this.hideOpen();
+		showElement(PalDiv, 'grid');
 
-	this.prevObj = function() {
-		if(curObj-- == 0)
-			curObj = 39;
-
-		this.showObj(curObj);
+		this.drawPalettes(document.getElementById('PalBG'), true);
+		this.drawPalettes(document.getElementById('PalOBJ'), false);
 	}
-
 
 	this.quit = function() {
 		this.enabled = false;
@@ -1132,6 +1154,10 @@ var PromptMenu = new function() {
     }
     
     this.show = function(m) {
+
+		if(!m["maxlength"])
+			m["maxlength"] = 999999;
+		
         textInput.oninput = function(e) {
             e.target.value = e.target.value.replace(m["rejects"],'').toUpperCase().slice(0, m["maxlength"]);
         }
@@ -1151,7 +1177,6 @@ var PromptMenu = new function() {
         
         this._onsubmit = m["onsubmit"];
         this._oncancel = m["oncancel"];
-        // @TODO add placeholder attribute
         
         showElement(menu);
 

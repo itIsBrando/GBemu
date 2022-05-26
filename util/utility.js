@@ -149,7 +149,7 @@ function clipboardCopy() {
     document.execCommand("copy");
     
     // hide menu
-    document.getElementById('textCopyPopup').style.display = 'none';
+    hideElement(document.getElementById('textCopyPopup'));
 
     // because the size is huge, we will empty the text inside it
     elem.value = "";
@@ -261,13 +261,13 @@ var FrontEndMenu = new function() {
 
     this.showOverlay = function() {
         overlays++;
-        shadowOverlay.style.display = 'block';
+        showElement(shadowOverlay);
     }
 
     this.hideOverlay = function() {   
         if(--overlays <= 0)
         {
-            shadowOverlay.style.display = 'none';
+            hideElement(shadowOverlay);
             overlays = 0;
         }
     }

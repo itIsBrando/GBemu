@@ -63,7 +63,6 @@ class Renderer {
     renderMap(ppu, cpu) {
         const scy = ppu.regs.scy, scx = ppu.regs.scx;
         const scanline = ppu.regs.scanline;
-        const tileBase = ppu.tileBase;
         
         let y = (scanline + scy) & 7; // same as % 8
         
@@ -110,7 +109,7 @@ class Renderer {
             // signed tile
             if(tileBase == 0x9000 && (tile > 127))
                 tile -= 256;
-            const tileAddress = tileBase + (tile * 16) + y * 2;
+            const tileAddress = tileBase + (tile * 16) + (y << 1);
             
             this.drawTileLine(cpu, mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress);
         }
@@ -127,7 +126,7 @@ class Renderer {
 
         for(let s = 0; s < 40; s++)
         {
-            const spriteBase = 0xFE00 + s * 4;
+            const spriteBase = 0xFE00 + (s << 2);
             const y = cpu.read8(spriteBase) - 16;
             const x = cpu.read8(spriteBase + 1) - 8;
             const tile = cpu.read8(spriteBase + 2);
@@ -199,7 +198,7 @@ class Renderer {
     /**
      * Gets the 4-color palette for a sprite or bg tile
      * @param {CPU} cpu 
-     * @param {Boolean} isBG true for a bg tile, else 
+     * @param {Boolean} isBG true for a bg tile, else sprites
      * @param {Number} flags 8-bit flags byte for sprite or bg tile
      * @returns Array with four entries encoded in RGB
      */

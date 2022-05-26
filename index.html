@@ -23,7 +23,7 @@
                 
                 /* v UI Elements v */
                 --title-btn-color: var(--bg-color);
-                --menu-btn-color: orangered;
+                --menu-btn-color: gray;
                 --text-color: black;
             }
             
@@ -75,8 +75,8 @@
             .yellow-theme {
                 --screen-shadow: #fbff00be;
                 --bg-color: rgb(255, 210, 0);
-                --screen-border-color:#343434;
-                --dpad-color:#333;
+                --screen-border-color:#434343;
+                --dpad-color:#343434;
                 --gamepad-btn-color:#444;
                 /* v UI Elements v */
                 --title-btn-color: gold;
@@ -84,8 +84,8 @@
             }
 
             .green-theme {
-                --screen-shadow: #00ff1abe;
-                --bg-color: greenyellow;
+                --screen-shadow:rgba(154, 255, 14, 0.745);
+                --bg-color: rgb(23, 209, 41);
                 --screen-border-color:#333;
                 --dpad-color: green;
                 --gamepad-btn-color:mediumseagreen;
@@ -160,14 +160,24 @@
                 box-shadow: 0px 8px 16px 10px var(--screen-shadow);
                 border-style: solid;
                 border-color: var(--screen-border-color);
-                border-width: 25px 35px 20px 0px;
+                border-width: 25px 0px 20px 0px;
                 border-bottom-right-radius: 25px;
             }
             
             #screen-container-border {
                 height: 100%;
-                width: clamp(20px, 8%, 60px);
+                min-width: 25px;
+                width: clamp(20px, 8vw, 60px);
                 background-color: var(--screen-border-color);
+            }
+
+            #screen-container-border-right {
+                display: inline-block;
+                height: 100%;
+                min-width: 10px;
+                width: clamp(10px, 7vw, 50px);
+                background-color: var(--screen-border-color);
+
             }
             
             #power-LED {
@@ -526,7 +536,7 @@
             }
 
             .debug-title-btn {
-                width: auto;
+                width: 100%;
                 padding: 10px 3px 10px 3px;
             }
             
@@ -561,6 +571,15 @@
 
             .debug-breakpoint-name:hover {
                 background-color: gray;
+            }
+
+            .pal-canvas {
+                width: 100%;
+                aspect-ratio: 4 / 1;
+            }
+
+            .debug-pal-prev {
+                display: block;
             }
 
             .obj-canvas {
@@ -641,7 +660,7 @@
                 <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
                     <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
                     <button type="button" id="localLoadButton" style="width: inherit;" class="menubtn">Internal Load</button>
-                    <button type="button" id="importTextButton" style="width: inherit;" class="menubtn">Import JSON Text</button>
+                    <button type="button" id="importTextButton" style="width: inherit;" class="menubtn" onclick="SaveManager.importJSON();">Import JSON Text</button>
                 </div>
             </div>
 
@@ -656,18 +675,30 @@
                         </svg>
                     </div>
                     <canvas id="screen" style="width: 100%; height: 100%; float: right" width="160" height="144"> </canvas>
+                    <div id="screen-container-border-right"></div>
                 </div>
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 350px; display:none; grid-template-columns: repeat(6, 1fr); grid-template-rows: fit-content fit-content;">
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
-                <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
-                <div id="MapDiv" style="grid-column: 1 / 7;">
+            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 200px; display:none;">
+                <div style="display: flex; grid-template-columns: repeat(7, 1fr);">
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.showPalette();">Palette</button>
+                    <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
+                </div>
+                <div id="PalDiv" style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px;">
+                    <div id="PalBG" class="debug-pal-prev">
+
+                    </div>
+                    <div id="PalOBJ" class="debug-pal-prev">
+                        
+                    </div>
+                </div>
+                <div id="MapDiv">
                     <div id="MapInfo">
                         <fieldset>
                             <legend>Display Mode:</legend>
@@ -692,13 +723,13 @@
                     <div id="DebugSprites"></div>
                     <p class="debug-text"></p>
                 </div>
-                <div id="MemoryDiv" style="grid-column: 1 / 7; padding-right: 5px;">
+                <div id="MemoryDiv" style="padding-right: 5px;">
                     <pre class="debug-text" style="overflow-y: auto; line-height: 175%;"></pre>
                 </div>
-                <div id="DisassemblyDiv" style="grid-column: 1 / 7;">
+                <div id="DisassemblyDiv">
                     <div style="width:100%; display: grid; grid-template-columns: 3fr 1fr;">
                         <div style="margin-right: 5px;">
-                            <b>Disassembler</b><br>
+                            <b>Disassembler</b>
                             <pre class="debug-text" style="overflow-y: auto; line-height: 150%; padding-bottom: 5px; overflow-x: auto;"></pre>
                             <p id="DebugLog" style="display:none;"><br></p>
                             <input type="checkbox" name="debugLogEnable" id="debugLogEnable"><label for="debugLogEnable">Enable Debug log</label>
@@ -815,15 +846,14 @@
             </div>
 
             <!-- Prettier messaging system. Call `showMessage()` using JS -->
-            <div class="message-div" id="messageID" style="width: fit-content;">
+            <div class="message-div" id="messageID" style="width: fit-content; border-radius: 3px;">
                 <!-- header -->
-                <h3 id="messageHeader" style="text-align: center; background-color: #dddddd; width: 100%; margin: 0px; padding: 0px;">ALERT</h3>
-                <!-- <br> -->
+                <h3 id="messageHeader" style="text-align: center; min-width: 200px; background-color: #dddddd; width: 100%; margin: 0px; padding: 0px;">ALERT</h3>
                 <!-- body -->
-                <a id="messageContent" style="color: aliceblue; padding: 1px 3px 1px 3px;">Message Content</a>
+                <p id="messageContent" style="color: aliceblue; padding: 1px 3px 1px 3px; margin: 0px;">Message Content</p>
                 <!-- confirm -->
-                <button class="menubtn" style="max-width: 100%; float:left; width: 50%;" id="messageConfirm">Okay</button>
-                <button class="menubtn" style="max-width: 100%; float: bottom; float:right; width: 49%;" id="messageCancel">Cancel</button>
+                <button class="menubtn" style="float:left; width: 50%;" id="messageConfirm">Okay</button>
+                <button class="menubtn" style="float: bottom; float:right; width: 49%;" id="messageCancel">Cancel</button>
 
             </div>
 
