@@ -238,7 +238,7 @@ var SaveManager = new function() {
      * Called by the `+` button in `id=popup`
      */
     this.addSave = function() {
-        const m = PromptMenu.new("Save Name", "Title", "", 20, (v) => {
+        const m = PromptMenu.new("Save Name", "Title", /\w+/g, 20, (v) => {
             if(v.length == 0)
                 return;
 
@@ -303,7 +303,7 @@ var SaveManager = new function() {
     * Called when the `importTextButton` button is pressed
     */
     this.importJSON = function() {
-        const m = PromptMenu.new("JSON Save", "JSON string", "", null, (v) => {
+        const m = PromptMenu.new("JSON Save", "JSON string", /.+/g, null, (v) => {
             let data;
 
             try {

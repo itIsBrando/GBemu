@@ -520,9 +520,9 @@ class CPU {
             if(this.ppu.mode == PPUMODE.scanlineVRAM)
                 return;
 
-            this.ppu.cgb.objPal[this.ppu.cgb.obji] = byte;
+            this.ppu.cgb.objPal[obji] = byte;
 
-            const palNum = this.ppu.cgb.obji >> 3;
+            const palNum = obji >> 3;
             const colorIndex = (obji >> 1) & 3;
             const a = obji & 0x1;
 

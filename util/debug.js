@@ -315,6 +315,8 @@ var Debug = new function() {
         hideElement(MapDiv);
 		hideElement(PalDiv);
 		c.renderer.clearBuffer();
+
+		DebugDiv.classList.remove("debug-small-screen");
 	}
 
 	this.clearLog = function() {
@@ -390,6 +392,10 @@ var Debug = new function() {
 		this.hideOpen();
 		showElement(MapDiv);
 		hideElement(MapInfo);
+
+		if(window.innerWidth < 468) {
+			DebugDiv.classList.add("debug-small-screen");
+		}
 
 		MapCanvas.name = "tile";
 
@@ -547,13 +553,17 @@ var Debug = new function() {
 
 		this._mapdraw();
 
+		if(window.innerWidth < 468) {
+			DebugDiv.classList.add("debug-small-screen");
+		}
+
 		// show Map/tile/window addresses
         const labels = ["Map address", "    Window Address", "Tile address"];
-        const values = [hex(c.ppu.mapBase, 4), `${hex(c.ppu.winBase, 4)}<br>`, hex(c.ppu.tileBase, 4)];
+        const values = [hex(c.ppu.mapBase, 4), `${hex(c.ppu.winBase, 4)}`, hex(c.ppu.tileBase, 4)];
         a.innerHTML = "";
         
         for(let i = 0; i < labels.length; i++) {
-            a.innerHTML += `${labels[i]} : ${values[i]}`;
+            a.innerHTML += `${labels[i]} : ${values[i]}<br>`;
         }
 	}
 
@@ -1024,7 +1034,7 @@ var Debug = new function() {
     }
 
 	this.gotoDis = function() {
-        const m = PromptMenu.new("Enter Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
+        const m = PromptMenu.new("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, function(a) {
             a = Number("0x" + a);
             if(a != null)
                 Debug.showDisassembly(a, true);
@@ -1034,7 +1044,7 @@ var Debug = new function() {
 	}
     
     this.searchByte = function() {
-        const m = PromptMenu.new("Search for Data", "00-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, function(a) {
+        const m = PromptMenu.new("Search for Data", "00-FFFF", /[A-Fa-f0-9]+/g, 4, function(a) {
 			let high = -1;
 			if(a.length > 2)
 				high = Number("0x" + a) >> 8;
@@ -1072,7 +1082,7 @@ var Debug = new function() {
 	}
 
 	this.addBreak = function() {
-		const m = PromptMenu.new("Address", "0000-FFFF", /(?![A-Fa-f0-9])\w+/g, 4, (addr) => {
+		const m = PromptMenu.new("Address", "0000-FFFF", /[A-Fa-f0-9]+/g, 4, (addr) => {
 			addr = Number("0x" + addr);
 
 			if(addr == null || Number.isNaN(addr))
@@ -1126,7 +1136,7 @@ var Debug = new function() {
 }
 
 const MENU_EX = {
-    "rejects": "regex", // regular expression with all characters that will be rejected by the input
+    "accepts": "regex", // regex with valid characters
     "title": "string", // name
     "onsubmit": "func", // accepts a function with one parameter (contains input value)
     "oncancel": "func", // accepts an optional function
@@ -1141,9 +1151,9 @@ var PromptMenu = new function() {
     this._onsubmit = null;
     this._oncancel = null;
     
-    this.new = function(t, p, rejects = '', maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '') {
+    this.new = function(t, p, accepts = /\w+/g, maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '') {
         return {
-            "rejects": rejects,
+            "accepts": accepts,
             "title": t,
             "placeholder": p,
 			"value": defaulttext,
@@ -1159,7 +1169,7 @@ var PromptMenu = new function() {
 			m["maxlength"] = 999999;
 		
         textInput.oninput = function(e) {
-            e.target.value = e.target.value.replace(m["rejects"],'').toUpperCase().slice(0, m["maxlength"]);
+            e.target.value = e.target.value.match(m["accepts"]).toUpperCase().slice(0, m["maxlength"]);
         }
 
 		textInput.setAttribute("placeholder", m["placeholder"]);
