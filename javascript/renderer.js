@@ -17,13 +17,14 @@ var palette = [
 
 class Renderer {
     
-    constructor() {
+    constructor(cpu) {
         this.context = canvas.getContext('2d');
         this.context.fillStyle = "#FFFFFF";
         this.context.fillRect(0, 0, 160, 144);
         this.screen = this.context.getImageData(0, 0, 160, 144);
 
         this.context.globalAlpha = 1.0;
+        this.parent = cpu;
         this.drawBuffer();
     }
 
@@ -38,10 +39,9 @@ class Renderer {
 
     /**
      * Renders a scanline
-     * @param {PPU} ppu PPU instance
-     * @param {CPU} cpu CPU instance
      */
-    renderScanline(ppu, cpu) {
+    renderScanline() {
+        const cpu = this.parent;
         if(cpu.speed > 1)
         {
             cpu.framesToSkip++;
@@ -51,16 +51,15 @@ class Renderer {
                 cpu.framesToSkip = 0;
         }
 
-        this.renderMap(ppu, cpu);
-        this.renderWindow(ppu, cpu);
+        this.renderMap();
+        this.renderWindow();
     }
 
     /**
      * Renders a background scanline
-     * @param {PPU} ppu PPU instance
-     * @param {CPU} cpu CPU instance
      */
-    renderMap(ppu, cpu) {
+    renderMap() {
+        const ppu = this.parent.ppu;
         const scy = ppu.regs.scy, scx = ppu.regs.scx;
         const scanline = ppu.regs.scanline;
         const yOffset = ((scanline + scy) >> 3) & 0x1F;
@@ -70,21 +69,20 @@ class Renderer {
         for(let i = 0; i <= 20; i++) {
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
-            const tileNum = cpu.read8(mapAddress);
+            const tileNum = this.parent.read8(mapAddress);
             
             const tileAddr = ppu.getBGTileAddress(tileNum) + (y << 1);
             
-            this.drawTileLine(cpu, mapAddress, (i << 3) - (scx & 7), scanline, tileAddr)
+            this.drawTileLine(mapAddress, (i << 3) - (scx & 7), scanline, tileAddr)
         }
     }
 
 
     /**
      * X coordinate only works with multiples of 8
-     * @param {PPU} ppu 
-     * @param {CPU} cpu 
      */
-    renderWindow(ppu, cpu) {
+    renderWindow() {
+        const ppu = this.parent.ppu;
         // return if window is disabled
         if(!UInt8.getBit(ppu.regs.lcdc, 5))
             return;
@@ -105,19 +103,21 @@ class Renderer {
             const xMap = (x & 0xFF);
             const y = yMap & 7;
             const mapAddress = mapBase + ( (yMap >> 3) * 32) + xMap-(wx>>3);
-            let tile = cpu.read8(mapAddress);
+            let tile = this.parent.read8(mapAddress);
             // signed tile
             if(tileBase == 0x9000 && (tile > 127))
                 tile -= 256;
             const tileAddress = tileBase + (tile * 16) + (y << 1);
             
-            this.drawTileLine(cpu, mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress);
+            this.drawTileLine(mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress);
         }
 
     }
 
 
-    renderSprites(ppu, cpu) {
+    renderSprites() {
+        const cpu = this.parent;
+        const ppu = this.parent.ppu;
         // return if sprites are disabled
         if(ppu.regs.lcdc & 0x2 == 0)
             return;
@@ -139,28 +139,28 @@ class Renderer {
                 // if y-flip, then then second sprite is drawn above first 
                 if(UInt8.getBit(flags, 6))
                 {
-                    this.drawTile(x, y + 8, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
-                    this.drawTile(x, y, t + 16, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y + 8, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y, t + 16, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
                 } else {
-                    this.drawTile(x, y, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
-                    this.drawTile(x, y + 8, t + 16, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
+                    this.drawTile(x, y + 8, t + 16, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
                 }
             } else {
-                this.drawTile(x, y, t, flags, cpu, false, this.screen, 160, UInt8.getBit(flags, 3));
+                this.drawTile(x, y, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
             }
         }
     }
 
 
     /**
-     * @param {CPU} cpu CPU instance 
      * @param {UInt16} mapAddress pointer to tile. Used for CGB flags byte
      * @param {number} x 
      * @param {number} y 
      * @param {UInt16} tileAddress
      */
-    drawTileLine(cpu, mapAddress, x, y, tileAddress) {
+    drawTileLine(mapAddress, x, y, tileAddress) {
         if(y >= 144) { return };
+        const cpu = this.parent;
         const flags = cpu.ppu.getTileAttributes(mapAddress);
         const xFlip = UInt8.getBit(flags, 6);
         // add yflip
@@ -230,7 +230,8 @@ class Renderer {
      * @returns screen object
      * @param {Boolean} useVBK true to use CGB's VRAM bank
      */
-    drawTile(x, y, tileAddress, flags, cpu, useBGPal = false, screen = this.screen, w = 160, useVBK = false) {
+    drawTile(x, y, tileAddress, flags, useBGPal = false, screen = this.screen, w = 160, useVBK = false) {
+        const cpu = this.parent;
         const xFlip = UInt8.getBit(flags, 5);
         const yFlip = UInt8.getBit(flags, 6);
         let pal = Renderer.getPalette(cpu, useBGPal, flags);

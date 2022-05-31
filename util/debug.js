@@ -398,6 +398,7 @@ var Debug = new function() {
 		}
 
 		MapCanvas.name = "tile";
+		MapCanvas.click();
 
 		this._tiledraw();
 	}
@@ -424,7 +425,7 @@ var Debug = new function() {
     
             let screen = context.getImageData(0, 0, 8, 8);
             
-			c.renderer.drawTile(0, 0, tile * 16 + VRAM_BASE, flags, c, false, screen, 8);
+			c.renderer.drawTile(0, 0, tile * 16 + VRAM_BASE, flags, false, screen, 8);
             
             context.putImageData(screen, 0, 0);
 		}
@@ -442,7 +443,7 @@ var Debug = new function() {
 		ctx.fillRect(0, 0, 8, 8);
 
 		const img = ctx.getImageData(0, 0, 8, 8);
-		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, c, true, img, 8);
+		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, true, img, 8);
 
 		ctx.putImageData(img, 0, 0);
 	}
@@ -457,7 +458,7 @@ var Debug = new function() {
 		const offset = tx + ty * 32;
 		const tile = mapBase ? c.read8(offset + mapBase) : offset;
 
-		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${Debug.hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
+		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
         
 		TileInfo.innerHTML = s;
 		this.showTilePreview(tile);
@@ -490,7 +491,7 @@ var Debug = new function() {
 		// all of these are incorrectly drawn with OBJ palette rather than BG palette
 		for(let y = 0; y < 32; y++) {
 			for(let x = 0; x < 32; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, c, true, screen, 256, vbk);
+				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, true, screen, 256, vbk);
 				if(t >= 768) {
 					t = 0;
 					vbk = true;
@@ -517,7 +518,7 @@ var Debug = new function() {
 			{
 				const tileNum = c.read8(mapBase++);
 
-				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, c, true, screen, 256);
+				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, true, screen, 256);
 			}
 		}
 		 
@@ -1169,7 +1170,8 @@ var PromptMenu = new function() {
 			m["maxlength"] = 999999;
 		
         textInput.oninput = function(e) {
-            e.target.value = e.target.value.match(m["accepts"]).toUpperCase().slice(0, m["maxlength"]);
+            e.target.value = e.target.value.match(m["accepts"]);
+            e.target.value = e.target.value.toUpperCase().slice(0, m["maxlength"]);
         }
 
 		textInput.setAttribute("placeholder", m["placeholder"]);

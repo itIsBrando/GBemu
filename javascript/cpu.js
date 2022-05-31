@@ -144,7 +144,7 @@ class CPU {
 
         this.timerRegs = new Timer();
         this.ppu = new PPU(this);
-        this.renderer = new Renderer();
+        this.renderer = new Renderer(this);
         this.cycles = 0;
         this.cgb = false;
         this.mbcHandler = null;

@@ -152,9 +152,11 @@ class PPU {
      */
     getBGTileAddress(tile) {
         // check for signed tile
+        tile &= 255;
         if(this.tileBase == 0x9000 && tile > 127)
             tile -= 256;
-        return this.tileBase + 16 * tile;   
+        
+        return this.tileBase + (tile << 4);
     }
 
     /**
@@ -221,7 +223,7 @@ class PPU {
                 if(this.cycles >= 172) {
                     this.mode = PPUMODE.hblank
                     this.cycles -= 172;
-                    cpu.renderer.renderScanline(this, cpu);
+                    cpu.renderer.renderScanline();
                     // check for hblank interrupt in rSTAT
                     if(UInt8.getBit(this.regs.stat, 3))
                         cpu.requestInterrupt(InterruptType.lcd);

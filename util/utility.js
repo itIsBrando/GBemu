@@ -170,12 +170,12 @@ function showROMInfo() {
     }
 
     showMessage(
-        `<b style="color:deepskyblue">ROM Name:</b> ${readROMName()}` +
-        '<br><b style="color:deepskyblue">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]] +
+        `<b class="debug-text" style="color:deepskyblue">ROM Name:</b> ${readROMName()}` +
+        '<div class="debug-text"><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
         '<br><b style="color:deepskyblue">GBC Mode: </b>' + (c.cgb ? "yes" : "no") +
         '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +
         '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.ram.length + " bytes": "none") +
-        '',
+        '</div>',
         "ROM Info"
     );
 }
