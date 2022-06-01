@@ -316,7 +316,7 @@ var Debug = new function() {
 		hideElement(PalDiv);
 		c.renderer.clearBuffer();
 
-		DebugDiv.classList.remove("debug-small-screen");
+		// DebugDiv.classList.remove("debug-small-screen");
 	}
 
 	this.clearLog = function() {
@@ -392,10 +392,6 @@ var Debug = new function() {
 		this.hideOpen();
 		showElement(MapDiv);
 		hideElement(MapInfo);
-
-		if(window.innerWidth < 468) {
-			DebugDiv.classList.add("debug-small-screen");
-		}
 
 		MapCanvas.name = "tile";
 		MapCanvas.click();
@@ -861,7 +857,7 @@ var Debug = new function() {
 		for(let i in names)
 		{
 			if(names[i] == '\n')
-				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 10px 5px 10px 5px;"></div>';
+				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 5px;"></div>';
 			else
 				str += `${(names[i] + ":").padEnd(6)} ${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
 		}
@@ -947,7 +943,7 @@ var Debug = new function() {
 		const NUM_INSTR = 18;
         
 		this.hideOpen();
-		showElement(DisassemblyDiv);
+		showElement(DisassemblyDiv, 'grid');
 		curPC = pc;
 		let curScroll = curPC - prevAddr;
 
