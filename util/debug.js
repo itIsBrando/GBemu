@@ -859,7 +859,7 @@ var Debug = new function() {
 			if(names[i] == '\n')
 				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 5px;"></div>';
 			else
-				str += `${(names[i] + ":").padEnd(6)} ${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
+				str += `${(names[i] + ":").padEnd(5)}${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
@@ -868,19 +868,23 @@ var Debug = new function() {
     this.showMemory = function() {
         const a = MemDiv.getElementsByTagName("pre")[0];
         let s = "";
+		const rombank = c.mbcHandler ? c.mbcHandler.bank : 'X';
+		const rambank = c.mbcHandler ? c.mbcHandler.ramBank : '0';
+		const romx = `ROM${rombank} `;
+		const cram = `CRAM${rambank}`;
 		const mem_types = [
 			"ROM0 ", // 0x0000
 			"ROM0 ", // 0x1000
 			"ROM0 ", // 0x2000
 			"ROM0 ", // 0x3000
-			"ROMX ", // 0x4000
-			"ROMX ", // 0x5000
-			"ROMX ", // 0x6000
-			"ROMX ", // 0x7000
+			romx,    // 0x4000
+			romx,    // 0x5000
+			romx,    // 0x6000
+			romx,    // 0x7000
 			"VRAM ", // 0x8000
 			"VRAM ", // 0x9000
-			"CRAM0", // 0xA000
-			"CRAM0", // 0xB000
+			cram,    // 0xA000
+			cram,    // 0xB000
 			"WRAM0", // 0xC000
 			"WRAMX", // 0xD000
 			"MIRR ", // 0xE000

@@ -209,19 +209,15 @@ class MBC1 {
         // RAM A000-BFFF
         } else if(address >= 0xA000 && address <= 0xBFFF)
         {
-            if(this.ramEnable)
-            {
-                address -= 0xA000;
-                if(this.mode == 0)
-                {
-                    return this.ram[address];
-                } else {
-                    return this.ram[address + this.ramBankAddress];
-                }
-            }
-            else
-            {
+            if(!this.ramEnable)
                 return 0xFF;
+
+            address -= 0xA000;
+            if(this.mode == 0)
+            {
+                return this.ram[address];
+            } else {
+                return this.ram[address + this.ramBankAddress];
             }
         }
 
