@@ -101,41 +101,15 @@ function hex(v, pad=0, prefix="0x") {
  * Converts a value into a binary string
  * @param {any} v 
  */
-function bin(v) {
-    return "0b" + v.toString(2).toUpperCase();
+function bin(v, pad=0) {
+    return "0b" + v.toString(2).toUpperCase().padStart(pad, "0");
 }
 
 
-/**
- * Shows a menu to prompt the user to save text
- * - must be called from an event
- * @param {String} text string to save
- */
-function copyClipMenu(text) {
-    const elem = document.getElementById('copyTextInput');
-    const menuDiv = document.getElementById('textCopyPopup');
-    elem.value = text;
-    elem.focus();
-    console.log("show clipboard menu");
-
-    // show menu
-    showElement(menuDiv);
-    menuDiv.style.opacity = "1";
-}
-
-
-/**
- * Copies to clipboard
- * - must be called by a reputable event
- * - copies text inside of 'copyTextInput'
- */
-function clipboardCopy() {
-    const elem = document.getElementById('copyTextInput');
-    
-    elem.readonly = false;
-    elem.contentEditable = true;
+function selectAll() {
+    const elem = document.getElementById('PromptText');
     elem.select();
-
+    
     const range = document.createRange();
     range.selectNodeContents(elem);
     
@@ -143,19 +117,22 @@ function clipboardCopy() {
     selection.removeAllRanges();
     selection.addRange(range);
     
-    
     elem.setSelectionRange(0, 999999);
-    
-    document.execCommand("copy");
-    
-    // hide menu
-    hideElement(document.getElementById('textCopyPopup'));
+}
 
-    // because the size is huge, we will empty the text inside it
-    elem.value = "";
+/**
+ * Shows a menu to prompt the user to save text
+ * - must be called from an event
+ * @param {String} text string to save
+ */
+function copyClipMenu(text) {
+    const m = PromptMenu.new("Copy Text", "", /\.+/g, 999999, (v)=> {
+        selectAll();
+        document.execCommand("copy");
+        showMessage("Copied to clipboard", "Success");
+    }, null, text, "copy");
     
-    // show success message
-    showMessage("Copied to clipboard", "Success");
+    PromptMenu.show(m);
 }
 
 
@@ -170,9 +147,9 @@ function showROMInfo() {
     }
 
     showMessage(
-        `<b class="debug-text" style="color:deepskyblue">ROM Name:</b> ${readROMName()}` +
-        '<div class="debug-text"><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
-        '<br><b style="color:deepskyblue">GBC Mode: </b>' + (c.cgb ? "yes" : "no") +
+        `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${readROMName()}` +
+        '<br><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
+        '<br><b style="color:deepskyblue">Emulation Mode:</b> ' + (c.cgb ? "GBC" : "DMG") +
         '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +
         '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.ram.length + " bytes": "none") +
         '</div>',

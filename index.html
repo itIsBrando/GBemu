@@ -552,7 +552,6 @@
                 font-family: monospace;
                 padding-left: 5px;
                 width:100%;
-                max-height: 450px;
                 margin: 0px;
                 scrollbar-color:#333333;
                 user-select: text;
@@ -688,7 +687,7 @@
             </div>
 
             <!-- New Debug menu -->
-            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 250px; display:none;">
+            <div id="DebugDiv" class="popup" style="width: fit-content; min-width: 250px; max-height: 80vh; display:none;">
                 <div style="display: flex; grid-template-columns: repeat(7, 1fr); overflow-x: auto;">
                     <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
                     <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
@@ -743,7 +742,7 @@
                         <div style="border: 3px solid #777777;">
                             <b>Registers</b>
                             <br>
-                            <pre id="DisassemblyRegisters" class="debug-text"></pre>
+                            <pre id="DisassemblyRegisters" class="debug-text" style="overflow-y: auto;"></pre>
                         </div>
                         <!-- A new menu for managing breakpoints -->
                         <div id="DisassemblyBreakpoints" class="popup">
@@ -820,12 +819,6 @@
                 <div class="div-separator"></div>
                 <!-- Holds all of the save's button -->
                 <div id="saveButtonDiv" style="max-height:50vh; overflow-y: auto;"></div>
-            </div>
-
-            <!-- allows the user to copy something to the clipboard -->
-            <div class="message-div" id="textCopyPopup" >
-                <input id="copyTextInput" type="text" contenteditable="true" maxlength="9999999">
-                <button type="button" class="menubtn" style="width:100%;" onclick="clipboardCopy()">Copy Text</button>
             </div>
 
             <!-- Change palette colors -->

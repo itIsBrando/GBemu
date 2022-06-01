@@ -1148,11 +1148,12 @@ var PromptMenu = new function() {
     const textInput = document.getElementById("PromptText");
     const menu = document.getElementById("PromptMenu");
     const title = document.getElementById("PromptTitle");
+	const submit = document.getElementById("PromptSubmit");
     
     this._onsubmit = null;
     this._oncancel = null;
     
-    this.new = function(t, p, accepts = /\w+/g, maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '') {
+    this.new = function(t, p, accepts = /\w+/g, maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '', buttontext = 'submit') {
         return {
             "accepts": accepts,
             "title": t,
@@ -1161,6 +1162,7 @@ var PromptMenu = new function() {
             "maxlength": maxlen,
             "onsubmit": onsubmit,
             "oncancel": oncancel,
+			"buttontext": buttontext
         };
     }
     
@@ -1189,6 +1191,8 @@ var PromptMenu = new function() {
         
         this._onsubmit = m["onsubmit"];
         this._oncancel = m["oncancel"];
+
+		submit.innerText = m["buttontext"];
         
         showElement(menu);
 
@@ -1204,5 +1208,6 @@ var PromptMenu = new function() {
     
     this.hide = function() {
         hideElement(menu);
+		textInput.value = "";
     }
 }

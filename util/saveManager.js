@@ -387,7 +387,7 @@ exportSaveButton.onclick = function() {
     // do saving
 
     // if we are mobile or embeded app, we cannot download files
-    if(window.navigator.standalone) {
+    if(true || window.navigator.standalone) {
         let str = SaveManager.pack(c.mbcHandler.ram);
         const data = JSON.stringify(new SaveStorage(readROMName(), str));
 
