@@ -291,7 +291,13 @@ const REGISTER_ADDR = {
 	0x0050: "Timer",
 	0x0058: "Serial",
 	0x0060: "Joypad",
+	0x0000: "RAMG",
+	0x2000: "ROMB0",
+	0x3000: "ROMB1",
 	0x8000: "VRAM",
+	0x9000: "SCRN0",
+	0x9800: "SCRN1",
+	0xA000: "SRAM",
 	0xC000: "RAM",
 	0xFE00: "OAM",
 	0xFF00: "JOYP",
@@ -893,6 +899,10 @@ var Debug = new function() {
 			[c.ppu.regs.obj1, 2],
 			[c.ppu.regs.wy, 2],
 			[c.ppu.regs.wx, 2],
+			[c.timerRegs.regs.div, 2],
+			[c.timerRegs.regs.tima, 2],
+			[c.timerRegs.regs.tma, 2],
+			[c.timerRegs.regs.tac | 0xF8, 2],
 			[c.interrupt_enable, 2],
 			[c.interrupt_master ? 1 : 0, 2],
 		];
@@ -917,6 +927,11 @@ var Debug = new function() {
 			"WY",
 			"WX",
 			"\n",
+			"DIV",
+			"TIMA",
+			"TMA",
+			"TAC",
+			"\n",
 			"IE",
 			"IME",
 		];
@@ -939,8 +954,8 @@ var Debug = new function() {
         let s = "";
 		const rombank = c.mbcHandler ? c.mbcHandler.bank : 'X';
 		const rambank = c.mbcHandler ? c.mbcHandler.ramBank : '0';
-		const romx = `ROM${hex(rombank, 2, '')} `;
-		const cram = `CRAM${hex(rambank, 2, '')}`;
+		const romx = `ROM${hex(rombank, 2, '')}`;
+		const cram = `RAM${hex(rambank, 2, '')}`;
 		const mem_types = [
 			"ROM0 ", // 0x0000
 			"ROM0 ", // 0x1000
