@@ -139,6 +139,11 @@
         #touchControls {
             position: fixed;
             bottom: 0px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
+            user-select: none;
         }
 
         #viewport {
@@ -198,16 +203,6 @@
         #screen {
             border-top-right-radius: 10px;
             border-bottom-right-radius: 25px;
-        }
-
-        /* Disable right click/highlighting */
-        /* Is this repetitive?? It is already present in html/body @TODO */
-        .no-selection {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-touch-callout: none;
-            user-select: none;
         }
 
         .dropdown {
@@ -757,7 +752,7 @@
             style="max-height: calc(100% - 41px); grid-template-columns: 3fr 1fr; grid-auto-rows: 3fr fit-content; height: 100%;">
             <div style="margin-right: 5px; overflow-y: auto;">
                 <b>Disassembler</b>
-                <pre class="debug-text" style="line-height: 150%; padding-bottom: 5px; overflow: hidden auto;"></pre>
+                <pre class="debug-text" style="line-height: 175%; padding: 5px; overflow: auto;"></pre>
                 <p id="DebugLog" style="display:none;"><br></p>
                 <input type="checkbox" name="debugLogEnable" id="debugLogEnable"><label for="debugLogEnable">Enable
                     Debug log</label>
@@ -810,8 +805,7 @@
     </div>
 
     <!-- Virtual Controller -->
-    <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;"
-        class="no-selection">
+    <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;">
         <div id="dpadButtons">
             <svg class="gamepad-button" width="50" height="50" name="UP" id="controllerUp"></svg>
             <svg class="gamepad-button" width="50" height="50" name="DOWN" id="controllerDown"></svg>

@@ -37,9 +37,10 @@ function startEmulation(rom) {
  */
 function pauseEmulation() {
     if(!c.isRunning)
-         return;
+        return;
 
     clearInterval(c.timer);
+    c.timer = null;
     setLEDStatus(false);
     
 };

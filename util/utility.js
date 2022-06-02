@@ -32,6 +32,8 @@ function hasNotch() {
  */
 function requestFullscreen() 
 {
+    if(!c.isRunning)
+        return;
     if(canvas.requestFullscreen)
     {
         canvas.requestFullscreen();

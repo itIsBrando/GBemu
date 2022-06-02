@@ -1,7 +1,8 @@
 
-const CACHE_NAME = 'gbemu-v1.5.1';
+const CACHE_NAME = 'gbemu-v1.6';
 const FILES = [
     "util/",
+    "icons/",
     "javascript/",
     "javascript/mbc",
     "util/saveManager.js",
@@ -9,6 +10,8 @@ const FILES = [
     "util/controller.js",
     "util/debug.js",
     "util/themes.js",
+    "util/cheats.js",
+    "util/touch.js",
     "javascript/types.js",
     "javascript/renderer.js",
     "javascript/mbc/MBC1.js",
@@ -22,9 +25,9 @@ const FILES = [
     "javascript/register.js",
     "javascript/cpu.js",
     "javascript/initalize.js",
-    "util/cheats.js",
-    "util/touch.js",
-    "index.html"
+    "icons/icon.jpg",
+    "manifest.webmanifest",
+    "index.html",
 ]
 
 /**

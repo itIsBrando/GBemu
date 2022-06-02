@@ -224,7 +224,7 @@ const opcodeLUT = [
 	"ret z",
 	"ret",
 	"jp z, ${u16}",
-	"0xCB - ${u8}", // @TODO
+	"CB",	// implemented elsewhere
 	"call z, ${u16}",
 	"call ${u16}",
 	"adc a, ${u8}",
@@ -257,7 +257,7 @@ const opcodeLUT = [
 	"and a, ${u8}",
 	"rst 0x20",
 
-	"add sp, {$i8}",
+	"add sp, ${i8}",
 	"jp hl",
 	"ld (${u16}), a",
 	null,
@@ -275,7 +275,7 @@ const opcodeLUT = [
 	"or a, ${u8}",
 	"rst 0x30",
 
-    "ld hl, sp+${u8}", // this should be 'i8' but has not been implemented yet @TODO
+    "ld hl, sp${i8}", // this should be 'i8' but has not been implemented yet @TODO
     "ld sp, hl",
     "ld a, (${u16})",
     "ei",
@@ -284,6 +284,52 @@ const opcodeLUT = [
     "cp a, ${u8}",
     "rst 0x38",
 ];
+
+const REGISTER_ADDR = {
+	0x0040: "VBlank",
+	0x0048: "LCD STAT",
+	0x0050: "Timer",
+	0x0058: "Serial",
+	0x0060: "Joypad",
+	0x8000: "VRAM",
+	0xC000: "RAM",
+	0xFE00: "OAM",
+	0xFF00: "JOYP",
+	0xFF01: "SB",
+	0xFF02: "SC",
+	0xFF04: "DIV",
+	0xFF05: "TIMA",
+	0xFF06: "TMA",
+	0xFF07: "TAC",
+	0xFF0F: "IF",
+	0xFF40: "LCDC",
+	0xFF41: "STAT",
+	0xFF42: "SCY",
+	0xFF43: "SCX",
+	0xFF44: "LY",
+	0xFF45: "LYC",
+	0xFF46: "DMA",
+	0xFF47: "BGP",
+	0xFF48: "OBP0",
+	0xFF49: "OBP1",
+	0xFF4A: "WY",
+	0xFF4B: "WX",
+	0xFF4D: "SPD",
+	0xFF4F: "VBK",
+	0xFF51: "HDMA1",
+	0xFF52: "HDMA2",
+	0xFF53: "HDMA3",
+	0xFF54: "HDMA4",
+	0xFF55: "HDMA5",
+	0xFF56: "RP",
+	0xFF68: "BGPI",
+	0xFF69: "BGPD",
+	0xFF6A: "OBPI",
+	0xFF6B: "OBPD",
+	0xFF70: "SVBK",
+	0xFFFF: "IE",
+	
+};
 
 
 var Debug = new function() {
@@ -299,7 +345,6 @@ var Debug = new function() {
 	const MapCanvas = document.getElementById('MapCanvas');
 
     this.DebugLog = document.getElementById('DebugLog');
-	let curObj = 0;
 	let curPC = 0;
 	let prevAddr = 0;
     this.timer = null;
@@ -314,9 +359,7 @@ var Debug = new function() {
         hideElement(MemDiv);
         hideElement(MapDiv);
 		hideElement(PalDiv);
-		c.renderer.clearBuffer();
-
-		// DebugDiv.classList.remove("debug-small-screen");
+		this.stopTimer();
 	}
 
 	this.clearLog = function() {
@@ -338,8 +381,7 @@ var Debug = new function() {
 		showElement(DebugDiv);
 		this.hideOpen();
 		pauseEmulation();
-        Debug.stopRunTilBreak();
-		curObj = 0;
+        this.stopRunTilBreak();
 		this.enabled = true;
         
         if(this.initialized)
@@ -404,7 +446,8 @@ var Debug = new function() {
 		this.hideOpen();
 		showElement(SpriteDetailDiv);
         
-        c.renderer.renderSprites(c.ppu, c);
+		c.renderer.clearBuffer();
+        c.renderer.renderSprites();
 
 		this.showObj(0);
 
@@ -566,7 +609,6 @@ var Debug = new function() {
 
 
 	/**
-	 * @todo ADD TILE PREVIEW IMAGE
 	 * @param {Number} num 
 	 */
 	this.showObj = function(num) {
@@ -633,6 +675,13 @@ var Debug = new function() {
 	}	
 
 	const useBrackets = true; // add option to change
+
+	this.getAddressName = function(addr) {
+		if(REGISTER_ADDR[addr])
+			return ` ; ${REGISTER_ADDR[addr]}`;
+		
+		return '';
+	}
     
     this.getOpLength = function(op) {
         const s = opcodeLUT[op];
@@ -685,6 +734,7 @@ var Debug = new function() {
 			s = s.replace("(", "[").replace(")", "]");
 
 		let special = s.indexOf("${");
+		let addr = null;
         
 		if(special != -1) {
 			let id = s.substring(special+2, s.indexOf("}"));
@@ -692,16 +742,26 @@ var Debug = new function() {
 			switch(id)
 			{
 				case "u8":
-					append = Debug.hex(c.read8(curPC));
+					const byte = c.read8(curPC);
+					append = Debug.hex(byte);
 					this.increasePC(1);
+					// if these are ldh instr.
+					if(op == 0xE0 || op == 0xF0)
+						addr = 0xFF00 + byte;
+					break;
+				case "i8":
+					const i = c.read8(curPC);
+					append = `-${Debug.hex(i > 127 ? ((~i)&255) + 1 : i)}`;
 					break;
 				case "s8":
-					const addr = c.read8(curPC);
+					addr = c.read8(curPC);
 					this.increasePC(1);
-					append = Debug.hex(addr > 127 ? curPC - ((~addr&255) + 1): curPC + addr, 4);
+					addr = addr > 127 ? curPC - ((~addr&255) + 1): curPC + addr;
+					append = Debug.hex(addr, 4);
 					break;
 				case "u16":
-					append = Debug.hex(c.read16(curPC), 4);
+					addr = c.read16(curPC);
+					append = Debug.hex(addr, 4);
 					this.increasePC(2);
 					break;
 				default:
@@ -710,7 +770,9 @@ var Debug = new function() {
                     c.LOG(`Unknown string id: ${id}`);
 			}
 
-			s = s.replace("${"+id+"}", append);
+			s = s.replace(/\${.+}/g, append);
+			if(addr != null)
+				s += `<i style="color:gray;">${this.getAddressName(addr)}</i>`;
 		}
 
 		return s;
@@ -767,15 +829,18 @@ var Debug = new function() {
 		return this.breakpoints[pc] == true;
 	}
     
+	this.stopTimer = function() {
+		if(this.timer)
+            clearInterval(this.timer);
+			
+        this.timer = null;
+	}
     
     this.stopRunTilBreak = function() {
         setLEDStatus(false);
 
-        if(Debug.timer)
-            clearInterval(Debug.timer);
-			
-        Debug.timer = null;
-		Debug.showDisassembly(c.pc.v);
+        this.stopTimer();
+		this.showDisassembly(c.pc.v);
     }
     
     this._runTilBreak = function() {
@@ -796,7 +861,7 @@ var Debug = new function() {
 		}
         
         if(this.timer) {
-            Debug.stopRunTilBreak();
+            this.stopRunTilBreak();
         }
         else {
             this.timer = setInterval(Debug._runTilBreak, 1);
@@ -944,7 +1009,7 @@ var Debug = new function() {
 			c.pc.v -> actual instruction being executed.
 		*/
 		const a = DisassemblyDiv.getElementsByTagName("pre")[0];
-		const NUM_INSTR = 18;
+		const NUM_INSTR = 36;
         
 		this.hideOpen();
 		showElement(DisassemblyDiv, 'grid');
@@ -968,12 +1033,12 @@ var Debug = new function() {
 		{
 			const isCurPC = c.pc.v == curPC;
 			const isBreak = this.isBreakpoint(curPC);
-			let str = isCurPC ? "<b style='background-color:lime; color: gray;'>" : "";
+			let str = isCurPC ? "<b style='background-color:lime; color: gray; padding-right:80%;'>" : "";
 
 			if(highlightPC && pc == curPC)
-				str += "<b style='background-color:lightblue; color: black;'>";
+				str += "<b style='background-color:lightblue; color: black; padding-right:80%;'>";
 
-			str += isBreak ? "<b style='color:red;' title='breakpoint'>*" : " ";
+			str += isBreak ? "<b style='color:red; padding-right:80%;' title='breakpoint'>*" : " ";
 
 			str += hex(curPC, 4, "") + " : "
 				 + this.parseOp(curPC);

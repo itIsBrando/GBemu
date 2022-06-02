@@ -376,7 +376,7 @@ class CPU {
             // working RAM
             address -= 0xD000;
             if(this.cgb)
-                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000] = byte; // @TODO does this need to be +0x1000???
+                this.mem.wram[address + this.ppu.cgb.svbk * 0x1000 + 0x1000] = byte;
             else
                 this.mem.wram[address + 0x1000] = byte;
         } else if(address < 0xFE00) {
