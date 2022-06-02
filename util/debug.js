@@ -336,6 +336,8 @@ var Debug = new function() {
 	const DebugDiv = document.getElementById('DebugDiv');
 	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
+	const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
+	const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
     const MemDiv = document.getElementById('MemoryDiv');
     const MapDiv = document.getElementById('MapDiv');
 	const PalDiv = document.getElementById('PalDiv');
@@ -343,10 +345,10 @@ var Debug = new function() {
 	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
     const radioButtons = document.getElementsByName("displayMode");
 	const MapCanvas = document.getElementById('MapCanvas');
-
-    this.DebugLog = document.getElementById('DebugLog');
 	let curPC = 0;
 	let prevAddr = 0;
+	const NUM_INSTR_MIN = 36;
+	let instr_shown = NUM_INSTR_MIN;
     this.timer = null;
     this.basePC = 0;
 
@@ -362,32 +364,17 @@ var Debug = new function() {
 		this.stopTimer();
 	}
 
-	this.clearLog = function() {
-		this.DebugLog.innerHTML = "New Messages will appear here<br>";
-	}
-    
-    this.useLog = function(v = null) {
-        if(v == null)
-            return this.DebugLog.style.display != "none";
-        if(v == true)
-            showElement(this.DebugLog);
-        else {
-            hideElement(this.DebugLog);
-        }
-    }
-
-
 	this.start = function() {
 		showElement(DebugDiv);
 		this.hideOpen();
 		pauseEmulation();
         this.stopRunTilBreak();
 		this.enabled = true;
+
+		this.showDisassembly(c.pc.v);
         
         if(this.initialized)
             return;
-
-		this.clearLog();
 		
 		// map canvas
 		MapCanvas.addEventListener("click", function(e) {
@@ -425,6 +412,23 @@ var Debug = new function() {
                 Debug.showMap();
             });
         };
+
+		
+		// Add scroll event to disassembler
+		DisScrollDiv.addEventListener("scroll", (e) => {
+			if(Debug.isScrolling)
+				return;
+			
+			window.requestAnimationFrame(() => {
+				if(Math.ceil(e.target.clientHeight + e.target.scrollTop) > e.target.scrollHeight) {
+					instr_shown += 18;
+					Debug.drawDisassembly(curPC);
+				}
+				Debug.isScrolling = false;
+			});
+			
+			Debug.isScrolling = true;
+		})
         
         this.initialized = true;
 	}
@@ -840,7 +844,7 @@ var Debug = new function() {
         setLEDStatus(false);
 
         this.stopTimer();
-		this.showDisassembly(c.pc.v);
+		this.drawDisassembly(c.pc.v);
     }
     
     this._runTilBreak = function() {
@@ -868,7 +872,7 @@ var Debug = new function() {
             setLEDStatus(true);
         }
         
-        Debug.showDisassembly(c.pc.v);
+        Debug.drawDisassembly(c.pc.v);
 	}
 
 	this.showRegister = function() {
@@ -935,8 +939,8 @@ var Debug = new function() {
         let s = "";
 		const rombank = c.mbcHandler ? c.mbcHandler.bank : 'X';
 		const rambank = c.mbcHandler ? c.mbcHandler.ramBank : '0';
-		const romx = `ROM${rombank} `;
-		const cram = `CRAM${rambank}`;
+		const romx = `ROM${hex(rombank, 2, '')} `;
+		const cram = `CRAM${hex(rambank, 2, '')}`;
 		const mem_types = [
 			"ROM0 ", // 0x0000
 			"ROM0 ", // 0x1000
@@ -975,8 +979,8 @@ var Debug = new function() {
 	/**
 	 * The presence of this function allows for the PC to step through the entire
 	 * 	visible disassembler window. Previously, the disassembler would scroll when
-	 *  the PC exceeded `NUM_INSTR` bytes, but now it will scroll once we have
-	 *  exceeded `NUM_INSTR` instructions
+	 *  the PC exceeded `NUM_INSTR_MIN` bytes, but now it will scroll once we have
+	 *  exceeded `NUM_INSTR_MIN` instructions
 	 * - This function will calculate the number of instructions that occur
 	 *    between the addresses. If this value exceeds `range`, then it will
 	 *    `true`, otherwise false 
@@ -1000,7 +1004,7 @@ var Debug = new function() {
 	 * 
 	 * @param {Number} pc PC base to inspect
 	 */
-	this.showDisassembly = function(pc, highlightPC = false) {
+	this.showDisassembly = function(pc) {
 		/*
 			prevAddr -> address of the last instruction ran. Can be >, <, or = to c.pc.v
 			curScroll-> difference betweeen last instruction and current instruction
@@ -1008,15 +1012,21 @@ var Debug = new function() {
 				- this will always be >= c.pc.v
 			c.pc.v -> actual instruction being executed.
 		*/
-		const a = DisassemblyDiv.getElementsByTagName("pre")[0];
-		const NUM_INSTR = 36;
         
 		this.hideOpen();
 		showElement(DisassemblyDiv, 'grid');
+		instr_shown = NUM_INSTR_MIN;
+		DisScrollDiv.scrollTo(0, 0);
+		this.drawDisassembly(pc);
+	}
+
+	
+	this.drawDisassembly = function(pc, highlightPC = false) {
 		curPC = pc;
 		let curScroll = curPC - prevAddr;
+		const offsetInstr = Math.abs(curScroll);
 
-		if(this.isInsOutOfRange(curPC - curScroll, pc, NUM_INSTR)) {
+		if(this.isInsOutOfRange(curPC - curScroll, pc, instr_shown)) {
 			prevAddr = pc;
 		} else {
 			curPC -= curScroll;
@@ -1027,18 +1037,18 @@ var Debug = new function() {
             
         this.basePC = curPC;
 
-		a.innerHTML = "";
+		DisText.innerHTML = "";
 
-		for(let i = 0; i < NUM_INSTR; i++)
+		for(let i = 0; i < instr_shown; i++)
 		{
 			const isCurPC = c.pc.v == curPC;
 			const isBreak = this.isBreakpoint(curPC);
-			let str = isCurPC ? "<b style='background-color:lime; color: gray; padding-right:80%;'>" : "";
+			let str = isCurPC ? "<b style='background-color:lime; color: gray; padding-right:100%;'>" : "";
 
 			if(highlightPC && pc == curPC)
-				str += "<b style='background-color:lightblue; color: black; padding-right:80%;'>";
+				str += "<b style='background-color:lightblue; color: black; padding-right:100%;'>";
 
-			str += isBreak ? "<b style='color:red; padding-right:80%;' title='breakpoint'>*" : " ";
+			str += isBreak ? "<b style='background-color:red; padding-right:100%;' title='breakpoint'>*" : " ";
 
 			str += hex(curPC, 4, "") + " : "
 				 + this.parseOp(curPC);
@@ -1051,9 +1061,14 @@ var Debug = new function() {
 				str += "</b>";
 
 
-			a.innerHTML += str + "<br>";
+			DisText.innerHTML += str + "<br>";
 
 		}
+
+		// scroll to the location of the program counter
+		// const height = Math.round(DisText.clientHeight / instr_shown); // height of each line (including line spacing)
+		// DisScrollDiv.scrollTo(0, height * (offsetInstr - 3));
+		// console.log(height * (offsetInstr - 3), offsetInstr);
 
 		this.showRegister();
 	}
@@ -1073,7 +1088,7 @@ var Debug = new function() {
 		do {
 			c.execute();
 		} while(c.isHalted);
-		this.showDisassembly(c.pc.v);
+		this.drawDisassembly(c.pc.v);
 	}
     
     // Skips subroutines
@@ -1096,14 +1111,14 @@ var Debug = new function() {
             } while(c.isHalted || c.pc.v != addr);
         }
         
-        this.showDisassembly(c.pc.v);
+        this.drawDisassembly(c.pc.v);
     }
 
 	this.gotoDis = function() {
         const m = PromptMenu.new("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, function(a) {
             a = Number("0x" + a);
             if(a != null)
-                Debug.showDisassembly(a, true);
+                Debug.drawDisassembly(a, true);
         });
         
         PromptMenu.show(m);
@@ -1126,14 +1141,20 @@ var Debug = new function() {
 				high &= 0xFF;
             
             let p = Debug.basePC; // we will start searching from the currently shown address in the disassembler
+			let found = false;
             
             while(++p < 0xFFFF) {
-                if(c.read8(p) == low) {
-					if(!useHigh || (useHigh && c.read8(p + 1) == high))
-					{
-						Debug.showDisassembly(p, true);
-						return;
-					}
+				if(useHigh) {
+					if(c.read8(p) == high && c.read8(p + 1) == low)
+						found = true;
+				} else {
+					if(c.read8(p) == low)
+						found = true;
+				}
+					
+				if(found) {
+					Debug.drawDisassembly(p, true);
+					return;
                 }
             }
             
@@ -1195,7 +1216,7 @@ var Debug = new function() {
     
     this.hideBreak = function() {
         hideElement(document.getElementById("DisassemblyBreakpoints"));
-		this.showDisassembly(c.pc.v);
+		this.drawDisassembly(c.pc.v);
     }
 
 

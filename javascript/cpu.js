@@ -247,7 +247,6 @@ class CPU {
         this.timerRegs.reset();
         this.ppu.reset();
         this.cheats.reset();
-        Debug.clearLog();
     }
 
     // true if the CPU is currently running a ROM
@@ -622,9 +621,7 @@ class CPU {
      * @param {String} str output
      */
     LOG(str, throwException = false) {
-        if(Debug.useLog()) {
-            Debug.DebugLog.innerHTML += `${str}<br>`;
-        } else if(!USE_LOG)
+        if(!USE_LOG)
             return;
         else if(throwException)
             throw str;
