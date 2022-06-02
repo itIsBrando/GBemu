@@ -573,6 +573,11 @@
         .pal-canvas {
             width: 100%;
             aspect-ratio: 4 / 1;
+            cursor: pointer;
+        }
+
+        .pal-canvas:hover {
+            filter: brightness(0.8);
         }
 
         .debug-pal-prev {
@@ -702,9 +707,10 @@
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
         </div>
         <div id="PalDiv"
-            style="display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 100%; column-gap: 10px; max-height: calc(100% - 41px);">
+            style="display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr fit-content; column-gap: 10px; max-height: calc(100% - 41px);">
             <div id="PalBG" class="debug-pal-prev"></div>
             <div id="PalOBJ" class="debug-pal-prev"></div>
+            <a style="grid-column: 1 / 3; width: 100%;"></a>
         </div>
         <div id="MapDiv" style="overflow: hidden auto; max-height: calc(100% - 41px);">
             <div id="MapInfo">

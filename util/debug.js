@@ -357,6 +357,7 @@ var Debug = new function() {
 	let instr_shown = NUM_INSTR_MIN;
     this.timer = null;
     this.basePC = 0;
+	this.viewingPal = 0;
 
 	this.enabled = false;
     this.initialized = false;
@@ -506,8 +507,12 @@ var Debug = new function() {
 
 		const offset = tx + ty * 32;
 		const tile = mapBase ? c.read8(offset + mapBase) : offset;
+		const addr = c.ppu.getBGTileAddress(tile);
 
-		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(c.ppu.getBGTileAddress(tile), 4)}<br>X: ${tx}<br>Y: ${ty}`;
+		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}<br>X: ${tx}<br>Y: ${ty}`;
+
+		if(mapBase != null)
+			s += `<br>Flag: ${this.hex(c.ppu.getTileAttributes(offset + mapBase))}`;
         
 		TileInfo.innerHTML = s;
 		this.showTilePreview(tile);
@@ -648,6 +653,7 @@ var Debug = new function() {
 			canv.width = "4";
 			canv.height = "1";
 			canv.className = "pal-canvas";
+			canv.value = i;
 			
 			const ctx = canv.getContext("2d");
 			const img = ctx.getImageData(0, 0, 4, 1);
@@ -666,6 +672,57 @@ var Debug = new function() {
 			ctx.putImageData(img, 0, 0);
 
 			div.appendChild(canv);
+
+			if(isBG) {
+				canv.addEventListener('click', (e) => {
+					Debug.viewPaletteColors(Number(e.target.value));
+				});
+			}
+		}
+	}
+
+	/**
+	 * @param {Number} palNum
+	 */
+	this.getBGColor = function(palNum, color) {
+		palNum *= 8;
+		const bgi = color * 2 + palNum;
+		return (c.ppu.cgb.bgPal[bgi + 1] << 8) | c.ppu.cgb.bgPal[bgi];
+		 
+	}
+
+	/**
+	 * @param {Number} palNum 0-7
+	 * @param {Number} color index of color in palette (0-3)
+	 * @param {Number} word 16-bit color
+	 */
+	this.setBGColor = function(palNum, color, word) {
+		const bgi = palNum * 8 + color * 2;
+
+		c.ppu.updateBackgroundRGB(bgi, word & 0xFF);
+		c.ppu.updateBackgroundRGB(bgi + 1, word >> 8);
+
+		this.showPalette();
+		this.viewPaletteColors(palNum);
+	}
+
+	this.viewPaletteColors = function(palNum) {
+		const a = PalDiv.getElementsByTagName('a')[0];
+
+		this.viewingPal = palNum
+		a.innerHTML = "";
+		for(let i = 0; i < 4; i++) {
+			const button = document.createElement('button');
+
+			button.type = "button";
+			button.value = i;
+			button.innerText = this.hex(this.getBGColor(palNum, i), 4);
+			button.className = "menubtn";
+			button.style.width = "25%";
+			showElement(button, 'inline-block');
+			a.appendChild(button);
+			button.addEventListener("click", Debug.changeColor);
+
 		}
 	}
 
@@ -675,6 +732,16 @@ var Debug = new function() {
 
 		this.drawPalettes(document.getElementById('PalBG'), true);
 		this.drawPalettes(document.getElementById('PalOBJ'), false);
+	}
+
+	this.changeColor = function(e) {
+		const m = PromptMenu.new("Color", "0000-FFFF", /[0-9a-fA-F]+/g, 4, (v) => {
+			v = Number("0x" + v);
+			console.log(Debug.viewingPal, e.target.value);
+			Debug.setBGColor(Debug.viewingPal & 7, Number(e.target.value), v);
+		});
+
+		PromptMenu.show(m);
 	}
 
 	this.quit = function() {

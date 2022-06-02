@@ -284,4 +284,84 @@ class PPU {
         } 
     }
 
+    // must convert this modified palette into usable RGB
+    updateBackgroundRGB(bgi, byte) {
+        const palNum = bgi >> 3;
+        const colorIndex = (bgi >> 1) & 3;
+        const a = (bgi & 0x1) == 1;
+        
+        if(a)
+            byte &= 0x7F;
+            
+        this.cgb.bgPal[bgi] = byte;
+        // ^ this is only used for reading. Functionality is in `rgbBG`
+
+        if(!a) {
+            // write r and g
+            const r = byte & 0x1F;
+            const green_low = UInt8.getRange(byte, 5, 3);
+            const green_high = UInt8.getRange(this.cgb.bgPal[bgi + 1], 0, 2);
+            const g = (green_high << 3) | green_low;
+            this.cgb.rgbBG[palNum][colorIndex][0] = r << 3;
+            this.cgb.rgbBG[palNum][colorIndex][1] = g << 3;
+        } else {
+            // write g
+            const green_low = UInt8.getRange(this.cgb.bgPal[bgi - 1], 5, 3);
+            const green_high = UInt8.getRange(byte, 0, 2);
+            const g = (green_high << 3) | green_low;
+            this.cgb.rgbBG[palNum][colorIndex][1] = g << 3;
+            // write b
+            const b = UInt8.getRange(byte, 2, 5);
+            this.cgb.rgbBG[palNum][colorIndex][2] = b << 3;
+        }
+    }
+    
+    writeBGPal(byte) {
+        // cgb only
+        const bgi = this.cgb.bgi;
+            
+        if(this.cgb.bgAutoInc)
+        this.cgb.bgi = (this.cgb.bgi + 1) & 0x3F;
+        
+        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
+            return;
+        
+        this.updateBackgroundRGB(bgi, byte);
+    }
+    
+    writeOBJPal(byte) {
+        // cgb only
+        const obji = this.cgb.obji;
+
+        if(this.cgb.objAutoInc)
+            this.cgb.obji = (this.cgb.obji + 1) & 0x3F;
+            
+        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
+            return;
+
+        this.cgb.objPal[obji] = byte;
+
+        const palNum = obji >> 3;
+        const colorIndex = (obji >> 1) & 3;
+        const a = obji & 0x1;
+
+        if(a == 0) {
+            // write r and g
+            const r = byte & 0x1F;
+            const green_low = UInt8.getRange(byte, 5, 3);
+            const green_high = UInt8.getRange(this.cgb.objPal[obji + 1], 0, 2);
+            const g = (green_high << 3) | green_low;
+            this.cgb.rgbOBJ[palNum][colorIndex][0] = r << 3;
+            this.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
+        } else {
+            // write g and b
+            const green_low = UInt8.getRange(this.cgb.objPal[obji - 1], 5, 3);
+            const green_high = UInt8.getRange(byte, 0, 2);
+            const g = (green_high << 3) | green_low;
+            const b = UInt8.getRange(byte, 2, 5);
+            this.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
+            this.cgb.rgbOBJ[palNum][colorIndex][2] = b << 3;
+        }
+    }
+
 }
