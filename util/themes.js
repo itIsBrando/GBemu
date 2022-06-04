@@ -41,13 +41,11 @@ var Themes = new function() {
         document.body.classList.add(themes[i]);
 
         this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--bg-color'));
-        localStorage.setItem("__core_theme", String(i));
+        Settings.set_core("theme", String(i));
     }
 
 };
 
-const t = localStorage.getItem("__core_theme");
+const t = Settings.get_core("theme", 0);
 
-if(t) {
-    Themes.apply(Number(t));
-}
+Themes.apply(Number(t));

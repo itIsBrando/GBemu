@@ -35,22 +35,24 @@ const saveButtonDiv = document.getElementById('saveButtonDiv');
 /**
  * Shows the popup menu
  * - does nothing if this menu is already open
- * @param {String} title header string
- * @param {String} buttonText text to display to the user
+ * @param {String} title header string @todo implement
  * @returns false if the menu is already open
  */
-function showPopupMenu(title, buttonText) {
+function showPopupMenu(title) {
     if(popupMenu.style.display == "block")
         return false;
     
     showElement(popupMenu);
     FrontEndMenu.showOverlay();
+    pauseEmulation();
 }
 
 
 function hidePopupMenu() {
     hideElement(popupMenu);
     FrontEndMenu.hideOverlay();
+
+    resumeEmulation();
 
     // now we must delete buttons from popup menu
     saveButtonDiv.innerHTML = "";
@@ -74,18 +76,10 @@ localSaveButton.addEventListener('click', function() {
         
     });
 
-    if(!showPopupMenu("Save Name", "Save"))
+    if(!showPopupMenu("Save"))
         return;
 });
 
-
-/**
- * Populates the text form with the name of a localStorage key
- */
-const pasteLabel = function() {
-    SaveManager.injectLocalStorage(this.value);
-    hidePopupMenu();
-}
 
 
 function hideElement(e) {
@@ -99,6 +93,7 @@ function showElement(e, style = 'block') {
 
 
 var SaveManager = new function() {
+    const CORE_PREFIX = "__core_";
     /**
      * 
      * @param {Uint8Array} arr 
@@ -231,6 +226,25 @@ var SaveManager = new function() {
         }
         
     
+    }
+
+    /**
+     * @returns an array of keys that contain the rom name
+     */
+    this.getSavesFromName = function(romName) {
+        const keys = Object.keys(localStorage);
+        let out = [];
+        for(let i in keys) {
+            if(Settings.isSetting(keys[i]))
+                continue;
+
+            const e = JSON.parse(localStorage.getItem(keys[i]));
+
+            if(e['label'] === romName)
+                out.push(keys[i]);
+        }
+
+        return out;
     }
 
 
@@ -367,10 +381,13 @@ localLoadButton.addEventListener('click', function() {
     showElement(saveEditButton);
     hideElement(plusButton);
 
-    SaveManager.populateSaveHTML(pasteLabel);
-    // iterate through each value in `localStorage`
-    //  and create a button for each entry
-    showPopupMenu("Save Name", "Load");
+    SaveManager.populateSaveHTML(function() {
+        const key = this.value;
+        hidePopupMenu();
+        SaveManager.injectLocalStorage(key);
+    });
+    
+    showPopupMenu("Load");
 })
 
 

@@ -1045,7 +1045,7 @@ var Debug = new function() {
         this.hideOpen();
 		showElement(MemDiv);
 
-		if(!c.loadedROM) {
+		if(!c.romLoaded) {
 			a.innerHTML = "Load a ROM before viewing memory";
 			return;
 		}

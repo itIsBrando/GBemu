@@ -316,12 +316,12 @@ var FrontEndPalette = new function() {
 
     this.save = function() {
         const json = JSON.stringify(palette);
-        localStorage.setItem("__core_defaultPalette", json);
+        Settings.set_core("defaultPalette", json);
         showMessage("Current Palette saved");
     }
 
     this.load = function() {
-        const pal = localStorage.getItem("__core_defaultPalette");
+        const pal = Settings.get_core("defaultPalette");
         if(pal)
         {
             palette = JSON.parse(pal);

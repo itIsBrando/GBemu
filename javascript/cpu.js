@@ -127,7 +127,7 @@ class CPU {
         // Bool to show/hide "power consumption"
         this.powerConsumptionShown = false;
         // set to true once a ROM file has been loaded
-        this.loadedROM = false;
+        this.romLoaded = false;
         // Incremented every instruction execution
         this.ticks = 0;
         // speed multiplier
@@ -543,7 +543,7 @@ class CPU {
         this.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
         this.LOG(`ROM Name: ${readROMName()}`);
 
-        this.loadedROM = true;
+        this.romLoaded = true;
     }
 
     /**

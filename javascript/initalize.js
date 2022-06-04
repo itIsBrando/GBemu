@@ -3,7 +3,6 @@
 const INTERVAL_SPEED = 8;
 
 var c = new CPU();
-var romLoaded = false;
 
 // passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 /**
@@ -19,7 +18,6 @@ var romLoaded = false;
  */
 function startEmulation(rom) {
     clearInterval(c.timer);
-    romLoaded = true;
     c.initialize();
     c.loadROM(rom);
 
@@ -28,6 +26,18 @@ function startEmulation(rom) {
         
     c.timer = setInterval(run, INTERVAL_SPEED);
     setLEDStatus(true);
+
+    // this is an auto load feature. We will automatically load the save of first occurence of the rom name in localStorage
+    //  this feature can be disabled by setting the `autoload` to `false` 
+    if(Settings.get_core("autoload", 'true') == 'true') {
+        const keys = SaveManager.getSavesFromName(readROMName());
+        console.log(keys);
+
+        if(keys.length == 0)
+            return;
+        
+        SaveManager.injectLocalStorage(keys[0]);
+    }
 };
 
 
@@ -36,7 +46,7 @@ function startEmulation(rom) {
  * Pauses the CPU if it is running, otherwise does nothing.
  */
 function pauseEmulation() {
-    if(!c.isRunning)
+    if(!c.isRunning || c.timer == null)
         return;
 
     clearInterval(c.timer);
@@ -62,7 +72,7 @@ function setLEDStatus(on) {
  * @see pauseEmulation
  */
 function resumeEmulation() {
-    if(!romLoaded)
+    if(!c.romLoaded || c.timer != null)
         return;
 
     c.timer = setInterval(run, INTERVAL_SPEED);
@@ -74,7 +84,7 @@ function resumeEmulation() {
  * Restarts the game that is running
  */
 function restartEmulation() {
-    if(!c.isRunning || !romLoaded)
+    if(!c.isRunning || !c.romLoaded)
         return;
 
 
@@ -115,9 +125,9 @@ const toggleDMGMode = document.getElementById('toggleDMGMode');
 function forceEmulationMode(dmgOnly) {
     c.forceDMG = dmgOnly;
 
-    toggleDMGMode.innerText = c.forceDMG ? "Enable GBC: no" : "Enable GBC: yes";
+    toggleDMGMode.innerText = c.forceDMG ? "DMG" : "GBC";
 
-    localStorage.setItem("__core_dmgOnly", String(c.forceDMG));
+    Settings.set_core("dmgOnly", String(c.forceDMG));
     
     if(c.isRunning)
         showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
@@ -129,7 +139,7 @@ toggleDMGMode.onclick = function() {
 }
 
 
-const f = localStorage.getItem("__core_dmgOnly");
+const f = Settings.get_core("dmgOnly");
 
 if(f != null)
     forceEmulationMode(f == "true" ? true : false);

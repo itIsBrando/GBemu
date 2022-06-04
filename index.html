@@ -310,6 +310,11 @@
             filter: brightness(0.8);
         }
 
+        .settings-btn {
+            width:min-content;
+            display:inline-block;
+        }
+
         .title-btn {
             background-color: var(--title-btn-color);
             color: var(--text-color);
@@ -652,17 +657,10 @@
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
             <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch
                 controls</button>
-            <!-- change keyboard controls -->
-            <button type="button" id="changeKeybinding" style="width: inherit;" class="menubtn"
-                onclick="FrontEndKeyBinding.show();">Keyboard Controls</button>
-            <button type="button" id="changePaletteButton" style="width: inherit;" class="menubtn"
-                onclick="FrontEndPalette.showPaletteMenu();">Change Palette</button>
-            <!-- <button type="button" style="width: inherit;" title="Show/hide CPU power consumption" class="menubtn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">Power Consumption</button> -->
             <button type="button" style="width: inherit;" class="menubtn" onclick="Themes.next();">Themes</button>
-            <button type="button" id="toggleDMGMode" title="Can run in original GB or GameBoy Color emulation modes"
-                style="width: inherit;" class="menubtn">Enable GBC: yes</button>
             <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn"
-                onclick="Debug.start();">Debugger</button>
+            onclick="Debug.start();">Debugger</button>
+            <button type="button" title="open settings" style="width: inherit;" class="menubtn" onclick="Settings.show();">Settings</button>
         </div>
     </div>
 
@@ -692,6 +690,33 @@
             <div id="screen-container-border-right"></div>
         </div>
     </div>
+
+    <!-- Settings menu -->
+    <div id="SettingsDiv" class="popup" style="width: fit-content; min-width: 250px; display:none; overflow-y: auto; max-height: 80vh;">
+        <b><code>Settings</code></b>
+        <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
+        <div class="div-separator"></div>
+        
+        <h3>Emulation Settings</h3>
+        <!-- Emulation Mode -->
+        <label for="emuMode">Emulation Mode:</label>
+        <button type="button" name="emuMode" id="toggleDMGMode" title="change emulation mode"
+        class="menubtn settings-btn"></button>
+        <!-- DMG Palette -->
+        <br><label for="dmgPal">DMG Colors:</label>
+        <button type="button" name="dmgPal" id="changePaletteButton" style="width: fit-content;" class="menubtn settings-btn"
+                onclick="FrontEndPalette.showPaletteMenu();">edit</button>
+        <!-- Power consumption -->
+        <button type="button" style="width: 100%;" title="Show CPU power usage" class="menubtn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">Toggle power consumption</button>
+        
+        <h3>Other</h3>
+        <label for="autoload">Automatically load saves:</label>
+        <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn"></button>
+        <!-- change keyboard controls -->
+        <button type="button" id="changeKeybinding" style="width: 100%;" class="menubtn"
+        onclick="FrontEndKeyBinding.show();">Keyboard Bindings</button>
+    </div>
+
 
     <!-- New Debug menu -->
     <div id="DebugDiv" class="popup"
@@ -810,10 +835,10 @@
     </div>
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="popup" style="width: fit-content;" id="keyBindingDiv">
+    <div class="popup" style="width: fit-content; overflow-y: auto; max-height: 80vh;" id="keyBindingDiv">
         <b>Set Keyboard Bindings</b>
         <button class="x-btn" onclick="FrontEndKeyBinding.hide();">&times;</button>
-        <div style="border-bottom: 2px solid aliceblue;"></div>
+        <div class="div-separator"></div>
 
         <button type="button" onclick="FrontEndKeyBinding.assign('A');" class="keypad-binding-btn"></button>
         <button type="button" onclick="FrontEndKeyBinding.assign('B');" class="keypad-binding-btn"></button>
@@ -833,7 +858,7 @@
     <div class="popup" id="popup">
         <label id="popup-title" style="margin:5px" for="localSaveName"><b>Save Name</b></label>
         <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
-        <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right;">edit</button>
+        <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace;">edit</button>
         <button id="plusButton" type="button" class="menubtn"
             style="width: fit-content; float:right; margin-right: 2px;" onclick="SaveManager.addSave();">+</button>
         <div class="div-separator"></div>
@@ -853,11 +878,11 @@
         <button type="button" class="menubtn"
             style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;"
             onclick="FrontEndPalette.onPaletteArrow(1)">&rarr;</button>
-        <a id="paletteTitle" style="color: aliceblue; margin-bottom: 8px; padding-bottom: 8px;"><b>Color 0</b></a>
+            <code id="paletteTitle" style="color: aliceblue; margin-bottom: 8px; padding-bottom: 8px;">Color 0</code>
         <button type="button" class="iconbtn" style="float: right;" title="load"
             onclick="FrontEndPalette.load();">&#9112;</button>
         <!-- color inputs -->
-        <div id="colorPreview" style="background-color: #000000; width: 100%; height: 100px; display:block;"></div>
+        <div id="colorPreview" style="background-color: #000000; width: 100%; aspect-ratio: 1 / 1; display:block;"></div>
         <input id="colorR" style="width: 100%;" placeholder="red" type="number" min="0" max="255"
             oninput="FrontEndPalette.onPaletteChange()">
         <input id="colorG" style="width: 100%;" placeholder="green" type="number" min="0" max="255"
@@ -885,7 +910,6 @@
 
     </div>
 
-    <!-- REMOVE LATER -->
     <a id="powerConsumption" style="display: none; color: lightblue;">power consumption: 0%</a>
 
     <!-- Used to save files but is never shown-->
@@ -894,6 +918,7 @@
 <body>
     <script src="util/saveManager.js"></script>
     <script src="util/utility.js"></script>
+    <script src="util/settings.js"></script>
     <script src="util/controller.js"></script>
     <script src="util/debug.js"></script>
     <script src="util/themes.js"></script>
