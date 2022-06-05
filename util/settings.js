@@ -58,7 +58,6 @@ const AutoLoadButton = document.getElementById('AutoLoadButton');
 
 AutoLoadButton.addEventListener('click', function() {
     let current = Settings.get_core("autoload");
-    console.log(current)
 
     if(current == null)
         current = true;

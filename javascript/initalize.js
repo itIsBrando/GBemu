@@ -31,12 +31,9 @@ function startEmulation(rom) {
     //  this feature can be disabled by setting the `autoload` to `false` 
     if(Settings.get_core("autoload", 'true') == 'true') {
         const keys = SaveManager.getSavesFromName(readROMName());
-        console.log(keys);
 
-        if(keys.length == 0)
-            return;
-        
-        SaveManager.injectLocalStorage(keys[0]);
+        if(keys.length > 0)
+            SaveManager.injectLocalStorage(keys[0]);
     }
 };
 

@@ -23,14 +23,14 @@ function keydown_init(event) {
  */
 function keydown(event) {
     const key = event.key.toLowerCase();
-    if(FrontEndKeyBinding.isAssigning)
+    if(KeyBinding.isAssigning)
     {
         event.preventDefault();
-        FrontEndKeyBinding.setKey(key);
+        KeyBinding.setKey(key);
         return;
     }
 
-    const binding = FrontEndKeyBinding.bindings[key];
+    const binding = KeyBinding.bindings[key];
     if(binding) {
         if(binding == "RESET")
             restartEmulation();
@@ -52,7 +52,7 @@ function keydown(event) {
 document.onkeyup = function(event) {
     const key = event.key.toLowerCase();
 
-    const binding = FrontEndKeyBinding.bindings[key];
+    const binding = KeyBinding.bindings[key];
     if(binding) {
         if(binding == "FAST")
             c.speed = 1;
