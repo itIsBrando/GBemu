@@ -315,30 +315,8 @@ class PPU {
             this.cgb.rgbBG[palNum][colorIndex][2] = b << 3;
         }
     }
-    
-    writeBGPal(byte) {
-        // cgb only
-        const bgi = this.cgb.bgi;
-            
-        if(this.cgb.bgAutoInc)
-        this.cgb.bgi = (this.cgb.bgi + 1) & 0x3F;
-        
-        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
-            return;
-        
-        this.updateBackgroundRGB(bgi, byte);
-    }
-    
-    writeOBJPal(byte) {
-        // cgb only
-        const obji = this.cgb.obji;
 
-        if(this.cgb.objAutoInc)
-            this.cgb.obji = (this.cgb.obji + 1) & 0x3F;
-            
-        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
-            return;
-
+    updateObjectRGB(obji, byte) {
         this.cgb.objPal[obji] = byte;
 
         const palNum = obji >> 3;
@@ -363,5 +341,30 @@ class PPU {
             this.cgb.rgbOBJ[palNum][colorIndex][2] = b << 3;
         }
     }
+    
+    writeBGPal(byte) {
+        // cgb only
+        const bgi = this.cgb.bgi;
+            
+        if(this.cgb.bgAutoInc)
+        this.cgb.bgi = (this.cgb.bgi + 1) & 0x3F;
+        
+        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
+            return;
+        
+        this.updateBackgroundRGB(bgi, byte);
+    }
+    
+    writeOBJPal(byte) {
+        // cgb only
+        const obji = this.cgb.obji;
 
+        if(this.cgb.objAutoInc)
+            this.cgb.obji = (this.cgb.obji + 1) & 0x3F;
+            
+        if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
+            return;
+            
+        this.updateObjectRGB(obji, byte);
+    }
 }

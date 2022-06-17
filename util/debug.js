@@ -285,7 +285,7 @@ const opcodeLUT = [
     "rst 0x38",
 ];
 
-const REGISTER_ADDR = {
+let REGISTER_ADDR = {
 	0x0040: "VBlank",
 	0x0048: "LCD STAT",
 	0x0050: "Timer",
@@ -357,7 +357,6 @@ var Debug = new function() {
 	let instr_shown = NUM_INSTR_MIN;
     this.timer = null;
     this.basePC = 0;
-	this.viewingPal = 0;
 
 	this.enabled = false;
     this.initialized = false;
@@ -436,6 +435,19 @@ var Debug = new function() {
 			
 			Debug.isScrolling = true;
 		})
+
+		// add input file event listener
+		let symFile = document.getElementById('symFile');
+
+        symFile.addEventListener('change', function () {
+            let reader = new FileReader();
+
+            reader.readAsText(this.files[0]);
+
+            reader.onloadend = function () {
+                console.log(Debug.parseSymFile(reader.result));
+            }
+        });
         
         this.initialized = true;
 	}
@@ -443,7 +455,7 @@ var Debug = new function() {
 
 	this.showTiles = function() {
 		this.hideOpen();
-		showElement(MapDiv);
+		showElement(MapDiv, 'grid');
 		hideElement(MapInfo);
 
 		MapCanvas.name = "tile";
@@ -599,7 +611,7 @@ var Debug = new function() {
 	this.showMap = function() {
         let a = MapDiv.getElementsByTagName('p')[0];
 		this.hideOpen();
-		showElement(MapDiv);
+		showElement(MapDiv, 'grid');
 		showElement(MapInfo);
 
 		MapCanvas.name = "map";
@@ -607,10 +619,6 @@ var Debug = new function() {
 		MapCanvas.click();
 
 		this._mapdraw();
-
-		if(window.innerWidth < 468) {
-			DebugDiv.classList.add("debug-small-screen");
-		}
 
 		// show Map/tile/window addresses
         const labels = ["Map address", "    Window Address", "Tile address"];
@@ -644,51 +652,22 @@ var Debug = new function() {
 		b.innerHTML = "Sprite " + num;
 	}
 
-	this.drawPalettes = function(div, isBG) {
-		div.innerHTML = `<code>${isBG ? "Background<br>" : "Object<br>"}</code>`;
-		for(let i = 0; i < 8; i++)
-		{
-			const canv = document.createElement("canvas");
-			
-			canv.width = "4";
-			canv.height = "1";
-			canv.className = "pal-canvas";
-			canv.value = i;
-			
-			const ctx = canv.getContext("2d");
-			const img = ctx.getImageData(0, 0, 4, 1);
-			// this expression for the third parameter is sneaky and bad
-			// for DMG games, this will alternate between drawing obj0 and obj1
-			//  hehehe delightfully devilish seymour!
-			const pal = Renderer.getPalette(c, isBG, i + ((i & 1) << 4));
-
-			for(let j = 0; j < 4; j++)
-			{
-				for(let k = 0; k < 3; k++)
-					img.data[j * 4 + k] = pal[j][k];
-				img.data[j * 4 + 3] = 255;
-			}
-			
-			ctx.putImageData(img, 0, 0);
-
-			div.appendChild(canv);
-
-			if(isBG) {
-				canv.addEventListener('click', (e) => {
-					Debug.viewPaletteColors(Number(e.target.value));
-				});
-			}
-		}
-	}
-
 	/**
 	 * @param {Number} palNum
 	 */
 	this.getBGColor = function(palNum, color) {
 		palNum *= 8;
 		const bgi = color * 2 + palNum;
-		return (c.ppu.cgb.bgPal[bgi + 1] << 8) | c.ppu.cgb.bgPal[bgi];
-		 
+		return (c.ppu.cgb.bgPal[bgi + 1] << 8) | c.ppu.cgb.bgPal[bgi];	 
+	}
+
+	/**
+	 * @param {Number} palNum
+	 */
+	this.getObjColor = function(palNum, color) {
+		palNum *= 8;
+		const obji = color * 2 + palNum;
+		return (c.ppu.cgb.objPal[obji + 1] << 8) | c.ppu.cgb.objPal[obji];
 	}
 
 	/**
@@ -703,26 +682,42 @@ var Debug = new function() {
 		c.ppu.updateBackgroundRGB(bgi + 1, word >> 8);
 
 		this.showPalette();
-		this.viewPaletteColors(palNum);
 	}
 
-	this.viewPaletteColors = function(palNum) {
-		const a = PalDiv.getElementsByTagName('a')[0];
+	/**
+	 * @param {Number} palNum 0-7
+	 * @param {Number} color index of color in palette (0-3)
+	 * @param {Number} word 16-bit color
+	 */
+	this.setOBJColor = function(palNum, color, word) {
+		const bgi = palNum * 8 + color * 2;
 
-		this.viewingPal = palNum
-		a.innerHTML = "";
-		for(let i = 0; i < 4; i++) {
-			const button = document.createElement('button');
+		c.ppu.updateObjRGB(bgi, word & 0xFF);
+		c.ppu.updateObjRGB(bgi + 1, word >> 8);
 
-			button.type = "button";
-			button.value = i;
-			button.innerText = this.hex(this.getBGColor(palNum, i), 4);
-			button.className = "menubtn";
-			button.style.width = "25%";
-			showElement(button, 'inline-block');
-			a.appendChild(button);
-			button.addEventListener("click", Debug.changeColor);
+		this.showPalette();
+	}
 
+	this.viewPaletteColors = function(a, isBG) {
+		a.innerHTML = `<code>${isBG ? "Background<br>" : "Object<br>"}</code>`;
+
+		for(let palNum = 0; palNum < 8; palNum++) {
+			for(let i = 0; i < 4; i++) {
+				const button = document.createElement('button');
+				const col = Renderer.getPalette(c, isBG, palNum)[i];
+				const color = `#${hex(col[0], 2, '')}${hex(col[1], 2, '')}${hex(col[2], 2, '')}`;
+				
+				button.type = "button";
+				button.value = i | (palNum << 3);
+				if(window.innerWidth >= 500)
+					button.innerText = hex(this.getBGColor(palNum, i), 4, '');
+				
+				button.className = "pal-debug-button";
+				button.style.backgroundColor = color;
+
+				a.appendChild(button);
+				button.addEventListener("click", Debug.changeColor);
+			}
 		}
 	}
 
@@ -730,19 +725,25 @@ var Debug = new function() {
 		this.hideOpen();
 		showElement(PalDiv, 'grid');
 
-		this.drawPalettes(document.getElementById('PalBG'), true);
-		this.drawPalettes(document.getElementById('PalOBJ'), false);
+		this.viewPaletteColors(document.getElementById('PalBG'), true);
+		this.viewPaletteColors(document.getElementById('PalOBJ'), false);
 	}
 
 	this.changeColor = function(e) {
-		const m = PromptMenu.new("Color", "0000-FFFF", /[0-9a-fA-F]+/g, 4, (v) => {
+		// we cannot edit DMG palette colors
+		if(!c.cgb) {
+			showMessage('DMG Palettes cannot be edited.');
+			return;
+		}
+
+		const m = PromptMenu.new("Color", "0000-7FFF", /[0-9a-fA-F]+/g, 4, (v) => {
+			const pal = Number(e.target.value);
 			v = Number("0x" + v);
-			console.log(Debug.viewingPal, e.target.value);
-			Debug.setBGColor(Debug.viewingPal & 7, Number(e.target.value), v);
-		});
+			Debug.setBGColor(pal >> 3, pal & 3, v);
+		}, null, e.target.innerText.replace('$', ''));
 
 		PromptMenu.show(m);
-	}
+	}//
 
 	this.quit = function() {
 		this.enabled = false;
@@ -753,11 +754,48 @@ var Debug = new function() {
 
 	const useBrackets = true; // add option to change
 
+	this.getFullAddr = function(addr) {
+		let bank = 0;
+		if(addr >= 0x4000 && addr < 0x7000) // ROMX
+			bank = c.mbcHandler.bank;
+		else if(addr >= 0x8000 && addr < 0xA000) // VRAM
+			bank = c.ppu.getVRAMBank();
+		else if(addr >= 0xD000 && addr < 0xE000) // WRAMX
+			bank = c.cgb ? c.mbcHandler.ramBank == bank : 0;
+		
+		return (bank << 16) | addr;
+	}
+
 	this.getAddressName = function(addr) {
+		addr = this.getFullAddr(addr);
 		if(REGISTER_ADDR[addr])
 			return ` ; ${REGISTER_ADDR[addr]}`;
 		
 		return '';
+	}
+
+	this.parseSymFile = function(str) {
+		const expr = /(^[0-9a-f]{2}(?=:)|[0-9a-f]{4}|(?<=\s+).+)/gi
+		const lines = str.split('\n');
+
+		for(let i = 1; i < lines.length; i++)
+		{
+			const m = lines[i].match(expr);
+
+			if(m.length != 3) {
+				c.LOG(`Error reading line ${i + 1}: ${m, lines[i]}`);
+				continue;
+			}
+	
+			const bank = Number('0x' + m[0]);
+			const addr = Number('0x' + m[1]);
+			const lbl = m[2];
+			REGISTER_ADDR[addr | (bank << 16)] = lbl;
+		}
+
+		this.showDisassembly(c.pc.v);
+
+		return 'success';
 	}
     
     this.getOpLength = function(op) {
