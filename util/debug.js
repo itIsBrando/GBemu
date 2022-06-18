@@ -775,7 +775,7 @@ var Debug = new function() {
 	}
 
 	this.parseSymFile = function(str) {
-		const expr = /(^[0-9a-f]{2}(?=:)|[0-9a-f]{4}|(?<=\s+).+)/gi
+		const expr = /(^[0-9a-f]{2}(?=:)|[0-9a-f]{4}|(?<=\s+).+)/g
 		const lines = str.split('\n');
 
 		for(let i = 1; i < lines.length; i++)
