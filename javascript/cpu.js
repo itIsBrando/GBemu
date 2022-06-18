@@ -144,6 +144,7 @@ class CPU {
 
         this.timerRegs = new Timer();
         this.ppu = new PPU(this);
+        this.apu = new APU(this);
         this.renderer = new Renderer(this);
         this.cycles = 0;
         this.cgb = false;
@@ -357,6 +358,14 @@ class CPU {
                 return;
         }
 
+        if(this.apu.accepts(address)) {
+            this.apu.write8(address, byte);
+            return;
+        } else if(this.ppu.accepts(address)) {
+            this.ppu.write8(address, byte);
+            return;
+        }
+
         if(address < 0x8000) {
             this.LOG("illegal ROM write: " + hex(address, 4));
         } else if(address < 0xA000) {
@@ -398,82 +407,6 @@ class CPU {
             this.timerRegs.writeTAC(byte);
         } else if(address == 0xFF0F) {
             this.interrupt_flag = byte;
-        } else if(address == 0xFF40) {
-            this.ppu.regs.lcdc = byte;
-        } else if(address == 0xFF41) {
-            this.ppu.regs.stat = byte & 0xF8;
-        } else if(address == 0xFF42) {
-            this.ppu.regs.scy = byte;
-        } else if(address == 0xFF43) {
-            this.ppu.regs.scx = byte;
-        } else if(address == 0xFF44) {
-            return; // scanline is read only
-        } else if(address == 0xFF45) {
-            this.ppu.regs.syc = byte;
-        } else if(address == 0xFF46) {
-            this.ppu.regs.dma = byte;
-            this.DMATransfer(byte);
-        } else if(address == 0xFF47) {
-            this.ppu.regs.bgp = byte;
-            this.ppu.bgPal = [
-                palette[(byte & 0b00000011)],
-                palette[(byte & 0b00001100) >> 2],
-                palette[(byte & 0b00110000) >> 4],
-                palette[(byte & 0b11000000) >> 6],
-            ]
-        } else if(address == 0xFF48) {
-            this.ppu.regs.obj0 = byte;
-            this.ppu.obj0Pal = [
-                palette[(byte & 0b00000011)],
-                palette[(byte & 0b00001100) >> 2],
-                palette[(byte & 0b00110000) >> 4],
-                palette[(byte & 0b11000000) >> 6],
-            ]
-        } else if(address == 0xFF49) {
-            this.ppu.regs.obj1 = byte;
-            this.ppu.obj1Pal = [
-                palette[(byte & 0b00000011)],
-                palette[(byte & 0b00001100) >> 2],
-                palette[(byte & 0b00110000) >> 4],
-                palette[(byte & 0b11000000) >> 6],
-            ]
-        } else if(address == 0xFF4A) {
-            this.ppu.regs.wy = byte;
-        } else if(address == 0xFF4B) {
-            this.ppu.regs.wx = byte;
-        } else if(address == 0xFF4F) {
-            // cgb only
-            this.ppu.cgb.vbank = byte & 0x1;
-        } else if(address == 0xFF51) {
-            // cgb. HDMA src high
-            this.ppu.cgb.HDMASrc &= 0xF0;
-            this.ppu.cgb.HDMASrc |= byte << 8;
-        } else if(address == 0xFF52) {
-            // cgb. HDMA src low
-            this.ppu.cgb.HDMASrc &= 0xFF00;
-            this.ppu.cgb.HDMASrc |= byte & 0xF0;
-        } else if(address == 0xFF53) {
-            // cgb. HDMA dest high
-            this.ppu.cgb.HDMADest &= 0xFF;
-            this.ppu.cgb.HDMADest |= 0x8000 | ((byte & 0x1F) << 8);
-        } else if(address == 0xFF54) {
-            // cgb. HDMA dest low
-            this.ppu.cgb.HDMADest &= 0xFF00;
-            this.ppu.cgb.HDMADest |= byte & 0xF0;
-        } else if(address == 0xFF55) {
-            this.DMATransferCGB(byte);
-        } else if(address == 0xFF68) {
-            // cgb only (BCPS/BGPI)
-            this.ppu.cgb.bgi = byte & 0x3F;
-            this.ppu.cgb.bgAutoInc = (byte & 0x80) == 0x80;
-        } else if(address == 0xFF69) {
-            this.ppu.writeBGPal(byte);
-        } else if(address == 0xFF6A) {
-            // cgb only (OCPS/OBPI)
-            this.ppu.cgb.obji = byte & 0x3F;
-            this.ppu.cgb.objAutoInc = (byte & 0x80) == 0x80;
-        } else if(address == 0xFF6B) {
-            this.ppu.writeOBJPal(byte);
         } else if(address == 0xFF70) {
             // cgb WRAM bank
             byte &= 7;
@@ -591,19 +524,19 @@ class CPU {
      * @returns {UInt8} byte
      */
     read8(address) {
-        const v = this.cheats.read(address, this.mbcHandler ? this.mbcHandler.bank : 0);
-
-        if(v)
-            return v;
+        // const v = this.cheats.read(address, this.mbcHandler ? this.mbcHandler.bank : 0);
         
-        if(this.mbcHandler)
-        {
-            // if our address was read properly by our MBC, return it
-            //  or continue searching
-            const v = this.mbcHandler.read8(this, address);
-            if(v != null)
+        // if our address was read properly by our MBC, return it
+        //  or continue searching
+        const v = this.mbcHandler ? this.mbcHandler.read8(this, address) : null;
+        if(v != null)
                 return v;
-        }
+        
+        if(this.apu.accepts(address))
+            return this.apu.read8(address);
+        else if(this.ppu.accepts(address))
+            return this.ppu.read8(address);
+
 
         if(address < 0x8000) {
             return this.mem.rom[address];
@@ -646,58 +579,6 @@ class CPU {
             return this.timerRegs.regs.tac | 0xF8;
         } else if(address == 0xFF0F) {
             return this.interrupt_flag;
-        } else if(address == 0xFF40) {
-            return this.ppu.regs.lcdc;
-        } else if(address == 0xFF41) {
-            return this.ppu.regs.stat;
-        } else if(address == 0xFF42) {
-            return this.ppu.regs.scy;
-        } else if(address == 0xFF43) {
-            return this.ppu.regs.scx;
-        } else if(address == 0xFF44) {
-            return this.ppu.regs.scanline;
-        } else if(address == 0xFF45) {
-            return this.ppu.regs.syc;
-        } else if(address == 0xFF46) {
-            return this.ppu.regs.dma;
-        } else if(address == 0xFF47) {
-            return this.ppu.regs.bgp;
-        } else if(address == 0xFF48) {
-            return this.ppu.regs.obj0;
-        } else if(address == 0xFF49) {
-            return this.ppu.regs.obj1;
-        } else if(address == 0xFF4A) {
-            return this.ppu.regs.wy;
-        } else if(address == 0xFF4B) {
-            return this.ppu.regs.wx;
-        } else if(address == 0xFF51) {
-            // cgb
-            return this.ppu.cgb.HDMASrc >> 8;
-        } else if(address == 0xFF52) {
-            // cgb
-            return this.ppu.cgb.HDMASrc & 0xFF;
-        } else if(address == 0xFF53) {
-            // cgb
-            return this.ppu.cgb.HDMADest >> 8;
-        } else if(address == 0xFF54) {
-            // cgb
-            return this.ppu.cgb.HDMADest & 0xFF;
-        } else if(address == 0xFF55) {
-                return this.ppu.cgb.hdma | (this.HDMAInProgress ? 0 : 0x80);
-        } else if(address == 0xFF68) {
-            // cgb only
-            return this.cgb ? this.ppu.cgb.bgi : 0xff;
-        } else if(address == 0xFF69) {
-            // cgb only
-            return this.ppu.cgb.bgPal[this.ppu.cgb.bgi];
-        } else if(address == 0xFF6A) {
-            // cgb only
-            return this.ppu.cgb.obji;
-        } else if(address == 0xFF6B) {
-            return this.ppu.cgb.objPal[this.ppu.cgb.obji];
-        } else if(address == 0xFF4F) {
-            // cgb only
-            return this.ppu.cgb.vbank | 0xFE;
         } else if(address == 0xFF70) {
             return this.ppu.cgb.svbk | 0xF8;
         } else if(address == 0xFFFF) {
@@ -767,6 +648,9 @@ class CPU {
 
         // update GPU
         this.ppu.step(this);
+
+        // update sound
+        this.apu.tick(this.cycles);
 
 
         // HDMA stuff

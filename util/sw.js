@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'gbemu-v2.1';
+const CACHE_NAME = 'gbemu-v2.6';
 const FILES = [
     "util/",
     "icons/",
@@ -20,6 +20,12 @@ const FILES = [
     "javascript/mbc/MBC2.js",
     "javascript/mbc/MBC3.js",
     "javascript/mbc/MBC5.js",
+    "javascript/audio/apu.js",
+    "javascript/audio/c1.js",
+    "javascript/audio/c2.js",
+    "javascript/audio/c3.js",
+    "javascript/audio/c4.js",
+    "javascript/audio/tone.js",
     "javascript/ppu.js",
     "javascript/instructionCB.js",
     "javascript/instruction.js",

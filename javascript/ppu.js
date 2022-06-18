@@ -199,6 +199,171 @@ class PPU {
         return 0;
     }
 
+
+    accepts(addr) {
+        return (addr >= 0xFF40 && addr <= 0xFF55) | (addr >= 0xFF68 && addr <= 0xFF6B);
+    }
+
+    write8(addr, byte) {
+        switch(addr & 0xFF) {
+            case 0x40:
+                this.regs.lcdc = byte;
+                break;
+            case 0x41:
+                this.regs.stat = byte & 0xF8;
+                break;
+            case 0x42:
+                this.regs.scy = byte;
+                break;
+            case 0x43:
+                this.regs.scx = byte;
+                break;
+            case 0x45:
+                this.regs.syc = byte;
+                break;
+            case 0x46:
+                this.regs.dma = byte;
+                this.parent.DMATransfer(byte);
+                break;
+            case 0x47:
+                this.regs.bgp = byte;
+                this.bgPal = [
+                    palette[(byte & 0b00000011)],
+                    palette[(byte & 0b00001100) >> 2],
+                    palette[(byte & 0b00110000) >> 4],
+                    palette[(byte & 0b11000000) >> 6]
+                ];
+                break;
+            case 0x48:
+                this.regs.obj0 = byte;
+                this.obj0Pal = [
+                    palette[(byte & 0b00000011)],
+                    palette[(byte & 0b00001100) >> 2],
+                    palette[(byte & 0b00110000) >> 4],
+                    palette[(byte & 0b11000000) >> 6]
+                ];
+                break;
+            case 0x49:
+                this.regs.obj1 = byte;
+                this.obj1Pal = [
+                    palette[(byte & 0b00000011)],
+                    palette[(byte & 0b00001100) >> 2],
+                    palette[(byte & 0b00110000) >> 4],
+                    palette[(byte & 0b11000000) >> 6]
+                ];
+                break;
+            case 0x4A:
+                this.regs.wy = byte;
+                break;
+            case 0x4B:
+                this.regs.wx = byte;
+                break;
+            case 0x4F:
+                // cgb only
+                this.cgb.vbank = byte & 0x1;
+                break;
+            case 0x51:
+                // cgb. HDMA src high
+                this.cgb.HDMASrc &= 0xF0;
+                this.cgb.HDMASrc |= byte << 8;
+                break;
+            case 0x52:
+                // cgb. HDMA src low
+                this.cgb.HDMASrc &= 0xFF00;
+                this.cgb.HDMASrc |= byte & 0xF0;
+                break;
+            case 0x53:
+                // cgb. HDMA dest high
+                this.cgb.HDMADest &= 0xFF;
+                this.cgb.HDMADest |= 0x8000 | ((byte & 0x1F) << 8);
+                break;
+            case 0x54:
+                // cgb. HDMA dest low
+                this.cgb.HDMADest &= 0xFF00;
+                this.cgb.HDMADest |= byte & 0xF0;
+                break;
+            case 0x55:
+                this.parent.DMATransferCGB(byte);
+                break;
+            case 0x68:
+                // cgb only (BCPS/BGPI)
+                this.cgb.bgi = byte & 0x3F;
+                this.cgb.bgAutoInc = (byte & 0x80) == 0x80;
+                break;
+            case 0x69:
+                this.writeBGPal(byte);
+                break;
+            case 0x6A:
+                // cgb only (OCPS/OBPI)
+                this.cgb.obji = byte & 0x3F;
+                this.cgb.objAutoInc = (byte & 0x80) == 0x80;
+                break;
+            case 0x6B:
+                this.writeOBJPal(byte);
+                break;
+        }
+    }
+
+
+    read8(addr) {
+        switch (addr & 0xFF) {
+            case 0x40:
+                return this.regs.lcdc;
+            case 0x41:
+                return this.regs.stat;
+            case 0x42:
+                return this.regs.scy;
+            case 0x43:
+                return this.regs.scx;
+            case 0x44:
+                return this.regs.scanline;
+            case 0x45:
+                return this.regs.syc;
+            case 0x46:
+                return this.regs.dma;
+            case 0x47:
+                return this.regs.bgp;
+            case 0x48:
+                return this.regs.obj0;
+            case 0x49:
+                return this.regs.obj1;
+            case 0x4A:
+                return this.regs.wy;
+            case 0x4B:
+                return this.regs.wx;
+            case 0x51:
+                // cgb
+                return this.cgb.HDMASrc >> 8;
+            case 0x52:
+                // cgb
+                return this.cgb.HDMASrc & 0xFF;
+            case 0x53:
+                // cgb
+                return this.cgb.HDMADest >> 8;
+            case 0x54:
+                // cgb
+                return this.cgb.HDMADest & 0xFF;
+            case 0x55:
+                return this.cgb.hdma | (this.HDMAInProgress ? 0 : 0x80);
+            case 0x68:
+                // cgb only
+                return this.cgb ? this.cgb.bgi : 0xff;
+            case 0x69:
+                // cgb only
+                return this.cgb.bgPal[this.cgb.bgi];
+            case 0x6A:
+                // cgb only
+                return this.cgb.obji;
+            case 0x6B:
+                return this.cgb.objPal[this.cgb.obji];
+            case 0x4F:
+                // cgb only
+                return this.ppu.cgb.vbank | 0xFE;
+            default:
+                return 0xFF;
+        }
+    }
+
     step(cpu) {
         this.regs.stat &= 252;
 
