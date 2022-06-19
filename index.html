@@ -236,7 +236,7 @@
             color: #f1f1f1;
             box-shadow: 0px 16px 32px 0px rgba(0, 0, 0, 0.8);
             z-index: 9;
-            border-radius: 3px;
+            border-radius: 5px;
             width: minmax(fit-content, 550px);
             min-width: 350px;
 
@@ -311,8 +311,22 @@
         }
 
         .settings-btn {
-            width: min-content;
+            width: 100%;
             display: inline-block;
+        }
+
+        .settings-grid {
+            display: grid;
+            background-color: #444444;
+            margin: 10px;
+            grid-template-columns: 3fr 1fr;
+            grid-template-rows: repeat(10, 40px);
+            border-radius: 5px;
+        }
+
+        .settings-grid label, .settings-grid button {
+            border-bottom: 4px solid #333;
+            border-radius: 2px;
         }
 
         .title-btn {
@@ -321,6 +335,7 @@
             display: block;
             margin: 0px 0px 2px 0px;
             border: none;
+            font-family: monospace;
             width: 33vw;
             min-height: 25px;
             border-radius: 2px;
@@ -354,7 +369,7 @@
             padding: 0px;
             border: none;
             font-size: large;
-            background-color: cornflowerblue;
+            background-color: var(--title-btn-color);
             cursor: pointer;
         }
 
@@ -494,6 +509,31 @@
             bottom: 10px;
         }
 
+
+        .show-menu-btn {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            background-color: var(--gamepad-btn-color);
+            position: absolute;
+            right: 50%;
+            bottom: -20px;
+            border-radius: 100vmax;
+        }
+
+
+        #SettingsDiv {
+            width: fit-content;
+            height: fit-content;
+            min-width: 250px;
+            display:none;
+            overflow-y: auto;
+        }
+
+        .shadow {
+            box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.5);
+        }
+
         @media (orientation: landscape) {
             #START {
                 left: unset;
@@ -536,6 +576,17 @@
                 aspect-ratio: 1 / 1;
                 overflow: auto;
             }
+
+            #popup {
+                width: 100vw;
+                height: 100vh;
+                overflow-y: scroll;
+            }
+
+            #keyBindingDiv, #SettingsDiv {
+                width: 98vw;
+                height: 98vh;
+            }
         }
 
         #MapDiv {
@@ -573,14 +624,13 @@
             #TilePrevDiv {
                 grid-template-columns: 1fr 1fr;
             }
-
-            
         }
 
 
         .debug-title-btn {
             width: 100%;
             padding: 10px 3px 10px 3px;
+            border-radius: 0px;
         }
 
         .debug-text {
@@ -682,8 +732,8 @@
     <input type="file" name="inputSaveFile" id="inputSaveFile" accept=".sav" style="display: none;">
 
     <!-- file loading menu -->
-    <div class="dropdown" style="float: left;">
-        <button type="button" id="fileMenuToggle" class="title-btn"><b><code>File</code></b></button>
+    <div class="dropdown" style="float: left;" id="dropdown1">
+        <button type="button" id="fileMenuToggle" class="title-btn"><b>File</b></button>
 
         <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
             <!-- ROM loading -->
@@ -699,19 +749,15 @@
             <!-- ROM Info -->
             <button type="button" style="width: inherit" class="menubtn" onclick="showROMInfo()">ROM Info</button>
             <!-- Reset Game -->
-            <button type="button" style="width: inherit" class="menubtn" onclick="restartEmulation()"><b
-                    style="color:deepskyblue;">reset game</b></button>
+            <button type="button" style="width: inherit" class="menubtn" onclick="restartEmulation()"><code>reset game</code></button>
         </div>
     </div>
 
     <!-- options menu -->
-    <div class="dropdown" style="float: left;">
+    <div class="dropdown" style="float: left;" id="dropdown2">
         <button type="button" id="optionsMenuToggle" class="title-btn"
-            style="width: 34vw;"><b><code>Options</code></b></button>
-
+            style="width: 34vw;"><b>Options</b></button>
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
-            <button type="button" id="controlsToggle" style="width: inherit;" class="menubtn">Toggle touch
-                controls</button>
             <button type="button" style="width: inherit;" class="menubtn" onclick="Themes.next();">Themes</button>
             <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn"
             onclick="Debug.start();">Debugger</button>
@@ -720,8 +766,8 @@
     </div>
 
     <!-- Save Manager menu -->
-    <div class="dropdown" style="float: left;">
-        <button type="button" id="saveMenuToggle" class="title-btn"><b><code>Saves</code></b></button>
+    <div class="dropdown" style="float: left;" id="dropdown3">
+        <button type="button" id="saveMenuToggle" class="title-btn"><b>Saves</b></button>
 
         <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
             <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
@@ -744,42 +790,51 @@
             <canvas id="screen" style="width: 100%; height: 100%; float: right" width="160" height="144"> </canvas>
             <div id="screen-container-border-right"></div>
         </div>
+        <!-- Menu button to show the top menu -->
+        <button type="button" class="show-menu-btn" onclick="ToggleTitleMenu();"></button>
     </div>
 
     <!-- Settings menu -->
-    <div id="SettingsDiv" class="popup" style="width: fit-content; min-width: 250px; display:none; overflow-y: auto; max-height: 80vh;">
-        <b><code>Settings</code></b>
-        <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
-        <div class="div-separator"></div>
-        
-        <h2>Emulation Settings</h2>
-        <!-- Emulation Mode -->
-        <label for="emuMode">Emulation Mode:</label>
-        <button type="button" name="emuMode" id="toggleDMGMode" title="change emulation mode"
-        class="menubtn settings-btn"></button>
-        <br>
-        <label for="sndEnable">Enable Sound:</label>
-        <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button>
-        <!-- DMG Palette -->
-        <br><label for="dmgPal">DMG Palette Colors:</label>
-        <button type="button" name="dmgPal" id="changePaletteButton" class="menubtn settings-btn"
-                onclick="FrontEndPalette.showPaletteMenu();">edit</button>
-        <!-- Power consumption -->
-        <br><label for="pwrComp">Power consumption:</label>
-        <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
-        
-        <h2>Other</h2>
-        <label for="autoload">Automatically load saves:</label>
-        <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn"></button>
-        <!-- change keyboard controls -->
-        <br><label for="keybind">Keyboard Controls:</label>
-        <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
-        onclick="KeyBinding.show();">edit</button>
+    <div id="SettingsDiv" class="popup shadow">
+        <div style="background-color:#ddd; height: 30px; color: black;">
+            <b style="font-size: 28px;">Settings</b>
+            <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
+        </div>
+        <div class="settings-grid">
+            <b style="grid-column: 1 / 3; font-size: large; text-align: center;">Emulation Settings</b>
+            <!-- Emulation Mode -->
+            <label for="emuMode">Emulation Mode:</label>
+            <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
+            class="menubtn settings-btn"></button>
+            <!-- <br>
+            <label for="sndEnable">Enable Sound:</label>
+            <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button> -->
+            <!-- DMG Palette -->
+            <label for="dmgPal">DMG Palette Colors:</label>
+            <button type="button" name="dmgPal" id="changePaletteButton" class="menubtn settings-btn"
+                    onclick="FrontEndPalette.showPaletteMenu();">edit</button>
+            <!-- Power consumption -->
+            <label for="pwrComp">Power consumption:</label>
+            <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
+            
+            <b style="grid-column: 1 / 3; font-size: large; text-align: center;">Other</b>
+            <label for="autoload">Automatically load saves:</label>
+            <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
+            <label for="prevImg">Save Preview Image:</label>
+            <button type="button" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="menubtn settings-btn" title="Saves a preview image of the game when using 'internal saves'."></button>
+            <!-- Toggle touch controls -->
+            <label for="Ctrls">Touch Controls:</label>
+            <button type="button" name="Ctrls" id="controlsToggle" class="menubtn settings-btn">no</button>
+            <!-- change keyboard controls -->
+            <label for="keybind">Keyboard Controls:</label>
+            <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
+            onclick="KeyBinding.show();">edit</button>
+        </div>
     </div>
 
 
     <!-- New Debug menu -->
-    <div id="DebugDiv" class="popup"
+    <div id="DebugDiv" class="popup shadow"
         style="width: fit-content; min-width: 256px; height: minmax(200px, fit-content); max-height: 80vh; display:none;">
         <div style="display: flex; grid-template-columns: repeat(7, 1fr); overflow-x: auto;">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
@@ -855,7 +910,7 @@
             </div>
         </div>
         <!-- A new menu for managing breakpoints -->
-        <div id="DisassemblyBreakpoints" class="popup">
+        <div id="DisassemblyBreakpoints" class="popup shadow">
             <b style="padding-bottom: 5px;">Breakpoints</b>
             <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
             <div class="div-separator"></div>
@@ -870,7 +925,7 @@
     </div>
 
     <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
-    <div id="PromptMenu" class="popup" style="z-index:10;">
+    <div id="PromptMenu" class="popup shadow" style="z-index:10;">
         <b id="PromptTitle">Title</b>
         <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
         <br>
@@ -895,8 +950,9 @@
         <svg class="gamepad-button" width="50" height="50" id="controllerFastForward"></svg>
     </div>
 
+
     <!-- pop up menu for changing keyboard controls -->
-    <div class="popup" style="width: fit-content; overflow-y: auto; max-height: 80vh;" id="keyBindingDiv">
+    <div class="popup" style="width: fit-content; height: fit-content; overflow-y: auto;" id="keyBindingDiv">
         <b>Set Keyboard Controls</b>
         <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
         <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
@@ -918,14 +974,14 @@
 
     <!-- Pop up menu for saving/loading states -->
     <div class="popup" id="popup">
-        <label id="popup-title" style="margin:5px" for="localSaveName"><b>Save Name</b></label>
+        <b><label id="popup-title" style="margin:5px" for="localSaveName"></label></b>
         <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
         <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace;">edit</button>
         <button id="plusButton" type="button" class="menubtn"
-            style="width: fit-content; float:right; margin-right: 2px;" onclick="SaveManager.addSave();">+</button>
+            style="width: fit-content; float:right;" onclick="SaveManager.addSave();">+</button>
         <div class="div-separator"></div>
         <!-- Holds all of the save's button -->
-        <div id="saveButtonDiv" style="max-height:50vh; overflow-y: auto;"></div>
+        <div id="saveButtonDiv" style="max-height:100%; overflow-y: auto;"></div>
     </div>
 
     <!-- Change palette colors -->
@@ -979,8 +1035,6 @@
     <a id="saveA" style="display: none;" download></a>
 
 <body>
-    <!-- External lib -->
-    <script src="javascript/audio/tone.js"></script>
     <script src="util/saveManager.js"></script>
     <script src="util/utility.js"></script>
     <script src="util/settings.js"></script>
@@ -994,11 +1048,11 @@
     <script src="javascript/mbc/MBC2.js"></script>
     <script src="javascript/mbc/MBC3.js"></script>
     <script src="javascript/mbc/MBC5.js"></script>
-    <script src="javascript/audio/c1.js"></script>
+    <!-- <script src="javascript/audio/c1.js"></script>
     <script src="javascript/audio/c2.js"></script>
     <script src="javascript/audio/c3.js"></script>
     <script src="javascript/audio/c4.js"></script>
-    <script src="javascript/audio/apu.js"></script>
+    <script src="javascript/audio/apu.js"></script> -->
     <script src="javascript/ppu.js"></script>
     <script src="javascript/instructionCB.js"></script>
     <script src="javascript/instruction.js"></script>
@@ -1015,14 +1069,11 @@
         inputForm.addEventListener('change', function () {
             let reader = new FileReader();
 
-            
             reader.readAsArrayBuffer(this.files[0]);
             
             reader.onloadend = function () {
                 startEmulation(reader.result)
             }
-
-            APU.init();
         });
 
         // Save file loading
@@ -1044,6 +1095,52 @@
         if ('serviceworker' in navigator) {
             navigator.serviceWorker.register('/util/sw.js');
         }
+
+        const viewport = document.getElementById('viewport');
+        const DELAY = 10;
+        let scrl = null;
+
+        function _scrlUp() {
+            viewport.style.top = (Number(viewport.style.top.replace("px", '')) - 1) + 'px';
+            if(viewport.style.top == '0px') {
+                clearInterval(scrl);
+                scrl = null;
+            }
+        }
+
+        function _scrlDown() {
+            viewport.style.top = (Number(viewport.style.top.replace("px", '')) + 1) + 'px';
+            if(viewport.style.top == '25px') {
+                clearInterval(scrl);
+                scrl = null;
+            }
+        }
+
+        function ToggleTitleMenu() {
+            const d = [document.getElementById('dropdown1'), document.getElementById('dropdown2'), document.getElementById('dropdown3')];
+            const isVisible = d[0].style.display != 'none';
+
+            if(scrl) {
+                clearInterval(scrl)
+                scrl = null;
+            }
+
+            if(isVisible)  {
+                for(let i = 0; i < 3; i++) {
+                    hideElement(d[i])
+                }
+                viewport.style.top = '25px';
+                scrl = setInterval(_scrlUp, DELAY);
+            } else {
+                for(let i = 0; i < 3; i++) {
+                    showElement(d[i])
+                }
+                viewport.style.top = '0px';
+                scrl = setInterval(_scrlDown, DELAY);
+            }
+        }
+
+        SaveStorage.init();
     </script>
 </body>
 </head>

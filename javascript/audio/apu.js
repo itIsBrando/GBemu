@@ -1,17 +1,11 @@
-
-var synth;
-const now = Tone.now();
-
 const APU_FREQ = 4194304 / 512;
-
+var audio;
 
 class APU {
     static master_enable = Settings.get_core("sound", false) == 'true';
 
     static init() {
-        Tone.start();
-
-        synth = new Tone.Synth().toDestination();
+        audio = new AudioContext({rampleRate: 44100});
     }
 
     static set_button_text() {
@@ -26,6 +20,9 @@ class APU {
         this.cycles = 0;
 
         this.c1 = new Channel1();
+
+
+        audio.suspend();
     }
 
     get enabled() {
@@ -35,10 +32,13 @@ class APU {
     set enabled(v) {
         this._enabled = v;
 
-        if(v)
+        if(v) {
+            audio.resume();
             return;
+        }
 
         this.c1.enabled = false;
+        audio.suspend();
     }
 
     tick(cycles) {

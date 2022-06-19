@@ -1,16 +1,46 @@
 
 class SaveStorage {
+    static enableImage = false;
     /**
      * 
      * @param {String} label Label text so user knows what save this is
      * @param {Uint8Array} data RAM data
+     * @param {ImageData?} img
      */
     constructor(label, data)
     {
         this.label = label;
         this.ram = data;
+        this.img = null;
+        this.time = new Date().toDateString().match(/ .+/).toString().trim();
+    }
+
+    populateImage() {
+        if(!SaveStorage.enableImage)
+            return;
+        
+        this.img = canvas.toDataURL('image/jpg');
+    }
+
+    static set_button_text() {
+        const PrevImgButton = document.getElementById('PrevImgButton');
+
+        PrevImgButton.innerHTML = SaveStorage.enableImage ? "yes" : "no";
+    }
+
+    static togglePreview() {
+        SaveStorage.enableImage = !SaveStorage.enableImage;
+
+        Settings.set_core("savePreviews", SaveStorage.enableImage);
+        SaveStorage.set_button_text();
+    }
+
+    static init() {
+        SaveStorage.enableImage = Settings.get_core("savePreviews", "true") == "true";
+        SaveStorage.set_button_text();
     }
 }
+
 
 function _canSave()
 {
@@ -20,7 +50,8 @@ function _canSave()
         showMessage("<b style='color:green;'>" + _delKey["key"] + "</b> saved successfully. You can safely close this webpage", "Success");
     }
 
-    _delKey = null
+    _delKey = null;
+    hidePopupMenu();
 }
 
 
@@ -41,6 +72,8 @@ const saveButtonDiv = document.getElementById('saveButtonDiv');
 function showPopupMenu(title) {
     if(popupMenu.style.display == "block")
         return false;
+    
+    document.getElementById('popup-title').innerText = title;
     
     showElement(popupMenu);
     FrontEndMenu.showOverlay();
@@ -67,16 +100,14 @@ localSaveButton.addEventListener('click', function() {
     showElement(plusButton);
     
     SaveManager.populateSaveHTML(function() {
-        hidePopupMenu();
-
         if(c.mbcHandler)
             SaveManager.save(this.value, c.mbcHandler.ram, readROMName());
         else
-        showMessage("ROM does not support saving.", "Could not Save");
+            showMessage("ROM does not support saving.", "Could not Save", false, null, hidePopupMenu());
         
     });
 
-    if(!showPopupMenu("Save"))
+    if(!showPopupMenu("Save Name"))
         return;
 });
 
@@ -93,16 +124,13 @@ function showElement(e, style = 'block') {
 
 
 var SaveManager = new function() {
-    const CORE_PREFIX = "__core_";
     /**
-     * 
      * @param {Uint8Array} arr 
      */
     this.pack = function(arr) {
         let str = "";
 
-        for(let i = 0; i < arr.length; i++)
-        {
+        for(let i = 0; i < arr.length; i++) {
             str += hex(arr[i] & 0xFF, 2, "");    
         }
 
@@ -170,7 +198,10 @@ var SaveManager = new function() {
      */
     this.save = function(key, arr, ROMName = "import") {
         const ram = SaveManager.pack(arr);
-        let data = JSON.stringify(new SaveStorage(ROMName, ram));
+        const s = new SaveStorage(ROMName, ram);
+
+        s.populateImage();
+        let data = JSON.stringify(s);
 
         // prevent user from overwriting a savefile unintentionally
         if(key in localStorage)
@@ -179,13 +210,19 @@ var SaveManager = new function() {
                 "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
                 "Save Already Exists",
                 true,
-                null,
+                hidePopupMenu,
                 _canSave
             );
             _delKey = {key, data};
         } else {
             localStorage.setItem(key, data);
-            showMessage(`<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`, "Success");
+            showMessage(
+                `<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`,
+                "Success",
+                false,
+                null,
+                hidePopupMenu
+            );
         }
 
     }
@@ -199,16 +236,33 @@ var SaveManager = new function() {
     
         for(let i in keys) {
             // some settings should not be shown
-            if(keys[i].startsWith("__core_"))
+            if(Settings.isSetting(keys[i]))
                 continue;
             
             const btn = document.createElement("button");
             const obj = JSON.parse(localStorage[keys[i]]);
             btn.className = "menubtn";
             btn.style.width = "100%";
-            btn.innerHTML = `<h3>${keys[i]}</h3><code style="font-size:x-small;">${obj.label}</code>` + "<button class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>";
+            showElement(btn, 'grid');
+            btn.type = "button";
+            btn.style.gridTemplateColumns = '2fr 1fr 30px';
+            btn.style.gridTemplateRows = '4fr 1fr';
+            btn.innerHTML = `
+                <img width="160" height="144" style="grid-row: 1 / 3;"></img>
+                <h2>${keys[i]}</h2>
+                <button type="button" class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>
+                <code style="font-size:x-small;">${obj.label}</code>
+            `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;
+            const can = btn.getElementsByTagName('img')[0];
+
+            if(obj.img) {
+                const im = decodeURI(obj.img);
+                can.src = im;
+            }
+
+
             saveButtonDiv.appendChild(btn);
     
             hasSaves = true;
@@ -262,7 +316,6 @@ var SaveManager = new function() {
             }
             
             this.save(v, c.mbcHandler.ram, readROMName());
-            hidePopupMenu();
         });
 
         PromptMenu.show(m);
@@ -304,11 +357,11 @@ var SaveManager = new function() {
        const data = SaveManager.getSave(key);
    
        if(!data)
-           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error");
+           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, hidePopupMenu);
        else
        {
            MBC1.useSaveData(data);
-           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed");
+           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false, null, hidePopupMenu);
        }
    }
 
@@ -383,11 +436,10 @@ localLoadButton.addEventListener('click', function() {
 
     SaveManager.populateSaveHTML(function() {
         const key = this.value;
-        hidePopupMenu();
         SaveManager.injectLocalStorage(key);
     });
     
-    showPopupMenu("Load");
+    showPopupMenu("Load a File");
 })
 
 

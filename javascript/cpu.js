@@ -144,7 +144,7 @@ class CPU {
 
         this.timerRegs = new Timer();
         this.ppu = new PPU(this);
-        this.apu = new APU(this);
+        // this.apu = new APU(this);
         this.renderer = new Renderer(this);
         this.cycles = 0;
         this.cgb = false;
@@ -358,10 +358,11 @@ class CPU {
                 return;
         }
 
-        if(this.apu.accepts(address)) {
+        /* if(this.apu.accepts(address)) {
             this.apu.write8(address, byte);
             return;
-        } else if(this.ppu.accepts(address)) {
+        } */
+        if(this.ppu.accepts(address)) {
             this.ppu.write8(address, byte);
             return;
         }
@@ -530,11 +531,12 @@ class CPU {
         //  or continue searching
         const v = this.mbcHandler ? this.mbcHandler.read8(this, address) : null;
         if(v != null)
-                return v;
+            return v;
         
-        if(this.apu.accepts(address))
+        /* if(this.apu.accepts(address))
             return this.apu.read8(address);
-        else if(this.ppu.accepts(address))
+        else */
+        if(this.ppu.accepts(address))
             return this.ppu.read8(address);
 
 
@@ -650,7 +652,7 @@ class CPU {
         this.ppu.step(this);
 
         // update sound
-        this.apu.tick(this.cycles);
+        // this.apu.tick(this.cycles);
 
 
         // HDMA stuff

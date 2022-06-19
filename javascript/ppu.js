@@ -47,6 +47,9 @@ class PPU {
             // some registers
             HDMASrc: 0, // ff53
             HDMADest:0, // ff54
+            
+            speed: 1, // CPU speed
+            key1: 0, // ff4d
         }
         
         this.reset();
@@ -128,6 +131,9 @@ class PPU {
         this.regs.bgp = 0;
         this.regs.obj0 = 0;
         this.regs.obj1 = 0;
+        this.regs.key1 = 0;
+
+        this.regs.speed = 1;
         
         this.lcdEnabled = true;
     }
@@ -143,6 +149,13 @@ class PPU {
             return 0;
 
         return this.parent.mem.vram[address - 0x8000 + 0x2000];
+    }
+
+    /**
+     * @returns How fast the CPU is running (1 for normal mode and 2 for double speed)
+     */
+    getSpeedMultiplier() {
+        return this.cgb.regs.speed;
     }
 
     /**
@@ -258,6 +271,9 @@ class PPU {
             case 0x4B:
                 this.regs.wx = byte;
                 break;
+            case 0x4D:
+                this.regs.key1 = byte & 1;
+                break;
             case 0x4F:
                 // cgb only
                 this.cgb.vbank = byte & 0x1;
@@ -331,6 +347,8 @@ class PPU {
                 return this.regs.wy;
             case 0x4B:
                 return this.regs.wx;
+            case 0x4D:
+                return this.cgb.regs.key1 | ((this.getSpeedMultiplier() >> 1) << 7) | 0x7E;
             case 0x51:
                 // cgb
                 return this.cgb.HDMASrc >> 8;
