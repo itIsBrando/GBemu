@@ -131,9 +131,9 @@ class PPU {
         this.regs.bgp = 0;
         this.regs.obj0 = 0;
         this.regs.obj1 = 0;
-        this.regs.key1 = 0;
-
-        this.regs.speed = 1;
+        
+        this.cgb.key1 = 0;
+        this.cgb.speed = 1;
         
         this.lcdEnabled = true;
     }
@@ -155,7 +155,7 @@ class PPU {
      * @returns How fast the CPU is running (1 for normal mode and 2 for double speed)
      */
     getSpeedMultiplier() {
-        return this.cgb.regs.speed;
+        return this.cgb.speed;
     }
 
     /**
@@ -272,7 +272,7 @@ class PPU {
                 this.regs.wx = byte;
                 break;
             case 0x4D:
-                this.regs.key1 = byte & 1;
+                this.cgb.key1 = byte & 1;
                 break;
             case 0x4F:
                 // cgb only
@@ -348,7 +348,7 @@ class PPU {
             case 0x4B:
                 return this.regs.wx;
             case 0x4D:
-                return this.cgb.regs.key1 | ((this.getSpeedMultiplier() >> 1) << 7) | 0x7E;
+                return this.cgb.key1 | ((this.getSpeedMultiplier() >> 1) << 7) | 0x7E;
             case 0x51:
                 // cgb
                 return this.cgb.HDMASrc >> 8;
@@ -376,7 +376,7 @@ class PPU {
                 return this.cgb.objPal[this.cgb.obji];
             case 0x4F:
                 // cgb only
-                return this.ppu.cgb.vbank | 0xFE;
+                return this.cgb.vbank | 0xFE;
             default:
                 return 0xFF;
         }

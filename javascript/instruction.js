@@ -146,8 +146,8 @@ var opTable = {
         cpu.LOG("STOP PC: " + hex(cpu.pc.v));
         cpu.skip(2);
 
-        if(cpu.cgb && (cpu.ppu.getSpeedMultiplier() >> 1) != cpu.ppu.cgb.regs.key1) {
-            cpu.ppu.cgb.regs.speed ^= 0b11; // sets to 1 or 2
+        if(cpu.cgb && (cpu.ppu.getSpeedMultiplier() >> 1) != cpu.ppu.cgb.key1) {
+            cpu.ppu.cgb.speed ^= 0b11; // sets to 1 or 2
             cpu.LOG("Speed switch");
         }
     },

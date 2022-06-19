@@ -511,14 +511,24 @@
 
 
         .show-menu-btn {
-            width: 20px;
-            height: 20px;
+            width: 15px;
+            height: 15px;
             cursor: pointer;
             background-color: var(--gamepad-btn-color);
+            box-shadow: 1px 1px 5px #222;
             position: absolute;
             right: 50%;
             bottom: -20px;
+            border: none;
             border-radius: 100vmax;
+        }
+
+        .show-menu-btn:active {
+            box-shadow: none;
+        }
+
+        .show-menu-btn:hover {
+            filter: brightness(0.8);
         }
 
 
@@ -577,15 +587,9 @@
                 overflow: auto;
             }
 
-            #popup {
-                width: 100vw;
-                height: 100vh;
-                overflow-y: scroll;
-            }
-
-            #keyBindingDiv, #SettingsDiv {
-                width: 98vw;
-                height: 98vh;
+            #popup, #keyBindingDiv, #SettingsDiv {
+                width: calc(98vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+                height: calc(98vh - env(safe-area-inset-bottom) - env(safe-area-inset-top));
             }
         }
 
