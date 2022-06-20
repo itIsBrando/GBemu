@@ -535,8 +535,15 @@
         #SettingsDiv {
             width: fit-content;
             height: fit-content;
+            font-family: monospace;
             min-width: 250px;
             display:none;
+            overflow-y: auto;
+        }
+
+        #keyBindingDiv {
+            width: fit-content;
+            height: fit-content;
             overflow-y: auto;
         }
 
@@ -588,8 +595,17 @@
             }
 
             #popup, #keyBindingDiv, #SettingsDiv {
-                width: calc(98vw - env(safe-area-inset-left) - env(safe-area-inset-right));
-                height: calc(98vh - env(safe-area-inset-bottom) - env(safe-area-inset-top));
+                border: none;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                transform: translate(0, 0);
+                padding-right: env(safe-area-inset-right);
+                padding-left: env(safe-area-inset-left);
+                width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+                padding-top: calc(2vh + env(safe-area-inset-top));
+                padding-bottom: calc(300px + env(safe-area-inset-bottom));
+                height: 98vh;
             }
         }
 
@@ -801,7 +817,7 @@
     <!-- Settings menu -->
     <div id="SettingsDiv" class="popup shadow">
         <div style="background-color:#ddd; height: 30px; color: black;">
-            <b style="font-size: 28px;">Settings</b>
+            <b style="padding-left: 26px; font-size: 26px;">Settings</b>
             <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
         </div>
         <div class="settings-grid">
@@ -956,7 +972,7 @@
 
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="popup" style="width: fit-content; height: fit-content; overflow-y: auto;" id="keyBindingDiv">
+    <div class="popup" id="keyBindingDiv">
         <b>Set Keyboard Controls</b>
         <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
         <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
@@ -980,10 +996,10 @@
     <div class="popup" id="popup">
         <b><label id="popup-title" style="margin:5px" for="localSaveName"></label></b>
         <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
-        <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace;">edit</button>
+        <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace; height: 30px;">edit</button>
         <button id="plusButton" type="button" class="menubtn"
-            style="width: fit-content; float:right;" onclick="SaveManager.addSave();">+</button>
-        <div class="div-separator"></div>
+            style="width: 30px; float:right; height: 30px;" onclick="SaveManager.addSave();">+</button>
+        <div class="div-separator" style="border-bottom:  5px solid #333;"></div>
         <!-- Holds all of the save's button -->
         <div id="saveButtonDiv" style="max-height:100%; overflow-y: auto;"></div>
     </div>
