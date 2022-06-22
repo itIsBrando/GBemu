@@ -66,14 +66,11 @@ const saveButtonDiv = document.getElementById('saveButtonDiv');
 /**
  * Shows the popup menu
  * - does nothing if this menu is already open
- * @param {String} title header string @todo implement
  * @returns false if the menu is already open
  */
-function showPopupMenu(title) {
+function showPopupMenu() {
     if(popupMenu.style.display == "block")
         return false;
-    
-    document.getElementById('popup-title').innerText = title;
     
     showElement(popupMenu);
     FrontEndMenu.showOverlay();
@@ -107,7 +104,7 @@ localSaveButton.addEventListener('click', function() {
         
     });
 
-    if(!showPopupMenu("Save Name"))
+    if(!showPopupMenu())
         return;
 });
 
@@ -241,12 +238,8 @@ var SaveManager = new function() {
             
             const btn = document.createElement("button");
             const obj = JSON.parse(localStorage[keys[i]]);
-            btn.className = "menubtn";
-            btn.style.width = "100%";
-            showElement(btn, 'grid');
+            btn.className = "menubtn save-menu-button";
             btn.type = "button";
-            btn.style.gridTemplateColumns = '2fr 1fr 30px';
-            btn.style.gridTemplateRows = '4fr 1fr';
             btn.innerHTML = `
                 <img width="160" height="144" style="grid-row: 1 / 3;"></img>
                 <h2>${keys[i]}</h2>
@@ -269,17 +262,19 @@ var SaveManager = new function() {
         }
     
         if(!hasSaves) {
-            saveButtonDiv.innerHTML = "<b>NO FILES SAVED</b>"
+            saveButtonDiv.innerHTML = `<b>NO FILES SAVED</b>`;
         } else {
             // Add an onclick event for each delete button
             const btns = getDeleteButtons();
     
             btns.forEach(function(curVal) {
                 curVal.onclick = SaveManager.deleteSelf;
-            })
+            });
+
+            const div = document.createElement('div');
+            div.className = 'save-menu-padding';
+            saveButtonDiv.appendChild(div);
         }
-        
-    
     }
 
     /**
@@ -360,6 +355,7 @@ var SaveManager = new function() {
            showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, hidePopupMenu);
        else
        {
+           hidePopupMenu();
            MBC1.useSaveData(data);
            showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false, null, hidePopupMenu);
        }
@@ -439,7 +435,7 @@ localLoadButton.addEventListener('click', function() {
         SaveManager.injectLocalStorage(key);
     });
     
-    showPopupMenu("Load a File");
+    showPopupMenu();
 })
 
 

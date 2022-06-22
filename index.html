@@ -121,6 +121,8 @@
 
             font-size: medium;
             color: var(--text-color);
+
+            transition-duration: 0.4s;
         }
 
         ::-webkit-scrollbar {
@@ -156,6 +158,7 @@
             right: 2px;
             top: calc(30px + env(safe-area-inset-top));
             z-index: -1;
+            transition-duration: 0.4s;
         }
 
         #screen-container {
@@ -170,6 +173,7 @@
             border-color: var(--screen-border-color);
             border-width: 25px 0px 20px 0px;
             border-bottom-right-radius: 25px;
+            transition-duration: 0.4s;
         }
 
         #screen-container-border {
@@ -177,6 +181,7 @@
             min-width: 25px;
             width: clamp(20px, 8vw, 60px);
             background-color: var(--screen-border-color);
+            transition-duration: 0.4s;
         }
 
         #screen-container-border-right {
@@ -185,7 +190,6 @@
             min-width: 10px;
             width: clamp(10px, 7vw, 50px);
             background-color: var(--screen-border-color);
-
         }
 
         #power-LED-circle {
@@ -217,12 +221,11 @@
         .dropdown-background {
             /* used for the <div> that hosts all submenu items */
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            background-color: none;
-            z-index: 0;
+            position: absolute;
             display: none;
             width: 200px;
             left: 0;
-            position: absolute;
+            z-index: 0;
         }
 
         .popup {
@@ -237,9 +240,19 @@
             box-shadow: 0px 16px 32px 0px rgba(0, 0, 0, 0.8);
             z-index: 9;
             border-radius: 5px;
-            width: minmax(fit-content, 550px);
+            width: fit-content;
             min-width: 350px;
+        }
 
+        .menu-header {
+            font-size: 1.25rem;
+            font-family: monospace;
+            background-color:#ddd;
+            color: black;
+            height: fit-content;
+            min-height: 30px;
+            padding-left: 1rem;
+            margin-bottom: 5px;
         }
 
         .message-div {
@@ -341,6 +354,7 @@
             border-radius: 2px;
             padding-top: calc(2px + env(safe-area-inset-top));
             padding-bottom: 2;
+            transition-duration: 0.4s;
         }
 
         .title-btn:hover {
@@ -547,8 +561,14 @@
             overflow-y: auto;
         }
 
+        #saveButtonDiv {
+            max-height: 100%;
+            overflow-y: auto;
+            text-align: center;
+        }
+
         .shadow {
-            box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.5);
+            box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.5);
         }
 
         @media (orientation: landscape) {
@@ -602,10 +622,15 @@
                 transform: translate(0, 0);
                 padding-right: env(safe-area-inset-right);
                 padding-left: env(safe-area-inset-left);
+                padding-bottom: 2vh;
                 width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
-                padding-top: calc(2vh + env(safe-area-inset-top));
-                padding-bottom: calc(300px + env(safe-area-inset-bottom));
                 height: 98vh;
+                overflow: hidden;
+            }
+
+            .settings-grid {
+                max-height: 100%;
+                overflow: hidden auto;
             }
         }
 
@@ -646,6 +671,18 @@
             }
         }
 
+        .save-menu-button {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 2fr 1fr 30px;
+            grid-template-rows: 4fr 1fr;
+            transition-duration: 0.5s;
+        }
+
+        .save-menu-padding {
+            width: 1px;
+            padding: 25px 0;
+        }
 
         .debug-title-btn {
             width: 100%;
@@ -769,7 +806,7 @@
             <!-- ROM Info -->
             <button type="button" style="width: inherit" class="menubtn" onclick="showROMInfo()">ROM Info</button>
             <!-- Reset Game -->
-            <button type="button" style="width: inherit" class="menubtn" onclick="restartEmulation()"><code>reset game</code></button>
+            <button type="button" style="width: inherit; font-size: 0.66rem;" class="menubtn" onclick="restartEmulation()"><code>reset game</code></button>
         </div>
     </div>
 
@@ -816,8 +853,8 @@
 
     <!-- Settings menu -->
     <div id="SettingsDiv" class="popup shadow">
-        <div style="background-color:#ddd; height: 30px; color: black;">
-            <b style="padding-left: 26px; font-size: 26px;">Settings</b>
+        <div class="menu-header">
+            <b>Settings</b>
             <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
         </div>
         <div class="settings-grid">
@@ -994,14 +1031,15 @@
 
     <!-- Pop up menu for saving/loading states -->
     <div class="popup" id="popup">
-        <b><label id="popup-title" style="margin:5px" for="localSaveName"></label></b>
-        <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
-        <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace; height: 30px;">edit</button>
-        <button id="plusButton" type="button" class="menubtn"
-            style="width: 30px; float:right; height: 30px;" onclick="SaveManager.addSave();">+</button>
-        <div class="div-separator" style="border-bottom:  5px solid #333;"></div>
+        <div class="menu-header" id="popup-title">
+            Save Files
+            <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
+            <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace; height: 30px;">edit</button>
+            <button id="plusButton" type="button" class="menubtn"
+                style="width: 30px; float:right; height: 30px;" onclick="SaveManager.addSave();">+</button>
+        </div>
         <!-- Holds all of the save's button -->
-        <div id="saveButtonDiv" style="max-height:100%; overflow-y: auto;"></div>
+        <div id="saveButtonDiv"></div>
     </div>
 
     <!-- Change palette colors -->

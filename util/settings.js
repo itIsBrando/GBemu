@@ -46,10 +46,12 @@ var Settings = new function() {
 
     this.show = function() {
         showElement(MainDiv);
+        pauseEmulation();
     }
 
     this.hide = function(){ 
         hideElement(MainDiv);
+        resumeEmulation();
     }
 }
 
