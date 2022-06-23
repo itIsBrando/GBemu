@@ -46,11 +46,13 @@ var Settings = new function() {
 
     this.show = function() {
         showElement(MainDiv);
+        Themes.set_theme_color("#dddddd");
         pauseEmulation();
     }
 
     this.hide = function(){ 
         hideElement(MainDiv);
+        Themes.setStatusBar();
         resumeEmulation();
     }
 }

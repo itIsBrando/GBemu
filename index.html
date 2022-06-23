@@ -30,14 +30,15 @@
         }
 
         .icy-blue-theme {
-            --bg-color: #0a0a3cb0;
+            --bg-color: #494990;
             --screen-shadow: rgba(100, 160, 255, 0.69);
             --screen-border-color: skyblue;
             --dpad-color: rgb(38, 100, 255);
             --gamepad-btn-color: lightblue;
             /* v UI Elements v */
-            --title-btn-color: cornflowerblue;
+            --title-btn-color: var(--bg-color);
             --menu-btn-color: cadetblue;
+            --text-color: aliceblue;
         }
 
         .dark-theme {
@@ -47,20 +48,20 @@
             --dpad-color: #454545;
             --gamepad-btn-color: darkgray;
             /* v UI Elements v */
-            --title-btn-color: gray;
-            --menu-btn-color: lightblue;
+            --title-btn-color: var(--bg-color);
+            --menu-btn-color: darkslategray;
+            --text-color: skyblue;
         }
 
         .light-theme {
-            --bg-color: #fdf5e6;
+            --bg-color: white;
             --screen-shadow: rgba(126, 126, 126, 0.69);
             --screen-border-color: lightgray;
             --dpad-color: lightslategray;
             --gamepad-btn-color: lightsteelblue;
             /* v UI Elements v */
-            --title-btn-color: #333333;
+            --title-btn-color: var(--bg-color);
             --menu-btn-color: lightslategray;
-            --text-color: white;
         }
 
         .purple-theme {
@@ -92,7 +93,7 @@
             --dpad-color: green;
             --gamepad-btn-color: mediumseagreen;
             /* v UI Elements v */
-            --title-btn-color: var(--screen-shadow);
+            --title-btn-color: var(--bg-color);
             --menu-btn-color: mediumseagreen;
         }
 
@@ -136,6 +137,7 @@
         h3 {
             margin-top: 10px;
             margin-bottom: 10px;
+            padding-left: 1rem;
         }
 
         #touchControls {
@@ -158,6 +160,10 @@
             right: 2px;
             top: calc(30px + env(safe-area-inset-top));
             z-index: -1;
+            transition-duration: 0.5s;
+        }
+        
+        #viewport * {
             transition-duration: 0.4s;
         }
 
@@ -173,7 +179,6 @@
             border-color: var(--screen-border-color);
             border-width: 25px 0px 20px 0px;
             border-bottom-right-radius: 25px;
-            transition-duration: 0.4s;
         }
 
         #screen-container-border {
@@ -181,7 +186,6 @@
             min-width: 25px;
             width: clamp(20px, 8vw, 60px);
             background-color: var(--screen-border-color);
-            transition-duration: 0.4s;
         }
 
         #screen-container-border-right {
@@ -191,22 +195,23 @@
             width: clamp(10px, 7vw, 50px);
             background-color: var(--screen-border-color);
         }
-
-        #power-LED-circle {
-            fill: var(--power-led-color);
-        }
-
-        #power-LED {
+        
+        .power-LED {
+            background-color: var(--power-led-color);
             position: relative;
-            transform: translate(-50%, 0%);
+            border-radius: 100vmax;
+            transform: translateX(-50%);
             left: 50%;
             top: 20%;
-            filter: drop-shadow(0px 0px 8px var(--power-led-color));
+            width: 10px;
+            aspect-ratio: 1 / 1;
+            box-shadow: 0px 0px 6px 2px var(--power-led-color);
         }
 
         #screen {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 25px;
+            border-radius: 5px 10px 25px 5px;
+            width: 100%;
+            height: 100%;
         }
 
         .dropdown {
@@ -358,7 +363,7 @@
         }
 
         .title-btn:hover {
-            filter: brightness(0.6)
+            filter: brightness(0.6);
         }
 
         /* Button used for setting keyboard characters */
@@ -525,8 +530,8 @@
 
 
         .show-menu-btn {
-            width: 15px;
-            height: 15px;
+            width: clamp(10px, 3vw, 20px);
+            height: 5px;
             cursor: pointer;
             background-color: var(--gamepad-btn-color);
             box-shadow: 1px 1px 5px #222;
@@ -626,6 +631,7 @@
                 width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
                 height: 98vh;
                 overflow: hidden;
+                border-radius: 0px;
             }
 
             .settings-grid {
@@ -838,17 +844,13 @@
     <div id="viewport">
         <div id="screen-container">
             <div id="screen-container-border">
-                <svg id="power-LED" width="20" height="20">
-                    <g>
-                        <circle id="power-LED-circle" cx="10" cy="10" width="10" height="10" r="5" fill="red" />
-                    </g>
-                </svg>
+                <div class="power-LED"></div>
             </div>
-            <canvas id="screen" style="width: 100%; height: 100%; float: right" width="160" height="144"> </canvas>
+            <canvas id="screen" width="160" height="144"> </canvas>
             <div id="screen-container-border-right"></div>
         </div>
         <!-- Menu button to show the top menu -->
-        <button type="button" class="show-menu-btn" onclick="ToggleTitleMenu();"></button>
+        <div class="show-menu-btn" onclick="ToggleTitleMenu();"></div>
     </div>
 
     <!-- Settings menu -->
@@ -1010,10 +1012,11 @@
 
     <!-- pop up menu for changing keyboard controls -->
     <div class="popup" id="keyBindingDiv">
-        <b>Set Keyboard Controls</b>
-        <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
-        <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
-        <div class="div-separator"></div>
+        <div class="menu-header">
+            <b>Set Keyboard Controls</b>
+            <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
+            <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
+        </div>
         <h3>Gameboy buttons</h3>
         <button type="button" onclick="KeyBinding.assign('A', this);" class="keypad-binding-btn"></button>
         <button type="button" onclick="KeyBinding.assign('B', this);" class="keypad-binding-btn"></button>
@@ -1155,46 +1158,21 @@
         }
 
         const viewport = document.getElementById('viewport');
-        const DELAY = 10;
-        let scrl = null;
-
-        function _scrlUp() {
-            viewport.style.top = (Number(viewport.style.top.replace("px", '')) - 1) + 'px';
-            if(viewport.style.top == '0px') {
-                clearInterval(scrl);
-                scrl = null;
-            }
-        }
-
-        function _scrlDown() {
-            viewport.style.top = (Number(viewport.style.top.replace("px", '')) + 1) + 'px';
-            if(viewport.style.top == '25px') {
-                clearInterval(scrl);
-                scrl = null;
-            }
-        }
 
         function ToggleTitleMenu() {
             const d = [document.getElementById('dropdown1'), document.getElementById('dropdown2'), document.getElementById('dropdown3')];
             const isVisible = d[0].style.display != 'none';
 
-            if(scrl) {
-                clearInterval(scrl)
-                scrl = null;
-            }
-
             if(isVisible)  {
                 for(let i = 0; i < 3; i++) {
                     hideElement(d[i])
                 }
-                viewport.style.top = '25px';
-                scrl = setInterval(_scrlUp, DELAY);
+                viewport.style.top = '0px';
             } else {
                 for(let i = 0; i < 3; i++) {
                     showElement(d[i])
                 }
-                viewport.style.top = '0px';
-                scrl = setInterval(_scrlDown, DELAY);
+                viewport.style.top = '25px';
             }
         }
 

@@ -72,6 +72,7 @@ function showPopupMenu() {
     if(popupMenu.style.display == "block")
         return false;
     
+    Themes.set_theme_color("#dddddd");
     showElement(popupMenu);
     FrontEndMenu.showOverlay();
     pauseEmulation();
@@ -81,6 +82,7 @@ function showPopupMenu() {
 function hidePopupMenu() {
     hideElement(popupMenu);
     FrontEndMenu.hideOverlay();
+    Themes.setStatusBar();
 
     resumeEmulation();
 
