@@ -1,6 +1,8 @@
 
 var Settings = new function() {
     const CORE_PREFIX = "__core_";
+    const MainDiv = document.getElementById('SettingsDiv');
+
     /**
      * Gets an option from local storage. If it could it was not found, then create it and set it equal to `def`
      * @param {String} key
@@ -34,6 +36,19 @@ var Settings = new function() {
         delete localStorage[CORE_PREFIX + key];
     }
 
+    this.set_temp = function(key, value) {
+        sessionStorage.setItem(CORE_PREFIX + key, value);
+    }
+
+    this.get_temp = function(key, def = null) {
+        const val = sessionStorage.getItem(CORE_PREFIX + key);
+
+        if(val == null)
+            return def;
+
+        return val;
+    }
+
     /**
      * @param {String} key 
      * @returns true if the key is part of the internal settings
@@ -42,11 +57,14 @@ var Settings = new function() {
         return key.startsWith(CORE_PREFIX);
     }
 
-    const MainDiv = document.getElementById('SettingsDiv');
+    this.showing = function() {
+        return MainDiv.style.display != "none";
+    }
 
     this.show = function() {
         showElement(MainDiv);
-        Themes.set_theme_color("#dddddd");
+        if(Settings.get_temp("change_status_bar", "false") == "true")
+            Themes.set_theme_color("#dddddd");
         pauseEmulation();
     }
 

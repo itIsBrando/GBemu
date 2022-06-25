@@ -13,6 +13,13 @@ var Themes = new function() {
     ];
 
 
+    this.init = function() {
+        const t = Settings.get_core("theme", 0);
+
+        Themes.apply(Number(t));
+    }
+
+
     this.set_theme_color = function(color) {
         const tags = document.getElementsByTagName('meta');
         
@@ -48,7 +55,3 @@ var Themes = new function() {
     }
 
 };
-
-const t = Settings.get_core("theme", 0);
-
-Themes.apply(Number(t));

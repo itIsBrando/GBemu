@@ -252,6 +252,7 @@
         .menu-header {
             font-size: 1.25rem;
             font-family: monospace;
+            text-align: center;
             background-color:#ddd;
             color: black;
             height: fit-content;
@@ -1035,8 +1036,8 @@
     <!-- Pop up menu for saving/loading states -->
     <div class="popup" id="popup">
         <div class="menu-header" id="popup-title">
-            Save Files
-            <button type="button" class="x-btn" onclick="hidePopupMenu()">&times;</button>
+            <b>Save Files</b>
+            <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
             <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace; height: 30px;">edit</button>
             <button id="plusButton" type="button" class="menubtn"
                 style="width: 30px; float:right; height: 30px;" onclick="SaveManager.addSave();">+</button>
@@ -1176,7 +1177,22 @@
             }
         }
 
+        const _set_var = function(x) {
+            Settings.set_temp("change_status_bar", x.matches);
+
+            if(SaveManager.showing() || Settings.showing())
+                Themes.set_theme_color("#dddddd");
+        }
+
+        const x = window.matchMedia(
+            "(max-width: 500px), (max-height: 500px) and (orientation: landscape)"
+        );
+        
+        _set_var(x);
+        x.addListener(_set_var);
+
         SaveStorage.init();
+        Themes.init();
     </script>
 </body>
 </head>

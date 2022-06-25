@@ -51,7 +51,7 @@ function _canSave()
     }
 
     _delKey = null;
-    hidePopupMenu();
+    SaveManager.hide();
 }
 
 
@@ -61,35 +61,6 @@ const popupMenu = document.getElementById('popup');
 const plusButton = document.getElementById('plusButton');
 const saveEditButton = document.getElementById('saveEditButton');
 const saveButtonDiv = document.getElementById('saveButtonDiv');
-
-
-/**
- * Shows the popup menu
- * - does nothing if this menu is already open
- * @returns false if the menu is already open
- */
-function showPopupMenu() {
-    if(popupMenu.style.display == "block")
-        return false;
-    
-    Themes.set_theme_color("#dddddd");
-    showElement(popupMenu);
-    FrontEndMenu.showOverlay();
-    pauseEmulation();
-}
-
-
-function hidePopupMenu() {
-    hideElement(popupMenu);
-    FrontEndMenu.hideOverlay();
-    Themes.setStatusBar();
-
-    resumeEmulation();
-
-    // now we must delete buttons from popup menu
-    saveButtonDiv.innerHTML = "";
-}
-
 
 /**
  * Shows the pop up menu for saving to localStorage
@@ -102,11 +73,11 @@ localSaveButton.addEventListener('click', function() {
         if(c.mbcHandler)
             SaveManager.save(this.value, c.mbcHandler.ram, readROMName());
         else
-            showMessage("ROM does not support saving.", "Could not Save", false, null, hidePopupMenu());
+            showMessage("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
         
     });
 
-    if(!showPopupMenu())
+    if(!SaveManager.show())
         return;
 });
 
@@ -209,7 +180,7 @@ var SaveManager = new function() {
                 "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
                 "Save Already Exists",
                 true,
-                hidePopupMenu,
+                SaveManager.hide,
                 _canSave
             );
             _delKey = {key, data};
@@ -220,12 +191,44 @@ var SaveManager = new function() {
                 "Success",
                 false,
                 null,
-                hidePopupMenu
+                SaveManager.hide
             );
         }
-
     }
 
+    
+    /**
+     * @note does nothing if this menu is already open
+     * @returns false if the menu is already open
+     */
+    this.show = function() {
+        if(popupMenu.style.display == "block")
+            return false;
+        
+        if(Settings.get_temp("change_status_bar", "false") == "true")
+            Themes.set_theme_color("#dddddd");
+
+        showElement(popupMenu);
+        FrontEndMenu.showOverlay();
+        pauseEmulation();
+    }
+
+
+    this.hide = function() {
+        hideElement(popupMenu);
+        FrontEndMenu.hideOverlay();
+        Themes.setStatusBar();
+
+        resumeEmulation();
+
+        // now we must delete buttons from popup menu
+        saveButtonDiv.innerHTML = "";
+    }
+
+    
+    this.showing = function() {
+        return popupMenu.style.display != "none";
+    }
 
     this.populateSaveHTML = function(onLabelClick) {
         const saveButtonDiv = document.getElementById('saveButtonDiv');
@@ -335,7 +338,7 @@ var SaveManager = new function() {
                     delete localStorage[_delKey];
             
                 _delKey = null;
-                hidePopupMenu();
+                SaveManager.hide();
                 localLoadButton.click();
                 saveEditButton.innerHTML = "edit";
             }
@@ -354,12 +357,12 @@ var SaveManager = new function() {
        const data = SaveManager.getSave(key);
    
        if(!data)
-           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, hidePopupMenu);
+           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, SaveManager.hide);
        else
        {
-           hidePopupMenu();
+           SaveManager.hide();
            MBC1.useSaveData(data);
-           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false, null, hidePopupMenu);
+           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false);
        }
    }
 
@@ -437,7 +440,7 @@ localLoadButton.addEventListener('click', function() {
         SaveManager.injectLocalStorage(key);
     });
     
-    showPopupMenu();
+    SaveManager.show();
 })
 
 
