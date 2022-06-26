@@ -119,6 +119,88 @@ const opcodeCycles = [
 
 
 class CPU {
+    createSaveState() {
+        return JSON.stringify({
+            cpu: this.export(),
+            timer: this.timerRegs.export(),
+            ppu: this.ppu.export(),
+            renderer: this.renderer.export(),
+            mbc: this.mbcHandler ? this.mbcHandler.export() : null,
+        });
+    }
+
+    loadSaveState(data) {
+        data = JSON.parse(data);
+        this.import(data);
+        this.timerRegs.import(data);
+        this.ppu.import(data);
+        this.renderer.import(data);
+        this.mbcHandler.import(data);
+    }
+
+    export() {
+        return {
+            pc: this.pc.v,
+            sp: this.sp.v,
+            af: this.af.v,
+            bc: this.bc.v,
+            de: this.de.v,
+            hl: this.hl.v,
+            flags: this.flags,
+
+            mem: {
+                vram: SaveManager.pack(this.mem.vram),
+                wram: SaveManager.pack(this.mem.wram),
+                cram: SaveManager.pack(this.mem.cram),
+                hram: SaveManager.pack(this.mem.hram),
+                oam: SaveManager.pack(this.mem.oam),
+            },
+
+            currentCycles: this.currentCycles,
+            cycles: this.cycles,
+            cgb: this.cgb,
+
+            isHalted: this.isHalted,
+            interrupt_master: this.interrupt_master,
+            interrupt_enable: this.interrupt_enable,
+            interrupt_flag: this.interrupt_flag,
+    
+            shouldEI: this.shouldEI,
+            shouldDI: this.shouldDI,
+        }
+    }
+
+    import(data) {
+        const cpu_data = data["cpu"];
+        this.pc.v = cpu_data.pc;
+        this.sp.v = cpu_data.sp;
+        this.af.v = cpu_data.af;
+        this.bc.v = cpu_data.bc;
+        this.de.v = cpu_data.de;
+        this.hl.v = cpu_data.hl;
+        this.flags = cpu_data.flags;
+
+        const mem = cpu_data.mem;
+        this.mem.vram = SaveManager.unpack(mem.vram);
+        this.mem.wram = SaveManager.unpack(mem.wram);
+        this.mem.cram = SaveManager.unpack(mem.cram);
+        this.mem.hram = SaveManager.unpack(mem.hram);
+        this.mem.oam = SaveManager.unpack(mem.oam);
+        
+
+        this.currentCycles = cpu_data.currentCycles;
+        this.cycles = cpu_data.cycles;
+        this.cgb = cpu_data.cgb;
+
+        this.isHalted = cpu_data.isHalted;
+        this.interrupt_master = cpu_data.interrupt_master;
+        this.interrupt_enable = cpu_data.interrupt_enable;
+        this.interrupt_flag = cpu_data.interrupt_flag;
+
+        this.shouldEI = cpu_data.shouldEI;
+        this.shouldDI = cpu_data.shouldDI;
+    }
+
     constructor() {
         // timer that runs every 100ms
         this.timer = null;
@@ -128,7 +210,7 @@ class CPU {
         this.powerConsumptionShown = false;
         // set to true once a ROM file has been loaded
         this.romLoaded = false;
-        // Incremented every instruction execution
+        // Incremented every instruction execution (for HDMA)
         this.ticks = 0;
         // speed multiplier
         this.speed = 1;
@@ -169,7 +251,6 @@ class CPU {
         }
 
         this.isHalted = false;
-        this.haltBug = false;
         this.interrupt_master = false;
         this.interrupt_enable = 0;
         this.interrupt_flag = 0;
@@ -320,7 +401,7 @@ class CPU {
         if(!mode && this.HDMAInProgress)
         {
             this.HDMAInProgress = false;
-            this.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
+            CPU.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
             return;
         }
 
@@ -339,7 +420,7 @@ class CPU {
             
         }
 
-        this.LOG("hdma mode:" + mode + ". Dest addr:" + hex(this.ppu.cgb.HDMADest, 4) + ". Src addr:" + hex(this.ppu.cgb.HDMASrc, 4));
+        CPU.LOG("hdma mode:" + mode + ". Dest addr:" + hex(this.ppu.cgb.HDMADest, 4) + ". Src addr:" + hex(this.ppu.cgb.HDMASrc, 4));
     }
 
 
@@ -351,31 +432,26 @@ class CPU {
     write8(address, byte) {
         byte &= 255;
 
-        if(this.mbcHandler)
-        {
-            const shouldWrite = this.mbcHandler.write8(this, address, byte);
-            if(shouldWrite === false)
-                return;
-        }
-
-        /* if(this.apu.accepts(address)) {
-            this.apu.write8(address, byte);
+        if(this.mbcHandler && this.mbcHandler.acceptsWrite(address)) {
+            this.mbcHandler.write8(address, byte);
             return;
-        } */
-        if(this.ppu.accepts(address)) {
+        } else if(this.ppu.accepts(address)) {
             this.ppu.write8(address, byte);
+            return;
+        } else if(this.timerRegs.accepts(address)) {
+            this.timerRegs.write8(address, byte);
             return;
         }
 
         if(address < 0x8000) {
-            this.LOG("illegal ROM write: " + hex(address, 4));
+            CPU.LOG("illegal ROM write: " + hex(address, 4));
         } else if(address < 0xA000) {
             // VRAM
             address -= 0x8000;
             this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()] = byte;
         } else if(address < 0xC000) {
             // cart RAM
-            this.LOG("illegal RAM read");
+            CPU.LOG("illegal RAM read");
             this.mem.cram[address - 0xA000] = byte;
         } else if(address < 0xD000) {
             // this is unbanked WRAM
@@ -398,14 +474,6 @@ class CPU {
             return;
         } else if(address == 0xFF00) {
             this.mem.hram[0] = byte & 0b00110000;
-        } else if(address == 0xFF04) {
-            this.timerRegs.resetDiv();
-        } else if(address == 0xFF05) {
-            this.timerRegs.regs.tima = byte;
-        } else if(address == 0xFF06) {
-            this.timerRegs.regs.tma = byte;
-        } else if(address == 0xFF07) {
-            this.timerRegs.writeTAC(byte);
         } else if(address == 0xFF0F) {
             this.interrupt_flag = byte;
         } else if(address == 0xFF70) {
@@ -419,7 +487,7 @@ class CPU {
         } else if(address < 0xFFFF) {
             this.mem.hram[address - 0xFF00] = byte;
         } else {
-            this.LOG("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
+            CPU.LOG("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
         }
         
     };
@@ -474,8 +542,8 @@ class CPU {
 
         }
 
-        this.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
-        this.LOG(`ROM Name: ${readROMName()}`);
+        CPU.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
+        CPU.LOG(`ROM Name: ${readROMName()}`);
 
         this.romLoaded = true;
     }
@@ -484,7 +552,7 @@ class CPU {
      * Logs an error/warning
      * @param {String} str output
      */
-    LOG(str, throwException = false) {
+    static LOG(str, throwException = false) {
         if(!USE_LOG)
             return;
         else if(throwException)
@@ -526,18 +594,13 @@ class CPU {
      */
     read8(address) {
         // const v = this.cheats.read(address, this.mbcHandler ? this.mbcHandler.bank : 0);
-        
-        // if our address was read properly by our MBC, return it
-        //  or continue searching
-        const v = this.mbcHandler ? this.mbcHandler.read8(this, address) : null;
-        if(v != null)
-            return v;
-        
-        /* if(this.apu.accepts(address))
-            return this.apu.read8(address);
-        else */
+
+        if(this.mbcHandler && this.mbcHandler.acceptsRead(address))
+            return this.mbcHandler.read8(address);        
         if(this.ppu.accepts(address))
             return this.ppu.read8(address);
+        else if(this.timerRegs.accepts(address))
+            return this.timerRegs.read8(address);
 
 
         if(address < 0x8000) {
@@ -548,7 +611,7 @@ class CPU {
             return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
         } else if(address < 0xC000) {
             // cart RAM
-            this.LOG("illegal read: " + hex(address, 4));
+            CPU.LOG("illegal read: " + hex(address, 4));
             return this.mem.cram[address - 0xA000];
         } else if(address < 0xD000) {
             // unbanked WRAM
@@ -571,14 +634,6 @@ class CPU {
         } else if(address == 0xFF00) {
             let chkDpad = UInt8.getBit(this.mem.hram[0], 5);
             return Controller.getButtons(chkDpad);
-        } else if(address == 0xFF04) {
-            return this.timerRegs.regs.div;
-        } else if(address == 0xFF05) {
-            return this.timerRegs.regs.tima;
-        } else if(address == 0xFF06) {
-            return this.timerRegs.regs.tma;
-        } else if(address == 0xFF07) {
-            return this.timerRegs.regs.tac | 0xF8;
         } else if(address == 0xFF0F) {
             return this.interrupt_flag;
         } else if(address == 0xFF70) {
@@ -588,7 +643,7 @@ class CPU {
         } else if(address < 0xFFFF) {
             return this.mem.hram[address - 0xFF00];
         } else {
-            this.LOG("ERROR READING FROM ADDRESS: " + hex(address, 4));
+            CPU.LOG("ERROR READING FROM ADDRESS: " + hex(address, 4));
             throw "Cannot read here:" + hex(address, 4);
         }
 
@@ -643,13 +698,13 @@ class CPU {
         }
 
         // update timers
-        this.timerRegs.updateTimers(this);
+        this.timerRegs.step(this);
 
         // handle interrupts
         this.serviceInterrupts();
 
         // update GPU
-        this.ppu.step(this);
+        this.ppu.step();
 
         // update sound
         // this.apu.tick(this.cycles);
@@ -786,10 +841,6 @@ class CPU {
      * @param {number} dx
      */
     skip(dx) {
-        if(this.haltBug) {
-            this.haltBug = false;
-            return;
-        }
         this.pc.v += dx;
     };
 

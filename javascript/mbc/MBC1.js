@@ -46,11 +46,11 @@ class MBC1 {
 
         this.mode = 0; // determine whether we read from ROM or RAM
 
-        this.overrideSizeCheck = false; // can be overriden in the debug menu
+        this.overrideSizeCheck = false; // can be overriden in the debug menu @TODO
 
-        c.LOG(`RAM size: ${hex(this.ramSize, 2)}`);
-        c.LOG(`ROM size: ${hex(this.romSize, 2)} Size: ${hex(rom.length, 4)} bytes`);
-        c.LOG(`Total Banks: ${this.TOTAL_BANKS}`);
+        CPU.LOG(`RAM size: ${hex(this.ramSize, 2)}`);
+        CPU.LOG(`ROM size: ${hex(this.romSize, 2)} Size: ${hex(rom.length, 4)} bytes`);
+        CPU.LOG(`Total Banks: ${this.TOTAL_BANKS}`);
     }
 
     /**
@@ -65,8 +65,8 @@ class MBC1 {
                 this.ram = externalSave;
             } else {
                 showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
-                c.LOG("RAM with mismatching sizes was used.");
-                c.LOG(`Attempted: ${hex(externalSave.length, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
+                CPU.LOG("RAM with mismatching sizes was used.");
+                CPU.LOG(`Attempted: ${hex(externalSave.length, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
                 useExternalSaveFile = false;
             }
 
@@ -74,6 +74,26 @@ class MBC1 {
         }
 
         this.ram = new Uint8Array(expectedSize);
+    }
+
+    export() {
+        return {
+            bank: this.bank,
+            ramBank: this.ramBank,
+            mode: this.mode,
+            ramBankAddress: this.ramBankAddress,
+            romBankAddress: this.romBankAddress,
+        };
+    }
+
+    import(data) {
+        const d = data["mbc"];
+        
+        this.bank = d.bank;
+        this.ramBank = d.ramBank;
+        this.mode = d.mode;
+        this.ramBankAddress = d.ramBankAddress;
+        this.romBankAddress = d.romBankAddress;
     }
 
     /**
@@ -130,23 +150,24 @@ class MBC1 {
         this.romBankAddress = this.bank * 0x4000;
     }
 
-    /**
-     * Overrides the cpu.write8 function
-     * @param {CPU} cpu 
-     * @param {UInt16} address 
-     * @param {UInt8} byte 
-     * @returns true if the CPU should allow the write to happen, otherwise false
-     */
-    write8(cpu, address, byte) {
+    acceptsWrite(addr) {
+        return (addr <= 0x8000)
+         || (addr >= 0xA000 && addr < 0xC000);
+    }
+
+    acceptsRead(addr) {
+        return (addr < 0x8000 && addr >= 0x4000)
+         || (addr >= 0xA000 && addr < 0xC000);
+    }
+
+    write8(address, byte) {
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
             this.ramEnable = ((byte & 0x0A) == 0x0A) && this.ramSize != 0;
-            return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
             this.setLowROMBank(byte);
             
-            return false;
         // 0x4000-0x5FFF RAM bank or upper bits of ROM bank
         } else if(address < 0x6000) {
             // set RAM bank if RAM size is 32K
@@ -157,10 +178,8 @@ class MBC1 {
             } else {
                 this.setHighROMBank(byte);
             }
-            return false;
         // 0x6000-0x7FFF Banking mode select
-        } else if(address < 0x8000)
-        {
+        } else if(address < 0x8000) {
             if(this.ramSize == 3) {
                 this.mode = byte & 1;
                 if(this.mode == 1)
@@ -172,13 +191,11 @@ class MBC1 {
                     this.ramBankAddress = 0;
                 }
             } else
-                c.LOG("Attempted to change MBC1 to mode1");
-            return false;
+                CPU.LOG("Attempted to change MBC1 to mode1");
         // RAM
-        } else if(address >= 0xA000 && address <= 0xBFFF)
-        {
+        } else if(address >= 0xA000 && address <= 0xBFFF) {
             if(!this.ramEnable)
-                return false;
+                return;
                 
             address -= 0xA000;
             if(this.mode == 0)
@@ -187,20 +204,10 @@ class MBC1 {
             } else {
                 this.ram[address + this.ramBankAddress] = byte;
             }
-            
-            return false;
         }
-
-        return true;
     }
     
-    /**
-     * Overrides the cpu.write8 function
-     * @param {CPU} cpu 
-     * @param {UInt16} address
-     * @returns the byte of memory if possible, or NULL
-     */
-    read8(cpu, address) {
+    read8(address) {
 
         // banks 01-7f
         if(address < 0x8000 && address >= 0x4000) {
@@ -221,7 +228,7 @@ class MBC1 {
             }
         }
 
-        return null;
+        return 0xFF;
     }
 
 

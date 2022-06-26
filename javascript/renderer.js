@@ -28,6 +28,14 @@ class Renderer {
         this.drawBuffer();
     }
 
+    export() {
+        return {};
+    }
+
+    import(data) {
+        
+    }
+
     drawBuffer() {
         this.context.putImageData(this.screen, 0, 0);
     }

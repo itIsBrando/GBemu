@@ -1,3 +1,7 @@
+const SaveType = {
+    SAVESTATE: "SS",
+    SAV: "SAV",
+};
 
 class SaveStorage {
     static enableImage = false;
@@ -5,12 +9,22 @@ class SaveStorage {
      * 
      * @param {String} label Label text so user knows what save this is
      * @param {Uint8Array} data RAM data
-     * @param {ImageData?} img
+     * @param {SaveType} type 'sav' or 'savestate'
      */
-    constructor(label, data)
+    constructor(label, data, type)
     {
         this.label = label;
-        this.ram = data;
+        this.type = type;
+        if(type == SaveType.SAV)
+            this.ram = data;
+        else
+            this.data = data;
+/*
+            if(Settings.get_temp("warn_savestate", "false") == "false") {
+                Settings.set_temp("warn_savestate", "true");
+                showMessage("Save States are still being tested. Use '.sav' format when possible.", "Experimental Feature");
+            }
+ */
         this.img = null;
         this.time = new Date().toDateString().match(/ .+/).toString().trim();
     }
@@ -42,13 +56,20 @@ class SaveStorage {
 }
 
 
+function saveButtonClick(name) {
+    if(c.mbcHandler)
+        SaveManager.save(name, c.mbcHandler.ram, readROMName());
+    else
+        showMessage("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
+    
+}
+
+
 function _canSave()
 {
-    if(_delKey)
-    {
-        localStorage.setItem(_delKey["key"], _delKey["data"]);
-        showMessage("<b style='color:green;'>" + _delKey["key"] + "</b> saved successfully. You can safely close this webpage", "Success");
-    }
+    const type = SaveManager.getType(_delKey);
+    delete localStorage[_delKey];
+    SaveManager.save(_delKey, c.mbcHandler.ram, type, readROMName());
 
     _delKey = null;
     SaveManager.hide();
@@ -69,12 +90,21 @@ localSaveButton.addEventListener('click', function() {
     hideElement(saveEditButton);
     showElement(plusButton);
     
+    // This will only get called when the save already exists
     SaveManager.populateSaveHTML(function() {
-        if(c.mbcHandler)
-            SaveManager.save(this.value, c.mbcHandler.ram, readROMName());
-        else
-            showMessage("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
-        
+        if(c.mbcHandler && c.romLoaded) {
+            showMessage(
+                `Is it okay to overwrite <b style='color:green;'>${this.value}</b>?`,
+                "Save Already Exists",
+                true,
+                null,
+                _canSave
+            );
+            
+            _delKey = this.value; // save for `_canSave`. this is a poor implementation
+        } else {
+            showMessage("No ROM is loaded or ROM does not support saving.", "Could Not Save");
+        }
     });
 
     if(!SaveManager.show())
@@ -92,10 +122,10 @@ function showElement(e, style = 'block') {
 }
 
 
-
 var SaveManager = new function() {
     /**
-     * @param {Uint8Array} arr 
+     * @param {Uint8Array} arr
+     * @returns {String}
      */
     this.pack = function(arr) {
         let str = "";
@@ -131,7 +161,9 @@ var SaveManager = new function() {
     /**
      * 
      * @param {String} key string in localStorage
-     * @returns null if not found, otherwise a Uint8Array of the save data
+     * @returns null if not found, otherwise:
+     *   - a Uint8Array of the save data IF is type SaveType.SAV
+     *   - Otherwise, returns a JSON object
      */
     this.getSave = function(key) {
         const data = localStorage.getItem(key);
@@ -140,60 +172,50 @@ var SaveManager = new function() {
             return null;
             
         const obj = JSON.parse(data);
-        const arr = new Array();
 
-        const unpacked = this.unpack(obj.ram);
+        if(this.getType(key) == SaveType.SAV) {
+            const unpacked = this.unpack(obj.ram);
 
-        // using new, condensed format
-        if(unpacked != null)
-            return unpacked
-    
-        // add each element to our array
-        for(let i in obj.ram)
-        {
-            arr.push(obj.ram[i]);
+            // using new, condensed format
+            if(unpacked != null)
+                return unpacked
+            
+            // support old save type
+            return new Uint8Array(Object.values(obj.ram));
+        } else {
+            return obj.data;
         }
-    
-        return new Uint8Array(arr);
+    }
+
+    this.getType = function(key) {
+        const data = JSON.parse(localStorage.getItem(key));
+        return (data.type == null || data.type == SaveType.SAV) ? SaveType.SAV : SaveType.SAVESTATE;
     }
 
 
     /**
      * Saves a savefile to localStorage
-     * - reports an error if ROM does not have external RAM
-     * - does not warn about overriding an existing savefile
+     * - reports an errors
      * @param {String} key becomes the key for localStorage
      * @param {String} ROMName optional name of the ROM
+     * @param {SaveType} type either savestate or .sav format
      * @param {Uint8Array} arr array containing saveable data
      */
-    this.save = function(key, arr, ROMName = "import") {
-        const ram = SaveManager.pack(arr);
-        const s = new SaveStorage(ROMName, ram);
+    this.save = function(key, arr, type, ROMName = "import") {
+        const data = type == SaveType.SAV ? SaveManager.pack(arr) : c.createSaveState();
+        const s = new SaveStorage(ROMName, data, type);
 
         s.populateImage();
-        let data = JSON.stringify(s);
+        let json = JSON.stringify(s);
 
-        // prevent user from overwriting a savefile unintentionally
-        if(key in localStorage)
-        {
-            showMessage(
-                "Is it okay to overwrite <b style='color:green;'>" + key + "</b>?",
-                "Save Already Exists",
-                true,
-                SaveManager.hide,
-                _canSave
-            );
-            _delKey = {key, data};
-        } else {
-            localStorage.setItem(key, data);
-            showMessage(
-                `<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`,
-                "Success",
-                false,
-                null,
-                SaveManager.hide
-            );
-        }
+        localStorage.setItem(key, json);
+        showMessage(
+            `<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`,
+            "Success",
+            false,
+            null,
+            SaveManager.hide
+        );
     }
 
     
@@ -249,7 +271,8 @@ var SaveManager = new function() {
                 <img width="160" height="144" style="grid-row: 1 / 3;"></img>
                 <h2>${keys[i]}</h2>
                 <button type="button" class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>
-                <code style="font-size:x-small;">${obj.label}</code>
+                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${obj.label}</code>
+                <code style="font-size: 0.6rem; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'white'}; width:100%;">${obj.type || "SAV"}</code>
             `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;
@@ -306,7 +329,8 @@ var SaveManager = new function() {
      * Called by the `+` button in `id=popup`
      */
     this.addSave = function() {
-        const m = PromptMenu.new("Save Name", "Title", /\w+/g, 20, (v) => {
+        const m = PromptMenu.new("Save Name", "Name", /\w+/g, 20, (v, state) => {
+            console.log(state)
             if(v.length == 0)
                 return;
 
@@ -315,8 +339,10 @@ var SaveManager = new function() {
                 return;
             }
             
-            this.save(v, c.mbcHandler.ram, readROMName());
+            this.save(v, c.mbcHandler.ram, state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE, readROMName());
         });
+
+        PromptMenu.addChoices([".sav", "Save State"], "save_type", "Save Type:");
 
         PromptMenu.show(m);
     }
@@ -355,13 +381,24 @@ var SaveManager = new function() {
    this.injectLocalStorage = function(key) {
        // loading from localStorage
        const data = SaveManager.getSave(key);
+       const type = SaveManager.getType(key);
    
        if(!data)
            showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, SaveManager.hide);
-       else
-       {
+       else {
            SaveManager.hide();
-           MBC1.useSaveData(data);
+           if(type == SaveType.SAV) {
+               MBC1.useSaveData(data);
+               console.log("Using .sav");
+           } else {
+               if(c.romLoaded)
+                   c.loadSaveState(data);
+                else {
+                    showMessage(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
+                    return;
+                }
+           }
+
            showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false);
        }
    }
@@ -389,7 +426,7 @@ var SaveManager = new function() {
             const ram = SaveManager.unpack(data["ram"]);
             const name = data['label'].toUpperCase();
             
-            this.save(name, ram, name);
+            this.save(name, ram, SaveType.SAV, name);
         });
 
         PromptMenu.show(m);

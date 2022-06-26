@@ -15,6 +15,24 @@ class Timer {
         this.frequency = 0;
     }
 
+    export() {
+        return {
+            regs: this.regs,
+            frequency: this.frequency,
+            div_cycles: this.div_cycles,
+            tima_cycles: this.tima_cycles,
+        };
+    }
+
+    import(data) {
+        const timer_data = data["timer"];
+
+        this.regs = timer_data.regs;
+        this.frequency = timer_data.frequency;
+        this.div_cycles = timer_data.div_cycles;
+        this.tima_cycles = timer_data.tima_cycles;
+    }
+
     reset() {
         this.regs.tima = 0;
         this.regs.div  = 0; 
@@ -24,7 +42,43 @@ class Timer {
         this.tima_cycles = 0;
     }
 
-    updateTimers(cpu) {
+    accepts(addr) {
+        return addr >= 0xFF04 && addr <= 0xFF07;
+    }
+
+    write8(addr, byte) {
+        switch(addr & 0xFF) {
+            case 0x04:
+                this.resetDiv();
+                break;
+            case 0x05:
+                this.regs.tima = byte;
+                break;
+            case 0x06:
+                this.regs.tma = byte;
+                break;
+            case 0x07:
+                this.writeTAC(byte);
+                break;
+        }
+    }
+
+    read8(addr) {
+        switch(addr & 0xFF) {
+            case 0x04:
+                return this.regs.div;
+            case 0x05:
+                return this.regs.tima;
+            case 0x06:
+                return this.regs.tma;
+            case 0x07:
+                return this.regs.tac | 0xF8;
+        }
+
+        return 0xFF;
+    }
+
+    step(cpu) {
         let cycles = cpu.cycles;
         
         this.increaseDiv(cycles);

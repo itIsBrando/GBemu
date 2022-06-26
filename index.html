@@ -261,6 +261,37 @@
             margin-bottom: 5px;
         }
 
+        .prompt-menu-fieldset {
+            width: calc(100% - 12px);
+            padding: 7px 5px 10px 5px;
+            margin: 0;
+        }
+
+        .prompt-menu-legend {
+            background-color: inherit;
+        }
+
+        .prompt-menu-radio {
+            display: none;
+        }
+
+        .prompt-menu-radio:checked + label {
+            background-color: #999;
+        }
+
+        .prompt-menu-choice {
+            display: block;
+            background-color: #555;
+            border-radius: 5px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .prompt-menu-choice:hover {
+           background-color: #777;
+        }
+
         .message-div {
             display: none;
             position: fixed;
@@ -989,6 +1020,7 @@
         <b id="PromptTitle">Title</b>
         <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
         <br>
+        <div id="PromptDiv"></div>
         <input type="text" name="PromptText" id="PromptText" />
         <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;"
             onclick="PromptMenu.submit();">Submit</button>

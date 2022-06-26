@@ -24,48 +24,43 @@ class MBC3 extends MBC1 {
         this.isHalted = false;
         this.start = this.date.getTime();
     }
-    
-    /**
-     * Overrides the cpu.write8 function
-     * @param {CPU} cpu 
-     * @param {UInt16} address 
-     * @param {UInt8} byte 
-     * @returns true if the CPU should allow the write to happen, otherwise false
-     */
-    write8(cpu, address, byte) {
 
+    acceptsWrite(addr) {
+        return (addr <= 0x8000)
+         || (addr >= 0xA000 && addr < 0xC000);
+    }
+
+    acceptsRead(addr) {
+        return (addr <= 0x8000)
+         || (addr >= 0xA000 && addr < 0xC000);
+    }
+    
+    write8(address, byte) {
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
             this.ramEnable = (byte & 0x0A) != 0;
-            return false;
         // 0x2000-0x3FFF ROM bank number 
         } else if(address < 0x4000) {
             byte &= 0x7F;
             if(byte == 0)
                 byte = 1;
             this.bank = byte;
-            return false;
         // 0x4000-0x5FFF RAM bank or RTC
         } else if(address < 0x6000) {
             this.ramBank = byte;
-            return false;
         // 0x6000-0x7FFF Latch Clock Data
-        } else if(address < 0x8000)
-        {
+        } else if(address < 0x8000) {
             // do some RTC stuff
             byte &= 0x1;
-            if(this.latch == 0 && byte == 1)
-            {
+            if(this.latch == 0 && byte == 1) {
                 this.latchRTC();
             }
             this.latch = byte;
-            return false;
         // RAM
         } else if(address >= 0xA000 && address < 0xC000)
         {
             // ramEnable doubles up as an RTC enable
             // if ramBank>3, then we are trying to use RTC, not RAM
-            
             const addr = address - 0xA000 + (this.ramBank * 0x2000);
             
             if(this.ramBank > 3) {
@@ -73,20 +68,10 @@ class MBC3 extends MBC1 {
             } else if(this.ramBank <= 3 && addr < this.ram.length) {
                 this.ram[addr] = byte;
             }
-
-            return false;
         }
-
-        return true;
     }
     
-    /**
-     * Overrides the cpu.write8 function
-     * @param {CPU} cpu 
-     * @param {UInt16} address
-     * @returns the byte of memory if possible, or NULL
-     */
-    read8(cpu, address) {
+    read8(address) {
         // ROM bank 0
         if(address < 0x4000) {
             return this.getROMByte(address, 0);
@@ -105,7 +90,7 @@ class MBC3 extends MBC1 {
                 return this.getRTC(this.ramBank);
         }
 
-        return null;
+        return 0xFF;
     }
     
     getROMByte(addr, bank) {

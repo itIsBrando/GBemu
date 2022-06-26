@@ -92,7 +92,7 @@ class PPU {
         /**
          * These are both 3D arrays
          * rgbOBJ[0-7] grabs the first palette
-         * rgbOBJ[x][0] grabs the first color of a palette
+         * rgbOBJ[x][0] grabs the first (of 4) color of a palette
          * rgbOBJ[x][y][0] grabs the 'red' intensity of a palette
          * 
          * they are 8x4x3
@@ -100,27 +100,15 @@ class PPU {
          *  - num of colors in each palette
          *  - rgb of the color
          */
-        this.cgb.rgbOBJ = [
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        ];
+        for(let y = 0; y < 8; y++) {
+            this.cgb.rgbBG[y] = [[], [], [], []];
+            this.cgb.rgbOBJ[y] = [[], [], [], []];
 
-        this.cgb.rgbBG = [
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        ];
+            for(let x = 0; x < 4; x++) {
+                this.cgb.rgbBG[y][x] = [0, 0, 0];
+                this.cgb.rgbOBJ[y][x] = [0, 0, 0];
+            }
+        }
 
         this.regs.lcdc = 0;
         this.regs.stat = 0;
@@ -382,7 +370,8 @@ class PPU {
         }
     }
 
-    step(cpu) {
+    step() {
+        const cpu = this.parent;
         this.regs.stat &= 252;
 
         if(!this.lcdEnabled) {
@@ -549,5 +538,42 @@ class PPU {
             return;
             
         this.updateObjectRGB(obji, byte);
+    }
+
+
+    export() {
+        return {
+            regs: this.regs,
+            mode: this.mode,
+            cycles: this.cycles,
+            cgb: this.cgb,
+            HDMADest: this.HDMADest,
+            HDMASrc: this.HDMASrc,
+            obj0pal: this.obj0Pal,
+            obj1pal: this.obj1Pal,
+            bgPal: this.bgPal,
+
+        };
+    }
+
+    import(data) {
+        const ppu_data = data["ppu"];
+
+        if(!ppu_data)
+            return false;
+
+        this.regs = ppu_data.regs;
+        this.mode = ppu_data.mode;
+        this.cycles = ppu_data.cycles;
+        this.cgb = ppu_data.cgb;
+        this.cgb.bgPal = Object.values(this.cgb.bgPal);
+        this.cgb.objPal = Object.values(this.cgb.objPal);
+        this.HDMADest = ppu_data.HDMADest;
+        this.HDMASrc = ppu_data.HDMASrc;
+        this.obj0Pal = ppu_data.obj0Pal;
+        this.obj1Pal = ppu_data.obj1Pal;
+        this.bgPal = ppu_data.bgPal;
+
+        return true;
     }
 }
