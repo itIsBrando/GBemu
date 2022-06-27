@@ -1,0 +1,81 @@
+:root {
+    --power-led-color: red;
+    --bg-color: #c6bfc6b0;
+    --screen-shadow: rgb(95, 107, 121, 0.90);
+    --dpad-color: #3A3A3A;
+    --screen-border-color: rgb(95, 107, 121, 0.90);
+    --gamepad-btn-color: orangered;
+
+    /* v UI Elements v */
+    --title-btn-color: var(--bg-color);
+    --menu-btn-color: lightgray;
+    --text-color: black;
+}
+
+.icy-blue-theme {
+    --bg-color: #494990;
+    --screen-shadow: rgba(100, 160, 255, 0.69);
+    --screen-border-color: skyblue;
+    --dpad-color: rgb(38, 100, 255);
+    --gamepad-btn-color: lightblue;
+    /* v UI Elements v */
+    --title-btn-color: var(--bg-color);
+    --menu-btn-color: cadetblue;
+    --text-color: aliceblue;
+}
+
+.dark-theme {
+    --bg-color: #222222;
+    --screen-shadow: rgba(100, 100, 100, 0.69);
+    --screen-border-color: #404040;
+    --dpad-color: #454545;
+    --gamepad-btn-color: darkgray;
+    /* v UI Elements v */
+    --title-btn-color: var(--bg-color);
+    --menu-btn-color: darkslategray;
+    --text-color: skyblue;
+}
+
+.light-theme {
+    --bg-color: white;
+    --screen-shadow: rgba(126, 126, 126, 0.69);
+    --screen-border-color: lightgray;
+    --dpad-color: lightslategray;
+    --gamepad-btn-color: lightsteelblue;
+    /* v UI Elements v */
+    --title-btn-color: var(--bg-color);
+    --menu-btn-color: lightslategray;
+}
+
+.purple-theme {
+    --screen-shadow: #6304cfb0;
+    --bg-color: rgba(49, 5, 98, 0.69);
+    --screen-border-color: rgba(89, 17, 127, 0.9);
+    --dpad-color: purple;
+    --gamepad-btn-color: violet;
+    /* v UI Elements v */
+    --title-btn-color: blueviolet;
+    --menu-btn-color: hotpink;
+}
+
+.yellow-theme {
+    --screen-shadow: #fbff00be;
+    --bg-color: rgb(255, 210, 0);
+    --screen-border-color: #434343;
+    --dpad-color: #343434;
+    --gamepad-btn-color: #444;
+    /* v UI Elements v */
+    --title-btn-color: gold;
+    --menu-btn-color: khaki;
+}
+
+.green-theme {
+    --screen-shadow: rgba(154, 255, 14, 0.745);
+    --bg-color: rgb(23, 209, 41);
+    --screen-border-color: #333;
+    --dpad-color: green;
+    --gamepad-btn-color: mediumseagreen;
+    /* v UI Elements v */
+    --title-btn-color: var(--bg-color);
+    --menu-btn-color: mediumseagreen;
+}

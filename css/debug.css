@@ -1,0 +1,106 @@
+#MapCanvas {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+}
+
+#MapDiv {
+    overflow: hidden auto;
+    width: 100%;
+    height: calc(80vh - 41px);
+    display: none;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: auto;
+}
+
+
+#TilePrevDiv {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 3fr 1fr;
+    max-height: fit-content;
+}
+
+.debug-title-btn {
+    width: 100%;
+    padding: 10px 3px 10px 3px;
+    border-radius: 0px;
+}
+
+.debug-text {
+    font-family: monospace;
+    padding-left: 5px;
+    width: 100%;
+    margin: 0px;
+    scrollbar-color: #333333;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    -webkit-touch-callout: text;
+}
+
+.debug-breakpoint-radio {
+    display: none;
+}
+
+.debug-breakpoint-radio:checked+label {
+    background-color: #222;
+    color: aliceblue;
+}
+
+.debug-breakpoint-name {
+    cursor: pointer;
+    padding: 3px 10px 3px 10px;
+    border-radius: 4px;
+}
+
+.debug-breakpoint-name:hover {
+    background-color: gray;
+}
+
+.pal-canvas {
+    width: 100%;
+    aspect-ratio: 4 / 1;
+    cursor: pointer;
+}
+
+.pal-debug-button {
+    width: 25%;
+    height: 25px;
+    font-family: monospace;
+    cursor: pointer;
+    border: none;
+}
+
+.pal-debug-button:hover, .pal-canvas:hover {
+    filter: brightness(0.8);
+}
+
+.debug-pal-prev {
+    display: block;
+    overflow: none auto;
+}
+
+.obj-canvas {
+    width: 100%;
+    padding: 0px;
+
+}
+
+.obj-canvas:hover {
+    filter: brightness(0.8);
+}
+
+#DisassemblyDiv {
+    max-height: 80vh;
+    grid-template-columns: 3fr fit-content;
+    grid-auto-rows: 3fr fit-content;
+    overflow: none auto;
+}
+
+#DebugSprites {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 1px;
+}

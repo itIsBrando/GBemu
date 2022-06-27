@@ -1,9 +1,15 @@
 
-const CACHE_NAME = 'gbemu-v3.5';
+const CACHE_NAME = 'gbemu-v3.6';
 const FILES = [
     "util/",
     "icons/",
+    "css/",
     "javascript/",
+    "css/style.css",
+    "css/touch.css",
+    "css/debug.css",
+    "css/buttons.css",
+    "css/themes.css",
     "javascript/mbc",
     "javascript/audio",
     "util/saveManager.js",

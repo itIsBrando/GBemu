@@ -1,0 +1,124 @@
+
+
+.menubtn {
+    background-color: var(--menu-btn-color);
+    color: var(--text-color);
+    display: block;
+    padding: 5px;
+    margin: 0px 0px 1px 0px;
+    width: 250px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.menubtn:hover {
+    filter: brightness(0.8);
+}
+
+.settings-btn {
+    width: 100%;
+    display: inline-block;
+}
+
+.title-btn {
+    background-color: var(--title-btn-color);
+    color: var(--text-color);
+    display: block;
+    margin: 0px 0px 2px 0px;
+    border: none;
+    font-family: monospace;
+    width: 33vw;
+    min-height: 25px;
+    border-radius: 2px;
+    padding-top: calc(2px + env(safe-area-inset-top));
+    padding-bottom: 2;
+    transition-duration: background 0.5s;
+}
+
+.title-btn:hover {
+    filter: brightness(0.6);
+}
+
+.keypad-binding-btn {
+    background-color: var(--title-btn-color);
+    color: var(--text-color);
+    display: block;
+    border: none;
+    border-radius: 3px;
+    margin: 2px 2px 1px 2px;
+    width: 100%;
+}
+
+.keypad-binding-btn:hover {
+    background-color: cadetblue;
+}
+
+
+.info-btn, .icon-btn {
+    width: 30px;
+    height: 30px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    font-size: large;
+    cursor: pointer;
+    background-color: var(--title-btn-color);
+    color: var(--text-color);
+}
+
+.info-btn:hover, .icon-btn:hover {
+    filter: brightness(0.8);
+}
+
+.info-btn::after {
+    font-size: 0.75rem;
+    font-family: monospace;
+    content: 'i';
+}
+
+.info-btn {
+    float: right;
+}
+
+.x-btn {
+    float: right;
+    background-color: orangered;
+    width: 30px;
+    height: 30px;
+    border: 2px solid coral;
+    border-radius: 2px;
+    margin: 0px;
+    padding: 5px;
+    cursor: pointer;
+    color: black;
+}
+
+.x-btn:hover {
+    background-color: darkred;
+}
+
+.btn:active {
+    background-color: indigo;
+}
+
+.show-menu-btn {
+    width: clamp(10px, 3vw, 20px);
+    height: 5px;
+    cursor: pointer;
+    background-color: var(--gamepad-btn-color);
+    box-shadow: 1px 1px 5px #222;
+    position: absolute;
+    right: 50%;
+    bottom: -20px;
+    border: none;
+    border-radius: 100vmax;
+}
+
+.show-menu-btn:active {
+    box-shadow: none;
+}
+
+.show-menu-btn:hover {
+    filter: brightness(0.8);
+}

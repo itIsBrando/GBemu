@@ -14,146 +14,9 @@
     <link rel="manifest" href="/manifest.webmanifest">
 
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
-        :root {
-            --power-led-color: red;
-            --bg-color: #c6bfc6b0;
-            --screen-shadow: rgb(95, 107, 121, 0.90);
-            --dpad-color: #3A3A3A;
-            --screen-border-color: rgb(95, 107, 121, 0.90);
-            --gamepad-btn-color: orangered;
-
-            /* v UI Elements v */
-            --title-btn-color: var(--bg-color);
-            --menu-btn-color: lightgray;
-            --text-color: black;
-        }
-
-        .icy-blue-theme {
-            --bg-color: #494990;
-            --screen-shadow: rgba(100, 160, 255, 0.69);
-            --screen-border-color: skyblue;
-            --dpad-color: rgb(38, 100, 255);
-            --gamepad-btn-color: lightblue;
-            /* v UI Elements v */
-            --title-btn-color: var(--bg-color);
-            --menu-btn-color: cadetblue;
-            --text-color: aliceblue;
-        }
-
-        .dark-theme {
-            --bg-color: #222222;
-            --screen-shadow: rgba(100, 100, 100, 0.69);
-            --screen-border-color: #404040;
-            --dpad-color: #454545;
-            --gamepad-btn-color: darkgray;
-            /* v UI Elements v */
-            --title-btn-color: var(--bg-color);
-            --menu-btn-color: darkslategray;
-            --text-color: skyblue;
-        }
-
-        .light-theme {
-            --bg-color: white;
-            --screen-shadow: rgba(126, 126, 126, 0.69);
-            --screen-border-color: lightgray;
-            --dpad-color: lightslategray;
-            --gamepad-btn-color: lightsteelblue;
-            /* v UI Elements v */
-            --title-btn-color: var(--bg-color);
-            --menu-btn-color: lightslategray;
-        }
-
-        .purple-theme {
-            --screen-shadow: #6304cfb0;
-            --bg-color: rgba(49, 5, 98, 0.69);
-            --screen-border-color: rgba(89, 17, 127, 0.9);
-            --dpad-color: purple;
-            --gamepad-btn-color: violet;
-            /* v UI Elements v */
-            --title-btn-color: blueviolet;
-            --menu-btn-color: hotpink;
-        }
-
-        .yellow-theme {
-            --screen-shadow: #fbff00be;
-            --bg-color: rgb(255, 210, 0);
-            --screen-border-color: #434343;
-            --dpad-color: #343434;
-            --gamepad-btn-color: #444;
-            /* v UI Elements v */
-            --title-btn-color: gold;
-            --menu-btn-color: khaki;
-        }
-
-        .green-theme {
-            --screen-shadow: rgba(154, 255, 14, 0.745);
-            --bg-color: rgb(23, 209, 41);
-            --screen-border-color: #333;
-            --dpad-color: green;
-            --gamepad-btn-color: mediumseagreen;
-            /* v UI Elements v */
-            --title-btn-color: var(--bg-color);
-            --menu-btn-color: mediumseagreen;
-        }
-
-        html,
-        body {
-            padding: 0px;
-            margin: 0px;
-            border: 0px;
-            height: 100%;
-            width: 100%;
-            background-color: var(--bg-color);
-            position: fixed;
-
-            image-rendering: optimizeSpeed;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: optimize-contrast;
-            image-rendering: pixelated;
-            -ms-interpolation-mode: nearest-neighbor;
-
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-touch-callout: none;
-
-            font-size: medium;
-            color: var(--text-color);
-
-            transition: background 0.5s;
-        }
-
-        ::-webkit-scrollbar {
-            background-color: #111;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #333;
-        }
-
-        h3 {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding-left: 1rem;
-        }
-
-        a:link, a:visited {
-            color: lightblue;
-        }
-
-        #touchControls {
-            position: fixed;
-            bottom: 0px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-touch-callout: none;
-            user-select: none;
-        }
-
         #viewport {
             /* Why have i positioned this like a piece of dumbo? */
             /* don't use absolute poistioning D: */
@@ -321,57 +184,6 @@
             padding-left: 0;
         }
 
-        fieldset {
-            margin-bottom: 5px;
-        }
-
-        legend {
-            color: aliceblue;
-            background-color: #111111;
-            padding: 2px;
-            border-radius: 3px;
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            min-height: 30px;
-            min-width: 60px;
-            width: 100%;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            background: #424141;
-            color: aliceblue;
-        }
-
-        input:focus {
-            background: #777777;
-        }
-
-        input:out-of-range {
-            background-color: darkred;
-        }
-
-        .menubtn {
-            background-color: var(--menu-btn-color);
-            color: var(--text-color);
-            display: block;
-            padding: 5px;
-            margin: 0px 0px 1px 0px;
-            width: 250px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .menubtn:hover {
-            filter: brightness(0.8);
-        }
-
-        .settings-btn {
-            width: 100%;
-            display: inline-block;
-        }
-
         .settings-grid {
             display: grid;
             background-color: #444444;
@@ -385,88 +197,6 @@
             border-bottom: 4px solid #333;
             border-radius: 2px;
         }
-
-        .title-btn {
-            background-color: var(--title-btn-color);
-            color: var(--text-color);
-            display: block;
-            margin: 0px 0px 2px 0px;
-            border: none;
-            font-family: monospace;
-            width: 33vw;
-            min-height: 25px;
-            border-radius: 2px;
-            padding-top: calc(2px + env(safe-area-inset-top));
-            padding-bottom: 2;
-            transition-duration: background 0.5s;
-        }
-
-        .title-btn:hover {
-            filter: brightness(0.6);
-        }
-
-        /* Button used for setting keyboard characters */
-        .keypad-binding-btn {
-            background-color: var(--title-btn-color);
-            color: var(--text-color);
-            display: block;
-            border: none;
-            border-radius: 3px;
-            margin: 2px 2px 1px 2px;
-            width: 100%;
-        }
-
-        .keypad-binding-btn:hover {
-            background-color: cadetblue;
-        }
-
-        .info-btn, .icon-btn {
-            width: 30px;
-            height: 30px;
-            margin: 0px;
-            padding: 0px;
-            border: none;
-            font-size: large;
-            cursor: pointer;
-            background-color: var(--title-btn-color);
-            color: var(--text-color);
-        }
-
-        .info-btn:hover, .icon-btn:hover {
-            filter: brightness(0.8);
-        }
-
-        .info-btn::after {
-            font-size: 0.75rem;
-            font-family: monospace;
-            content: 'i';
-        }
-
-        .info-btn {
-            float: right;
-        }
-
-        .x-btn {
-            float: right;
-            background-color: orangered;
-            width: 30px;
-            height: 30px;
-            border: 2px solid coral;
-            border-radius: 2px;
-            margin: 0px;
-            padding: 5px;
-            cursor: pointer;
-            color: black;
-        }
-
-        .x-btn:hover {
-            background-color: darkred;
-        }
-
-        .btn:active {
-            background-color: indigo;
-        }
-
 
         .info-content {
             font-size: 1rem;
@@ -490,139 +220,6 @@
         .info-div:hover > .info-content  {
             display: block;
         }
-
-        .gamepad-button {
-            z-index: 8;
-            cursor: pointer;
-            touch-action: manipulation;
-            fill: var(--gamepad-btn-color);
-        }
-
-        .gamepad-button-top {
-            fill: inherit;
-        }
-
-        .gamepad-button:active .gamepad-button-top {
-            display: none;
-        }
-
-        .gamepad-button-bottom {
-            fill: black;
-        }
-
-        .gamepad-button:active .gamepad-button-bottom {
-            fill: inherit;
-        }
-
-        /* These are for DPAD buttons only */
-        .dpad-button-top {
-            fill: inherit
-        }
-
-        .dpad-button-bottom {
-            fill: black;
-        }
-
-        .dpad-button-top-active {
-            display: none;
-        }
-
-        .dpad-button-bottom-active {
-            fill: inherit;
-        }
-
-        #dpadButtons {
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            left: calc(15px + env(safe-area-inset-left));
-            bottom: calc(env(safe-area-inset-bottom));
-        }
-
-        #UP {
-            position: absolute;
-            left: 55px;
-            bottom: 105px;
-            fill: var(--dpad-color);
-        }
-
-        #LEFT {
-            position: absolute;
-            left: 0px;
-            bottom: 60px;
-            fill: var(--dpad-color);
-        }
-
-        #RIGHT {
-            position: absolute;
-            left: 110px;
-            bottom: 60px;
-            fill: var(--dpad-color);
-        }
-
-        #DOWN {
-            position: absolute;
-            left: 55px;
-            bottom: 15px;
-            fill: var(--dpad-color);
-        }
-
-        #A {
-            position: absolute;
-            right: calc(10px + env(safe-area-inset-right));
-            bottom: 110px;
-        }
-
-        #B {
-            position: absolute;
-            right: calc(70px + env(safe-area-inset-right));
-            bottom: 70px;
-        }
-
-        #FF {
-            position: absolute;
-            fill: var(--dpad-color);
-            right: calc(5px + env(safe-area-inset-right));
-            bottom: 175px;
-        }
-
-        #START {
-            fill: gray;
-            position: absolute;
-            left: 50%;
-            bottom: 10px;
-        }
-
-        #SELECT {
-            fill: gray;
-            position: absolute;
-            left: 50%;
-            transform: translate(-100%, 0);
-            bottom: 10px;
-        }
-
-
-        .show-menu-btn {
-            width: clamp(10px, 3vw, 20px);
-            height: 5px;
-            cursor: pointer;
-            background-color: var(--gamepad-btn-color);
-            box-shadow: 1px 1px 5px #222;
-            position: absolute;
-            right: 50%;
-            bottom: -20px;
-            border: none;
-            border-radius: 100vmax;
-        }
-
-        .show-menu-btn:active {
-            box-shadow: none;
-        }
-
-        .show-menu-btn:hover {
-            filter: brightness(0.8);
-        }
-
 
         #SettingsDiv {
             width: fit-content;
@@ -667,11 +264,6 @@
             }
         }
 
-        #MapCanvas {
-            aspect-ratio: 1 / 1;
-            width: 100%;
-        }
-
         @media (max-width: 500px) {
             #DebugDiv {
                 max-width: 98vw;
@@ -713,23 +305,6 @@
             }
         }
 
-        #MapDiv {
-            overflow: hidden auto;
-            width: 100%;
-            height: calc(80vh - 41px);
-            display: none;
-            grid-template-rows: auto auto auto;
-            grid-template-columns: auto;
-        }
-
-
-        #TilePrevDiv {
-            display: grid;
-            width: 100%;
-            grid-template-columns: 3fr 1fr;
-            max-height: fit-content;
-        }
-
         @media (orientation: landscape), (min-width: 560px) {
             #MapDiv {
                 grid-template-rows: repeat(2, min-content);
@@ -762,92 +337,11 @@
             width: 1px;
             padding: 25px 0;
         }
-
-        .debug-title-btn {
-            width: 100%;
-            padding: 10px 3px 10px 3px;
-            border-radius: 0px;
-        }
-
-        .debug-text {
-            font-family: monospace;
-            padding-left: 5px;
-            width: 100%;
-            margin: 0px;
-            scrollbar-color: #333333;
-            user-select: text;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            -webkit-touch-callout: text;
-        }
-
-        .debug-breakpoint-radio {
-            display: none;
-        }
-
-        .debug-breakpoint-radio:checked+label {
-            background-color: #222;
-            color: aliceblue;
-        }
-
-        .debug-breakpoint-name {
-            cursor: pointer;
-            padding: 3px 10px 3px 10px;
-            border-radius: 4px;
-        }
-
-        .debug-breakpoint-name:hover {
-            background-color: gray;
-        }
-
-        .pal-canvas {
-            width: 100%;
-            aspect-ratio: 4 / 1;
-            cursor: pointer;
-        }
-
-        .pal-debug-button {
-            width: 25%;
-            height: 25px;
-            font-family: monospace;
-            cursor: pointer;
-            border: none;
-        }
-
-        .pal-debug-button:hover, .pal-canvas:hover {
-            filter: brightness(0.8);
-        }
-
-        .debug-pal-prev {
-            display: block;
-            overflow: none auto;
-        }
-
-        .obj-canvas {
-            width: 100%;
-            padding: 0px;
-
-        }
-
-        .obj-canvas:hover {
-            filter: brightness(0.8);
-        }
-
-        #DisassemblyDiv {
-            max-height: 80vh;
-            grid-template-columns: 3fr fit-content;
-            grid-auto-rows: 3fr fit-content;
-            overflow: none auto;
-        }
-
-        #DebugSprites {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 1px;
-        }
     </style>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/debug.css">
+    <link rel="stylesheet" href="css/touch.css">
+    <link rel="stylesheet" href="css/buttons.css">
     <title>GBemu</title>
     <!-- test button -->
     <svg id="sampleSVG" style="display: none;">

@@ -1,0 +1,119 @@
+#touchControls {
+    position: fixed;
+    bottom: 0px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+.gamepad-button {
+    z-index: 8;
+    cursor: pointer;
+    touch-action: manipulation;
+    fill: var(--gamepad-btn-color);
+}
+
+.gamepad-button-top {
+    fill: inherit;
+}
+
+.gamepad-button:active .gamepad-button-top {
+    display: none;
+}
+
+.gamepad-button-bottom {
+    fill: black;
+}
+
+.gamepad-button:active .gamepad-button-bottom {
+    fill: inherit;
+}
+
+/* These are for DPAD buttons only */
+.dpad-button-top {
+    fill: inherit
+}
+
+.dpad-button-bottom {
+    fill: black;
+}
+
+.dpad-button-top-active {
+    display: none;
+}
+
+.dpad-button-bottom-active {
+    fill: inherit;
+}
+
+#dpadButtons {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    left: calc(15px + env(safe-area-inset-left));
+    bottom: calc(env(safe-area-inset-bottom));
+}
+
+#UP {
+    position: absolute;
+    left: 55px;
+    bottom: 105px;
+    fill: var(--dpad-color);
+}
+
+#LEFT {
+    position: absolute;
+    left: 0px;
+    bottom: 60px;
+    fill: var(--dpad-color);
+}
+
+#RIGHT {
+    position: absolute;
+    left: 110px;
+    bottom: 60px;
+    fill: var(--dpad-color);
+}
+
+#DOWN {
+    position: absolute;
+    left: 55px;
+    bottom: 15px;
+    fill: var(--dpad-color);
+}
+
+#A {
+    position: absolute;
+    right: calc(10px + env(safe-area-inset-right));
+    bottom: 110px;
+}
+
+#B {
+    position: absolute;
+    right: calc(70px + env(safe-area-inset-right));
+    bottom: 70px;
+}
+
+#FF {
+    position: absolute;
+    fill: var(--dpad-color);
+    right: calc(5px + env(safe-area-inset-right));
+    bottom: 175px;
+}
+
+#START {
+    fill: gray;
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+}
+
+#SELECT {
+    fill: gray;
+    position: absolute;
+    left: 50%;
+    transform: translate(-100%, 0);
+    bottom: 10px;
+}
