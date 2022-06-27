@@ -217,9 +217,8 @@ function showMessage(string, title, useCancel = false, _oncancel = null, _onconf
 
 /**
  * Hides the message dialog from `showMessage`
- * @param {HTMLElement?} e
  */
-function hideMessage(e) {
+function hideMessage() {
     // hide
     messageDiv.style.opacity = "0";
     setTimeout(function() {

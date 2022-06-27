@@ -343,6 +343,19 @@ var SaveManager = new function() {
         });
 
         PromptMenu.addChoices([".sav", "Save State"], "save_type", "Save Type:");
+        PromptMenu.setInfo(
+            `<b style="font-size: 1.1rem;" >Save Types:</b>
+            <div class="div-separator">
+                <b>Save States</b> work by storing the current state of the emulator.
+                These saves are larger in size but allows any ROM to save.
+                <b style="font-size: 0.85em;">Note: these are less stable than the .sav format</b>
+                <br>
+                <br>
+                <b>.sav</b> works by storing the Gameboy's current RAM. This is a stable way to save data but requires saving in-game first.
+                Not all ROMs support this method (in instances without RAM)
+            </div>
+            `
+        );
 
         PromptMenu.show(m);
     }
@@ -428,6 +441,17 @@ var SaveManager = new function() {
             
             this.save(name, ram, SaveType.SAV, name);
         });
+
+        PromptMenu.setInfo(
+            `<b>Importing JSON Data:</b><br>
+            <div class="div-separator">
+                Some browsers do not allow for the downloading of files.
+                In these cases, save files will be exported as a JSON object.
+                Although these objects are incompatible with other emulators,
+                it does allow cross-browser transfers.
+            </div>
+            `
+        );
 
         PromptMenu.show(m);
     }

@@ -7,6 +7,7 @@ const FILES = [
     "javascript/mbc",
     "javascript/audio",
     "util/saveManager.js",
+    "util/promptMenu.js",
     "util/utility.js",
     "util/settings.js",
     "util/controller.js",
