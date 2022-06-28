@@ -246,24 +246,6 @@
             box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.5);
         }
 
-        @media (orientation: landscape) {
-            #START {
-                left: unset;
-                right: calc(10px + env(safe-area-inset-right));
-            }
-
-            #SELECT {
-                left: unset;
-                right: calc(10px + env(safe-area-inset-right));
-            }
-        }
-
-        @media (orientation: portrait) {
-            #touchControls {
-                bottom: calc(env(safe-area-inset-bottom) + 10px);
-            }
-        }
-
         @media (max-width: 500px) {
             #DebugDiv {
                 max-width: 98vw;
@@ -323,19 +305,6 @@
             #TilePrevDiv {
                 grid-template-columns: 1fr 1fr;
             }
-        }
-
-        .save-menu-button {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 2fr 1fr 30px;
-            grid-template-rows: 4fr 1fr;
-            transition-duration: 0.5s;
-        }
-
-        .save-menu-padding {
-            width: 1px;
-            padding: 25px 0;
         }
     </style>
     <link rel="stylesheet" href="css/style.css">

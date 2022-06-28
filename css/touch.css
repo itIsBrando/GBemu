@@ -117,3 +117,22 @@
     transform: translate(-100%, 0);
     bottom: 10px;
 }
+
+@media (orientation: landscape) {
+    #START {
+        left: unset;
+        right: calc(10px + env(safe-area-inset-right));
+    }
+
+    #SELECT {
+        left: unset;
+        right: calc(10px + env(safe-area-inset-right));
+    }
+}
+
+@media (orientation: portrait) {
+    #touchControls {
+        bottom: calc(env(safe-area-inset-bottom) + 10px);
+    }
+}
+

@@ -25,15 +25,16 @@
     background-color: var(--title-btn-color);
     color: var(--text-color);
     display: block;
-    margin: 0px 0px 2px 0px;
     border: none;
     font-family: monospace;
     width: 33vw;
     min-height: 25px;
     border-radius: 2px;
+    margin-top: 2px;
     padding-top: calc(2px + env(safe-area-inset-top));
-    padding-bottom: 2;
-    transition-duration: background 0.5s;
+    padding-bottom: 2px;
+    transition: filter 0.5s, background 0.5s;
+    
 }
 
 .title-btn:hover {
@@ -121,4 +122,16 @@
 
 .show-menu-btn:hover {
     filter: brightness(0.8);
+}
+
+.save-menu-button {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2fr 1fr 30px;
+    grid-template-rows: 4fr 1fr;
+}
+
+.save-menu-padding {
+    width: 1px;
+    padding: 25px 0;
 }
