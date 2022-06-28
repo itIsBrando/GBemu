@@ -745,7 +745,7 @@ var Debug = new function() {
 		}, null, e.target.innerText.replace('$', ''));
 
 		PromptMenu.show(m);
-	}//
+	}
 
 	this.quit = function() {
 		this.enabled = false;

@@ -50,8 +50,8 @@
 }
 
 .debug-breakpoint-radio:checked+label {
-    background-color: #222;
-    color: aliceblue;
+    color: #222;
+    background-color: aliceblue;
 }
 
 .debug-breakpoint-name {

@@ -22,7 +22,7 @@ function startEmulation(rom) {
      Savestates are never automatically loaded.
     */
     if(Settings.get_core("autoload", 'true') == 'true') {
-        const keys = SaveManager.getSavesFromName(this.readROMName());
+        const keys = SaveManager.getSavesFromName(c.readROMName());
 
         for(let i = 0; i < keys.length; i++) {
             if(SaveManager.getType(keys[i]) != SaveType.SAVESTATE)

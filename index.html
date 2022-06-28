@@ -343,6 +343,8 @@
             <button type="button" style="width: inherit;" class="menubtn" onclick="Themes.next();">Themes</button>
             <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn"
             onclick="Debug.start();">Debugger</button>
+            <button type="button" style="width: inherit;" class="menubtn"
+            onclick="Cheats.start();">Cheats</button>
             <button type="button" title="open settings" style="width: inherit;" class="menubtn" onclick="Settings.show();">Settings</button>
         </div>
     </div>
@@ -410,6 +412,22 @@
         </div>
     </div>
 
+    <!-- Cheats Menu -->
+    <div id="CheatsDiv" class="popup shadow">
+        <div class="menu-header">
+            Cheats
+            <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
+        </div>
+            <fieldset id="CheatsList"
+                style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
+            </fieldset>
+            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                <button onclick="Cheats.add();" class="menubtn" style="width: 100%;" type="button">Add
+                    code</button>
+                <button style="width: 100%;" type="button" class="menubtn" onclick="Cheats.rm();">remove
+                    code</button>
+            </div>
+    </div>
 
     <!-- New Debug menu -->
     <div id="DebugDiv" class="popup shadow debug-main-div">

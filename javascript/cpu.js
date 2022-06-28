@@ -613,11 +613,11 @@ class CPU {
      * @returns {UInt8} byte
      */
     read8(address) {
-        // const v = this.cheats.read(address, this.mbcHandler ? this.mbcHandler.bank : 0);
-
-        if(this.mbcHandler && this.mbcHandler.acceptsRead(address))
+        if(this.cheats.accepts(address))
+            return this.cheats.read(address);
+        else if(this.mbcHandler && this.mbcHandler.acceptsRead(address))
             return this.mbcHandler.read8(address);        
-        if(this.ppu.accepts(address))
+        else if(this.ppu.accepts(address))
             return this.ppu.read8(address);
         else if(this.timerRegs.accepts(address))
             return this.timerRegs.read8(address);

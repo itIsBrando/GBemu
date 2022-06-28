@@ -560,7 +560,7 @@ exportSaveButton.onclick = function() {
  *  - only works from a destkop web browser
  */
 function downloadSave(){
-    const name = readROMName() + ".sav"
+    const name = c.readROMName() + ".sav"
     const a = document.getElementById('saveA');
 
     // save file
