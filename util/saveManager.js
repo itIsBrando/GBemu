@@ -123,6 +123,7 @@ function showElement(e, style = 'block') {
 
 
 var SaveManager = new function() {
+    this.CUR_VERSION = "0.1.0";
     /**
      * @param {Uint8Array} arr
      * @returns {String}

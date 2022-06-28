@@ -198,6 +198,12 @@
             border-radius: 2px;
         }
 
+        .settings-title {
+            grid-column: 1 / 3;
+            font-size: large;
+            text-align: center;
+        }
+
         .info-content {
             font-size: 1rem;
             display: none;
@@ -276,7 +282,7 @@
             }
 
             .settings-grid {
-                max-height: 100%;
+                max-height: calc(100% - 30px);
                 overflow: hidden auto;
             }
         }
@@ -370,7 +376,7 @@
             <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
         </div>
         <div class="settings-grid">
-            <b style="grid-column: 1 / 3; font-size: large; text-align: center;">Emulation Settings</b>
+            <b class="settings-title">Emulation Settings</b>
             <!-- Emulation Mode -->
             <label for="emuMode">Emulation Mode:</label>
             <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
@@ -386,8 +392,8 @@
             <label for="pwrComp">Power consumption:</label>
             <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
             
-            <b style="grid-column: 1 / 3; font-size: large; text-align: center;">Other</b>
-            <label for="autoload">Automatically load saves:</label>
+            <b class="settings-title">Other</b>
+            <label for="AutoLoadButton">Automatically load saves:</label>
             <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
             <label for="prevImg">Save Preview Image:</label>
             <button type="button" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="menubtn settings-btn" title="Saves a preview image of the game when using 'internal saves'."></button>
@@ -491,7 +497,7 @@
         </div>
     </div>
 
-    <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
+    <!-- Cool lookin menu for entering text. See `PromptMenu`-->
     <div id="PromptMenu" class="popup shadow" style="z-index:10;">
         <div class="menu-header">
             <b id="PromptTitle">Title</b>
@@ -531,19 +537,32 @@
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
             <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
         </div>
-        <h3>Gameboy buttons</h3>
-        <button type="button" onclick="KeyBinding.assign('A', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('B', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('SELECT', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('START', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('UP', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('DOWN', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('LEFT', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('RIGHT', this);" class="keypad-binding-btn"></button>
-        <h3>Emulation buttons</h3>
-        <button type="button" onclick="KeyBinding.assign('RESET', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('FAST', this);" class="keypad-binding-btn"></button>
-        <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="keypad-binding-btn"></button>
+        <div class="settings-grid">
+            <b class="settings-title">Gameboy buttons</b>
+            <label>A Button:</label>
+            <button type="button" onclick="KeyBinding.assign('A', this);" class="key-binding settings-btn menubtn"></button>
+            <label>B Button:</label>
+            <button type="button" onclick="KeyBinding.assign('B', this);" class="key-binding settings-btn menubtn"></button>
+            <label>SELECT Button:</label>
+            <button type="button" onclick="KeyBinding.assign('SELECT', this);" class="key-binding settings-btn menubtn"></button>
+            <label>START Button:</label>
+            <button type="button" onclick="KeyBinding.assign('START', this);" class="key-binding settings-btn menubtn"></button>
+            <label>UP Button:</label>
+            <button type="button" onclick="KeyBinding.assign('UP', this);" class="key-binding settings-btn menubtn"></button>
+            <label>DOWN Button:</label>
+            <button type="button" onclick="KeyBinding.assign('DOWN', this);" class="key-binding settings-btn menubtn"></button>
+            <label>LEFT Button:</label>
+            <button type="button" onclick="KeyBinding.assign('LEFT', this);" class="key-binding settings-btn menubtn"></button>
+            <label>RIGHT Button:</label>
+            <button type="button" onclick="KeyBinding.assign('RIGHT', this);" class="key-binding settings-btn menubtn"></button>
+            <b class="settings-title">Emulation buttons</b>
+            <label>Reset:</label>
+            <button type="button" onclick="KeyBinding.assign('RESET', this);" class="key-binding settings-btn menubtn"></button>
+            <label>Fast Foward:</label>
+            <button type="button" onclick="KeyBinding.assign('FAST', this);" class="key-binding settings-btn menubtn"></button>
+            <label>Fullscreen:</label>
+            <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="key-binding settings-btn menubtn"></button>
+    </div>
     </div>
 
     <!-- Pop up menu for saving/loading states -->
@@ -602,9 +621,8 @@
     <!-- Prettier messaging system. Call `showMessage()` using JS -->
     <div class="message-div" id="messageID" style="width: fit-content; border-radius: 3px;">
         <!-- header -->
-        <h3 id="messageHeader"
-            style="text-align: center; min-width: 200px; background-color: #dddddd; width: 100%; margin: 0px; padding: 0px;">
-            ALERT</h3>
+        <b><div id="messageHeader" class="menu-header">
+            ALERT</div></b>
         <!-- body -->
         <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin: 0px;">Message Content</p>
         <!-- confirm -->

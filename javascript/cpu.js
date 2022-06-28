@@ -126,6 +126,7 @@ class CPU {
             ppu: this.ppu.export(),
             renderer: this.renderer.export(),
             mbc: this.mbcHandler ? this.mbcHandler.export() : null,
+            version: SaveManager.CUR_VERSION
         });
     }
 
@@ -172,6 +173,8 @@ class CPU {
 
     import(data) {
         const cpu_data = data["cpu"];
+        const version = data.version || "0.1.0";
+
         this.pc.v = cpu_data.pc;
         this.sp.v = cpu_data.sp;
         this.af.v = cpu_data.af;
@@ -186,7 +189,6 @@ class CPU {
         this.mem.cram = SaveManager.unpack(mem.cram);
         this.mem.hram = SaveManager.unpack(mem.hram);
         this.mem.oam = SaveManager.unpack(mem.oam);
-        
 
         this.currentCycles = cpu_data.currentCycles;
         this.cycles = cpu_data.cycles;

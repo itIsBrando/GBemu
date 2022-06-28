@@ -30,7 +30,7 @@ var PromptMenu = new function() {
 		const list = div.getElementsByTagName('fieldset')[0];
 		
 		if(list == null)
-			return null;
+			return [null, null];
 
 		const id = list.id;
 		

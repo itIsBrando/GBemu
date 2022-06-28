@@ -41,20 +41,9 @@
     filter: brightness(0.6);
 }
 
-.keypad-binding-btn {
-    background-color: var(--title-btn-color);
-    color: var(--text-color);
-    display: block;
-    border: none;
-    border-radius: 3px;
-    margin: 2px 2px 1px 2px;
-    width: 100%;
+.key-binding {
+    position: relative;
 }
-
-.keypad-binding-btn:hover {
-    background-color: cadetblue;
-}
-
 
 .info-btn, .icon-btn {
     width: 30px;

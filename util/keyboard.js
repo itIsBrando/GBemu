@@ -16,7 +16,7 @@ const def_bindings = {
 
 var KeyBinding = new function() {
     const keyBindingDiv = document.getElementById('keyBindingDiv');
-    
+    const styling = document.createElement('style');
     // used by our keyboard event
     this.isAssigning = false;    
     this.bindings = JSON.parse(
@@ -24,6 +24,23 @@ var KeyBinding = new function() {
     ));
 
     this.modifyingButton = "";
+
+
+    this.init = function() {
+        styling.innerHTML = `.keybinding-assigning::after {
+            content: 'hello?';
+            background-color: #333;
+            color: aliceblue;
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            padding: 5px;
+            z-index: 1;
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.4);
+        }`;
+        
+        document.head.append(styling);
+    }
     
     // shows the keybinding menu
     this.show = function() {
@@ -36,7 +53,7 @@ var KeyBinding = new function() {
 
     this.fillButtonText = function() {
         // initialize button texts
-        const keywordbuttons = keyBindingDiv.getElementsByClassName("keypad-binding-btn")
+        const keywordbuttons = keyBindingDiv.getElementsByClassName("key-binding");
         const strings = [
             "A button",
             "B button",
@@ -61,7 +78,9 @@ var KeyBinding = new function() {
                  so we must ensure that everything lines up in the same order
             */
             const index = bindingsValues.findIndex(txt => txt == strings[i].split(' ')[0]);
-            keywordbuttons[i].innerHTML = strings[i] + "<br><b> " + keyboardBindings[index] + "</b>";
+            keywordbuttons[i].innerHTML = `<i>${keyboardBindings[index] || "<b style='color:red;'>unset</b>"}</i>`;
+            keywordbuttons[i].classList.remove("keybinding-assigning");
+
         }
         
     }
@@ -102,7 +121,8 @@ var KeyBinding = new function() {
         
         this.isAssigning = true;
         this.modifyingButton = buttonName;
-        elem.innerHTML = `Press key to bind for <b>${buttonName}</b>.<br>&lt;esc&gt; to cancel`;
+        elem.classList.add("keybinding-assigning");
+        styling.innerHTML = styling.innerHTML.replace(/content: *'.*'/, `content:'Press key to bind for ${buttonName}.<esc> to cancel'`);
     }
 
     /**
@@ -131,3 +151,4 @@ var KeyBinding = new function() {
     }
 }
 
+KeyBinding.init();
