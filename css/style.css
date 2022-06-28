@@ -1,3 +1,6 @@
+:root {
+    --debug-map-size: 512px;
+}
 
 html,
 body {
@@ -74,4 +77,9 @@ input:focus {
 
 input:out-of-range {
     background-color: darkred;
+}
+
+
+#PromptDiv {
+    min-height: 50px;
 }

@@ -246,12 +246,6 @@
             box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.5);
         }
 
-        @media (max-width: 500px) {
-            #DebugDiv {
-                max-width: 98vw;
-            }
-        }
-
         @media (max-width: 500px),
         (max-height: 500px) and (orientation: landscape) {
             #MapCanvas {
@@ -287,30 +281,10 @@
             }
         }
 
-        @media (orientation: landscape), (min-width: 560px) {
-            #MapDiv {
-                grid-template-rows: repeat(2, min-content);
-                grid-template-columns: 1fr 1fr;
-                grid-auto-flow: column;
-                height: fit-content;
-            }
-            
-            #MapCanvasDiv {
-                grid-row: 1 / 3;
-                aspect-ratio: 1 / 1;
-                overflow: auto;
-                width: auto;
-            }
-
-            #TilePrevDiv {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
     </style>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/buttons.css">
     <link rel="stylesheet" href="css/debug.css">
     <link rel="stylesheet" href="css/touch.css">
-    <link rel="stylesheet" href="css/buttons.css">
     <title>GBemu</title>
     <!-- test button -->
     <svg id="sampleSVG" style="display: none;">
@@ -429,8 +403,7 @@
 
 
     <!-- New Debug menu -->
-    <div id="DebugDiv" class="popup shadow"
-        style="width: fit-content; min-width: 256px; height: minmax(200px, fit-content); max-height: 80vh; display:none;">
+    <div id="DebugDiv" class="popup shadow debug-main-div">
         <div style="display: flex; grid-template-columns: repeat(7, 1fr); overflow-x: auto;">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
@@ -441,12 +414,11 @@
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showPalette();">Palette</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
         </div>
-        <div id="PalDiv"
-            style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; max-height: fit-content; width: clamp(150px, 550px, 80vw);">
+        <div id="PalDiv" class="debug-pal-tab">
             <div id="PalBG" class="debug-pal-prev"></div>
             <div id="PalOBJ" class="debug-pal-prev"></div>
         </div>
-        <div id="MapDiv">
+        <div class="debug-map-div" id="MapDiv">
             <div id="MapInfo">
                 <fieldset>
                     <legend>Display Mode:</legend>
@@ -521,13 +493,14 @@
 
     <!-- Cool lookin menu for entering text. See `PromptMenu` in debug.js -->
     <div id="PromptMenu" class="popup shadow" style="z-index:10;">
-        <b id="PromptTitle">Title</b>
-        <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
-        <div class="info-div" style="display: none;">
-            <button type="button" class="info-btn"></button>
-            <div id="PromptInfo" class="info-content"></div>
+        <div class="menu-header">
+            <b id="PromptTitle">Title</b>
+            <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
+            <div class="info-div" style="display: none;">
+                <button type="button" class="info-btn"></button>
+                <div id="PromptInfo" class="info-content"></div>
+            </div>
         </div>
-        <br>
         <div id="PromptDiv"></div>
         <input type="text" name="PromptText" id="PromptText" />
         <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;"
@@ -582,7 +555,7 @@
                 <button type="button" class="info-btn"></button>
                 <div class="info-content">
                     Saves are stored in the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a> object.
-                    They will persist there until they are removed by clearing <b>browser data</b>.
+                    They will persist there unless they are removed by clearing <b>browser data</b>.
                     <div class="div-separator" style="font-size: 0.75em;">
                         Makes sure you download important saves to your computer using <b>File -> Export Save File</b>
                     </div>

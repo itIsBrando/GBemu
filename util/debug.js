@@ -458,6 +458,7 @@ var Debug = new function() {
 		showElement(MapDiv, 'grid');
 		hideElement(MapInfo);
 
+		MapDiv.className = "debug-tile-div";
 		MapCanvas.name = "tile";
 		MapCanvas.click();
 
@@ -513,7 +514,7 @@ var Debug = new function() {
 	
 	this.printTileInfo = function(mapBase = null, tx, ty) {
 		const TileInfo = document.getElementById("TileInfo");
-		let s = "<br>";
+		let s = `<h2 style="text-align: center;">Tile Info:</h2><div class="div-separator">`;
 
 		tx &= 31, ty &= 31;
 
@@ -526,7 +527,7 @@ var Debug = new function() {
 		if(mapBase != null)
 			s += `<br>Flag: ${this.hex(c.ppu.getTileAttributes(offset + mapBase))}`;
         
-		TileInfo.innerHTML = s;
+		TileInfo.innerHTML = s + "</div>";
 		this.showTilePreview(tile);
 
 		const ctx = MapCanvas.getContext("2d");
@@ -614,6 +615,7 @@ var Debug = new function() {
 		showElement(MapDiv, 'grid');
 		showElement(MapInfo);
 
+		MapDiv.className = "debug-map-div";
 		MapCanvas.name = "map";
 
 		MapCanvas.click();

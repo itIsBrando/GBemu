@@ -272,7 +272,7 @@ var SaveManager = new function() {
                 <h2>${keys[i]}</h2>
                 <button type="button" class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>
                 <code style="font-size: 0.75rem; padding-right: 0.75rem;">${obj.label}</code>
-                <code style="font-size: 0.6rem; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'white'}; width:100%;">${obj.type || "SAV"}</code>
+                <code style="font-size: 0.6rem; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%;">${obj.type || "SAV"}</code>
             `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;

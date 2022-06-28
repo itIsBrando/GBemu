@@ -1,12 +1,19 @@
-#MapCanvas {
-    aspect-ratio: 1 / 1;
-    width: 100%;
+.debug-main-div {
+    width: fit-content;
+    min-width: 256px;
+    /* height: clamp(200px, 550px, 80vh); */
+    display:none;
 }
 
-#MapDiv {
+
+#MapCanvas {
+    aspect-ratio: 1 / 1;
+    width: var(--debug-map-size);
+}
+
+.debug-tile-div, .debug-map-div {
     overflow: hidden auto;
     width: 100%;
-    height: calc(80vh - 41px);
     display: none;
     grid-template-rows: auto auto auto;
     grid-template-columns: auto;
@@ -17,7 +24,6 @@
     display: grid;
     width: 100%;
     grid-template-columns: 3fr 1fr;
-    max-height: fit-content;
 }
 
 .debug-title-btn {
@@ -58,12 +64,6 @@
     background-color: gray;
 }
 
-.pal-canvas {
-    width: 100%;
-    aspect-ratio: 4 / 1;
-    cursor: pointer;
-}
-
 .pal-debug-button {
     width: 25%;
     height: 25px;
@@ -72,8 +72,14 @@
     border: none;
 }
 
-.pal-debug-button:hover, .pal-canvas:hover {
+.pal-debug-button:hover {
     filter: brightness(0.8);
+}
+
+.debug-pal-tab {
+    display: grid; grid-template-columns: 1fr 1fr;
+    column-gap: 10px;
+    width: 100%;
 }
 
 .debug-pal-prev {
@@ -103,4 +109,36 @@
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(5, 1fr);
     gap: 1px;
+}
+
+
+@media (orientation: landscape), (min-width: 560px) {
+    .debug-tile-div, .debug-map-div {
+        grid-template-rows: repeat(2, min-content);
+        grid-template-columns: 1fr 1fr;
+        grid-auto-flow: column;
+        height: fit-content;
+    }
+
+    .debug-main-div {
+        max-height: 98vh;
+    }
+
+    #MapCanvasDiv {
+        grid-row: 1 / 3;
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+    }
+
+    #TilePrevDiv {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .debug-main-div {
+        max-width: 98vw;
+        max-height: 98vh;
+    }
 }
