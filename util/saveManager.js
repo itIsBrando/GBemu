@@ -19,21 +19,23 @@ class SaveStorage {
             this.ram = data;
         else
             this.data = data;
-/*
-            if(Settings.get_temp("warn_savestate", "false") == "false") {
-                Settings.set_temp("warn_savestate", "true");
-                showMessage("Save States are still being tested. Use '.sav' format when possible.", "Experimental Feature");
-            }
- */
         this.img = null;
-        this.time = new Date().toDateString().match(/ .+/).toString().trim();
+        this.time = SaveStorage.getFormattedTime();
     }
+
 
     populateImage() {
         if(!SaveStorage.enableImage)
             return;
         
         this.img = canvas.toDataURL('image/jpg');
+    }
+
+    static getFormattedTime() {
+        const d = new Date();
+        const t = d.toDateString().match(/ .+/).toString().trim();
+
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}\r${t}`;
     }
 
     static set_button_text() {
@@ -58,7 +60,7 @@ class SaveStorage {
 
 function saveButtonClick(name) {
     if(c.mbcHandler)
-        SaveManager.save(name, c.mbcHandler.ram, readROMName());
+        SaveManager.save(name, c.mbcHandler.ram, c.readROMName());
     else
         showMessage("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
     
@@ -69,7 +71,7 @@ function _canSave()
 {
     const type = SaveManager.getType(_delKey);
     delete localStorage[_delKey];
-    SaveManager.save(_delKey, c.mbcHandler.ram, type, readROMName());
+    SaveManager.save(_delKey, c.mbcHandler.ram, type, c.readROMName());
 
     _delKey = null;
     SaveManager.hide();
@@ -94,7 +96,7 @@ localSaveButton.addEventListener('click', function() {
     SaveManager.populateSaveHTML(function() {
         if(c.mbcHandler && c.romLoaded) {
             showMessage(
-                `Is it okay to overwrite <b style='color:green;'>${this.value}</b>?`,
+                `Is it okay to overwrite <b style='color:green;'>${SaveManager.getSaveString(this.value)}</b>?`,
                 "Save Already Exists",
                 true,
                 null,
@@ -194,6 +196,23 @@ var SaveManager = new function() {
     }
 
 
+    this.getSuffix = function(key) {
+        const match = key.match(/ .*/);
+        return match ? match[0] : '';
+    }
+
+    this.addSuffix = function(key) {
+        return key + ' ' + c.readROMName();
+    }
+
+    this.rmSuffix = function(key) {
+        return key.replace(/ .*/, '');
+    }
+
+    this.getSaveString = function(key) {
+        return this.rmSuffix(key);
+    }
+
     /**
      * Saves a savefile to localStorage
      * - reports an errors
@@ -203,13 +222,13 @@ var SaveManager = new function() {
      * @param {Uint8Array} arr array containing saveable data
      */
     this.save = function(key, arr, type, ROMName = "import") {
-        const data = type == SaveType.SAV ? SaveManager.pack(arr) : c.createSaveState();
+        const data = type == SaveType.SAV ? this.pack(arr) : c.createSaveState();
         const s = new SaveStorage(ROMName, data, type);
 
         s.populateImage();
         let json = JSON.stringify(s);
 
-        localStorage.setItem(key, json);
+        localStorage.setItem(this.addSuffix(key), json);
         showMessage(
             `<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`,
             "Success",
@@ -257,23 +276,28 @@ var SaveManager = new function() {
         const saveButtonDiv = document.getElementById('saveButtonDiv');
 
         const keys = Object.keys(localStorage);
+        const romName = c.readROMName();
         let hasSaves = false;
     
         for(let i in keys) {
             // some settings should not be shown
             if(Settings.isSetting(keys[i]))
                 continue;
+
+            const obj = JSON.parse(localStorage[keys[i]]);
+
+            if(romName != null && romName != obj.label)
+                continue;
             
             const btn = document.createElement("button");
-            const obj = JSON.parse(localStorage[keys[i]]);
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
             btn.innerHTML = `
                 <img width="160" height="144" style="grid-row: 1 / 3;"></img>
-                <h2>${keys[i]}</h2>
+                <h2>${this.getSaveString(keys[i])}</h2>
                 <button type="button" class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>
-                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${obj.label}</code>
-                <code style="font-size: 0.6rem; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%;">${obj.type || "SAV"}</code>
+                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? obj.label : obj.time}</code>
+                <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%;">${obj.type || "SAV"}</code>
             `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;
@@ -291,7 +315,7 @@ var SaveManager = new function() {
         }
     
         if(!hasSaves) {
-            saveButtonDiv.innerHTML = `<b>NO FILES SAVED</b>`;
+            saveButtonDiv.innerHTML = `<code>no files saved</code>`;
         } else {
             // Add an onclick event for each delete button
             const btns = getDeleteButtons();
@@ -330,7 +354,7 @@ var SaveManager = new function() {
      * Called by the `+` button in `id=popup`
      */
     this.addSave = function() {
-        const m = PromptMenu.new("Save Name", "Name", /\w+/g, 20, (v, state) => {
+        const m = PromptMenu.new("Save Name", "Name", /[0-9A-Za-z]+/g, 20, (v, state) => {
             console.log(state)
             if(v.length == 0)
                 return;
@@ -340,7 +364,7 @@ var SaveManager = new function() {
                 return;
             }
             
-            this.save(v, c.mbcHandler.ram, state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE, readROMName());
+            this.save(v, c.mbcHandler.ram, state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE, c.readROMName());
         });
 
         PromptMenu.addChoices([".sav", "Save State"], "save_type", "Save Type:");
@@ -369,7 +393,7 @@ var SaveManager = new function() {
         e.stopPropagation();
         key = this.parentElement.value
         showMessage(
-            `Delete <b style="color:green;">${key}</b>?`,
+            `Delete <b style="color:green;">${SaveManager.getSaveString(key)}</b>?`,
             "Are You Sure?",
             true,
             null,
@@ -398,12 +422,11 @@ var SaveManager = new function() {
        const type = SaveManager.getType(key);
    
        if(!data)
-           showMessage("Could not find <b style=\"color:green;\">" + key + "</b> in local storage.", "Error", false, null, SaveManager.hide);
+           showMessage(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
        else {
            SaveManager.hide();
            if(type == SaveType.SAV) {
                MBC1.useSaveData(data);
-               console.log("Using .sav");
            } else {
                if(c.romLoaded)
                    c.loadSaveState(data);
@@ -413,7 +436,7 @@ var SaveManager = new function() {
                 }
            }
 
-           showMessage("Loaded <b style=\"color:green;\">" + key + "</b>.", "Completed", false);
+           showMessage(`Loaded <b style="color:green;">${this.getSaveString(key)}</b>.`, "Completed", false);
        }
    }
 
@@ -428,12 +451,12 @@ var SaveManager = new function() {
             try {
                 data = JSON.parse(v.toLowerCase());
             } catch {
-                showMessage("Could not import data.", "Invalid JSON", );
+                showMessage("Could not import data.", "Invalid JSON");
                 return;
             }
 
             if(!data || !('label' in data) || !('ram' in data)) {
-                showMessage("Could not import data.", "Invalid JSON", );
+                showMessage("Could not import data.", "Invalid JSON");
                 return;
             }
 
@@ -449,7 +472,7 @@ var SaveManager = new function() {
                 Some browsers do not allow for the downloading of files.
                 In these cases, save files will be exported as a JSON object.
                 Although these objects are incompatible with other emulators,
-                it does allow cross-browser transfers.
+                it allows for cross-browser transfers.
             </div>
             `
         );
@@ -521,7 +544,7 @@ exportSaveButton.onclick = function() {
     // if we are mobile or embeded app, we cannot download files
     if(window.navigator.standalone) {
         let str = SaveManager.pack(c.mbcHandler.ram);
-        const data = JSON.stringify(new SaveStorage(readROMName(), str));
+        const data = JSON.stringify(new SaveStorage(c.readROMName(), str, SaveType.SAV));
 
         copyClipMenu(new String(data));
     } else {

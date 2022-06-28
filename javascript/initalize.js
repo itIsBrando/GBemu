@@ -1,19 +1,9 @@
 "use strict"
-
 const INTERVAL_SPEED = 8;
 
 var c = new CPU();
 
-// passed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 /**
- * Failed:
- *  - mem_timing
- */
-
-
-/**
- * Begins the CPU.
- * - initializes a timer and begins running the ROM.
  * @param {ArrayBuffer} rom
  */
 function startEmulation(rom) {
@@ -27,21 +17,20 @@ function startEmulation(rom) {
     c.timer = setInterval(run, INTERVAL_SPEED);
     setLEDStatus(true);
 
-    // this is an auto load feature. We will automatically load the save of first occurence of the rom name in localStorage
-    //  this feature can be disabled by setting the `autoload` to `false` 
+    /* this is an auto load feature. We will automatically load the save of first occurence of the rom name in localStorage
+     this feature can be disabled by setting the `autoload` to `false`
+     Savestates are never automatically loaded.
+    */
     if(Settings.get_core("autoload", 'true') == 'true') {
-        const keys = SaveManager.getSavesFromName(readROMName());
+        const keys = SaveManager.getSavesFromName(this.readROMName());
 
-        if(keys.length > 0)
-            SaveManager.injectLocalStorage(keys[0]);
+        for(let i = 0; i < keys.length; i++) {
+            if(SaveManager.getType(keys[i]) != SaveType.SAVESTATE)
+                SaveManager.injectLocalStorage(keys[i]);
+        }
     }
 };
 
-
-
-/**
- * Pauses the CPU if it is running, otherwise does nothing.
- */
 function pauseEmulation() {
     if(!c.isRunning || c.timer == null)
         return;
@@ -51,6 +40,7 @@ function pauseEmulation() {
     setLEDStatus(false);
     
 };
+
 
 function setLEDStatus(on) {
     const r = document.querySelector(':root');
@@ -64,10 +54,6 @@ function setLEDStatus(on) {
 }
 
 
-/**
- * Starts the CPU from a paused state
- * @see pauseEmulation
- */
 function resumeEmulation() {
     if(!c.romLoaded || c.timer != null)
         return;
@@ -77,9 +63,6 @@ function resumeEmulation() {
 }
 
 
-/**
- * Restarts the game that is running
- */
 function restartEmulation() {
     if(!c.isRunning || !c.romLoaded)
         return;
@@ -116,27 +99,20 @@ function run() {
 
 
 
-// toggle between emulating in DMG mode or attempting CGB mode
 const toggleDMGMode = document.getElementById('toggleDMGMode');
 
 function forceEmulationMode(dmgOnly) {
     c.forceDMG = dmgOnly;
 
-    toggleDMGMode.innerText = c.forceDMG ? "DMG" : "GBC";
+    toggleDMGMode.innerText = dmgOnly ? "DMG" : "GBC";
 
-    Settings.set_core("dmgOnly", String(c.forceDMG));
+    Settings.set_core("dmgOnly", String(dmgOnly));
     
     if(c.isRunning)
         showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
     
 }
 
-toggleDMGMode.onclick = function() {
-    forceEmulationMode(!c.forceDMG);
-}
+const f = Settings.get_core("dmgOnly", "false");
 
-
-const f = Settings.get_core("dmgOnly");
-
-if(f != null)
-    forceEmulationMode(f == "true" ? true : false);
+forceEmulationMode(f == "true" ? true : false);

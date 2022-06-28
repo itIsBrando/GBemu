@@ -57,7 +57,7 @@
     color: var(--text-color);
 }
 
-.info-btn:hover, .icon-btn:hover {
+.icon-btn:hover {
     filter: brightness(0.8);
 }
 

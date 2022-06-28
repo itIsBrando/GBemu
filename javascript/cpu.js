@@ -545,7 +545,7 @@ class CPU {
         }
 
         CPU.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
-        CPU.LOG(`ROM Name: ${readROMName()}`);
+        CPU.LOG(`ROM Name: ${this.readROMName()}`);
 
         this.romLoaded = true;
     }
@@ -561,6 +561,24 @@ class CPU {
             throw str;
         else
             console.log(str);
+    }
+
+    
+    /**
+     * Reads the game title embeded inside the ROM
+     * @returns String
+     */
+    readROMName() {
+        let str = "", i = 0;
+
+        if(this.mem.rom[0x134] == 0)
+            return null;
+
+        do {
+            str += String.fromCharCode(this.mem.rom[0x134 + i]);
+            i++;
+        } while(i <= 16 && this.mem.rom[0x134 + i] != 0);
+        return str;
     }
 
     /**

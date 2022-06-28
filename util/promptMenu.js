@@ -103,7 +103,8 @@ var PromptMenu = new function() {
 			m["maxlength"] = 999999;
 		
         textInput.oninput = function(e) {
-            e.target.value = e.target.value.match(m["accepts"]);
+			const match = e.target.value.match(m["accepts"]);
+            e.target.value = match ? match[0] : "";
             e.target.value = e.target.value.toUpperCase().slice(0, m["maxlength"]);
         }
 

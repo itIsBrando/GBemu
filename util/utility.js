@@ -70,25 +70,6 @@ function exitFullscreen() {
 
 
 /**
- * Reads the game title embeded inside the ROM
- * @returns String
- */
-function readROMName() {
-    let str = "";
-    let i = 0;
-
-    if(c.mem.rom[0x134] == 0)
-        return null;
-
-    do {
-        str += String.fromCharCode(c.mem.rom[0x134 + i]);
-        i++;
-    } while(i <= 16 && c.mem.rom[0x134 + i] != 0);
-    return str;
-}
-
-
-/**
  * Converts a value into a hexidemical string
  * @param {any} v 
  * @param {Number} pad number of min digits to display
@@ -149,7 +130,7 @@ function showROMInfo() {
     }
 
     showMessage(
-        `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${readROMName()}` +
+        `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${c.readROMName()}` +
         '<br><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
         '<br><b style="color:deepskyblue">Emulation Mode:</b> ' + (c.cgb ? "GBC" : "DMG") +
         '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +

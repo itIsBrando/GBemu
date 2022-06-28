@@ -123,7 +123,6 @@
             color: black;
             height: fit-content;
             min-height: 30px;
-            padding-left: 1rem;
             margin-bottom: 5px;
         }
 
@@ -225,6 +224,10 @@
 
         .info-div:hover > .info-content  {
             display: block;
+        }
+
+        .info-div:hover > .info-btn, .info-btn:hover {
+            background-color: #333;
         }
 
         #SettingsDiv {
@@ -373,14 +376,14 @@
     <div id="SettingsDiv" class="popup shadow">
         <div class="menu-header">
             <b>Settings</b>
-            <button type="button" class="x-btn" style="float:right;" onclick="Settings.hide();">&times;</button>
+            <button type="button" class="x-btn" onclick="Settings.hide();">&times;</button>
         </div>
         <div class="settings-grid">
             <b class="settings-title">Emulation Settings</b>
             <!-- Emulation Mode -->
             <label for="emuMode">Emulation Mode:</label>
             <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
-            class="menubtn settings-btn"></button>
+            class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
             <!-- <br>
             <label for="sndEnable">Enable Sound:</label>
             <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button> -->
@@ -621,8 +624,9 @@
     <!-- Prettier messaging system. Call `showMessage()` using JS -->
     <div class="message-div" id="messageID" style="width: fit-content; border-radius: 3px;">
         <!-- header -->
-        <b><div id="messageHeader" class="menu-header">
-            ALERT</div></b>
+        <b>
+            <div id="messageHeader" class="menu-header" style="padding: 0rem 1rem;">ALERT</div>
+        </b>
         <!-- body -->
         <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin: 0px;">Message Content</p>
         <!-- confirm -->
