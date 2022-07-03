@@ -345,6 +345,8 @@
             onclick="Debug.start();">Debugger</button>
             <button type="button" style="width: inherit;" class="menubtn"
             onclick="Cheats.start();">Cheats</button>
+            <button type="button" style="width: inherit;" class="menubtn"
+            onclick="Link.start();">Link Cable</button>
             <button type="button" title="open settings" style="width: inherit;" class="menubtn" onclick="Settings.show();">Settings</button>
         </div>
     </div>
@@ -372,6 +374,21 @@
         </div>
         <!-- Menu button to show the top menu -->
         <div class="show-menu-btn" onclick="ToggleTitleMenu();"></div>
+    </div>
+    
+    <!-- Link Cable menu -->
+    <div id="LinkDiv" class="popup shadow">
+        <div class="menu-header">
+            <b>Link Cable</b>
+            <button type="button" class="x-btn" onclick="Link.hide();">&times;</button>
+        </div>
+        Get started by creating a session and a code,
+         then join the session from another device using the same code.
+        <div style="font-size: 0.85rem; background-color: orangered;">
+            Using multiplayer is unstable and poorly tested. Use at your own risk.
+        </div>
+        <button type="button" onclick="Link.startSess();" class="menubtn settings-btn">Create session</button>
+        <button type="button" onclick="Link.joinSess();" class="menubtn settings-btn">Join session</button>
     </div>
 
     <!-- Settings menu -->
@@ -668,6 +685,7 @@
     <script src="util/controller.js"></script>
     <script src="util/debug.js"></script>
     <script src="util/themes.js"></script>
+    <script src="util/link.js"></script>
     <script src="javascript/types.js"></script>
     <script src="javascript/renderer.js"></script>
     <script src="javascript/mbc/MBC1.js"></script>
@@ -679,6 +697,8 @@
     <script src="javascript/audio/c3.js"></script>
     <script src="javascript/audio/c4.js"></script>
     <script src="javascript/audio/apu.js"></script> -->
+    <script src="util/external/peerjs.min.js"></script>
+    <script src="javascript/serial.js"></script>
     <script src="javascript/ppu.js"></script>
     <script src="javascript/instructionCB.js"></script>
     <script src="javascript/instruction.js"></script>
