@@ -191,8 +191,10 @@ class Renderer {
             byte1 >>= 1;
             byte2 >>= 1;
             const dx = xFlip ? i : 7 - i;
-            if((x + dx) < 0 || (x + dx) > 160)
+            if((x + dx) < 0 || (x + dx) >= 160) {
+                canvasOffset = xFlip ? canvasOffset + 4 : canvasOffset - 4;
                 continue;
+            }
             
             const col = pal[index];
             this.screen.data[canvasOffset + 0] = col[0];
