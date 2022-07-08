@@ -295,7 +295,7 @@ var SaveManager = new function() {
             btn.innerHTML = `
                 <img width="160" height="144" style="grid-row: 1 / 3;"></img>
                 <h2>${this.getSaveString(keys[i])}</h2>
-                <button type="button" class='x-btn' style='visibility:hidden;' name='deleteButton'>&times;</button>
+                <button type="button" class='x-btn x-btn-animated' name='deleteButton'>&times;</button>
                 <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? obj.label : obj.time}</code>
                 <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%;">${obj.type || "SAV"}</code>
             `;
@@ -403,8 +403,8 @@ var SaveManager = new function() {
             
                 _delKey = null;
                 SaveManager.hide();
-                localLoadButton.click();
                 saveEditButton.innerHTML = "edit";
+                localLoadButton.click();
             }
         );
 
@@ -499,9 +499,9 @@ saveEditButton.addEventListener('click', function() {
     
     btns.forEach(function(e) {
         if(isEditing)
-            e.style.visibility = 'visible';
+            e.classList.remove('x-btn-animated');
         else
-            e.style.visibility = 'hidden';
+            e.classList.add('x-btn-animated');
     });
 });
 

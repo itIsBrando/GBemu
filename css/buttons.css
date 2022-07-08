@@ -1,5 +1,3 @@
-
-
 .menubtn {
     background-color: var(--menu-btn-color);
     color: var(--text-color);
@@ -82,10 +80,19 @@
     padding: 5px;
     cursor: pointer;
     color: black;
+    
+    transition: width 0.5s, padding 0.5s, border 0.5s;
 }
 
 .x-btn:hover {
     background-color: darkred;
+}
+
+.x-btn-animated {
+    width: 0px;
+    padding: 0px;
+    border: none;
+    overflow: hidden;
 }
 
 .btn:active {

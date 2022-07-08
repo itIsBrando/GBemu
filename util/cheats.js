@@ -22,13 +22,6 @@ class Code {
         if(!this.enabled)
             return false;
         
-/*         if(addr < 0xA000)
-            return true;
-        else if(addr >= 0xA000 && addr < 0xC000)
-            return true; // @TODO CHECK MBC BANKING
-        else if(addr >= 0xD000 && addr < 0xE000)
-            return c.ppu.cgb.svbk == this.bank;
- */
         return true;
     }
 }
@@ -37,8 +30,6 @@ const CheatsList = document.getElementById('CheatsList');
 const CheatsDiv = document.getElementById('CheatsDiv');
 
 class Cheats {
-
-
     constructor() {
         this.codes = {};
         this.enabled = true;
@@ -92,10 +83,19 @@ class Cheats {
             const k = codes[i].getKey();
             CheatsList.innerHTML += `
                 <button type="button" value=${k} onclick="Cheats.toggle(this)">e</button>
-                <input type="radio" id="cheat${addr}" name="cheats" value="${k}" class="debug-breakpoint-radio">
+                <input type="radio" id="cheat${addr}" name="cheats" value="${k}" class="debug-breakpoint-radio" onclick="Cheats.showRmButton(true);">
                 <label class="debug-breakpoint-name" for="cheat${addr}">${addr}</label><br>
             `;
         }
+    }
+    
+    static showRmButton(visible) {
+        const btn = document.getElementById('CheatsRm');
+        
+        if(visible == true)
+            btn.style.visibility = 'visible';
+        else
+            btn.style.visibility = 'hidden';
     }
 
     static add() {
@@ -113,6 +113,8 @@ class Cheats {
     }
 
     static rm() {
+        Cheats.showRmButton(false);
+        
         for(let i = 0; i < CheatsList.children.length; i++) {
 			const child = CheatsList.children[i];
 			if(child.checked) {

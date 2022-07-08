@@ -6,6 +6,7 @@ class SerialPort {
         
         this.cycles = 0;
         this.inProgress = false;
+        this.freq = 512;
     }
     
     reset() {
@@ -17,14 +18,16 @@ class SerialPort {
     }
     
     tick(c) {
+        this.checkSendSlave();
+        
         if(!this.inProgress)
             return;
         
         this.cycles += c;
         
         // running at 8192Hz for DMG
-        if(this.cycles > 512 * 8) {
-            this.sendByte();
+        if(this.cycles > (this.freq << 3)) {
+            this.receiveByte();
         }
     }
     
@@ -33,7 +36,7 @@ class SerialPort {
     }
     
     get master() {
-        return UInt8.getBit(this.sc, 7);
+        return (this.sc & 1) == 1;
     }
     
     accepts(addr) {
@@ -48,8 +51,16 @@ class SerialPort {
             case 2:
                 this.sc = byte & 0xf3;
                 
-                if(this.master && UInt8.getBit(this.sc, 7))
+                if(this.parent.cgb)
+                    if(UInt8.getBit(this.sc, 1))
+                        this.freq = 16; // fast
+                    else
+                        this.freq = 512; // normal
+                    
+                
+                if(this.master && UInt8.getBit(this.sc, 7)) {
                     this.start();
+                }
                 break;
         }
     }
@@ -63,15 +74,17 @@ class SerialPort {
         }
     }
     
-    
-    sendByte() {
-        
+    receiveByte() {
         this.inProgress = false;
         
-        this.sc &= 0x7F;
-        Link.attemptTransfer(this.sb, this.master);
+        this.sc &= 0x7f;
+        this.sb = Transfer.receive(this.master);
         
         this.parent.requestInterrupt(InterruptType.serial);
+    }
+    
+    checkSendSlave() {
+        Transfer.send(this.sb, this.master);
     }
     
     start() {

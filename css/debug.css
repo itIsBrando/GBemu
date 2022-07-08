@@ -51,7 +51,7 @@
 
 .debug-breakpoint-radio:checked+label {
     color: #222;
-    background-color: aliceblue;
+    background-color: lightblue;
 }
 
 .debug-breakpoint-name {

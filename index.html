@@ -113,6 +113,7 @@
             border-radius: 5px;
             width: fit-content;
             min-width: 350px;
+            max-height: 80vh;
         }
 
         .menu-header {
@@ -246,7 +247,7 @@
         }
 
         #saveButtonDiv {
-            max-height: 100%;
+            max-height: calc(80vh - 30px);
             overflow-y: auto;
             text-align: center;
         }
@@ -344,8 +345,8 @@
             <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn"
             onclick="Debug.start();">Debugger</button>
             <button type="button" style="width: inherit;" class="menubtn"
-    onclick="Cheats.start();">Cheats</button>
-    	<!-- <button type="button" style="width: inherit;" class="menubtn"
+            onclick="Cheats.start();">Cheats</button>
+            <!-- <button type="button" style="width: inherit;" class="menubtn"
             onclick="Link.start();">Link Cable</button> -->
             <button type="button" title="open settings" style="width: inherit;" class="menubtn" onclick="Settings.show();">Settings</button>
         </div>
@@ -438,11 +439,11 @@
             <fieldset id="CheatsList"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
             </fieldset>
-            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+            <div style="display: grid; grid-template-rows: 1fr 1fr;">
+                <button style="width: 100%; visibility: hidden;" type="button" class="menubtn" onclick="Cheats.rm();" id="CheatsRm">remove
+                    code</button>
                 <button onclick="Cheats.add();" class="menubtn" style="width: 100%;" type="button">Add
-                    code</button>
-                <button style="width: 100%;" type="button" class="menubtn" onclick="Cheats.rm();">remove
-                    code</button>
+                code</button>
             </div>
     </div>
 
@@ -657,7 +658,7 @@
     </div>
 
     <!-- Prettier messaging system. Call `showMessage()` using JS -->
-    <div class="message-div" id="messageID" style="width: fit-content; border-radius: 3px;">
+    <div class="message-div shadow" id="messageID" style="width: fit-content; border-radius: 3px;">
         <!-- header -->
         <b>
             <div id="messageHeader" class="menu-header" style="padding: 0rem 1rem;">ALERT</div>
