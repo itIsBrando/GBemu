@@ -699,7 +699,6 @@
     <script src="javascript/audio/c3.js"></script>
     <script src="javascript/audio/c4.js"></script>
     <script src="javascript/audio/apu.js"></script> -->
-    <script src="util/external/peerjs.min.js"></script>
     <script src="javascript/serial.js"></script>
     <script src="javascript/ppu.js"></script>
     <script src="javascript/instructionCB.js"></script>
@@ -740,8 +739,8 @@
             }
         });
 
-        if ('serviceworker' in navigator) {
-            navigator.serviceWorker.register('/util/sw.js');
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
         }
 
         const viewport = document.getElementById('viewport');
