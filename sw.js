@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v3.8.5';
+const CACHE_NAME = 'gbemu-v3.8.6';
 const FILES = [
     "css/style.css",
     "css/touch.css",
@@ -42,7 +42,6 @@ self.addEventListener('install', (e) => {
     e.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
 
-        log('Caching all: app shell and content');
         await cache.addAll(FILES);
     })());
 });
@@ -53,10 +52,9 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
     e.waitUntil(caches.keys().then((keyList) => {
         return Promise.all(keyList.map((key) => {
-            if(key === CACHE_NAME) {
+            if (key === CACHE_NAME) {
                 return;
             }
-
             return caches.delete(key);
         }))
     }));
@@ -64,12 +62,13 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
-      const r = await caches.match(e.request);
-      if (r) return r;
-      const response = await fetch(e.request);
-      const cache = await caches.open(CACHE_NAME);
-     
-      cache.put(e.request, response.clone());
-      return response;
+        const r = await caches.match(e.request);
+        if (r) return r;
+        const response = await fetch(e.request);
+        const cache = await caches.open(CACHE_NAME);
+        
+        console.log('[Service Worker] fetching ${e.request.url}');
+        cache.put(e.request, response.clone());
+        return response;
     })());
-  });
+});
