@@ -1,4 +1,3 @@
-const CACHE_NAME = 'gbemu-v3.9';
 const FILES = [
     "./css/style.css",
     "./css/touch.css",
@@ -38,6 +37,7 @@ const FILES = [
  * Fetches files to cache
  */
 self.addEventListener('install', (e) => {
+    Settings.set_core('sw_status', 'online');
     e.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
 

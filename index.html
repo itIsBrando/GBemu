@@ -429,8 +429,10 @@
             <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
             onclick="KeyBinding.show();">edit</button>
             <!-- Status of the service worker -->
-            <label style="border-right: 2px solid #333;">Network Status:</label>
+            <label>Network Status:</label>
             <label id="SWStatus" class="settings-btn">online</label>
+
+            <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
         </div>
     </div>
 
@@ -714,6 +716,9 @@
     <script src="util/touch.js"></script>
     <script type="text/javascript">
         let inputForm = document.getElementById('inputfile');
+
+        var CACHE_NAME = 'gbemu-v3.9';
+        document.getElementById('version').innerHTML = CACHE_NAME;
 
         // for loading ROM
         inputForm.addEventListener('change', function () {
