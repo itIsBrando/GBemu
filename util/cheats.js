@@ -82,7 +82,7 @@ class Cheats {
             let addr = codes[i].code;
             const k = codes[i].getKey();
             CheatsList.innerHTML += `
-                <button type="button" value=${k} onclick="Cheats.toggle(this)">e</button>
+                <button type="button" value=${k} class="menubtn" style="width:fit-content; display:inline;" onclick="Cheats.toggle(this)">e</button>
                 <input type="radio" id="cheat${addr}" name="cheats" value="${k}" class="debug-breakpoint-radio" onclick="Cheats.showRmButton(true);">
                 <label class="debug-breakpoint-name" for="cheat${addr}">${addr}</label><br>
             `;

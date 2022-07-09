@@ -613,6 +613,13 @@ class CPU {
     }
 
     /**
+     * @returns {Boolean} true if the current ROM has a MBC
+     */
+    hasMbc() {
+        return this.mbcHandler != null;
+    }
+
+    /**
      * Read a byte from an address from memory
      * @param {UInt16} address
      * @returns {UInt8} byte

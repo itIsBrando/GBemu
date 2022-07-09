@@ -1,9 +1,10 @@
 {
     "name": "GBemu",
     "short_name": "GBemu",
-    "start_url": ".",
-    "display": "standalone",
-    "description": "Gameboy Emulator written in JS",
+    "start_url": "/?pwa=true",
+    "display": "fullscreen",
+    "orientation": "any",
+    "description": "Gameboy Emulator powered by HTML5, CSS, and JavaScript",
     "background_color": "#fff",
     "icons": [
         {

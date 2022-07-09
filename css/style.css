@@ -83,3 +83,15 @@ input:out-of-range {
 #PromptDiv {
     min-height: 50px;
 }
+
+#SWStatus {
+    display: grid;
+    text-align: center;
+    align-items: center;
+    font: 0.75rem monospace;
+}
+
+.settings-grid label {
+    display: flex;
+    align-items: center;
+}

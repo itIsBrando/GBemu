@@ -17,9 +17,7 @@ class SerialPort {
         this.inProgress = false;
     }
     
-    tick(c) {
-        this.checkSendSlave();
-        
+    tick(c) {        
         if(!this.inProgress)
             return;
         

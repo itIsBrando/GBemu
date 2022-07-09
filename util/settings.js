@@ -1,4 +1,3 @@
-
 var Settings = new function() {
     const CORE_PREFIX = "__core_";
     const MainDiv = document.getElementById('SettingsDiv');
@@ -26,6 +25,18 @@ var Settings = new function() {
      */
     this.set_core = function(key, value) {
         localStorage.setItem(CORE_PREFIX + key, value);
+    }
+
+    /**
+     * Gets all of the variables in the URL
+     * @returns a dictionary of var/vals
+     */
+    this.parse_url = function() {
+        let vars = {};
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
     }
 
     /**
@@ -62,9 +73,11 @@ var Settings = new function() {
     }
 
     this.show = function() {
-        showElement(MainDiv);
+        SWStatus.innerHTML = this.get_core('sw_status');
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
+
+        showElement(MainDiv);
         pauseEmulation();
     }
 
@@ -96,3 +109,7 @@ AutoLoadButton.addEventListener('click', function() {
 })
 
 AutoLoadButton.innerHTML = Settings.get_core("autoload", 'true') == 'true' ? 'yes' : 'no';
+
+const vars = Settings.parse_url();
+
+Settings.set_core('pwa', vars['pwa'] || 'false');

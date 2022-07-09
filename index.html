@@ -428,6 +428,9 @@
             <label for="keybind">Keyboard Controls:</label>
             <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
             onclick="KeyBinding.show();">edit</button>
+            <!-- Status of the service worker -->
+            <label style="border-right: 2px solid #333;">Network Status:</label>
+            <label id="SWStatus" class="settings-btn">online</label>
         </div>
     </div>
 
@@ -573,7 +576,7 @@
     <!-- pop up menu for changing keyboard controls -->
     <div class="popup" id="keyBindingDiv">
         <div class="menu-header">
-            <b>Set Keyboard Controls</b>
+            <b>Keyboard Controls</b>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
             <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
         </div>
@@ -740,7 +743,10 @@
         });
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js').then(null, (err) => {
+                    console.log('[Service Worker] Could not install service worker.', err);
+                    Settings.set_core('sw_status', 'n/a');
+            });
         }
 
         const viewport = document.getElementById('viewport');

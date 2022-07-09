@@ -133,8 +133,8 @@ function showROMInfo() {
         `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${c.readROMName()}` +
         '<br><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
         '<br><b style="color:deepskyblue">Emulation Mode:</b> ' + (c.cgb ? "GBC" : "DMG") +
-        '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.rom.length + " bytes": "32kb") +
-        '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.mbcHandler ? c.mbcHandler.ram.length + " bytes": "none") +
+        '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.hasMbc() ? c.mbcHandler.rom.length + " bytes": "32kb") +
+        '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.hasMbc() ? c.mbcHandler.ram.length + " bytes": "none") +
         '</div>',
         "ROM Info"
     );
