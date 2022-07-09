@@ -41,6 +41,8 @@ const FILES = [
 self.addEventListener('install', (e) => {
     e.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
+
+        log('Caching all: app shell and content');
         await cache.addAll(FILES);
     })());
 });
@@ -49,7 +51,6 @@ self.addEventListener('install', (e) => {
  * Delete old cache versions
  */
 self.addEventListener('activate', (e) => {
-   
     e.waitUntil(caches.keys().then((keyList) => {
         return Promise.all(keyList.map((key) => {
             if(key === CACHE_NAME) {
