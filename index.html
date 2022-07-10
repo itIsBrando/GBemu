@@ -190,7 +190,6 @@
             background-color: #444444;
             margin: 10px;
             grid-template-columns: 3fr 1fr;
-            grid-template-rows: repeat(10, 40px);
             border-radius: 5px;
         }
 
@@ -230,6 +229,7 @@
 
         .info-div:hover > .info-btn, .info-btn:hover {
             background-color: #333;
+            color: aliceblue;
         }
 
         #SettingsDiv {
@@ -400,7 +400,7 @@
             <b>Settings</b>
             <button type="button" class="x-btn" onclick="Settings.hide();">&times;</button>
         </div>
-        <div class="settings-grid">
+        <div class="settings-grid" style="grid-template-rows: repeat(9, 40px);">
             <b class="settings-title">Emulation Settings</b>
             <!-- Emulation Mode -->
             <label for="emuMode">Emulation Mode:</label>
@@ -526,9 +526,10 @@
         </div>
         <!-- A new menu for managing breakpoints -->
         <div id="DisassemblyBreakpoints" class="popup shadow">
-            <b style="padding-bottom: 5px;">Breakpoints</b>
-            <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
-            <div class="div-separator"></div>
+            <div class="menu-header">
+                <b>Breakpoints</b>
+                <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
+            </div>
             <fieldset id="DisBreakpointList"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
             </fieldset>
@@ -579,7 +580,7 @@
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
             <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
         </div>
-        <div class="settings-grid">
+        <div class="settings-grid" style="grid-template-rows: repeat(14, 40px);">
             <b class="settings-title">Gameboy buttons</b>
             <label>A Button:</label>
             <button type="button" onclick="KeyBinding.assign('A', this);" class="key-binding settings-btn menubtn"></button>
@@ -622,9 +623,8 @@
                     </div>
                 </div>
             </div>
-            <button id="saveEditButton" type="button" class="menubtn" style="width: fit-content; float:right; font-family: monospace; height: 30px;">edit</button>
-            <button id="plusButton" type="button" class="menubtn"
-                style="width: 30px; float:right; height: 30px;" onclick="SaveManager.addSave();">+</button>
+            <button id="saveEditButton" type="button" class="menubtn">edit</button>
+            <button id="plusButton" type="button" class="menubtn" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->
         <div id="saveButtonDiv"></div>
@@ -761,6 +761,8 @@
                             : '[Service Worker] Failed to remove worker');
                     })
                 }
+            }).catch(err => {
+                console.log('[Service Worker] Not in secure context');
             })
         }
 

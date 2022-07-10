@@ -78,7 +78,7 @@ var Settings = new function() {
         if(caches) {
             caches.keys().then(
                 (keys) => {
-                    versionElem.innerHTML = keys[0] || 'gbemu';
+                    versionElem.innerHTML = keys[0] || 'gbemu (offline incompatible)';
                 }
             );
         }

@@ -28,7 +28,7 @@ var KeyBinding = new function() {
 
     this.init = function() {
         styling.innerHTML = `.keybinding-assigning::after {
-            content: 'hello?';
+            content: '';
             background-color: #333;
             color: aliceblue;
             position: absolute;
@@ -78,7 +78,7 @@ var KeyBinding = new function() {
                  so we must ensure that everything lines up in the same order
             */
             const index = bindingsValues.findIndex(txt => txt == strings[i].split(' ')[0]);
-            keywordbuttons[i].innerHTML = `<i>${keyboardBindings[index] || "<b style='color:red;'>unset</b>"}</i>`;
+            keywordbuttons[i].innerHTML = `${keyboardBindings[index] || "<b style='color:red;'>unset</b>"}`;
             keywordbuttons[i].classList.remove("keybinding-assigning");
 
         }
@@ -143,7 +143,7 @@ var KeyBinding = new function() {
             if(this.bindings[btn] == this.modifyingButton)
                 delete this.bindings[btn];
                 this.bindings[keyName] = this.modifyingButton;
-                showMessage(`<code>${this.modifyingButton}</code> assigned to <i>${keyName}</i>`, "Key rebound");
+                showMessage(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
                 this.fillButtonText();
                 Settings.set_core('keybinding', JSON.stringify(this.bindings));
                 return;

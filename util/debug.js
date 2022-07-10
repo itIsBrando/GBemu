@@ -1086,7 +1086,7 @@ var Debug = new function() {
 		showElement(MemDiv);
 
 		if(!c.romLoaded) {
-			a.innerHTML = "Load a ROM before viewing memory";
+			a.innerHTML = `<a style="display: grid; align-items: center; height: 100%;">Load a ROM before viewing memory</a>`;
 			return;
 		}
         
