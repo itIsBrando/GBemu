@@ -769,7 +769,7 @@
         }
 
         if ('serviceWorker' in navigator) {
-            if(REQUIRES_WORKER_REINSTALL)
+            if(REQUIRES_WORKER_REINSTALL && navigator.onLine)
                 removeServiceWorkers();
 
             navigator.serviceWorker.register('sw.js').then(null, (err) => {
