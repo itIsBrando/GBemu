@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v3.9.3';
+const CACHE_NAME = 'gbemu-v3.9.4';
 
 const FILES = [
     "./",
@@ -55,15 +55,14 @@ self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then(function (keys) {
             return Promise.all(keys.filter(function(key) {
-                  return !key.startsWith(CACHE_NAME);
+                    return !key.startsWith(CACHE_NAME);
                 }).map(function (key) {
-                    console.log('Removed old cache')
-                  return caches.delete(key);
+                    return caches.delete(key);
                 })
             );
           })
           .then(function() {
-            console.log('WORKER: activate completed.');
+            console.log('[Service Worker] activate completed');
           })
       );
     });

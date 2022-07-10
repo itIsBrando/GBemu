@@ -74,7 +74,6 @@ var Settings = new function() {
 
     this.show = function() {
         const versionElem = document.getElementById('version');
-        SWStatus.innerHTML = this.get_core('sw_status', 'online');
 
         if(caches) {
             caches.keys().then(

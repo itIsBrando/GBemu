@@ -83,12 +83,6 @@ input:out-of-range {
     min-height: 50px;
 }
 
-#SWStatus {
-    display: grid;
-    text-align: center;
-    align-items: center;
-    font: 0.75rem monospace;
-}
 
 .settings-grid label {
     display: flex;
