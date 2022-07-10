@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="GBemu">
     <link rel="apple-touch-icon" href="icons/icon.jpg">
+    <link rel="icon" href="icons/icon.jpg">
     <!-- Disable zooming on iOS -->
     <meta name="viewport"
         content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -709,12 +710,16 @@
     <script src="javascript/instructionCB.js"></script>
     <script src="javascript/instruction.js"></script>
     <script src="javascript/timer.js"></script>
-    <script src="javascript/register.js"></script>
     <script src="util/cheats.js"></script>
     <script src="javascript/cpu.js"></script>
     <script src="javascript/initalize.js"></script>
     <script src="util/touch.js"></script>
     <script type="text/javascript">
+        /**
+         * Set this item to true to remove the service worker every page reload.
+         * While true, old caches will NOT be purged.
+         */
+        const REQUIRES_WORKER_REINSTALL = true;
         let inputForm = document.getElementById('inputfile');
 
         // for loading ROM
@@ -744,7 +749,29 @@
             }
         });
 
+
+        // remove old service workers
+        const removeServiceWorkers = function() {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                if (!registrations.length) {
+                    console.log('[Service Worker] No workers found.');
+                    return
+                }
+                
+                for(let registration of registrations) {
+                    registration.unregister().then(function (bool) {
+                        console.log(
+                            bool ? '[Service Worker] Successfully removed worker'
+                            : '[Service Worker] Failed to remove worker');
+                    })
+                }
+            })
+        }
+
         if ('serviceWorker' in navigator) {
+            if(REQUIRES_WORKER_REINSTALL)
+                removeServiceWorkers();
+
             navigator.serviceWorker.register('sw.js').then(null, (err) => {
                     console.log('[Service Worker] Could not install service worker.', err);
                     Settings.set_core('sw_status', 'n/a');

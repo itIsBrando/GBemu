@@ -38,11 +38,11 @@
     width: 100%;
     margin: 0px;
     scrollbar-color: #333333;
-    user-select: text;
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     -webkit-touch-callout: text;
+    user-select: text;
 }
 
 .debug-breakpoint-radio {

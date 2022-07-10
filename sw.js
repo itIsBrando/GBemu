@@ -1,4 +1,7 @@
+const CACHE_NAME = 'gbemu-v3.9.3';
+
 const FILES = [
+    "./",
     "./css/style.css",
     "./css/touch.css",
     "./css/debug.css",
@@ -26,15 +29,12 @@ const FILES = [
     "./javascript/instructionCB.js",
     "./javascript/instruction.js",
     "./javascript/timer.js",
-    "./javascript/register.js",
     "./javascript/cpu.js",
     "./javascript/initalize.js",
+    "./icons/icon.jpg",
     "./index.html",
     "./manifest.webmanifest",
 ];
-
-
-var CACHE_NAME = 'gbemu-v3.9.1';
 
 /**
  * Fetches files to cache
@@ -72,11 +72,9 @@ self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
         const r = await caches.match(e.request);
         console.log(`[Service Worker] fetching ${e.request.url}`);
-        Settings.set_core('sw_status', 'offline');
         if (r) return r;
         const response = await fetch(e.request);
         const cache = await caches.open(CACHE_NAME);
-        Settings.set_core('sw_status', 'online');
         console.log(`[Servive Worker] Caching: ${e.request.url}`);
         cache.put(e.request, response.clone());
         return response;

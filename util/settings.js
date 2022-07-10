@@ -73,8 +73,16 @@ var Settings = new function() {
     }
 
     this.show = function() {
+        const versionElem = document.getElementById('version');
         SWStatus.innerHTML = this.get_core('sw_status', 'online');
-        document.getElementById('version').innerHTML = '';
+
+        if(caches) {
+            caches.keys().then(
+                (keys) => {
+                    versionElem.innerHTML = keys[0] || 'gbemu';
+                }
+            );
+        }
 
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
