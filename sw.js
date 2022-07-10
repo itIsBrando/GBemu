@@ -33,11 +33,13 @@ const FILES = [
     "./manifest.webmanifest",
 ];
 
+
+var CACHE_NAME = 'gbemu-v3.9.1';
+
 /**
  * Fetches files to cache
  */
 self.addEventListener('install', (e) => {
-    Settings.set_core('sw_status', 'online');
     e.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
 
@@ -49,15 +51,22 @@ self.addEventListener('install', (e) => {
  * Delete old cache versions
  */
 self.addEventListener('activate', (e) => {
-    e.waitUntil(caches.keys().then((keyList) => {
-        return Promise.all(keyList.map((key) => {
-            if (key === CACHE_NAME) {
-                return;
-            }
-            return caches.delete(key);
-        }))
-    }));
-});
+    console.log('[Service Worker] Activation');
+    e.waitUntil(
+        caches.keys().then(function (keys) {
+            return Promise.all(keys.filter(function(key) {
+                  return !key.startsWith(CACHE_NAME);
+                }).map(function (key) {
+                    console.log('Removed old cache')
+                  return caches.delete(key);
+                })
+            );
+          })
+          .then(function() {
+            console.log('WORKER: activate completed.');
+          })
+      );
+    });
 
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {

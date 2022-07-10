@@ -73,7 +73,9 @@ var Settings = new function() {
     }
 
     this.show = function() {
-        SWStatus.innerHTML = this.get_core('sw_status');
+        SWStatus.innerHTML = this.get_core('sw_status', 'online');
+        document.getElementById('version').innerHTML = '';
+
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
 
