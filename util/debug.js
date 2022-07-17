@@ -1048,7 +1048,7 @@ var Debug = new function() {
 		for(let i in names)
 		{
 			if(names[i] == '\n')
-				str += '<div style="width:calc(100% - 20px); border: 1px solid aliceblue; margin: 5px;"></div>';
+				str += '<div class="div-separator" style="border-color: var(--menu-btn-color); "></div>';
 			else
 				str += `${(names[i] + ":").padEnd(5)}${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
 		}
