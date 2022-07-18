@@ -371,11 +371,15 @@ var Debug = new function() {
 	}
 
 	this.start = function() {
-		showElement(DebugDiv);
+		showElement(DebugDiv, 'grid');
 		this.hideOpen();
 		pauseEmulation();
         this.stopRunTilBreak();
 		this.enabled = true;
+
+
+        if(Settings.get_temp("change_status_bar", "false") == "true")
+            Themes.set_theme_color("#dddddd");
 
 		this.showDisassembly(c.pc.v);
         
@@ -514,7 +518,7 @@ var Debug = new function() {
 	
 	this.printTileInfo = function(mapBase = null, tx, ty) {
 		const TileInfo = document.getElementById("TileInfo");
-		let s = `<h2 style="text-align: center;">Tile Info:</h2><div class="div-separator">`;
+		let s = `<div class="div-separator">`;
 
 		tx &= 31, ty &= 31;
 
@@ -569,8 +573,13 @@ var Debug = new function() {
 		context.putImageData(screen, 0, 0);
 	}
 
+
+	this.isMapChecked = function() {
+		return radioButtons[0].checked;
+	}
+
 	this._mapdraw = function() {
-		const isMap = radioButtons[0].checked;
+		const isMap = this.isMapChecked();
 		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
         
         const context = MapCanvas.getContext('2d');
@@ -610,7 +619,7 @@ var Debug = new function() {
 
 
 	this.showMap = function() {
-        let a = MapDiv.getElementsByTagName('p')[0];
+        let a = MapDiv.getElementsByTagName('pre')[0];
 		this.hideOpen();
 		showElement(MapDiv, 'grid');
 		showElement(MapInfo);
@@ -622,9 +631,19 @@ var Debug = new function() {
 
 		this._mapdraw();
 
+		let ofx, ofy;
+		if(this.isMapChecked())
+			ofx = c.ppu.regs.scx, ofy = c.ppu.regs.scy;
+		else
+			ofx = c.ppu.regs.wx, ofy = c.ppu.regs.wy;
 		// show Map/tile/window addresses
-        const labels = ["Map address", "    Window Address", "Tile address"];
-        const values = [hex(c.ppu.mapBase, 4), `${hex(c.ppu.winBase, 4)}`, hex(c.ppu.tileBase, 4)];
+        const labels = ["Map address   ", "Window Address", "Tile address  ", "Offset"];
+        const values = [
+			this.hex(c.ppu.mapBase, 4),
+			this.hex(c.ppu.winBase, 4),
+			this.hex(c.ppu.tileBase, 4),
+			`${ofx}, ${ofy}`
+		];
         a.innerHTML = "";
         
         for(let i = 0; i < labels.length; i++) {
@@ -644,13 +663,31 @@ var Debug = new function() {
 		const f = c.read8(base + 3);
 
 		const a = SpriteDetailDiv.getElementsByTagName("p")[0];
-		const b = SpriteDetailDiv.getElementsByTagName("b")[0];
-		a.innerHTML = `\
-		Byte 0 (Y): ${y}<br>\
-		Byte 1 (X): ${x}<br>\
-		Byte 2 (Tile): ${Debug.hex(t)}<br>\
-		Byte 3 (Flag): ${Debug.hex(f, 2)}`;
+		const b = SpriteDetailDiv.getElementsByTagName("h3")[0];
 
+		const labels = [
+			"Address",
+			"Byte 0 (Y)",
+			"Byte 1 (X)",
+			"Byte 2 (Tile)",
+			"Byte 3 (Flag)",
+			"Palette Num",
+		];
+
+		const vals = [
+			hex(base, 4),
+			y,
+			x,
+			Debug.hex(t),
+			Debug.hex(f, 2),
+			c.cgb ? f & 3 : (f >> 4) & 1,
+		];
+
+		let str = ''
+		for(let i in labels)
+			str += `${labels[i]} : ${vals[i]}<br>`;
+		
+		a.innerHTML = str;
 		b.innerHTML = "Sprite " + num;
 	}
 
@@ -725,7 +762,7 @@ var Debug = new function() {
 
 	this.showPalette = function() {
 		this.hideOpen();
-		showElement(PalDiv, 'grid');
+		showElement(PalDiv, 'flex');
 
 		this.viewPaletteColors(document.getElementById('PalBG'), true);
 		this.viewPaletteColors(document.getElementById('PalOBJ'), false);
@@ -749,6 +786,7 @@ var Debug = new function() {
 
 	this.quit = function() {
 		this.enabled = false;
+		Themes.setStatusBar();
 		hideElement(DebugDiv);
         this.hideBreak();
 		resumeEmulation();
@@ -1086,7 +1124,7 @@ var Debug = new function() {
 		showElement(MemDiv);
 
 		if(!c.romLoaded) {
-			a.innerHTML = `<a style="display: grid; align-items: center; height: 100%;">Load a ROM before viewing memory</a>`;
+			a.innerHTML = `<a style="display: grid; align-items: center; height: 100%; text-align: center;">Load a ROM before viewing memory</a>`;
 			return;
 		}
         
