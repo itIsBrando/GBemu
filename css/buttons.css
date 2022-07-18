@@ -75,14 +75,15 @@
     width: 30px;
     height: 30px;
     border: none;
-    /* border: 2px solid coral; */
     border-radius: 2px;
     margin: 0px;
     cursor: pointer;
     color: black;
     display: grid;
     align-items: center;
-    text-align: center;}
+    text-align: center;
+    transition: 0.3s;
+}
 
 .x-btn:hover {
     filter: brightness(0.5);

@@ -340,7 +340,7 @@ let REGISTER_ADDR = {
 
 var Debug = new function() {
 	const DebugDiv = document.getElementById('DebugDiv');
-	const SpriteDetailDiv = document.getElementById('SpriteDetailDiv');
+	const OamDiv = document.getElementById('OamDiv');
 	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
 	const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
 	const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
@@ -362,7 +362,7 @@ var Debug = new function() {
     this.initialized = false;
 
 	this.hideOpen = function() {
-		hideElement(SpriteDetailDiv);
+		hideElement(OamDiv);
 		hideElement(DisassemblyDiv);
         hideElement(MemDiv);
         hideElement(MapDiv);
@@ -472,7 +472,7 @@ var Debug = new function() {
 
 	this.showSprites = function() {
 		this.hideOpen();
-		showElement(SpriteDetailDiv);
+		showElement(OamDiv, 'grid');
         
 		c.renderer.clearBuffer();
         c.renderer.renderSprites();
@@ -662,8 +662,8 @@ var Debug = new function() {
 		const t = c.read8(base + 2);
 		const f = c.read8(base + 3);
 
-		const a = SpriteDetailDiv.getElementsByTagName("p")[0];
-		const b = SpriteDetailDiv.getElementsByTagName("h3")[0];
+		const a = OamDiv.getElementsByTagName("p")[0];
+		const b = OamDiv.getElementsByTagName("h3")[0];
 
 		const labels = [
 			"Address",
