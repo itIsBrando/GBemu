@@ -247,7 +247,7 @@
         }
 
         #saveButtonDiv {
-            max-height: 100%;
+            height: calc(85vh - 35px);
             overflow-y: auto;
             text-align: center;
         }
@@ -272,6 +272,10 @@
                 max-height: unset;
                 overflow: hidden;
                 border-radius: 0px;
+            }
+
+            #saveButtonDiv {
+                height: 100%;
             }
 
             .settings-grid {
@@ -597,7 +601,7 @@
     </div>
 
     <!-- Pop up menu for saving/loading states -->
-    <div class="popup" id="popup">
+    <div class="popup" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
             <b>Save Files</b>
             <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
@@ -615,7 +619,7 @@
             <button id="plusButton" type="button" class="menubtn" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->
-        <div id="saveButtonDiv"></div>
+        <div id="saveButtonDiv" ></div>
     </div>
 
     <!-- Change palette colors -->
