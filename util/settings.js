@@ -90,7 +90,7 @@ var Settings = new function() {
         pauseEmulation();
     }
 
-    this.hide = function(){ 
+    this.hide = function() {
         hideElement(MainDiv);
         Themes.setStatusBar();
         resumeEmulation();

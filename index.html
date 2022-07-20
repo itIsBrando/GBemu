@@ -102,14 +102,13 @@
 
         .popup {
             display: none;
-            position: fixed;
+            position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
             background-color: #333;
             border: 5px solid #ddd;
             color: #f1f1f1;
-            box-shadow: 0px 16px 32px 0px rgba(0, 0, 0, 0.8);
             z-index: 9;
             border-radius: 5px;
             width: fit-content;
@@ -276,7 +275,7 @@
             }
 
             .settings-grid {
-                max-height: calc(100% - 30px);
+                max-height: 100%;
                 overflow: hidden auto;
             }
         }
@@ -284,7 +283,6 @@
         * {
             box-sizing: border-box;
         }
-
     </style>
     <link rel="stylesheet" href="css/buttons.css">
     <link rel="stylesheet" href="css/debug.css">
@@ -455,8 +453,8 @@
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
         </div>
         <div id="PalDiv" class="debug-pal-tab">
-            <div id="PalBG" class="debug-pal-prev"></div>
-            <div id="PalOBJ" class="debug-pal-prev"></div>
+            <div id="PalBG" class="debug-pal-prev debug-box"></div>
+            <div id="PalOBJ" class="debug-pal-prev debug-box"></div>
         </div>
         <div class="debug-map-div" id="MapDiv">
             <div id="MapInfo" class="debug-box">
@@ -472,12 +470,12 @@
                 <canvas id="TilePreview" width="8" height="8"></canvas>
                 <a id="TileInfo" class="debug-text"></a>
             </div>
-            <div id="MapCanvasDiv">
+            <div id="MapCanvasDiv" class="debug-box">
                 <canvas id="MapCanvas" width="256" height="256"></canvas>
             </div>
         </div>
         <div id="OamDiv" style="font-family: monospace;">
-            <div>
+            <div class="debug-box" style="min-width: 256px;">
                 <h3 style="text-align:center;">Sprite 0</h3>
                 <div id="DebugSprites"></div>
             </div>
@@ -493,7 +491,7 @@
                 <pre class="debug-text" style="line-height: 200%; padding-left: env(safe-area-inset-left); width: 600px;"></pre>
             </div>
             <!-- Register DIV -->
-            <div style="border: 3px solid #777777; overflow: hidden auto; height: 100%;">
+            <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
             <div

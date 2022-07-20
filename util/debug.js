@@ -376,15 +376,14 @@ var Debug = new function() {
 		pauseEmulation();
         this.stopRunTilBreak();
 		this.enabled = true;
-
-
+		
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
 
 		this.showDisassembly(c.pc.v);
-        
+
         if(this.initialized)
-            return;
+			return;
 		
 		// map canvas
 		MapCanvas.addEventListener("click", function(e) {
@@ -738,7 +737,7 @@ var Debug = new function() {
 	}
 
 	this.viewPaletteColors = function(a, isBG) {
-		a.innerHTML = `<code>${isBG ? "Background<br>" : "Object<br>"}</code>`;
+		a.innerHTML = `<h3 style="text-align:center;">${isBG ? "Background<br>" : "Object<br>"}</h3>`;
 
 		for(let palNum = 0; palNum < 8; palNum++) {
 			for(let i = 0; i < 4; i++) {
@@ -788,6 +787,7 @@ var Debug = new function() {
 		this.enabled = false;
 		Themes.setStatusBar();
 		hideElement(DebugDiv);
+
         this.hideBreak();
 		resumeEmulation();
 	}	

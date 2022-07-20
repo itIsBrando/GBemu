@@ -1,5 +1,6 @@
 .debug-main-div {
     width: fit-content;
+    max-height: 95vh;
     max-width: 95vw;
     min-width: 256px;
     position: absolute;

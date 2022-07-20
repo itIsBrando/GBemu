@@ -33,7 +33,7 @@ class Renderer {
     }
 
     import(data) {
-        
+    
     }
 
     drawBuffer() {
@@ -263,7 +263,7 @@ class Renderer {
                 const yf = yFlip ? (7 - dy): dy;
                 const xf = xFlip ? i : (7 - i);
                 // check out of bound
-                if((x + xf > w) || (x + xf < 0))
+                if((x + xf >= w) || (x + xf < 0))
                     continue;
                 let canvasOffset = (x + xf + (y + yf) * w) << 2;
                 screen.data[canvasOffset + 0] = col[0];

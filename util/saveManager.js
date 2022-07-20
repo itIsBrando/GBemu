@@ -247,19 +247,21 @@ var SaveManager = new function() {
         if(popupMenu.style.display == "block")
             return false;
         
+        showElement(popupMenu);
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
 
-        showElement(popupMenu);
         FrontEndMenu.showOverlay();
         pauseEmulation();
+
     }
 
 
     this.hide = function() {
-        hideElement(popupMenu);
         FrontEndMenu.hideOverlay();
         Themes.setStatusBar();
+        
+        hideElement(popupMenu);
 
         resumeEmulation();
 
