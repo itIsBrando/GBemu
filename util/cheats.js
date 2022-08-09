@@ -99,9 +99,9 @@ class Cheats {
     }
 
     static add() {
-        const m = PromptMenu.new("Gameshark Code", "0ZYYXXXX", /[0-9a-fA-F]+/g, 8, (v) => {
+        const m = new PromptMenu("Gameshark Code", "0ZYYXXXX", /[0-9a-fA-F]+/g, 8, (v) => {
 			if(!Cheats.valid(v)) {
-                showMessage("Not a valid cheat code", "Error");
+                Menu.message.show("Not a valid cheat code", "Error");
                 return;
             }
 
@@ -109,7 +109,7 @@ class Cheats {
             Cheats.drawCodes();
 		}, null);
 
-		PromptMenu.show(m);
+		m.show();
     }
 
     static rm() {

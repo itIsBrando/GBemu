@@ -10,15 +10,15 @@ var conn, peer;
 
 var Link = new function() {
     this.startSess = function() {
-        showMessage(`Open this URL in another tab and join the session`, "Started Session");
+        Menu.message.show(`Open this URL in another tab and join the session`, "Started Session");
         Transfer.setMaster();
     }
     
     this.joinSess = function() {
         if(Transfer.setSlave())
-            showMessage(`Session joined.`, "Success");
+            Menu.message.show(`Session joined.`, "Success");
         else
-            showMessage("No session to join. Create a session first", "Unable to Connect");
+            Menu.message.show("No session to join. Create a session first", "Unable to Connect");
     }
     
     this.start = function() {

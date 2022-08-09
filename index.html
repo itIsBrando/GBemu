@@ -243,13 +243,18 @@
         #keyBindingDiv {
             width: fit-content;
             height: fit-content;
-            overflow-y: auto;
+            overflow-y: hidden;
         }
 
         #saveButtonDiv {
             height: calc(85vh - 35px);
             overflow-y: auto;
             text-align: center;
+        }
+        
+        .bind-div-child {
+            height: 500px;
+            overflow-y: auto;
         }
 
         .shadow {
@@ -272,6 +277,10 @@
                 max-height: unset;
                 overflow: hidden;
                 border-radius: 0px;
+            }
+            
+            .bind-div-child {
+                 height: 100%;
             }
 
             #saveButtonDiv {
@@ -370,7 +379,7 @@
             <div id="screen-container-border-right"></div>
         </div>
         <!-- Menu button to show the top menu -->
-        <div class="show-menu-btn" onclick="ToggleTitleMenu();"></div>
+        <div class="show-menu-btn" onclick="Menu.title.toggle();"></div>
     </div>
     
     <!-- Link Cable menu -->
@@ -400,17 +409,17 @@
             <label for="emuMode">Emulation Mode:</label>
             <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
             class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
-            <!-- <br>
+            <!--
             <label for="sndEnable">Enable Sound:</label>
             <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button> -->
             <!-- DMG Palette -->
             <label for="dmgPal">DMG Palette Colors:</label>
             <button type="button" name="dmgPal" id="changePaletteButton" class="menubtn settings-btn"
-                    onclick="FrontEndPalette.showPaletteMenu();">edit</button>
+                    onclick="Palette.show();">edit</button>
             <!-- Power consumption -->
             <label for="pwrComp">Power consumption:</label>
             <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
-            
+            <!-- Other -->
             <b class="settings-title">Other</b>
             <label for="AutoLoadButton">Automatically load saves:</label>
             <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
@@ -432,6 +441,7 @@
         <div class="menu-header">
             Cheats
             <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
+            <button onclick="Cheats.add();" class="icon-btn" style="float: right;" type="button">+</button>
         </div>
             <fieldset id="CheatsList"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
@@ -439,8 +449,6 @@
             <div style="display: grid; grid-template-rows: 1fr 1fr;">
                 <button style="width: 100%; visibility: hidden;" type="button" class="menubtn" onclick="Cheats.rm();" id="CheatsRm">remove
                     code</button>
-                <button onclick="Cheats.add();" class="menubtn" style="width: 100%;" type="button">Add
-                code</button>
             </div>
     </div>
 
@@ -566,12 +574,13 @@
 
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="popup" id="keyBindingDiv">
+    <div class="popup" id="keyBindingDiv"> 
         <div class="menu-header">
-            <b>Keyboard Controls</b>
+            <b>Keybindings</b>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
             <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
         </div>
+        <div class="bind-div-child">
         <div class="settings-grid" style="grid-template-rows: repeat(14, 40px);">
             <b class="settings-title">Gameboy buttons</b>
             <label>A Button:</label>
@@ -597,7 +606,7 @@
             <button type="button" onclick="KeyBinding.assign('FAST', this);" class="key-binding settings-btn menubtn"></button>
             <label>Fullscreen:</label>
             <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="key-binding settings-btn menubtn"></button>
-    </div>
+        </div></div>
     </div>
 
     <!-- Pop up menu for saving/loading states -->
@@ -623,49 +632,47 @@
     </div>
 
     <!-- Change palette colors -->
-    <div class="message-div" style="opacity: 1; min-width: 250px;" id="paletteSetDiv">
-        <!-- header -->
-        <button type="button" class="x-btn" onclick="FrontEndPalette.hidePaletteMenu()">&times;</button>
-        <!-- arrows -->
-        <button type="button" class="menubtn"
-            style="margin: 0px; padding: 0px; width: 25px; float: left; height: 25px; border:none;"
-            onclick="FrontEndPalette.onPaletteArrow(-1)">&larr;</button>
-        <button type="button" class="icon-btn" title="save" onclick="FrontEndPalette.save();">&#9113;</button>
-        <button type="button" class="menubtn"
-            style="margin: 0px; padding: 0px; width: 25px; float: right;height: 25px; border:none;"
-            onclick="FrontEndPalette.onPaletteArrow(1)">&rarr;</button>
-            <code id="paletteTitle" style="color: aliceblue; margin-bottom: 8px; padding-bottom: 8px;">Color 0</code>
-        <button type="button" class="icon-btn" style="float: right;" title="load"
-            onclick="FrontEndPalette.load();">&#9112;</button>
+    <div class="popup shadow" style="opacity: 1; min-width: 250px;" id="paletteSetDiv">
+        <div class="menu-header">
+            <!-- header -->
+            <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
+            <!-- arrows -->
+            <button type="button" class="icon-btn"
+                onclick="Palette.onPaletteArrow(-1)">&larr;</button>
+            <button type="button" class="icon-btn" title="save" onclick="Palette.save();">&#9113;</button>
+            <button type="button" class="icon-btn" style="float: right;"
+                onclick="Palette.onPaletteArrow(1)">&rarr;</button>
+            <b id="paletteTitle">Color 0</b>
+            <button type="button" class="icon-btn" style="float: right;" title="load"
+                onclick="Palette.load();">&#9112;</button>
+        </div>
         <!-- color inputs -->
         <div id="colorPreview" style="background-color: #000000; width: 100%; aspect-ratio: 1 / 1; display:block;"></div>
         <input id="colorR" style="color: orangered;" type="number" min="0" max="255"
-            oninput="FrontEndPalette.onPaletteChange()">
+            oninput="Palette.onPaletteChange()">
         <input id="colorG" style="color: lightblue;" placeholder="green" type="number" min="0" max="255"
-            oninput="FrontEndPalette.onPaletteChange()">
+            oninput="Palette.onPaletteChange()">
         <input id="colorB" style="color: lightgreen;" placeholder="blue" type="number" min="0" max="255"
-            oninput="FrontEndPalette.onPaletteChange()">
+            oninput="Palette.onPaletteChange()">
     </div>
 
-    <!-- overlay to dim various buttons -->
-    <div id="shadowOverlay"
-        style="z-index: 2; display: none; width: 100%; height: 100%; opacity: 0.5; background-color: #333333;">
-    </div>
-
-    <!-- Prettier messaging system. Call `showMessage()` using JS -->
+    <!-- Pretty-ish messaging system. -->
     <div class="message-div shadow" id="messageID" style="width: fit-content; border-radius: 3px;">
         <!-- header -->
         <b>
             <div id="messageHeader" class="menu-header" style="padding: 0rem 1rem;">ALERT</div>
         </b>
         <!-- body -->
-        <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin: 0px;">Message Content</p>
+        <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin:0px; text-align:center;">Message Content</p>
         <!-- confirm -->
         <div class="div-separator"></div>
         <button class="menubtn" style="float:left; width: 50%;" id="messageConfirm">Okay</button>
         <button class="menubtn" style="float: bottom; float:right; width: 49%;" id="messageCancel">Cancel</button>
 
     </div>
+    
+    <!-- Pretty-ish alert system. -->
+    <div id="AlertDiv" class="alert-div"></div>
 
     <a id="powerConsumption" style="display: none; color: lightblue;">power consumption: 0%</a>
 
@@ -674,6 +681,7 @@
 
 <body>
     <script src="util/promptMenu.js"></script>
+    <script src="util/menu.js"></script>
     <script src="util/saveManager.js"></script>
     <script src="util/utility.js"></script>
     <script src="util/settings.js"></script>
@@ -766,25 +774,6 @@
                     console.log('[Service Worker] Could not install service worker.', err);
                     Settings.set_core('sw_status', 'n/a');
             });
-        }
-
-        const viewport = document.getElementById('viewport');
-
-        function ToggleTitleMenu() {
-            const d = [document.getElementById('dropdown1'), document.getElementById('dropdown2'), document.getElementById('dropdown3')];
-            const isVisible = d[0].style.display != 'none';
-
-            if(isVisible)  {
-                for(let i = 0; i < 3; i++) {
-                    hideElement(d[i])
-                }
-                viewport.style.top = '0px';
-            } else {
-                for(let i = 0; i < 3; i++) {
-                    showElement(d[i])
-                }
-                viewport.style.top = '25px';
-            }
         }
 
         const _set_var = function(x) {

@@ -337,20 +337,20 @@ let REGISTER_ADDR = {
 	
 };
 
+const DebugDiv = document.getElementById('DebugDiv');
+const OamDiv = document.getElementById('OamDiv');
+const DisassemblyDiv = document.getElementById('DisassemblyDiv');
+const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
+const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
+const MemDiv = document.getElementById('MemoryDiv');
+const MapDiv = document.getElementById('MapDiv');
+const PalDiv = document.getElementById('PalDiv');
+const MapInfo = document.getElementById('MapInfo');
+const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
+const radioButtons = document.getElementsByName("displayMode");
+const MapCanvas = document.getElementById('MapCanvas');
 
 var Debug = new function() {
-	const DebugDiv = document.getElementById('DebugDiv');
-	const OamDiv = document.getElementById('OamDiv');
-	const DisassemblyDiv = document.getElementById('DisassemblyDiv');
-	const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
-	const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
-    const MemDiv = document.getElementById('MemoryDiv');
-    const MapDiv = document.getElementById('MapDiv');
-	const PalDiv = document.getElementById('PalDiv');
-	const MapInfo = document.getElementById('MapInfo');
-	const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
-    const radioButtons = document.getElementsByName("displayMode");
-	const MapCanvas = document.getElementById('MapCanvas');
 	let curPC = 0;
 	let prevAddr = 0;
 	const NUM_INSTR_MIN = 36;
@@ -770,17 +770,17 @@ var Debug = new function() {
 	this.changeColor = function(e) {
 		// we cannot edit DMG palette colors
 		if(!c.cgb) {
-			showMessage('DMG Palettes cannot be edited.');
+			Menu.message.show('DMG Palettes cannot be edited.');
 			return;
 		}
 
-		const m = PromptMenu.new("Color", "0000-7FFF", /[0-9a-fA-F]+/g, 4, (v) => {
+		const m = new PromptMenu("Color", "0000-7FFF", /[0-9a-fA-F]+/g, 4, (v) => {
 			const pal = Number(e.target.value);
 			v = Number("0x" + v);
 			Debug.setBGColor(pal >> 3, pal & 3, v);
 		}, null, e.target.innerText.replace('$', ''));
 
-		PromptMenu.show(m);
+		m.show();
 	}
 
 	this.quit = function() {
@@ -1011,7 +1011,7 @@ var Debug = new function() {
     
 	this.stepUntilBreak = function() {
 		if(this.breakpoints.length == 0) {
-			showMessage("Add a breakpoint first.", "No Breakpoints");
+			Menu.message.show("Add a breakpoint first.", "No Breakpoints");
 			return;
 		}
         
@@ -1275,17 +1275,17 @@ var Debug = new function() {
     }
 
 	this.gotoDis = function() {
-        const m = PromptMenu.new("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, function(a) {
+        const m = new PromptMenu("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, function(a) {
             a = Number("0x" + a);
             if(a != null)
                 Debug.drawDisassembly(a, true);
         });
         
-        PromptMenu.show(m);
+        m.show();
 	}
     
     this.searchByte = function() {
-        const m = PromptMenu.new("Search for Data", "00-FFFF", /[A-Fa-f0-9]+/g, 4, function(a) {
+        const m = new PromptMenu("Search for Data", "00-FFFF", /[A-Fa-f0-9]+/g, 4, function(a) {
 			let high = -1;
 			if(a.length > 2)
 				high = Number("0x" + a) >> 8;
@@ -1318,10 +1318,10 @@ var Debug = new function() {
                 }
             }
             
-            showMessage(`Byte ${Debug.hex(a)} not found.`, `Started searching at ${Debug.hex(Debug.basePC, 4)} high:${high} low:${low} p:${p}`);
+            Menu.message.show(`Byte ${Debug.hex(a)} not found.`, `Started searching at ${Debug.hex(Debug.basePC, 4)} high:${high} low:${low} p:${p}`);
         });
         
-        PromptMenu.show(m);
+        m.show();
     }
 
 	this.hex = function(n, padding = 2) {
@@ -1329,7 +1329,7 @@ var Debug = new function() {
 	}
 
 	this.addBreak = function() {
-		const m = PromptMenu.new("Address", "0000-FFFF", /[A-Fa-f0-9]+/g, 4, (addr) => {
+		const m = new PromptMenu("Address", "0000-FFFF", /[A-Fa-f0-9]+/g, 4, (addr) => {
 			addr = Number("0x" + addr);
 
 			if(addr == null || Number.isNaN(addr))
@@ -1339,7 +1339,7 @@ var Debug = new function() {
 			this.drawBreaks();
 		});
 
-		PromptMenu.show(m);
+		m.show();
 	}
 
 	this.rmBreak = function() {

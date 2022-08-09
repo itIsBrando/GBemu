@@ -44,7 +44,6 @@ var KeyBinding = new function() {
     
     // shows the keybinding menu
     this.show = function() {
-        FrontEndMenu.showOverlay();
         showElement(keyBindingDiv);
         keyBindingDiv.focus();
 
@@ -105,7 +104,6 @@ var KeyBinding = new function() {
     }
     
     this.hide = function() {
-        FrontEndMenu.hideOverlay();
         this.isAssigning = false;
         hideElement(keyBindingDiv);
     }
@@ -143,7 +141,7 @@ var KeyBinding = new function() {
             if(this.bindings[btn] == this.modifyingButton)
                 delete this.bindings[btn];
                 this.bindings[keyName] = this.modifyingButton;
-                showMessage(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
+                Menu.message.show(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
                 this.fillButtonText();
                 Settings.set_core('keybinding', JSON.stringify(this.bindings));
                 return;

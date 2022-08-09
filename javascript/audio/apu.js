@@ -127,7 +127,7 @@ class APU {
         APU.master_enable = !APU.master_enable;
 
         if(APU.master_enable) {
-            showMessage("This feature is NOT fully supported and is not designed for public use", "Experimental Feature");
+            Menu.message.show("This feature is NOT fully supported and is not designed for public use", "Experimental Feature");
         } else {
             c.apu.enabled = false;
         }

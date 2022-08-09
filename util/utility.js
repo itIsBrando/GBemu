@@ -109,13 +109,13 @@ function selectAll() {
  * @param {String} text string to save
  */
 function copyClipMenu(text) {
-    const m = PromptMenu.new("Copy Text", "", /\.+/g, 999999, (v)=> {
+    const m = new PromptMenu("Copy Text", "", /\.+/g, 999999, (v)=> {
         selectAll();
         document.execCommand("copy");
-        showMessage("Copied to clipboard", "Success");
+        Menu.message.show("Copied to clipboard", "Success");
     }, null, text, "copy");
     
-    PromptMenu.show(m);
+    m.show();
 }
 
 
@@ -123,13 +123,12 @@ function copyClipMenu(text) {
  * Shows the information of a ROM if it is loaded
  */
 function showROMInfo() {
-    if(!c.isRunning)
-    {
-        showMessage("Load a game first.", "No ROM loaded");
+    if(!c.isRunning) {
+        Menu.alert.show("No ROM loaded");
         return;
     }
 
-    showMessage(
+    Menu.message.show(
         `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${c.readROMName()}` +
         '<br><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
         '<br><b style="color:deepskyblue">Emulation Mode:</b> ' + (c.cgb ? "GBC" : "DMG") +
@@ -141,103 +140,7 @@ function showROMInfo() {
 }
 
 
-const messageDiv = document.getElementById('messageID');
-const messageConfirm = document.getElementById('messageConfirm');
-const messageCancel = document.getElementById('messageCancel');
-const shadowOverlay = document.getElementById('shadowOverlay');
-let oncancel, onconfirm;
-messageConfirm.onclick = hideMessage;
-messageCancel.onclick = hideMessage;
-
-
-/**
- * Shows a message to the user
- * @param {String} string message to tell
- * @param {String?} title string to display at the top
- * @param {Boolean} useCancel true to have a cancel button
- * @param {Function} oncancel function called when cancel button is used
- * @param {Function} onconfirm same as above
- */
-function showMessage(string, title, useCancel = false, _oncancel = null, _onconfirm = null) {
-    const messageContent = document.getElementById('messageContent');
-    const messageHeader = document.getElementById('messageHeader');
-
-    messageContent.innerHTML = string || "";
-    messageHeader.textContent = title || "ALERT";
-
-    // show 
-    if(messageDiv.style.display == "block")
-        FrontEndMenu.hideOverlay();
-    showElement(messageDiv);
-
-    if(useCancel) {
-        messageConfirm.style.width = "50%"
-        showElement(messageCancel);
-    } else {
-        hideElement(messageCancel);
-        messageConfirm.style.width = "100%"
-    }
-
-    oncancel = _oncancel;
-    onconfirm = _onconfirm;
-
-    messageConfirm.focus();
-    // dark the content below to force user to dismiss current message
-    FrontEndMenu.showOverlay();
-
-    messageConfirm.onkeydown = function(event)
-    {
-        if(event.key.toLowerCase() == "enter") {
-            messageConfirm.click();
-        }
-    }
-    
-    messageDiv.style.opacity = "1";
-}
-
-
-/**
- * Hides the message dialog from `showMessage`
- */
-function hideMessage() {
-    // hide
-    messageDiv.style.opacity = "0";
-    setTimeout(function() {
-        hideElement(messageDiv);
-    }, 600);
-    
-    if(this && this == messageConfirm && onconfirm)
-        onconfirm();
-    else if(this && this == messageCancel && oncancel)
-        oncancel();
-
-    FrontEndMenu.hideOverlay();
-}
-
-
-var FrontEndMenu = new function() {
-    let overlays = 0;
-
-    this.showOverlay = function() {
-        overlays++;
-        showElement(shadowOverlay);
-    }
-
-    this.hideOverlay = function() {   
-        if(--overlays <= 0)
-        {
-            hideElement(shadowOverlay);
-            overlays = 0;
-        }
-    }
-
-    this.getO = function() {
-        return overlays;
-    }
-}
-
-
-var FrontEndPalette = new function() {
+var Palette = new function() {
     // color palette
     const paletteSetDiv = document.getElementById('paletteSetDiv');
     const colorPreview = document.getElementById('colorPreview');
@@ -248,18 +151,16 @@ var FrontEndPalette = new function() {
     const b = document.getElementById('colorB');
     
     // color index
-    let colorIndex = 0;    
+    let colorIndex = 0;
     
-    this.showPaletteMenu = function() {
-        FrontEndMenu.showOverlay();
+    this.show = function() {
         showElement(paletteSetDiv);
         this.onPaletteArrow(1);
     }
     
     // hides the palette selection menu
-    this.hidePaletteMenu = function() {
+    this.hide = function() {
         hideElement(paletteSetDiv);
-        FrontEndMenu.hideOverlay();
     }
     
     // sets the preview color's background color
@@ -297,7 +198,7 @@ var FrontEndPalette = new function() {
     this.save = function() {
         const json = JSON.stringify(palette);
         Settings.set_core("defaultPalette", json);
-        showMessage("Current Palette saved");
+        Menu.message.show("Current Palette saved");
     }
 
     this.load = function() {
@@ -306,9 +207,9 @@ var FrontEndPalette = new function() {
         {
             palette = JSON.parse(pal);
             this.onPaletteArrow();
-            showMessage("Palette loaded.");
+            Menu.message.show("Palette loaded.");
         } else {
-            showMessage("No Palette Saved", "Unable to Load");
+            Menu.message.show("No Palette Saved", "Unable to Load");
         }
 
     }

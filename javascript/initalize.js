@@ -67,7 +67,7 @@ function restartEmulation() {
     if(!c.isRunning || !c.romLoaded)
         return;
 
-
+    Menu.alert.show("Reset ROM", 2500);
     clearInterval(c.timer);
     c.reset();
     c.timer = setInterval(run, INTERVAL_SPEED)
@@ -102,14 +102,22 @@ function run() {
 const toggleDMGMode = document.getElementById('toggleDMGMode');
 
 function forceEmulationMode(dmgOnly) {
-    c.forceDMG = dmgOnly;
-
-    toggleDMGMode.innerText = dmgOnly ? "DMG" : "GBC";
-
-    Settings.set_core("dmgOnly", String(dmgOnly));
+    const isCGB = !dmgOnly;
+    const chng = (dmg) => {
+        c.forceDMG = dmg;
+        toggleDMGMode.innerText = dmg ? "DMG" : "GBC";
+        Settings.set_core("dmgOnly", String(dmg));
+    };
     
-    if(c.isRunning)
-        showMessage("Reload the ROM to see an affect.", "Emulation Mode Changed");
+    if(c.romLoaded) {
+        Menu.message.show("To switch emulation modes, the ROM must be reset.<br>You will lose any unsaved progress", "Reset ROM?", true, null, ()=> {
+            c.cgb = isCGB;
+            c.reset();
+            chng(dmgOnly);
+        });
+    } else {
+        chng(dmgOnly);
+    }
     
 }
 

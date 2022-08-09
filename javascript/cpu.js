@@ -91,7 +91,7 @@ function getMBCType(v) {
         case 0x1E:
             return MBCType.MBC_5;
         default:
-            showMessage("Unsupport MBC type.", MemoryControllerText[v]);
+            Menu.message.show("Unsupport MBC type.", MemoryControllerText[v]);
     }
 
     return MBCType.NONE;

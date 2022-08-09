@@ -62,7 +62,7 @@ function saveButtonClick(name) {
     if(c.mbcHandler)
         SaveManager.save(name, c.mbcHandler.ram, c.readROMName());
     else
-        showMessage("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
+        Menu.message.show("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
     
 }
 
@@ -71,7 +71,7 @@ function _canSave()
 {
     const type = SaveManager.getType(_delKey);
     delete localStorage[_delKey];
-    SaveManager.save(_delKey, c.mbcHandler.ram, type, c.readROMName());
+    SaveManager.save(SaveManager.getSaveString(_delKey), c.mbcHandler.ram, type, c.readROMName());
 
     _delKey = null;
     SaveManager.hide();
@@ -95,7 +95,7 @@ localSaveButton.addEventListener('click', function() {
     // This will only get called when the save already exists
     SaveManager.populateSaveHTML(function() {
         if(c.mbcHandler && c.romLoaded) {
-            showMessage(
+            Menu.message.show(
                 `Is it okay to overwrite <b style='color:green;'>${SaveManager.getSaveString(this.value)}</b>?`,
                 "Save Already Exists",
                 true,
@@ -105,7 +105,7 @@ localSaveButton.addEventListener('click', function() {
             
             _delKey = this.value; // save for `_canSave`. this is a poor implementation
         } else {
-            showMessage("No ROM is loaded or ROM does not support saving.", "Could Not Save");
+            Menu.message.show("No ROM is loaded or ROM does not support saving.", "Could Not Save");
         }
     });
 
@@ -114,18 +114,9 @@ localSaveButton.addEventListener('click', function() {
 });
 
 
-
-function hideElement(e) {
-    e.style.display = 'none';
-}
-
-function showElement(e, style = 'block') {
-    e.style.display = style;
-}
-
-
 var SaveManager = new function() {
-    this.CUR_VERSION = "0.1.0";
+    this.CUR_VERSION = "0.1.0"; // version of save format
+    
     /**
      * @param {Uint8Array} arr
      * @returns {String}
@@ -216,25 +207,22 @@ var SaveManager = new function() {
     /**
      * Saves a savefile to localStorage
      * - reports an errors
-     * @param {String} key becomes the key for localStorage
+     * @param {String} name becomes the key (which will include a suffix) for localStorage
      * @param {String} ROMName optional name of the ROM
      * @param {SaveType} type either savestate or .sav format
      * @param {Uint8Array} arr array containing saveable data
      */
-    this.save = function(key, arr, type, ROMName = "import") {
+    this.save = function(name, arr, type, ROMName = "import") {
         const data = type == SaveType.SAV ? this.pack(arr) : c.createSaveState();
         const s = new SaveStorage(ROMName, data, type);
 
         s.populateImage();
         let json = JSON.stringify(s);
 
-        localStorage.setItem(this.addSuffix(key), json);
-        showMessage(
-            `<b style='color:green;'>${key}</b> saved successfully. You can safely close this webpage`,
-            "Success",
-            false,
-            null,
-            SaveManager.hide
+        localStorage.setItem(this.addSuffix(name), json);
+        Menu.alert.show(
+            `<b style='color:green;'>${name}</b> saved successfully. You can safely close this webpage`,
+            5000
         );
     }
 
@@ -251,14 +239,12 @@ var SaveManager = new function() {
         if(Settings.get_temp("change_status_bar", "false") == "true")
             Themes.set_theme_color("#dddddd");
 
-        FrontEndMenu.showOverlay();
         pauseEmulation();
 
     }
 
 
     this.hide = function() {
-        FrontEndMenu.hideOverlay();
         Themes.setStatusBar();
         
         hideElement(popupMenu);
@@ -355,21 +341,21 @@ var SaveManager = new function() {
      * Called by the `+` button in `id=popup`
      */
     this.addSave = function() {
-        const m = PromptMenu.new("Save Name", "Name", /[0-9A-Za-z]+/g, 20, (v, state) => {
-            console.log(state)
+        const m = new PromptMenu("Save Name", "Name", /[0-9A-Za-z]+/g, 20, (v, state) => {
+            const type = state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE;
             if(v.length == 0)
                 return;
 
-            if(!c.mbcHandler) {
-                showMessage("ROM does not support saving.", "Could not Save");
+            if(!c.mbcHandler && type == SaveType.SAV) {
+                Menu.message.show("ROM does not support saving.", "Could not Save");
                 return;
             }
             
-            this.save(v, c.mbcHandler.ram, state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE, c.readROMName());
+            this.save(v, c.mbcHandler.ram, type, c.readROMName());
         });
 
-        PromptMenu.addChoices([".sav", "Save State"], "save_type", "Save Type:");
-        PromptMenu.setInfo(
+        m.addChoices([".sav", "Save State"], "save_type", "Save Type:");
+        m.setInfo(
             `<b style="font-size: 1.1rem;" >Save Types:</b>
             <div class="div-separator">
                 <b>Save States</b> work by storing the current state of the emulator.
@@ -383,7 +369,7 @@ var SaveManager = new function() {
             `
         );
 
-        PromptMenu.show(m);
+        m.show();
     }
 
     /**
@@ -393,7 +379,7 @@ var SaveManager = new function() {
     this.deleteSelf = function(e) {
         e.stopPropagation();
         key = this.parentElement.value
-        showMessage(
+        Menu.message.show(
             `Delete <b style="color:green;">${SaveManager.getSaveString(key)}</b>?`,
             "Are You Sure?",
             true,
@@ -423,7 +409,7 @@ var SaveManager = new function() {
        const type = SaveManager.getType(key);
    
        if(!data)
-           showMessage(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
+           Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
        else {
            SaveManager.hide();
            if(type == SaveType.SAV) {
@@ -432,12 +418,12 @@ var SaveManager = new function() {
                if(c.romLoaded)
                    c.loadSaveState(data);
                 else {
-                    showMessage(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
+                    Menu.message.show(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
                     return;
                 }
            }
 
-           showMessage(`Loaded <b style="color:green;">${this.getSaveString(key)}</b>.`, "Completed", false);
+           Menu.alert.show(`Loaded <b style="color:green;"> ${this.getSaveString(key)}</b>.`);
        }
    }
 
@@ -446,18 +432,18 @@ var SaveManager = new function() {
     * Called when the `importTextButton` button is pressed
     */
     this.importJSON = function() {
-        const m = PromptMenu.new("JSON Save", "JSON string", /.+/g, null, (v) => {
+        const m = new PromptMenu("JSON Save", "JSON string", /.+/g, null, (v) => {
             let data;
 
             try {
                 data = JSON.parse(v.toLowerCase());
             } catch {
-                showMessage("Could not import data.", "Invalid JSON");
+                Menu.message.show("Could not import data.", "Invalid JSON");
                 return;
             }
 
             if(!data || !('label' in data) || !('ram' in data)) {
-                showMessage("Could not import data.", "Invalid JSON");
+                Menu.message.show("Could not import data.", "Invalid JSON");
                 return;
             }
 
@@ -467,7 +453,7 @@ var SaveManager = new function() {
             this.save(name, ram, SaveType.SAV, name);
         });
 
-        PromptMenu.setInfo(
+        m.setInfo(
             `<b>Importing JSON Data:</b><br>
             <div class="div-separator">
                 Some browsers do not allow for the downloading of files.
@@ -478,7 +464,7 @@ var SaveManager = new function() {
             `
         );
 
-        PromptMenu.show(m);
+        m.show();
     }
 }
 
@@ -536,7 +522,7 @@ const exportSaveButton = document.getElementById('exportSaveButton');
 exportSaveButton.onclick = function() {
     if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
     {
-        showMessage("This ROM does not have a RAM chip", "No RAM");
+        Menu.message.show("This ROM does not have a RAM chip", "No RAM");
         return;
     }
 

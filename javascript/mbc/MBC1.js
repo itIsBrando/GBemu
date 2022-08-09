@@ -20,7 +20,7 @@ function getRAMSize(size, mbc)
         case 5:
             return m1Sizes[size];
         default:
-            showMessage("Unknown MBC" + mbc + ".", "Internal error");
+            Menu.message.show("Unknown MBC" + mbc + ".", "Internal error");
     }
 }
 
@@ -64,7 +64,7 @@ class MBC1 {
             if(externalSave.length == expectedSize || this.overrideSizeCheck) {
                 this.ram = externalSave;
             } else {
-                showMessage("External save size does not match the required amount in the ROM.", "Save Incompatible");
+                Menu.message.show("External save size does not match the required amount in the ROM.", "Save Incompatible");
                 CPU.LOG("RAM with mismatching sizes was used.");
                 CPU.LOG(`Attempted: ${hex(externalSave.length, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
                 useExternalSaveFile = false;

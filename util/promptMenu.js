@@ -1,32 +1,37 @@
-var PromptMenu = new function() {
-    const textInput = document.getElementById('PromptText');
-    const menu = document.getElementById('PromptMenu');
-    const title = document.getElementById('PromptTitle');
-	const submit = document.getElementById('PromptSubmit');
-	const div = document.getElementById('PromptDiv');
-	const infoDiv = document.getElementById('PromptInfo');
+const textInput = document.getElementById('PromptText');
+const menu = document.getElementById('PromptMenu');
+const title = document.getElementById('PromptTitle');
+const submit = document.getElementById('PromptSubmit');
+const div = document.getElementById('PromptDiv');
+const infoDiv = document.getElementById('PromptInfo');
+
+
+/**
+  * Only one prompt menu object can exist at a time
+  * 'oncancel' event is never called
+ */
+class PromptMenu {
     
-    this._onsubmit = null;
-    this._oncancel = null;
+    static onsubmit;
+    static oncancel;
     
-    this.new = function(t, p, accepts = /\w+/g, maxlen = 999999, onsubmit = null, oncancel = null, defaulttext = '', buttontext = 'submit') {
-		div.innerHTML = "";
-        return {
-            "accepts": accepts,
-            "title": t,
-            "placeholder": p,
-			"value": defaulttext,
-            "maxlength": maxlen,
-            "onsubmit": onsubmit,
-            "oncancel": oncancel,
-			"buttontext": buttontext
-        };
+    constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, oncancel=null, defaulttext='', buttontext='submit') {
+        div.innerHTML = "";
+        this.accepts = accepts;
+        this.title = t || 'Title';
+        this.placeholder = p;
+        this.value = defaulttext;
+        this.maxlength = maxlen;
+        this.submitText = buttontext;
+        PromptMenu.onsubmit = onsubmit;
+        PromptMenu.oncancel = oncancel;
+        this.submitText = buttontext;
     }
 
 	/**
 	 * @returns {String}, {HTMLElement} id and the element that is checked
 	 */
-	this.getChoice = function() {
+	static getChoice() {
 		const list = div.getElementsByTagName('fieldset')[0];
 		
 		if(list == null)
@@ -43,7 +48,7 @@ var PromptMenu = new function() {
 		}
 	}
 
-	this._createChoice = function(name, i) {
+	_createChoice(name, i) {
 		const d = document.createElement('div');
 		const lbl = document.createElement('label');
 		const btn = document.createElement('input');
@@ -54,8 +59,7 @@ var PromptMenu = new function() {
 		btn.value = name;
 		btn.name = "PromptChoices";
 		btn.className = "prompt-menu-radio";
-		lbl.htmlFor = btn.id = "PromptMenu"+name;
-
+		lbl.htmlFor = `${btn.id}PromptMenu${name}`;
 
 		if(i == 0)
 			btn.setAttribute('checked', true);
@@ -69,10 +73,10 @@ var PromptMenu = new function() {
 	/**
 	 * Call before calling `show`
 	 * @param {Array} options string array of options
-	 * @param {String} id unique identifier. namespaced used on the return value of the `onsubmit` function
+	 * @param {String} id unique identifier. namespace used on the return value of the `onsubmit` function
 	 * @param {String?} title Title of the choice menu
 	 */
-	this.addChoices = function(options, id, title=null) {
+	addChoices(options, id, title=null) {
 		const f = document.createElement('fieldset');
 		const l = document.createElement('legend');
 
@@ -92,23 +96,25 @@ var PromptMenu = new function() {
 		div.appendChild(f);
 	}
 
-	this.setInfo = function(content) {
+	setInfo(content) {
 		infoDiv.innerHTML = content;
 		showElement(infoDiv.parentElement);
 	}
     
-    this.show = function(m) {
-
-		if(!m["maxlength"])
-			m["maxlength"] = 999999;
+    show() {
+        const pat = this.accepts;
+        const len = this.maxlength;
+        
+		if(!this.maxlength)
+			this.maxlength = 999999;
 		
         textInput.oninput = function(e) {
-			const match = e.target.value.match(m["accepts"]);
-            e.target.value = match ? match[0] : "";
-            e.target.value = e.target.value.toUpperCase().slice(0, m["maxlength"]);
+			const match = e.target.value.match(pat);
+            e.target.value = match ? match[0] : '';
+            e.target.value = e.target.value.toUpperCase().slice(0, len);
         }
 
-		textInput.setAttribute("placeholder", m["placeholder"]);
+		textInput.setAttribute("placeholder", this.placeholder);
 
 		textInput.onkeydown = function(event) {
 			if(event.keyCode === 13)
@@ -118,37 +124,34 @@ var PromptMenu = new function() {
 			}
 		}
         
-        textInput.value = m["value"];
-        title.innerHTML = m["title"];
-        
-        this._onsubmit = m["onsubmit"];
-        this._oncancel = m["oncancel"];
+        textInput.value = this.value;
+        title.innerHTML = this.title;
 
-		submit.innerText = m["buttontext"];
+        submit.innerText = this.submitText;
         
         showElement(menu);
 
 		textInput.focus();
     }
     
-    this.submit = function() {
+    static submit() {
 		const [id, chc] = this.getChoice();
 
 		if(textInput.value.length == 0)
 			return;
 		
-        if(this._onsubmit) {
+        if(PromptMenu.onsubmit) {
 			const dict = {};
 			dict[id] = {
 				"checked": chc ? chc.value : null,
 			};
-			this._onsubmit(textInput.value, dict);
+			PromptMenu.onsubmit(textInput.value, dict);
 		}
         
         this.hide();
     }
     
-    this.hide = function() {
+    static hide() {
         hideElement(menu);
 		hideElement(infoDiv.parentElement);
 
