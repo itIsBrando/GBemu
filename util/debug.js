@@ -1050,6 +1050,11 @@ var Debug = new function() {
 			[c.timerRegs.regs.tac | 0xF8, 2],
 			[c.interrupt_enable, 2],
 			[c.interrupt_master ? 1 : 0, 2],
+			
+			[c.ppu.cgb.bgi, 2],
+            [c.ppu.cgb.obji, 2],
+            [c.ppu.cgb.vbank, 2],
+            [c.ppu.cgb.svbk, 2],
 		];
 
 		const names = [
@@ -1079,6 +1084,11 @@ var Debug = new function() {
 			"\n",
 			"IE",
 			"IME",
+			"\n",
+			"BGI",
+			"OBJI",
+			"VBK",
+			"SVBK",
 		];
 
 		let str = "", j = 0;
