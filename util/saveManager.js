@@ -345,11 +345,17 @@ var SaveManager = new function() {
             const type = state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE;
             if(v.length == 0)
                 return;
+            
+            if(!c.romLoaded) {
+                Menu.message.show("Load a ROM before saving.","No ROM Loaded");
+                return;
+            }
 
             if(!c.mbcHandler && type == SaveType.SAV) {
                 Menu.message.show("ROM does not support saving.", "Could not Save");
                 return;
             }
+
             
             this.save(v, c.mbcHandler.ram, type, c.readROMName());
         });

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v3.11.2';
+const CACHE_NAME = 'gbemu-v3.11.3';
 
 const FILES = [
     "./",
@@ -19,6 +19,10 @@ const FILES = [
     "./util/cheats.js",
     "./util/touch.js",
     "./util/link.js",
+    "./util/debug/Map.js",
+    "./util/debug/Oam.js",
+    "./util/debug/Tiles.js",
+    "./util/debug/Memory.js",
     "./javascript/types.js",
     "./javascript/renderer.js",
     "./javascript/mbc/MBC1.js",

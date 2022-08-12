@@ -214,36 +214,36 @@ const opcodeLUT = [
 
 	"ret nz",
 	"pop bc",
-	"jp nz, ${u16}",
-	"jp ${u16}",
-	"call nz, ${u16}",
+	"jp nz, ${u16c}",
+	"jp ${u16c}",
+	"call nz, ${u16c}",
 	"push bc",
 	"add a, ${u8}",
 	"rst 0x00",
 	
 	"ret z",
 	"ret",
-	"jp z, ${u16}",
+	"jp z, ${u16c}",
 	"CB",	// implemented elsewhere
-	"call z, ${u16}",
-	"call ${u16}",
+	"call z, ${u16c}",
+	"call ${u16c}",
 	"adc a, ${u8}",
 	"rst 0x08",
 	
 	"ret nc",
 	"pop de",
-	"jp nc, ${u16}",
+	"jp nc, ${u16c}",
 	null,
-	"call nc, ${u16}",
+	"call nc, ${u16c}",
 	"push de",
 	"sub a, ${u8}",
 	"rst 0x10",
 	
 	"ret c",
 	"reti",
-	"jp c, ${u16}",
+	"jp c, ${u16c}",
 	null,
-	"call c, ${u16}",
+	"call c, ${u16c}",
 	null,
 	"sbc a, ${u8}",
 	"rst 0x18",
@@ -338,17 +338,11 @@ let REGISTER_ADDR = {
 };
 
 const DebugDiv = document.getElementById('DebugDiv');
-const OamDiv = document.getElementById('OamDiv');
 const DisassemblyDiv = document.getElementById('DisassemblyDiv');
 const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
 const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
-const MemDiv = document.getElementById('MemoryDiv');
-const MapDiv = document.getElementById('MapDiv');
 const PalDiv = document.getElementById('PalDiv');
-const MapInfo = document.getElementById('MapInfo');
 const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
-const radioButtons = document.getElementsByName("displayMode");
-const MapCanvas = document.getElementById('MapCanvas');
 
 var Debug = new function() {
 	let curPC = 0;
@@ -362,10 +356,11 @@ var Debug = new function() {
     this.initialized = false;
 
 	this.hideOpen = function() {
-		hideElement(OamDiv);
 		hideElement(DisassemblyDiv);
-        hideElement(MemDiv);
-        hideElement(MapDiv);
+		Oam.hide();
+		Map.hide();
+		Tiles.hide();
+		Memory.hide();
 		hideElement(PalDiv);
 		this.stopTimer();
 	}
@@ -384,45 +379,10 @@ var Debug = new function() {
 
         if(this.initialized)
 			return;
-		
-		// map canvas
-		MapCanvas.addEventListener("click", function(e) {
-			const rect = this.getBoundingClientRect();
-			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
-			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
 			
-			if(this.name == "map")
-				Debug.printTileInfo(radioButtons[0].checked ? c.ppu.mapBase : c.ppu.winBase, x, y);
-			else
-				Debug.printTileInfo(null, x, y);
-		});
+		Map.init();
+        Oam.init();
 
-        
-		// each sprite needs its own canvas
-        const spriteDiv = document.getElementById("DebugSprites");
-        
-        for(let i = 0; i < 40; i++) {
-            const canv = document.createElement("canvas");
-            
-            canv.width = 8;
-            canv.height = 8;
-			canv.className = "obj-canvas";
-            canv.id = "sprite" + i;
-            
-            canv.addEventListener("click", function() {
-                Debug.showObj(this.id.substring(6));
-            });
-            
-            spriteDiv.appendChild(canv);
-        }
-        
-        for(let i = 0; i < radioButtons.length; i++) {
-            radioButtons[i].addEventListener("change", function() {
-                Debug.showMap();
-            });
-        };
-
-		
 		// Add scroll event to disassembler
 		DisScrollDiv.addEventListener("scroll", (e) => {
 			if(Debug.isScrolling)
@@ -458,236 +418,19 @@ var Debug = new function() {
 
 	this.showTiles = function() {
 		this.hideOpen();
-		showElement(MapDiv, 'grid');
-		hideElement(MapInfo);
-
-		MapDiv.className = "debug-tile-div";
-		MapCanvas.name = "tile";
-		MapCanvas.click();
-
-		this._tiledraw();
+		Tiles.show();
 	}
 
 
 	this.showSprites = function() {
 		this.hideOpen();
-		showElement(OamDiv, 'grid');
-        
-		c.renderer.clearBuffer();
-        c.renderer.renderSprites();
-
-		this.showObj(0);
-
-		for(let s = 0; s < 40; s++)
-		{
-			const spriteBase = OAM_BASE + (s << 2);
-			const tile  = c.read8(spriteBase + 2);
-			const flags = c.read8(spriteBase + 3);
-            const canv = document.getElementById("sprite" + s);
-            const context = canv.getContext('2d');
-            context.fillStyle = "#e0e0e0";
-            context.fillRect(0, 0, 8, 8);
-            context.globalAlpha = 1.0;
-    
-            let screen = context.getImageData(0, 0, 8, 8);
-            
-			c.renderer.drawTile(0, 0, tile * 16 + VRAM_BASE, flags, false, screen, 8);
-            
-            context.putImageData(screen, 0, 0);
-		}
-
-		c.renderer.drawBuffer();
+		Oam.show();
 	}
 
 	
-	this.showTilePreview = function(tile) {
-		const canv = document.getElementById('TilePreview');
-		const ctx = canv.getContext('2d');
-		
-		ctx.globalAlpha = 1.0;
-		ctx.fillStyle = "#f0f0f0";
-		ctx.fillRect(0, 0, 8, 8);
-
-		const img = ctx.getImageData(0, 0, 8, 8);
-		c.renderer.drawTile(0, 0, c.ppu.getBGTileAddress(tile), 0, true, img, 8);
-
-		ctx.putImageData(img, 0, 0);
-	}
-	
-	
-	this.printTileInfo = function(mapBase = null, tx, ty) {
-		const TileInfo = document.getElementById("TileInfo");
-		let s = `<div class="div-separator">`;
-
-		tx &= 31, ty &= 31;
-
-		const offset = tx + ty * 32;
-		const tile = mapBase ? c.read8(offset + mapBase) : offset;
-		const addr = c.ppu.getBGTileAddress(tile);
-
-		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}<br>X: ${tx}<br>Y: ${ty}`;
-
-		if(mapBase != null)
-			s += `<br>Flag: ${this.hex(c.ppu.getTileAttributes(offset + mapBase))}`;
-        
-		TileInfo.innerHTML = s + "</div>";
-		this.showTilePreview(tile);
-
-		const ctx = MapCanvas.getContext("2d");
-		tx <<= 3, ty <<= 3;
-		ty += 0.5;
-
-		if(mapBase != null)
-			this._mapdraw();
-		else
-			this._tiledraw();
-
-		ctx.beginPath();
-		ctx.lineWidth = 1;
-		ctx.lineCap = 'square';
-		ctx.strokeStyle = 'blue';
-		ctx.rect(tx, ty, 7.5, 7);
-		ctx.stroke();
-	}
-
-
-	this._tiledraw = function() {
-		const context = MapCanvas.getContext('2d');
-        context.fillStyle = "#e0e0e0";
-        context.fillRect(0, 0, 256, 256);
-        let screen = context.getImageData(0, 0, 256, 256);
-
-		let t = 0, vbk = false;
-		// all of these are incorrectly drawn with OBJ palette rather than BG palette
-		for(let y = 0; y < 32; y++) {
-			for(let x = 0; x < 32; x++) {
-				c.renderer.drawTile(x << 3, y << 3, VRAM_BASE + (t++) * 16, 0, true, screen, 256, vbk);
-				if(t >= 768) {
-					t = 0;
-					vbk = true;
-				}
-			}
-		}
-		
-		context.putImageData(screen, 0, 0);
-	}
-
-
-	this.isMapChecked = function() {
-		return radioButtons[0].checked;
-	}
-
-	this._mapdraw = function() {
-		const isMap = this.isMapChecked();
-		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
-        
-        const context = MapCanvas.getContext('2d');
-        context.fillStyle = "#e0e0e0";
-        context.fillRect(0, 0, MapCanvas.width, MapCanvas.height);
-        
-		let screen = context.getImageData(0, 0, 256, 256);
-
-		for(let y = 0; y < 32; y++)
-		{
-			for(let x = 0; x < 32; x++)
-			{
-				const tileNum = c.read8(mapBase++);
-
-				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, true, screen, 256);
-			}
-		}
-		 
-		context.putImageData(screen, 0, 0);
-		
-		// draw a rectangle showing viewport
-		const x = isMap ? c.ppu.regs.scx: 0;
-		const y = isMap ? c.ppu.regs.scy + 0.5 : 0;
-		const yOverflow = y + 144, xOverflow = x + 160;
-
-        context.beginPath();
-		context.lineCap = 'square';
-        context.strokeStyle = "#111111";
-        context.rect(x, y, 160.5, 144);
-
-		if(yOverflow > 255)
-			context.rect(x, 0, 160, yOverflow & 255);
-		if(xOverflow > 255)
-			context.rect(0, y, xOverflow & 255, 144);
-		context.stroke();
-	}
-
-
 	this.showMap = function() {
-        let a = MapDiv.getElementsByTagName('pre')[0];
 		this.hideOpen();
-		showElement(MapDiv, 'grid');
-		showElement(MapInfo);
-
-		MapDiv.className = "debug-map-div";
-		MapCanvas.name = "map";
-
-		MapCanvas.click();
-
-		this._mapdraw();
-
-		let ofx, ofy;
-		if(this.isMapChecked())
-			ofx = c.ppu.regs.scx, ofy = c.ppu.regs.scy;
-		else
-			ofx = c.ppu.regs.wx, ofy = c.ppu.regs.wy;
-		// show Map/tile/window addresses
-        const labels = ["Map address   ", "Window Address", "Tile address  ", "Offset"];
-        const values = [
-			this.hex(c.ppu.mapBase, 4),
-			this.hex(c.ppu.winBase, 4),
-			this.hex(c.ppu.tileBase, 4),
-			`${ofx}, ${ofy}`
-		];
-        a.innerHTML = "";
-        
-        for(let i = 0; i < labels.length; i++) {
-            a.innerHTML += `${labels[i]} : ${values[i]}<br>`;
-        }
-	}
-
-
-	/**
-	 * @param {Number} num 
-	 */
-	this.showObj = function(num) {
-		const base = OAM_BASE + (num << 2);
-		const y = c.read8(base);
-		const x = c.read8(base + 1);
-		const t = c.read8(base + 2);
-		const f = c.read8(base + 3);
-
-		const a = OamDiv.getElementsByTagName("p")[0];
-		const b = OamDiv.getElementsByTagName("h3")[0];
-
-		const labels = [
-			"Address",
-			"Byte 0 (Y)",
-			"Byte 1 (X)",
-			"Byte 2 (Tile)",
-			"Byte 3 (Flag)",
-			"Palette Num",
-		];
-
-		const vals = [
-			hex(base, 4),
-			y,
-			x,
-			Debug.hex(t),
-			Debug.hex(f, 2),
-			c.cgb ? f & 3 : (f >> 4) & 1,
-		];
-
-		let str = ''
-		for(let i in labels)
-			str += `${labels[i]} : ${vals[i]}<br>`;
-		
-		a.innerHTML = str;
-		b.innerHTML = "Sprite " + num;
+        Map.show();
 	}
 
 	/**
@@ -855,6 +598,14 @@ var Debug = new function() {
             return 3;
     }
 
+
+	this.getAddrHTML = function(addr) {
+		return `<button title="goto address"
+		 onclick="Debug.drawDisassembly(${addr}, true);"
+		 class="debug-addr-btn" type="button"><b>${Debug.hex(addr, 4)}</b>
+		</button>`;
+	}
+
 	this.getOpString = function(op) {
         let s = opcodeLUT[op] ? opcodeLUT[op] : '<b style="color:gray;">Illegal Opcode</b>';
         
@@ -878,7 +629,7 @@ var Debug = new function() {
                     break;
                 case 0:
                     const names = ["rlc", "rrc", "rl", "rr", "sla", "sra", "swap", "srl"]
-                    s = ` ${names[y]} ${r[z]}`;
+                    s = `${names[y]} ${r[z]}`;
                     break;
             }
             
@@ -919,6 +670,11 @@ var Debug = new function() {
 					append = Debug.hex(addr, 4);
 					this.increasePC(2);
 					break;
+				case "u16c":
+					addr = c.read16(curPC);
+					append = this.getAddrHTML(addr);
+					this.increasePC(2);
+					break;
 				default:
 					append = id;
 					this.increasePC(1);
@@ -933,11 +689,9 @@ var Debug = new function() {
 		return s;
 	}
 
-
 	this.increasePC = function(dx) {
 			curPC += dx;
 	}
-
 
 	this.parseOp = function(pc) {
 		const op = c.read8(pc);
@@ -946,18 +700,15 @@ var Debug = new function() {
 		let s = hex(op, 2, "");
 
 		if(opLen == 2)
-			s += `${hex(c.read8(curPC), 2, "")}     `;
+			s += ` ${hex(c.read8(curPC), 2, "")}   `;
 		else if(opLen == 3)
-			s += `${hex(c.read8(curPC), 2, "")}${hex(c.read8(curPC + 1), 2, "")}   `;
+			s += ` ${hex(c.read8(curPC), 2, "")} ${hex(c.read8(curPC + 1), 2, "")}`;
 		else
-			s += "       ";
+			s += "      ";
 
-		s += this.getOpString(op);
-
-
+		s += " | " + this.getOpString(op);
 
 		return s;
-
 	}
 
 	this.breakpoints = [];
@@ -1028,122 +779,56 @@ var Debug = new function() {
 
 	this.showRegister = function() {
 		const regs = [
-			[c.af.v, 4],
-			[c.bc.v, 4],
-			[c.de.v, 4],
-			[c.hl.v, 4],
-			[c.pc.v, 4],
-			[c.sp.v, 4],
-			[c.ppu.regs.stat, 2],
-			[c.ppu.regs.lcdc, 2],
-			[c.ppu.regs.scy, 2],
-			[c.ppu.regs.scx, 2],
-			[c.ppu.regs.scanline, 2],
-			[c.ppu.regs.dma, 2],
-			[c.ppu.regs.obj0, 2],
-			[c.ppu.regs.obj1, 2],
-			[c.ppu.regs.wy, 2],
-			[c.ppu.regs.wx, 2],
-			[c.timerRegs.regs.div, 2],
-			[c.timerRegs.regs.tima, 2],
-			[c.timerRegs.regs.tma, 2],
-			[c.timerRegs.regs.tac | 0xF8, 2],
-			[c.interrupt_enable, 2],
-			[c.interrupt_master ? 1 : 0, 2],
-			
-			[c.ppu.cgb.bgi, 2],
-            [c.ppu.cgb.obji, 2],
-            [c.ppu.cgb.vbank, 2],
-            [c.ppu.cgb.svbk, 2],
+			["AF", c.af.v, 4],
+			["BC", c.bc.v, 4],
+			["DE", c.de.v, 4],
+			["HL", c.hl.v, 4],
+			["\n"],
+			["PC", c.pc.v, 4],
+			["SP", c.sp.v, 4],
+			["\n"],
+			["STAT", c.ppu.regs.stat, 2],
+			["LCDC", c.ppu.regs.lcdc, 2],
+			["SCY", c.ppu.regs.scy, 2],
+			["SCX", c.ppu.regs.scx, 2],
+			["LY", c.ppu.regs.scanline, 2],
+			["DMA", c.ppu.regs.dma, 2],
+			["OBJ0", c.ppu.regs.obj0, 2],
+			["OBJ1", c.ppu.regs.obj1, 2],
+			["WY", c.ppu.regs.wy, 2],
+			["WX", c.ppu.regs.wx, 2],
+			["\n"],
+			["DIV", c.timerRegs.regs.div, 2],
+			["TIMA", c.timerRegs.regs.tima, 2],
+			["TMA", c.timerRegs.regs.tma, 2],
+			["TAC", c.timerRegs.regs.tac | 0xF8, 2],
+			["\n"],
+			["IE", c.interrupt_enable, 2],
+			["IME", c.interrupt_master ? 1 : 0, 2],
+			["\n"],
+			["BGI", c.ppu.cgb.bgi, 2],
+            ["OBJI", c.ppu.cgb.obji, 2],
+            ["VBK", c.ppu.cgb.vbank, 2],
+            ["SVBK", c.ppu.cgb.svbk, 2],
 		];
 
-		const names = [
-			"AF",
-			"BC",
-			"DE",
-			"HL",
-			'\n',
-			"PC",
-			"SP",
-			'\n',
-			"STAT",
-			"LCDC",
-			"SCY",
-			"SCX",
-			"LY",
-			"DMA",
-			"OBJ0",
-			"OBJ1",
-			"WY",
-			"WX",
-			"\n",
-			"DIV",
-			"TIMA",
-			"TMA",
-			"TAC",
-			"\n",
-			"IE",
-			"IME",
-			"\n",
-			"BGI",
-			"OBJI",
-			"VBK",
-			"SVBK",
-		];
 
-		let str = "", j = 0;
+		let str = "";
 
-		for(let i in names)
+		for(let i in regs)
 		{
-			if(names[i] == '\n')
+			if(regs[i][0] == '\n')
 				str += '<div class="div-separator" style="border-color: var(--menu-btn-color); "></div>';
 			else
-				str += `${(names[i] + ":").padEnd(5)}${Debug.hex(regs[j][0], regs[j++][1])}<br>`;
+				str += `${(regs[i][0] + ":").padEnd(5)}${Debug.hex(regs[i][1], regs[i][2])}<br>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
 	}
     
     this.showMemory = function() {
-        const a = MemDiv.getElementsByTagName("pre")[0];
-        let s = "";
-		const rombank = c.hasMbc() ? c.mbcHandler.bank : 'X';
-		const rambank = c.hasMbc() ? c.mbcHandler.ramBank : '0';
-		const romx = `ROM${hex(rombank, 2, '')}`;
-		const cram = `RAM${hex(rambank, 2, '')}`;
-		const mem_types = [
-			"ROM0 ", // 0x0000
-			"ROM0 ", // 0x1000
-			"ROM0 ", // 0x2000
-			"ROM0 ", // 0x3000
-			romx,    // 0x4000
-			romx,    // 0x5000
-			romx,    // 0x6000
-			romx,    // 0x7000
-			"VRAM ", // 0x8000
-			"VRAM ", // 0x9000
-			cram,    // 0xA000
-			cram,    // 0xB000
-			"WRAM0", // 0xC000
-			"WRAMX", // 0xD000
-			"MIRR ", // 0xE000
-			"IORAM", // 0xF000
-        ];
-        
-        this.hideOpen();
-		showElement(MemDiv);
-
-		if(!c.romLoaded) {
-			a.innerHTML = `<a style="display: grid; align-items: center; height: 100%; text-align: center;">Load a ROM before viewing memory</a>`;
-			return;
-		}
-        
-        for(let i = 0; i < 0xFFFF >> 3; i++)
-        {
-            s += `<b style="color:white";>${mem_types[i >> 9]}</b>:${this.dumpMemory(i << 3)}<br>`;
-        }
-        
-        a.innerHTML = s;
+		this.hideOpen();
+		Memory.show();
     }
 
 	/**
@@ -1220,7 +905,7 @@ var Debug = new function() {
 
 			str += isBreak ? "<b style='background-color:red; padding-right:100%;' title='breakpoint'>*" : " ";
 
-			str += hex(curPC, 4, "") + " : "
+			str += hex(curPC, 4, "") + " | "
 				 + this.parseOp(curPC);
 
 			if(isCurPC)
@@ -1242,17 +927,6 @@ var Debug = new function() {
 
 		this.showRegister();
 	}
-    
-    this.dumpMemory = function(pc) {
-        let s = `${hex(pc, 4, "$")} : `;
-        
-        for(let i = 0; i < 8; i++) {
-			const byte = c.read8(pc + i);
-            s += "  " + hex(byte, 2, '');
-        }
-        
-        return s;
-    }
 
 	this.stepDis = function() {
 		do {

@@ -443,16 +443,14 @@
             <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
             <button onclick="Cheats.add();" class="icon-btn" style="float: right;" type="button">+</button>
         </div>
-            <fieldset id="CheatsList"
+            <fieldset id="CheatsList" class="debug-box"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
             </fieldset>
-            <div style="display: grid; grid-template-rows: 1fr 1fr;">
-                <button style="width: 100%; visibility: hidden;" type="button" class="menubtn" onclick="Cheats.rm();" id="CheatsRm">remove
-                    code</button>
-            </div>
+            <button style="width: 100%; visibility: hidden;" type="button" class="menubtn" onclick="Cheats.rm();" id="CheatsRm">remove
+                code</button>
     </div>
 
-    <!-- New Debug menu -->
+    <!-- Debug menu -->
     <div id="DebugDiv" class="popup shadow debug-main-div">
         <div style="display: flex; grid-template-columns: repeat(7, 1fr); overflow-x: auto;">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
@@ -478,7 +476,7 @@
                 </fieldset>
                 <pre class="debug-text" style="padding-left: 10px;"></pre>
             </div>
-            <div id="TilePrevDiv">
+            <div id="TilePrevDiv" class="debug-box">
                 <canvas id="TilePreview" width="8" height="8"></canvas>
                 <a id="TileInfo" class="debug-text"></a>
             </div>
@@ -497,10 +495,10 @@
             <pre class="debug-text debug-memory-text"></pre>
         </div>
         <div id="DisassemblyDiv">
-            <div style="margin-right: 5px; overflow: auto; height: 100%">
+            <div class="debug-box" style="overflow: auto;">
                 <b>Disassembler</b>
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
-                <pre class="debug-text" style="line-height: 200%; padding-left: env(safe-area-inset-left); width: 600px;"></pre>
+                <pre class="debug-disasm-text"></pre>
             </div>
             <!-- Register DIV -->
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
@@ -610,7 +608,7 @@
     </div>
 
     <!-- Pop up menu for saving/loading states -->
-    <div class="popup" id="popup" style="overflow: hidden;">
+    <div class="popup shadow" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
             <b>Save Files</b>
             <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
@@ -689,6 +687,10 @@
     <script async src="util/keyboard.js"></script>
     <script async src="util/controller.js"></script>
     <script async src="util/debug.js"></script>
+    <script async src="util/debug/Map.js"></script>
+    <script async src="util/debug/Oam.js"></script>
+    <script async src="util/debug/Tiles.js"></script>
+    <script async src="util/debug/Memory.js"></script>
     <script async src="util/link.js"></script>
     <script async src="javascript/types.js"></script>
     <script async src="javascript/renderer.js"></script>

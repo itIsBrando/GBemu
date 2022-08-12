@@ -59,7 +59,8 @@ class PromptMenu {
 		btn.value = name;
 		btn.name = "PromptChoices";
 		btn.className = "prompt-menu-radio";
-		lbl.htmlFor = `${btn.id}PromptMenu${name}`;
+		btn.id = `PromptMenu${name}`;
+		lbl.htmlFor = btn.id;
 
 		if(i == 0)
 			btn.setAttribute('checked', true);
@@ -94,6 +95,14 @@ class PromptMenu {
 		}
 
 		div.appendChild(f);
+	}
+
+
+	addText(content) {
+		const elem = document.createElement('div');
+		elem.className = "debug-box";
+		elem.innerHTML = content;
+		div.appendChild(elem);
 	}
 
 	setInfo(content) {

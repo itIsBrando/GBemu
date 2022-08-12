@@ -105,9 +105,16 @@ class Cheats {
                 return;
             }
 
+            
             c.cheats.addCode(v);
             Cheats.drawCodes();
 		}, null);
+        
+        m.addText(
+            `<b style='text-align:center; width:100%;'>01YYXXXX</b><br>
+            YY = byte<br>
+            XXXX = address`
+        );
 
 		m.show();
     }
