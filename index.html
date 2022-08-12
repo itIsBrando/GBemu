@@ -504,19 +504,18 @@
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
-            <div
-                style="grid-column: 1 / 3; width: 100%; display: grid; grid-template-columns: 1fr 1fr;">
-                <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepDis();">step</button>
-                <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepDisSkipSub();">run to next
+            <div class="disasm-buttons">
+                <button type="button" class="disasm-btn" onclick="Debug.stepDis();">step</button>
+                <button type="button" class="disasm-btn" onclick="Debug.stepDisSkipSub();">run to next
                     line</button>
-                <button style="width:100%;" type="button" class="menubtn" onclick="Debug.stepUntilBreak();">run until
+                <button type="button" class="disasm-btn" onclick="Debug.stepUntilBreak();">run until
                     break</button>
-                <button style="width:100%;" type="button" class="menubtn" onclick="Debug.searchByte();">search
+                <button type="button" class="disasm-btn" onclick="Debug.searchByte();">search
                     byte</button>
-                <button style="width:100%;" type="button" class="menubtn"
+                <button type="button" class="disasm-btn"
                     style="padding-bottom: env(safe-area-inset-bottom);"
                     onclick="Debug.gotoDis();">goto</button>
-                <button style="width:100%;" type="button" class="menubtn"
+                <button type="button" class="disasm-btn"
                     onclick="Debug.showBreak();">breakpoints</button>
                     <!-- <button style="width:100%;" type="button" class="menubtn" title="Add define list from RGBDS sym file."
                     onclick="document.getElementById('symFile').click();">Upload sym file</button> -->
@@ -683,7 +682,7 @@
     <script src="util/settings.js"></script>
     <script src="util/saveManager.js"></script>
     <script src="util/themes.js"></script>
-    <script async src="util/utility.js"></script>
+    <script src="util/utility.js"></script>
     <script async src="util/keyboard.js"></script>
     <script async src="util/controller.js"></script>
     <script async src="util/debug.js"></script>
