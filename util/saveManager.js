@@ -357,7 +357,7 @@ var SaveManager = new function() {
             }
 
             
-            this.save(v, c.mbcHandler.ram, type, c.readROMName());
+            this.save(v, c.mbcHandler?.ram ?? null, type, c.readROMName());
         });
 
         m.addChoices([".sav", "Save State"], "save_type", "Save Type:");

@@ -127,6 +127,7 @@
             margin-bottom: 5px;
         }
 
+
         .prompt-menu-fieldset {
             width: calc(100% - 12px);
             padding: 7px 5px 10px 5px;
@@ -247,7 +248,8 @@
         }
 
         #saveButtonDiv {
-            height: calc(85vh - 35px);
+            height: 100%;
+            max-height: 100vh;
             overflow-y: auto;
             text-align: center;
         }
@@ -281,10 +283,6 @@
             
             .bind-div-child {
                  height: 100%;
-            }
-
-            #saveButtonDiv {
-                height: 100%;
             }
 
             .settings-grid {
@@ -494,9 +492,8 @@
         <div id="MemoryDiv">
             <pre class="debug-text debug-memory-text"></pre>
         </div>
-        <div id="DisassemblyDiv">
+        <div id="DisassemblyDiv" class="disasm-main-div">
             <div class="debug-box" style="overflow: auto;">
-                <b>Disassembler</b>
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
                 <pre class="debug-disasm-text"></pre>
             </div>
@@ -604,7 +601,7 @@
     </div>
 
     <!-- Pop up menu for saving/loading states -->
-    <div class="popup shadow" id="popup" style="overflow: hidden;">
+    <div class="popup shadow save-menu" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
             <b>Save Files</b>
             <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>

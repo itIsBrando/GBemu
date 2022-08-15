@@ -129,9 +129,13 @@
     grid-template-rows: 4fr 1fr;
 }
 
+.save-menu {
+    height: 80vh;
+}
+
 .save-menu-padding {
     width: 1px;
-    padding: 25px 0;
+    padding: calc(20px + env(safe-area-inset-bottom)) 0;
 }
 
 

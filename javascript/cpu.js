@@ -125,7 +125,7 @@ class CPU {
             timer: this.timerRegs.export(),
             ppu: this.ppu.export(),
             renderer: this.renderer.export(),
-            mbc: this.mbcHandler ? this.mbcHandler.export() : null,
+            mbc: this.mbcHandler?.export() ?? null,
             version: SaveManager.CUR_VERSION
         });
     }
@@ -136,7 +136,7 @@ class CPU {
         this.timerRegs.import(data);
         this.ppu.import(data);
         this.renderer.import(data);
-        this.mbcHandler.import(data);
+        this.mbcHandler?.import(data);
     }
 
     export() {
