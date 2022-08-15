@@ -116,7 +116,7 @@
             max-height: 80vh;
         }
 
-        .menu-header {
+        .menu-header, .menu-header-no-ext {
             font-size: 1.25rem;
             font-family: monospace;
             text-align: center;
@@ -382,7 +382,7 @@
     
     <!-- Link Cable menu -->
     <div id="LinkDiv" class="popup shadow">
-        <div class="menu-header">
+        <div class="menu-header-no-ext">
             <b>Link Cable</b>
             <button type="button" class="x-btn" onclick="Link.hide();">&times;</button>
         </div>
@@ -412,7 +412,7 @@
             <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button> -->
             <!-- DMG Palette -->
             <label for="dmgPal">DMG Palette Colors:</label>
-            <button type="button" name="dmgPal" id="changePaletteButton" class="menubtn settings-btn"
+            <button type="button" name="dmgPal" class="menubtn settings-btn"
                     onclick="Palette.show();">edit</button>
             <!-- Power consumption -->
             <label for="pwrComp">Power consumption:</label>
@@ -436,7 +436,7 @@
 
     <!-- Cheats Menu -->
     <div id="CheatsDiv" class="popup shadow">
-        <div class="menu-header">
+        <div class="menu-header-no-ext">
             Cheats
             <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
             <button onclick="Cheats.add();" class="icon-btn" style="float: right;" type="button">+</button>
@@ -501,7 +501,7 @@
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
-            <div class="disasm-buttons">
+            <div class="disasm-buttons debug-box">
                 <button type="button" class="disasm-btn" onclick="Debug.stepDis();">step</button>
                 <button type="button" class="disasm-btn" onclick="Debug.stepDisSkipSub();">run to next
                     line</button>
@@ -517,7 +517,7 @@
         </div>
         <!-- A new menu for managing breakpoints -->
         <div id="DisassemblyBreakpoints" class="popup shadow">
-            <div class="menu-header">
+            <div class="menu-header-no-ext">
                 <b>Breakpoints</b>
                 <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
             </div>
@@ -533,7 +533,7 @@
 
     <!-- Cool lookin menu for entering text. See `PromptMenu`-->
     <div id="PromptMenu" class="popup shadow" style="z-index:10;">
-        <div class="menu-header">
+        <div class="menu-header-no-ext">
             <b id="PromptTitle">Title</b>
             <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
             <div class="info-div" style="display: none;">
@@ -623,8 +623,8 @@
     </div>
 
     <!-- Change palette colors -->
-    <div class="popup shadow" style="opacity: 1; min-width: 250px;" id="paletteSetDiv">
-        <div class="menu-header">
+    <div class="popup shadow" id="paletteSetDiv">
+        <div class="menu-header-no-ext">
             <!-- header -->
             <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
             <!-- arrows -->
@@ -638,20 +638,24 @@
                 onclick="Palette.load();">&#9112;</button>
         </div>
         <!-- color inputs -->
-        <div id="colorPreview" style="background-color: #000000; width: 100%; aspect-ratio: 1 / 1; display:block;"></div>
-        <input id="colorR" style="color: orangered;" type="number" min="0" max="255"
-            oninput="Palette.onPaletteChange()">
-        <input id="colorG" style="color: lightblue;" placeholder="green" type="number" min="0" max="255"
-            oninput="Palette.onPaletteChange()">
-        <input id="colorB" style="color: lightgreen;" placeholder="blue" type="number" min="0" max="255"
-            oninput="Palette.onPaletteChange()">
+        <div class="palette-menu">
+            <div id="colorPreview" class="color-preview"></div>
+            <div>
+                <input id="colorR" class="palette-input" style="color: orangered;" type="number" min="0" max="255"
+                oninput="Palette.onPaletteChange()">
+                <input id="colorG" class="palette-input" style="color: lightblue;" placeholder="green" type="number" min="0" max="255"
+                oninput="Palette.onPaletteChange()">
+                <input id="colorB" class="palette-input" style="color: lightgreen;" placeholder="blue" type="number" min="0" max="255"
+                oninput="Palette.onPaletteChange()">
+            </div>
+        </div>
     </div>
 
     <!-- Pretty-ish messaging system. -->
     <div class="message-div shadow" id="messageID" style="width: fit-content; border-radius: 3px;">
         <!-- header -->
         <b>
-            <div id="messageHeader" class="menu-header" style="padding: 0rem 1rem;">ALERT</div>
+            <div id="messageHeader" class="menu-header-no-ext" style="padding: 0rem 1rem;">ALERT</div>
         </b>
         <!-- body -->
         <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin:0px; text-align:center;">Message Content</p>

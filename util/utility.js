@@ -155,7 +155,7 @@ var Palette = new function() {
     
     this.show = function() {
         showElement(paletteSetDiv);
-        this.onPaletteArrow(1);
+        this.onPaletteArrow(0);
     }
     
     // hides the palette selection menu

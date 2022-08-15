@@ -75,9 +75,8 @@
     width: 30px;
     height: 30px;
     border: none;
-    border-radius: 2px;
     margin: 0px;
-    padding: 0px;
+    margin-right: calc(safe-area-inset-right);
     cursor: pointer;
     color: black;
     display: grid;
