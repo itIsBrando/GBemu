@@ -261,6 +261,20 @@
 
         .shadow {
             box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+        }
+
+        .shadow::before {
+            content: '';
+            position: absolute;
+            left: -100vw;
+            top: -100vh;
+            background-color: black;
+            width: 500vw;
+            height: 500vh;
+            opacity: 0.3;
+            transform: translateZ(-10px);
+            z-index: -1;
         }
 
         @media (max-width: 500px),
@@ -501,7 +515,7 @@
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
-            <div class="disasm-buttons debug-box">
+            <div class="disasm-buttons">
                 <button type="button" class="disasm-btn" onclick="Debug.stepDis();">step</button>
                 <button type="button" class="disasm-btn" onclick="Debug.stepDisSkipSub();">run to next
                     line</button>

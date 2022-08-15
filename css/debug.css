@@ -95,13 +95,14 @@
     width: 100%;
     margin-bottom: 25px;
     margin-left: 15px;
+    text-align: center;
 }
 
 .disasm-btn {
     cursor: pointer;
     border: none;
     width: fit-content;
-    padding: 3px 2px;
+    padding: 3px 5px;
     background-color: var(--menu-btn-color);
     color: var(--text-color);
     margin: 1px;

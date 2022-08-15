@@ -76,7 +76,7 @@ function exitFullscreen() {
  * @param {String} prefix string to use as a prefix. Defaults to 0x
  */
 function hex(v, pad=0, prefix="0x") {
-    return prefix + v.toString(16).toUpperCase().padStart(pad, "0");
+    return prefix + Number(v).toString(16).toUpperCase().padStart(pad, "0");
 }
 
 

@@ -779,37 +779,37 @@ var Debug = new function() {
 
 	this.showRegister = function() {
 		const regs = [
-			["AF", c.af.v, 4],
-			["BC", c.bc.v, 4],
-			["DE", c.de.v, 4],
-			["HL", c.hl.v, 4],
+			["AF", ['af', 'v'], 4],
+			["BC", ['bc', 'v'], 4],
+			["DE", ['de', 'v'], 4],
+			["HL", ['hl', 'v'], 4],
 			["\n"],
-			["PC", c.pc.v, 4],
-			["SP", c.sp.v, 4],
+			["PC", ['pc', 'v'], 4],
+			["SP", ['sp', 'v'], 4],
 			["\n"],
-			["STAT", c.ppu.regs.stat, 2],
-			["LCDC", c.ppu.regs.lcdc, 2],
-			["SCY", c.ppu.regs.scy, 2],
-			["SCX", c.ppu.regs.scx, 2],
-			["LY", c.ppu.regs.scanline, 2],
-			["DMA", c.ppu.regs.dma, 2],
-			["OBJ0", c.ppu.regs.obj0, 2],
-			["OBJ1", c.ppu.regs.obj1, 2],
-			["WY", c.ppu.regs.wy, 2],
-			["WX", c.ppu.regs.wx, 2],
+			["STAT", ['ppu', 'regs', 'stat'], 2],
+			["LCDC", ['ppu', 'regs', 'lcdc'], 2],
+			["SCY", ['ppu', 'regs', 'scy'], 2],
+			["SCX", ['ppu', 'regs', 'scx'], 2],
+			["LY", ['ppu', 'regs', 'scanline'], 2],
+			["DMA", ['ppu', 'regs', 'dma'], 2],
+			["OBJ0", ['ppu', 'regs', 'obj0'], 2],
+			["OBJ1", ['ppu', 'regs', 'obj1'], 2],
+			["WY", ['ppu', 'regs', 'wy'], 2],
+			["WX", ['ppu', 'regs', 'wx'], 2],
 			["\n"],
-			["DIV", c.timerRegs.regs.div, 2],
-			["TIMA", c.timerRegs.regs.tima, 2],
-			["TMA", c.timerRegs.regs.tma, 2],
-			["TAC", c.timerRegs.regs.tac | 0xF8, 2],
+			["DIV", ['timerRegs', 'regs', 'div'], 2],
+			["TIMA", ['timerRegs', 'regs', 'tima'], 2],
+			["TMA", ['timerRegs', 'regs', 'tma'], 2],
+			["TAC", ['timerRegs', 'regs', 'tac'], 2],
 			["\n"],
-			["IE", c.interrupt_enable, 2],
-			["IME", c.interrupt_master ? 1 : 0, 2],
+			["IE", ['interrupt_enable'], 2],
+			["IME", ['interrupt_master'], 2],
 			["\n"],
-			["BGI", c.ppu.cgb.bgi, 2],
-            ["OBJI", c.ppu.cgb.obji, 2],
-            ["VBK", c.ppu.cgb.vbank, 2],
-            ["SVBK", c.ppu.cgb.svbk, 2],
+			["BGI", ['ppu', 'cgb', 'bgi'], 2],
+            ["OBJI", ['ppu', 'cgb', 'obji'], 2],
+            ["VBK", ['ppu', 'cgb', 'vbank'], 2],
+            ["SVBK", ['ppu', 'cgb', 'svbk'], 2],
 		];
 
 
@@ -817,10 +817,17 @@ var Debug = new function() {
 
 		for(let i in regs)
 		{
-			if(regs[i][0] == '\n')
+			if(regs[i][0] == '\n') {
 				str += '<div class="div-separator" style="border-color: var(--menu-btn-color); "></div>';
-			else
-				str += `${(regs[i][0] + ":").padEnd(5)}${Debug.hex(regs[i][1], regs[i][2])}<br>`;
+				continue;
+			}
+			
+			const keys = regs[i][1];
+			let v = c[keys[0]];
+			for(let j = 1; j < keys.length; j++)
+				v = v[keys[j]];
+			
+			str += `${(regs[i][0] + ":").padEnd(5)}${Debug.hex(v, regs[i][2])}<br>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
@@ -1001,9 +1008,11 @@ var Debug = new function() {
 					return;
                 }
             }
-            
-            Menu.message.show(`Byte ${Debug.hex(a)} not found.`, `Started searching at ${Debug.hex(Debug.basePC, 4)} high:${high} low:${low} p:${p}`);
+
+            Menu.alert.show(`Byte ${Debug.hex(a)} not found, starting from ${Debug.hex(Debug.basePC, 4)}`);
         });
+
+		m.addText("Search for a byte in the room");
         
         m.show();
     }

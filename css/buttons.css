@@ -140,7 +140,6 @@
 
 .alert-div {
     position: absolute;
-    /*display: flex;*/
     transform: translateX(-50%);
     top: -200px;
     left: 50%;
@@ -153,6 +152,7 @@
     
     font-size: 1.25rem;
     text-align: center;
+    z-index: 20;
 }
 
 #saveEditButton {
