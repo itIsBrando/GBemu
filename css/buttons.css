@@ -76,7 +76,6 @@
     height: 30px;
     border: none;
     margin: 0px;
-    margin-right: calc(safe-area-inset-right);
     cursor: pointer;
     color: black;
     display: grid;

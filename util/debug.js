@@ -339,7 +339,7 @@ let REGISTER_ADDR = {
 
 const DebugDiv = document.getElementById('DebugDiv');
 const DisassemblyDiv = document.getElementById('DisassemblyDiv');
-const DisText = DisassemblyDiv.getElementsByTagName("pre")[0];
+const DisText = document.getElementById('DisasmContent');
 const DisScrollDiv = DisassemblyDiv.getElementsByTagName('div')[0];
 const PalDiv = document.getElementById('PalDiv');
 const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');

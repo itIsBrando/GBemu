@@ -119,6 +119,26 @@ AutoLoadButton.addEventListener('click', function() {
 
 AutoLoadButton.innerHTML = Settings.get_core("autoload", 'true') == 'true' ? 'yes' : 'no';
 
-const vars = Settings.parse_url();
+const BorderButton = document.getElementById('BorderButton');
 
+BorderButton.addEventListener('click', function() {
+    let cur = Settings.get_temp('bordershown', 'true');
+    const v = document.getElementById('viewport');
+
+    console.log(cur);
+    cur = !(cur == 'true');
+    console.log(cur);
+
+    if(cur == true) {
+        this.innerText = 'shown';
+        v.className = 'viewport';
+    } else {
+        this.innerText = 'hidden';
+        v.className = 'viewport viewport-full';
+    }
+
+    Settings.set_temp('bordershown', cur);
+});
+
+const vars = Settings.parse_url();
 Settings.set_core('pwa', vars['pwa'] || 'false');

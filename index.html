@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        #viewport {
+        .viewport {
             /* Why have i positioned this like a piece of dumbo? */
             /* don't use absolute poistioning D: */
             display: flex;
@@ -34,35 +34,35 @@
             transition: background 0.5s, border 0.5s, box-shadow 0.5s, top 0.4s; 
         }
 
-        #screen-container {
+        .screen-container {
             display: flex;
             background-color: var(--screen-border-color);
-            width: clamp(160px, 100%, 98vmin);
+            width: clamp(160px, 100%, 100vmin);
 
             margin: 5px;
             border-radius: 10px;
+            border-bottom-right-radius: 25px;
             box-shadow: 0px 8px 16px 10px var(--screen-shadow);
             border-style: solid;
             border-color: var(--screen-border-color);
             border-width: 25px 0px 20px 0px;
-            border-bottom-right-radius: 25px;
         }
 
-        #screen-container-border {
+        .screen-container-left {
             height: 100%;
             min-width: 25px;
             width: clamp(20px, 8vw, 60px);
             background-color: var(--screen-border-color);
         }
 
-        #screen-container-border-right {
+        .screen-container-right {
             display: inline-block;
             height: 100%;
             min-width: 10px;
             width: clamp(10px, 7vw, 50px);
             background-color: var(--screen-border-color);
         }
-        
+
         .power-LED {
             background-color: var(--power-led-color);
             position: relative;
@@ -73,6 +73,21 @@
             width: 10px;
             aspect-ratio: 1 / 1;
             box-shadow: 0px 0px 6px 2px var(--power-led-color);
+        }
+
+        .viewport-full * {
+            border: none !important;
+            margin: 0px;
+        }
+
+        .viewport-full #screen {
+            border-radius: 0px;
+            border-bottom-right-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .viewport-full .screen-container-left, .viewport-full .screen-container-right {
+            display: none;
         }
 
         #screen {
@@ -232,15 +247,6 @@
             color: aliceblue;
         }
 
-        #SettingsDiv {
-            width: fit-content;
-            height: fit-content;
-            font-family: monospace;
-            min-width: 250px;
-            display:none;
-            overflow-y: auto;
-        }
-
         #keyBindingDiv {
             width: fit-content;
             height: fit-content;
@@ -255,7 +261,7 @@
         }
         
         .bind-div-child {
-            height: 500px;
+            max-height: calc(80vh - 30px);
             overflow-y: auto;
         }
 
@@ -300,7 +306,7 @@
             }
 
             .settings-grid {
-                max-height: 100%;
+                max-height: calc(100% - 30px);
                 overflow: hidden auto;
             }
         }
@@ -382,13 +388,13 @@
     </div>
 
     <!-- Screen -->
-    <div id="viewport">
-        <div id="screen-container">
-            <div id="screen-container-border">
+    <div id="viewport" class="viewport">
+        <div id="screen-container" class="screen-container">
+            <div class="screen-container-left">
                 <div class="power-LED"></div>
             </div>
             <canvas id="screen" width="160" height="144"> </canvas>
-            <div id="screen-container-border-right"></div>
+            <div class="screen-container-right"></div>
         </div>
         <!-- Menu button to show the top menu -->
         <div class="show-menu-btn" onclick="Menu.title.toggle();"></div>
@@ -433,6 +439,8 @@
             <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
             <!-- Other -->
             <b class="settings-title">Other</b>
+            <label for="BorderButton">Screen border:</label>
+            <button type="button" name="border" id="BorderButton" class="menubtn settings-btn" title="Shows/hides the border around the screen">shown</button>
             <label for="AutoLoadButton">Automatically load saves:</label>
             <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
             <label for="prevImg">Save Preview Image:</label>
@@ -509,7 +517,8 @@
         <div id="DisassemblyDiv" class="disasm-main-div">
             <div class="debug-box" style="overflow: auto;">
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
-                <pre class="debug-disasm-text"></pre>
+                <pre> addr    opcode     nmemonic</pre>
+                <pre id="DisasmContent" class="debug-text"></pre>
             </div>
             <!-- Register DIV -->
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">

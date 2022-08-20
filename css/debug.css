@@ -70,7 +70,7 @@
     color: black;
 }
 
-.debug-text, .debug-disasm-text {
+.debug-text {
     font-family: monospace;
     width: 100%;
     margin: 0px;
@@ -82,12 +82,11 @@
     user-select: text;
 }
 
-.debug-disasm-text {
+.debug-addr-btn {
     line-height: 150%;
     padding-left: env(safe-area-inset-left);
     width: 600px;
     font-family: monospace;
-    font-size: 0.8rem;
 }
 
 .disasm-buttons {

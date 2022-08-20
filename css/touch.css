@@ -86,13 +86,13 @@
 
 #A {
     position: absolute;
-    right: calc(10px + env(safe-area-inset-right));
+    right: calc(30px + env(safe-area-inset-right));
     bottom: 110px;
 }
 
 #B {
     position: absolute;
-    right: calc(70px + env(safe-area-inset-right));
+    right: calc(95px + env(safe-area-inset-right));
     bottom: 70px;
 }
 
