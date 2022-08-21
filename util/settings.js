@@ -125,9 +125,7 @@ BorderButton.addEventListener('click', function() {
     let cur = Settings.get_temp('bordershown', 'true');
     const v = document.getElementById('viewport');
 
-    console.log(cur);
     cur = !(cur == 'true');
-    console.log(cur);
 
     if(cur == true) {
         this.innerText = 'shown';

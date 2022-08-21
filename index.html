@@ -75,6 +75,10 @@
             box-shadow: 0px 0px 6px 2px var(--power-led-color);
         }
 
+        .viewport-full {
+            transform: translateY(-5px);
+        }
+
         .viewport-full * {
             border: none !important;
             margin: 0px;
@@ -517,7 +521,7 @@
         <div id="DisassemblyDiv" class="disasm-main-div">
             <div class="debug-box" style="overflow: auto;">
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
-                <pre> addr    opcode     nmemonic</pre>
+                <pre style="margin: 0px;">  addr   opcode     mnemonic</pre>
                 <pre id="DisasmContent" class="debug-text"></pre>
             </div>
             <!-- Register DIV -->
@@ -808,7 +812,7 @@
         const x = window.matchMedia(
             "(max-width: 500px), (max-height: 500px) and (orientation: landscape)"
         );
-        
+
         _set_var(x);
         x.addListener(_set_var);
 
