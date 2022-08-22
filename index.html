@@ -18,6 +18,12 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
+        :root {
+            --ui-title-color: #222;
+            --ui-title-text-color: white;
+            --ui-main-text-color: ghostwhite;
+        }
+
         .viewport {
             /* Why have i positioned this like a piece of dumbo? */
             /* don't use absolute poistioning D: */
@@ -28,6 +34,10 @@
             right: 2px;
             top: calc(30px + env(safe-area-inset-top));
             z-index: -1;
+        }
+
+        .viewport-no-title {
+            top: 0px;
         }
         
         #viewport, #viewport * {
@@ -126,8 +136,8 @@
             top: 50%;
             transform: translate(-50%, -50%);
             background-color: #333;
-            border: 5px solid #ddd;
-            color: #f1f1f1;
+            border: 5px solid var(--ui-title-color);
+            color: var(--ui-main-text-color);
             z-index: 9;
             border-radius: 5px;
             width: fit-content;
@@ -139,8 +149,8 @@
             font-size: 1.25rem;
             font-family: monospace;
             text-align: center;
-            background-color:#ddd;
-            color: black;
+            background-color: var(--ui-title-color);
+            color: var(--ui-title-text-color);
             height: fit-content;
             min-height: 30px;
             margin-bottom: 5px;
@@ -444,7 +454,7 @@
             <!-- Other -->
             <b class="settings-title">Other</b>
             <label for="BorderButton">Screen border:</label>
-            <button type="button" name="border" id="BorderButton" class="menubtn settings-btn" title="Shows/hides the border around the screen">shown</button>
+            <button type="button" name="border" id="BorderButton" class="menubtn settings-btn" title="Shows/hides the border around the screen">yes</button>
             <label for="AutoLoadButton">Automatically load saves:</label>
             <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
             <label for="prevImg">Save Preview Image:</label>
@@ -481,7 +491,7 @@
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
             <button type="button" class="menubtn debug-title-btn"
-                onclick="Debug.showDisassembly(c.pc.v);">Disassembly</button>
+                onclick="Debug.showDisasm();">Disassembly</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showPalette();">Palette</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
@@ -642,8 +652,8 @@
                     </div>
                 </div>
             </div>
-            <button id="saveEditButton" type="button" class="menubtn">edit</button>
-            <button id="plusButton" type="button" class="menubtn" onclick="SaveManager.addSave();">+</button>
+            <button id="saveEditButton" type="button" class="menubtn ui-title-btn">edit</button>
+            <button id="plusButton" type="button" class="menubtn ui-title-btn" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->
         <div id="saveButtonDiv" ></div>

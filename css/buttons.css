@@ -16,6 +16,11 @@
     filter: brightness(0.8);
 }
 
+.ui-title-btn {
+    color: var(--ui-title-text-color);
+    background-color: inherit;
+}
+
 .settings-btn {
     width: 100%;
     display: inline-block;
@@ -51,7 +56,7 @@
     border: none;
     cursor: pointer;
     background-color: inherit;
-    color: black;
+    color: var(--ui-title-text-color);
 }
 
 .icon-btn:hover {
@@ -77,7 +82,7 @@
     border: none;
     margin: 0px;
     cursor: pointer;
-    color: black;
+    color: var(--ui-title-text-color);
     display: grid;
     align-items: center;
     text-align: center;
@@ -156,8 +161,6 @@
 }
 
 #saveEditButton {
-    background-color: inherit;
-    color: black;
     font: 0.75rem monospace;
     width: fit-content;
     height: 30px;
@@ -165,8 +168,6 @@
 }
 
 #plusButton {
-    background-color: inherit;
-    color: black;
     width: 30px;
     height: 30px;
     float:right;

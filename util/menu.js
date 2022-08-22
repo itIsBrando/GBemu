@@ -107,14 +107,15 @@ var Menu = new function() {
             for(let i = 0; i < 3; i++) {
                 showElement(d[i])
             }
-            viewport.style.top = '25px';
+            viewport.classList.remove('viewport-no-title');
         }
         
         this.hide = function() {
             for(let i = 0; i < 3; i++) {
                 hideElement(d[i])
             }
-            viewport.style.top = '5px';
+
+            viewport.classList.add('viewport-no-title');
         }
     }
 }

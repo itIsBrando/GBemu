@@ -433,6 +433,10 @@ var Debug = new function() {
         Map.show();
 	}
 
+	this.showDisasm = function() {
+		this.showDisassembly(c.pc.v);
+	}
+
 	/**
 	 * @param {Number} palNum
 	 */

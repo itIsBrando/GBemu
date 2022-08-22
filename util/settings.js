@@ -128,10 +128,10 @@ BorderButton.addEventListener('click', function() {
     cur = !(cur == 'true');
 
     if(cur == true) {
-        this.innerText = 'shown';
+        this.innerText = 'yes';
         v.className = 'viewport';
     } else {
-        this.innerText = 'hidden';
+        this.innerText = 'no';
         v.className = 'viewport viewport-full';
     }
 
