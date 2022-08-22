@@ -51,4 +51,10 @@ var Themes = new function() {
         this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--bg-color'));
     }
 
+
+    this.setSettingsBar = function() {
+        if(Settings.get_temp("change_status_bar", "false") == "true")
+            this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-title-color'));
+    }
+
 };

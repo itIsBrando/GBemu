@@ -83,8 +83,7 @@ var Settings = new function() {
             );
         }
 
-        if(Settings.get_temp("change_status_bar", "false") == "true")
-            Themes.set_theme_color("#dddddd");
+        Themes.setSettingsBar();
 
         showElement(MainDiv);
         pauseEmulation();

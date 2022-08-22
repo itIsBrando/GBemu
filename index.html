@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
-            --ui-title-color: #222;
+            --ui-title-color: #1b1b1b;
             --ui-title-text-color: white;
             --ui-main-text-color: ghostwhite;
         }
@@ -272,6 +272,7 @@
             max-height: 100vh;
             overflow-y: auto;
             text-align: center;
+            background-color: inherit;
         }
         
         .bind-div-child {
@@ -816,7 +817,7 @@
             Settings.set_temp("change_status_bar", x.matches);
 
             if(SaveManager.showing() || Settings.showing())
-                Themes.set_theme_color("#dddddd");
+                Themes.setSettingsBar();
         }
 
         const x = window.matchMedia(

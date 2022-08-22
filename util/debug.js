@@ -372,8 +372,7 @@ var Debug = new function() {
         this.stopRunTilBreak();
 		this.enabled = true;
 		
-        if(Settings.get_temp("change_status_bar", "false") == "true")
-            Themes.set_theme_color("#dddddd");
+		Themes.setSettingsBar();
 
 		this.showDisassembly(c.pc.v);
 

@@ -92,6 +92,8 @@ localSaveButton.addEventListener('click', function() {
     hideElement(saveEditButton);
     showElement(plusButton);
     
+    saveButtonDiv.innerHTML = '';
+    
     // This will only get called when the save already exists
     SaveManager.populateSaveHTML(function() {
         if(c.mbcHandler && c.romLoaded) {
@@ -236,8 +238,7 @@ var SaveManager = new function() {
             return false;
         
         showElement(popupMenu);
-        if(Settings.get_temp("change_status_bar", "false") == "true")
-            Themes.set_theme_color("#dddddd");
+        Themes.setSettingsBar();
 
         pauseEmulation();
 
@@ -358,6 +359,8 @@ var SaveManager = new function() {
 
             
             this.save(v, c.mbcHandler?.ram ?? null, type, c.readROMName());
+
+            localSaveButton.click(); // redraw saves
         });
 
         m.addChoices([".sav", "Save State"], "save_type", "Save Type:");
