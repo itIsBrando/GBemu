@@ -25,7 +25,7 @@ body {
     -webkit-touch-callout: none;
 
     font-size: medium;
-    color: var(--text-color);
+    color: var(--ui-text-color);
 
     transition: background 0.5s;
 }

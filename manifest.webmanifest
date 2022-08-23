@@ -6,11 +6,12 @@
     "orientation": "any",
     "description": "Gameboy Emulator powered by HTML5, CSS, and JavaScript",
     "background_color": "#fff",
+    "categories": ["games", "utilities"],
     "icons": [
         {
             "src": "icons/icon.jpg",
             "sizes": "200x200",
             "type": "image/jpg"
         }
-    ]
+     ]
 }

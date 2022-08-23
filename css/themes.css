@@ -1,17 +1,13 @@
 :root {
-     
-
     /* Theme Variables */
     --power-led-color: red;
-    --bg-color: #c6bfc6b0;
+    --bg-color: #c6bfc6;
     --screen-shadow: rgb(95, 107, 121, 0.90);
     --dpad-color: #3A3A3A;
     --screen-border-color: rgb(95, 107, 121, 0.90);
     --gamepad-btn-color: orangered;
 
     /* v UI Elements v */
-    --title-btn-color: var(--bg-color);
-    --menu-btn-color: lightgray;
     --text-color: black;
 }
 
@@ -22,8 +18,6 @@
     --dpad-color: rgb(38, 100, 255);
     --gamepad-btn-color: lightblue;
     /* v UI Elements v */
-    --title-btn-color: var(--bg-color);
-    --menu-btn-color: cadetblue;
     --text-color: aliceblue;
 }
 
@@ -34,8 +28,6 @@
     --dpad-color: #454545;
     --gamepad-btn-color: darkgray;
     /* v UI Elements v */
-    --title-btn-color: var(--bg-color);
-    --menu-btn-color: darkslategray;
     --text-color: skyblue;
 }
 
@@ -45,20 +37,16 @@
     --screen-border-color: lightgray;
     --dpad-color: lightslategray;
     --gamepad-btn-color: lightsteelblue;
-    /* v UI Elements v */
-    --title-btn-color: var(--bg-color);
-    --menu-btn-color: lightslategray;
 }
 
 .purple-theme {
     --screen-shadow: #6304cfb0;
-    --bg-color: rgba(49, 5, 98, 0.69);
+    --bg-color: rgb(74, 11, 146);
     --screen-border-color: rgba(89, 17, 127, 0.9);
     --dpad-color: purple;
     --gamepad-btn-color: violet;
     /* v UI Elements v */
-    --title-btn-color: blueviolet;
-    --menu-btn-color: hotpink;
+    --text-color: aliceblue;
 }
 
 .yellow-theme {
@@ -67,9 +55,6 @@
     --screen-border-color: #434343;
     --dpad-color: #343434;
     --gamepad-btn-color: #444;
-    /* v UI Elements v */
-    --title-btn-color: gold;
-    --menu-btn-color: khaki;
 }
 
 .green-theme {
@@ -78,7 +63,4 @@
     --screen-border-color: #333;
     --dpad-color: green;
     --gamepad-btn-color: mediumseagreen;
-    /* v UI Elements v */
-    --title-btn-color: var(--bg-color);
-    --menu-btn-color: mediumseagreen;
 }

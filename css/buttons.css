@@ -1,6 +1,6 @@
 .menubtn {
-    background-color: var(--menu-btn-color);
-    color: var(--text-color);
+    background-color: var(--ui-btn-color);
+    color: var(--ui-text-color);
     display: block;
     padding: 5px;
     margin: 0px 0px 1px 0px;
@@ -12,7 +12,20 @@
 
 }
 
-.menubtn:hover {
+.dropdown-btn {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: block;
+    padding: 5px;
+    margin: 0px;
+    width: inherit;
+    border: none;
+    cursor: pointer;
+    transition: background 0.5s;
+    font-size: 0.8rem;
+}
+
+.menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
 }
 
@@ -27,7 +40,7 @@
 }
 
 .title-btn {
-    background-color: var(--title-btn-color);
+    background-color: var(--bg-color);
     color: var(--text-color);
     display: block;
     border: none;

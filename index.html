@@ -22,6 +22,9 @@
             --ui-title-color: #1b1b1b;
             --ui-title-text-color: white;
             --ui-main-text-color: ghostwhite;
+
+            --ui-text-color: white;
+            --ui-btn-color: #55555A;
         }
 
         .viewport {
@@ -85,10 +88,6 @@
             box-shadow: 0px 0px 6px 2px var(--power-led-color);
         }
 
-        .viewport-full {
-            transform: translateY(-5px);
-        }
-
         .viewport-full * {
             border: none !important;
             margin: 0px;
@@ -121,10 +120,9 @@
 
         .dropdown-background {
             /* used for the <div> that hosts all submenu items */
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px 6px rgba(0, 0, 0, 0.2);
             position: absolute;
             display: none;
-            width: 200px;
             left: 0;
             z-index: 0;
         }
@@ -222,6 +220,10 @@
             border-radius: 5px;
         }
 
+        .settings-grid label {
+            padding-left: 10px;
+        }
+
         .settings-grid label, .settings-grid button {
             border-bottom: 4px solid #333;
             border-radius: 2px;
@@ -317,7 +319,7 @@
             }
             
             .bind-div-child {
-                 height: 100%;
+                 max-height: 100%;
             }
 
             .settings-grid {
@@ -358,19 +360,19 @@
 
         <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
             <!-- ROM loading -->
-            <button type="button" style="width: inherit" class="menubtn"
+            <button type="button" class="dropdown-btn"
                 onmousedown="document.getElementById('inputfile').click();" title="Load ROM file from local files.">Load
                 ROM</button>
             <!-- Savefile uploading -->
-            <button type="button" title="Upload .sav files from your local device" style="width: inherit"
-                class="menubtn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+            <button type="button" title="Upload .sav files from your local device"
+                class="dropdown-btn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
             <!-- Savefile downloading -->
-            <button type="button" title="Download a .sav file to you local device" style="width: inherit"
-                id="exportSaveButton" class="menubtn">Export Save File</button>
+            <button type="button" title="Download a .sav file to you local device"
+                id="exportSaveButton" class="dropdown-btn">Export Save File</button>
             <!-- ROM Info -->
-            <button type="button" style="width: inherit" class="menubtn" onclick="showROMInfo()">ROM Info</button>
+            <button type="button" class="dropdown-btn" onclick="showROMInfo()">ROM Info</button>
             <!-- Reset Game -->
-            <button type="button" style="width: inherit; font-size: 0.66rem;" class="menubtn" onclick="restartEmulation()"><code>reset game</code></button>
+            <button type="button" class="dropdown-btn" onclick="restartEmulation()">reset game</button>
         </div>
     </div>
 
@@ -379,25 +381,24 @@
         <button type="button" id="optionsMenuToggle" class="title-btn"
             style="width: 34vw;"><b>Options</b></button>
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
-            <button type="button" style="width: inherit;" class="menubtn" onclick="Themes.next();">Themes</button>
-            <button type="button" id="enterDebugger" style="width: inherit;" class="menubtn"
+            <button type="button" class="dropdown-btn" onclick="Themes.next();">Themes</button>
+            <button type="button" id="enterDebugger" class="dropdown-btn"
             onclick="Debug.start();">Debugger</button>
-            <button type="button" style="width: inherit;" class="menubtn"
+            <button type="button" class="dropdown-btn"
             onclick="Cheats.start();">Cheats</button>
-            <!-- <button type="button" style="width: inherit;" class="menubtn"
+            <!-- <button type="button" class="dropdown-btn"
             onclick="Link.start();">Link Cable</button> -->
-            <button type="button" title="open settings" style="width: inherit;" class="menubtn" onclick="Settings.show();">Settings</button>
+            <button type="button" title="open settings" class="dropdown-btn" onclick="Settings.show();">Settings</button>
         </div>
     </div>
 
     <!-- Save Manager menu -->
     <div class="dropdown" style="float: left;" id="dropdown3">
         <button type="button" id="saveMenuToggle" class="title-btn"><b>Saves</b></button>
-
         <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
-            <button type="button" id="localSaveButton" style="width: inherit;" class="menubtn">Internal Save</button>
-            <button type="button" id="localLoadButton" style="width: inherit;" class="menubtn">Internal Load</button>
-            <button type="button" id="importTextButton" style="width: inherit;" class="menubtn"
+            <button type="button" id="localSaveButton" class="dropdown-btn">Internal Save</button>
+            <button type="button" id="localLoadButton" class="dropdown-btn">Internal Load</button>
+            <button type="button" id="importTextButton" class="dropdown-btn"
                 onclick="SaveManager.importJSON();">Import JSON Text</button>
         </div>
     </div>
@@ -436,7 +437,7 @@
             <b>Settings</b>
             <button type="button" class="x-btn" onclick="Settings.hide();">&times;</button>
         </div>
-        <div class="settings-grid" style="grid-template-rows: repeat(9, 40px);">
+        <div class="settings-grid" style="grid-template-rows: repeat(10, 40px);">
             <b class="settings-title">Emulation Settings</b>
             <!-- Emulation Mode -->
             <label for="emuMode">Emulation Mode:</label>

@@ -821,7 +821,7 @@ var Debug = new function() {
 		for(let i in regs)
 		{
 			if(regs[i][0] == '\n') {
-				str += '<div class="div-separator" style="border-color: var(--menu-btn-color); "></div>';
+				str += '<div class="div-separator" style="border-color: var(--ui-btn-color); "></div>';
 				continue;
 			}
 			
