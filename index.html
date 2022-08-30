@@ -361,11 +361,11 @@
         <div id="loadMenu" style="width: 33vw;" class="dropdown-background">
             <!-- ROM loading -->
             <button type="button" class="dropdown-btn"
-                onmousedown="document.getElementById('inputfile').click();" title="Load ROM file from local files.">Load
+                id="LoadRom" title="Load ROM file from local files.">Load
                 ROM</button>
             <!-- Savefile uploading -->
             <button type="button" title="Upload .sav files from your local device"
-                class="dropdown-btn" onmousedown="document.getElementById('inputSaveFile').click()">Import Save File</button>
+                class="dropdown-btn" onclick="document.getElementById('inputSaveFile').click()">Import Save File</button>
             <!-- Savefile downloading -->
             <button type="button" title="Download a .sav file to you local device"
                 id="exportSaveButton" class="dropdown-btn">Export Save File</button>
@@ -749,11 +749,7 @@
     <script src="javascript/initalize.js"></script>
     <script src="util/touch.js"></script>
     <script type="text/javascript">
-        /**
-         * Set this item to true to remove the service worker every page reload.
-         * While true, old caches will NOT be purged.
-         */
-        const REQUIRES_WORKER_REINSTALL = true;
+        
         let inputForm = document.getElementById('inputfile');
 
         // for loading ROM
@@ -763,9 +759,13 @@
             reader.readAsArrayBuffer(this.files[0]);
             
             reader.onloadend = function () {
-                startEmulation(reader.result)
+                startEmulation(reader.result);
             }
         });
+
+        document.getElementById('LoadRom').addEventListener('click', function() {
+            inputForm.click();
+        })
 
         // Save file loading
         document.getElementById("inputSaveFile").addEventListener('change', function () {
@@ -805,9 +805,6 @@
         }
 
         if ('serviceWorker' in navigator) {
-            if(REQUIRES_WORKER_REINSTALL && navigator.onLine)
-                removeServiceWorkers();
-
             navigator.serviceWorker.register('sw.js').then(null, (err) => {
                     console.log('[Service Worker] Could not install service worker.', err);
                     Settings.set_core('sw_status', 'n/a');

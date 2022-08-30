@@ -9,21 +9,25 @@ var gamepadButtons = {
     "DOWN": false,
 }
 
-function keydown_init(event) {
-    if(hasTouchscreen())
-        hideElement(document.getElementById('touchControls'))
-    
-    keydown(event);
-    document.onkeydown = keydown
-}
 
-/**
- * Key Pressed
- * @param {KeyboardEvent} event 
- */
-function keydown(event) {
+document.addEventListener('keyup', function(event) {
     const key = event.key.toLowerCase();
-    if(KeyBinding.isAssigning)
+
+    if(key == 'o' && (navigator.platform.match("Mac") ? event.metaKey: event.ctrlKey)) {
+        event.preventDefault();
+        inputForm.click()
+        return;
+    }
+});
+
+
+ document.addEventListener('keydown', function(event) {
+    const key = event.key.toLowerCase();
+
+    if(key == 'o' && (navigator.platform.match("Mac") ? event.metaKey: event.ctrlKey)) {
+        event.preventDefault();
+        return;
+    } else if(KeyBinding.isAssigning)
     {
         event.preventDefault();
         KeyBinding.setKey(key);
@@ -40,9 +44,8 @@ function keydown(event) {
             requestFullscreen();
         else
             gamepadButtons[binding] = true;
-
     }
-}
+});
 
 
 /**
@@ -63,11 +66,8 @@ document.onkeyup = function(event) {
 }
 
 
-document.onkeydown = keydown_init;
-
 class Controller {
     /**
-     * 
      * @param {boolean} isDPAD true if you want to check L,R,U,P or A,B,START,SELECT
      */
     static getButtons(isDPAD) {
