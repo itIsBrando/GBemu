@@ -22,6 +22,11 @@ var Map = new function() {
 				Map.printTileInfo(null, x, y);
 		});
 
+		document.getElementById('mapZoomInput').addEventListener("change", function(e) {
+			const v = e.target.value;
+			MapCanvas.style.width = (v * 256) + 'px';
+		});
+
         for(let i = 0; i < radioButtons.length; i++) {
             radioButtons[i].addEventListener("change", function() {
                 Map.draw();
@@ -78,7 +83,7 @@ var Map = new function() {
 
     this.printTileInfo = function(mapBase = null, tx, ty) {
 		const TileInfo = document.getElementById("TileInfo");
-		let s = `<div class="div-separator">`;
+		let s = ``;
 
 		tx &= 31, ty &= 31;
 

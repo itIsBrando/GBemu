@@ -187,6 +187,7 @@
         }
 
         .message-div {
+            width: fit-content;
             display: none;
             position: fixed;
             left: 50%;
@@ -194,7 +195,7 @@
             transform: translate(-50%, -50%);
             background-color: #444444;
             border: 3px solid #dddddd;
-            box-shadow: 0px 16px 32px 0px rgba(0, 0, 0, 0.8);
+            box-shadow: 0px 16px 32px 0px #666;
             z-index: 9;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
@@ -488,7 +489,7 @@
 
     <!-- Debug menu -->
     <div id="DebugDiv" class="popup shadow debug-main-div">
-        <div style="display: flex; grid-template-columns: repeat(7, 1fr); overflow-x: auto;">
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr) 30px; overflow-x: auto; border-bottom: 1px solid #666;">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
@@ -496,25 +497,36 @@
                 onclick="Debug.showDisasm();">Disassembly</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showPalette();">Palette</button>
-            <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">Exit</button>
+            <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">&times;</button>
         </div>
         <div id="PalDiv" class="debug-pal-tab">
             <div id="PalBG" class="debug-pal-prev debug-box"></div>
             <div id="PalOBJ" class="debug-pal-prev debug-box"></div>
         </div>
         <div class="debug-map-div" id="MapDiv">
-            <div id="MapInfo" class="debug-box">
-                <fieldset style="border: none;">
-                    <input type="radio" name="displayMode" value="map" checked />
-                    <label for="map">Map</label><br>
-                    <input type="radio" name="displayMode" value="window" />
-                    <label for="window">Window</label>
-                </fieldset>
-                <pre class="debug-text" style="padding-left: 10px;"></pre>
-            </div>
-            <div id="TilePrevDiv" class="debug-box">
-                <canvas id="TilePreview" width="8" height="8"></canvas>
-                <a id="TileInfo" class="debug-text"></a>
+            <div>
+                <div id="MapInfo" class="debug-box">
+                    <fieldset style="border: none;">
+                        <input type="radio" name="displayMode" value="map" checked />
+                        <label for="map">Map</label><br>
+                        <input type="radio" name="displayMode" value="window" />
+                        <label for="window">Window</label>
+                    </fieldset>
+                    <pre class="debug-text" style="padding-left: 10px;"></pre>
+                </div>
+                <div id="TilePrevDiv" class="debug-box">
+                    <div style="display: flex; justify-content: center;">
+                        <canvas id="TilePreview" width="8" height="8"></canvas>
+                    </div>
+                    <div class="div-separator"></div>
+                    <div style="display:grid; grid-template-columns: 1fr min-content;">
+                        <a id="TileInfo" class="debug-text"></a>
+                        <div>
+                            <label for="mapZoomInput" style="text-align: center;">zoom</label>
+                            <input id="mapZoomInput" type="number" min="1" max="8" value="2">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="MapCanvasDiv" class="debug-box">
                 <canvas id="MapCanvas" width="256" height="256"></canvas>
@@ -691,7 +703,7 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div class="message-div shadow" id="messageID" style="width: fit-content; border-radius: 3px;">
+    <div class="message-div shadow" id="messageID">
         <!-- header -->
         <b>
             <div id="messageHeader" class="menu-header-no-ext" style="padding: 0rem 1rem;">ALERT</div>

@@ -347,7 +347,7 @@ const DisassemblyRegisters = document.getElementById('DisassemblyRegisters');
 var Debug = new function() {
 	let curPC = 0;
 	let prevAddr = 0;
-	const NUM_INSTR_MIN = 36;
+	const NUM_INSTR_MIN = 65;
 	let instr_shown = NUM_INSTR_MIN;
     this.timer = null;
     this.basePC = 0;
@@ -388,9 +388,9 @@ var Debug = new function() {
 				return;
 			
 			window.requestAnimationFrame(() => {
-				if(Math.ceil(e.target.clientHeight + e.target.scrollTop) > e.target.scrollHeight) {
+				if(Math.ceil(e.target.clientHeight + e.target.scrollTop) >= e.target.scrollHeight) {
 					instr_shown += 18;
-					Debug.drawDisassembly(curPC);
+					Debug.drawDisassembly(curPC, false);
 				}
 				Debug.isScrolling = false;
 			});
@@ -605,7 +605,7 @@ var Debug = new function() {
 	this.getAddrHTML = function(addr) {
 		return `<button title="goto address"
 		 onclick="Debug.drawDisassembly(${addr}, true);"
-		 class="debug-addr-btn" type="button"><b>${Debug.hex(addr, 4)}</b>
+		 class="debug-addr-btn" type="button"><b>${Debug.hex(addr, 4)}</b>\
 		</button>`;
 	}
 
@@ -889,7 +889,6 @@ var Debug = new function() {
 	this.drawDisassembly = function(pc, highlightPC = false) {
 		curPC = pc;
 		let curScroll = curPC - prevAddr;
-		const offsetInstr = Math.abs(curScroll);
 
 		if(this.isInsOutOfRange(curPC - curScroll, pc, instr_shown)) {
 			prevAddr = pc;
@@ -902,7 +901,8 @@ var Debug = new function() {
             
         this.basePC = curPC;
 
-		DisText.innerHTML = "";
+		if(mode != 'append')
+			DisText.innerHTML = "";
 
 		for(let i = 0; i < instr_shown; i++)
 		{

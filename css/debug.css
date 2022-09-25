@@ -1,8 +1,14 @@
 .debug-main-div {
-    width: fit-content;
-    max-height: 95vh;
-    max-width: 95vw;
-    min-width: 256px;
+    top: 0px;
+    left: 0px;
+    transform: translate(0%, 0%);
+    position: absolute;
+    max-height: unset;
+    max-width: unset;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0px;
     position: absolute;
     grid-template-rows: min-content 1fr;
     border-color: var(--ui-title-color);
@@ -11,16 +17,16 @@
 
 #MapCanvas {
     aspect-ratio: 1 / 1;
-    width: var(--debug-map-size);
+    width: 512px;
 }
 
 .debug-tile-div, .debug-map-div {
-    overflow: hidden auto;
+    overflow: hidden;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: none;
-    grid-template-rows: auto auto auto;
-    grid-template-columns: auto;
+    grid-template-rows: 100%;
+    grid-template-columns: 1fr 5fr;
 }
 
 
@@ -32,6 +38,8 @@
     font-family: monospace;
     margin: 15px;
     width: calc(100% - 30px);
+    height: fit-content;
+    max-height: 100%;
     border: 1px solid #666;
 }
 
@@ -52,9 +60,6 @@
 
 #TilePrevDiv {
     box-sizing: content-box;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
 }
 
 #TilePreview {
@@ -68,7 +73,7 @@
     margin: 0px;
     border-radius: 0px;
     background-color: var(--ui-title-color);
-    color: #ccc;
+    color: #ddd;
 }
 
 .debug-title-btn-active {
@@ -200,7 +205,7 @@
     height: 100%;
     grid-template-columns: 3fr min-content;
     grid-auto-rows: 1fr min-content;
-    overflow: hidden auto;
+    overflow: hidden scroll;
 }
 
 #MemoryDiv {
@@ -217,7 +222,10 @@
 
 #MapCanvasDiv {
     overflow: auto;
-    background-color:black;
+    background-color:#222;
+    max-height: calc(100% - 30px);
+    grid-row: 1 / 3;
+    grid-column: 2;
     margin-bottom: env(safe-area-inset-bottom);
 }
 
@@ -227,12 +235,6 @@
 }
 
 @media (orientation: landscape) {
-    .debug-tile-div, .debug-map-div {
-        grid-template-rows: repeat(2, min-content);
-        grid-template-columns: 1fr 1fr;
-        grid-auto-flow: column;
-    }
-
     #OamDiv {
         grid-template-columns: 1fr 1fr;
     }
@@ -243,24 +245,17 @@
 
     .palette-menu {
         grid-template-columns: 1fr 1fr;
+    }
+}
 
+
+@media (orientation: portrait) {
+    .debug-pal-tab {
+        flex-direction: column;
     }
 }
 
 @media (max-width: 500px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
-    .debug-main-div {
-        top: 0px;
-        left: 0px;
-        transform: translate(0%, 0%);
-        position: absolute;
-        max-height: unset;
-        max-width: unset;
-        width: 100%;
-        height: 100%;
-        border: none;
-        border-radius: 0px;
-    }
-
     .debug-box {
         margin: 5px;
         width: calc(100% - 10px);
@@ -268,12 +263,6 @@
 
     #TilePreview {
         width: 64px;
-    }
-
-    @media (orientation: portrait) {
-        .debug-pal-tab {
-            flex-direction: column;
-        }
     }
 
     @media (orientation: landscape) {
