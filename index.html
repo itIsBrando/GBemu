@@ -553,14 +553,12 @@
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
             <div class="disasm-buttons">
-                <button type="button" class="disasm-btn" onclick="Debug.stepDis();">step</button>
-                <button type="button" class="disasm-btn" onclick="Debug.stepDisSkipSub();">run to next
+                <button type="button" class="disasm-btn" onclick="Disassembler.step();">step</button>
+                <button type="button" class="disasm-btn" onclick="Disassembler.stepLine();">run to next
                     line</button>
-                <button type="button" class="disasm-btn" onclick="Debug.stepUntilBreak();">run until
-                    break</button>
-                <button type="button" class="disasm-btn" onclick="Debug.searchByte();">search
-                    byte</button>
-                <button type="button" class="disasm-btn" onclick="Debug.gotoDis();">goto</button>
+                <!-- <button type="button" class="disasm-btn" onclick="Disassembler.runToBreak();">run until break</button> -->
+                <button type="button" class="disasm-btn" onclick="Disassembler.stepOut();">step out</button>
+                <button type="button" class="disasm-btn" onclick="Disassembler.goto();">goto</button>
                 <button type="button" class="disasm-btn" onclick="Debug.showBreak();">breakpoints</button>
                     <!-- <button style="width:100%;" type="button" class="menubtn" title="Add define list from RGBDS sym file."
                     onclick="document.getElementById('symFile').click();">Upload sym file</button> -->
@@ -735,6 +733,8 @@
     <script src="util/keyboard.js"></script>
     <script src="util/controller.js"></script>
     <script src="util/debug.js"></script>
+    <script src="util/debug/Opcode.js"></script>
+    <script src="util/debug/Disassembler.js"></script>
     <script src="util/debug/Map.js"></script>
     <script src="util/debug/Oam.js"></script>
     <script src="util/debug/Tiles.js"></script>
