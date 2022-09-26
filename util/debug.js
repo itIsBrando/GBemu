@@ -26,7 +26,7 @@ var Debug = new function() {
 		pauseEmulation();
 		this.enabled = true;
 		
-		Themes.setSettingsBar();
+		Themes.setSettingsBar(true);
 
         if(this.initialized) {
 			this.showDisasm();

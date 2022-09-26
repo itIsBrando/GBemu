@@ -52,8 +52,8 @@ var Themes = new function() {
     }
 
 
-    this.setSettingsBar = function() {
-        if(Settings.get_temp("change_status_bar", "false") == "true")
+    this.setSettingsBar = function(force = false) {
+        if(force || Settings.get_temp("change_status_bar", "false") == "true")
             this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-title-color'));
     }
 
