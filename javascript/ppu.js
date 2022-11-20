@@ -410,7 +410,7 @@ class PPU {
                         cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
                         // check for vblank interrupt in rSTAT
-                        if(UInt8.getBit(this.regs.stat, 3))
+                        if(UInt8.getBit(this.regs.stat, 4))
                             cpu.requestInterrupt(InterruptType.lcd);
                         
                             this.checkCoincidence();

@@ -882,7 +882,6 @@ var opTable = {
     // add a, b
     0x80: function(cpu) {
         let n = cpu.bc.high;
-        cpu.zero(cpu.af.high);
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.ADD);
         cpu.carry8(cpu.af.high, n, Arithmetic.ADD);
         cpu.flags.n = false;
@@ -1089,7 +1088,6 @@ var opTable = {
     // sub b
     0x90: function(cpu) {
         let n = cpu.bc.high;
-        cpu.zero(cpu.af.high);
         cpu.halfCarry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.carry8(cpu.af.high, n, Arithmetic.SUB);
         cpu.flags.n = true;
@@ -1296,7 +1294,6 @@ var opTable = {
         // and b
         0xA0: function(cpu) {
             let n = cpu.bc.high;
-            cpu.zero(cpu.af.high);
             cpu.flags.hc = true;
             cpu.flags.c = false;
             cpu.flags.n = false;
@@ -1495,7 +1492,6 @@ var opTable = {
         // or b
         0xB0: function(cpu) {
             let n = cpu.bc.high;
-            cpu.zero(cpu.af.high);
             cpu.flags.hc = false;
             cpu.flags.c = false;
             cpu.flags.n = false;

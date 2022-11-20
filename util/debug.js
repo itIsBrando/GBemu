@@ -252,6 +252,7 @@ var Debug = new function() {
 			["SCX", ['ppu', 'regs', 'scx'], 2],
 			["LY", ['ppu', 'regs', 'scanline'], 2],
 			["DMA", ['ppu', 'regs', 'dma'], 2],
+			["BGP", ['ppu', 'regs', 'bgp'], 2],
 			["OBJ0", ['ppu', 'regs', 'obj0'], 2],
 			["OBJ1", ['ppu', 'regs', 'obj1'], 2],
 			["WY", ['ppu', 'regs', 'wy'], 2],
