@@ -53,7 +53,6 @@ var Oam = new function() {
         showElement(div, 'grid');
         
 		c.renderer.clearBuffer();
-        c.renderer.renderSprites();
 
 		this.draw(0);
 

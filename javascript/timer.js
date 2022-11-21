@@ -1,7 +1,5 @@
 class Timer {
     constructor() {
-        this.shouldReload = false;
-
         this.regs = {
             tima: 0,
             div: 0,
@@ -96,7 +94,6 @@ class Timer {
             
             // if we are about to overflow
             if(this.regs.tima == 0xFF) {
-                //this.shouldReload = true;
                 this.regs.tima = this.regs.tma;
                 cpu.requestInterrupt(InterruptType.timer);
             } else {

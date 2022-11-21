@@ -61,6 +61,7 @@ class Renderer {
 
         this.renderMap();
         this.renderWindow();
+        this.renderSpriteLine();
     }
 
     /**
@@ -73,15 +74,20 @@ class Renderer {
         const yOffset = ((scanline + scy) >> 3) & 0x1F;
         const y = (scanline + scy) & 7; // same as % 8
         
+        if(!UInt8.getBit(ppu.regs.lcdc, 0))
+            return; // @todo this should fill in with bgpal color 0
         
         for(let i = 0; i <= 20; i++) {
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
             const tileNum = this.parent.read8(mapAddress);
+            const flags = ppu.getTileAttributes(mapAddress);
+            const yFlip = UInt8.getBit(flags, 6);
             
-            const tileAddr = ppu.getBGTileAddress(tileNum) + (y << 1);
+            const tx = yFlip ? 7 - y : y; // tile addr offset
+            const tileAddr = ppu.getBGTileAddress(tileNum) + (tx << 1);
             
-            this.drawTileLine(mapAddress, (i << 3) - (scx & 7), scanline, tileAddr)
+            this.drawTileLine((i << 3) - (scx & 7), scanline, tileAddr, flags, Renderer.getPalette(this.parent, true, flags)); // @todo
         }
     }
 
@@ -98,7 +104,6 @@ class Renderer {
         const wx = ppu.regs.wx;
         const wy = ppu.regs.wy;
 
-        const tileBase = ppu.tileBase;
         const mapBase = ppu.winBase;
         const scanline = ppu.regs.scanline;
         const yMap = (scanline - wy) & 255;
@@ -111,69 +116,76 @@ class Renderer {
             const xMap = (x & 0xFF);
             const y = yMap & 7;
             const mapAddress = mapBase + ( (yMap >> 3) * 32) + xMap-(wx>>3);
-            let tile = this.parent.read8(mapAddress);
-            // signed tile
-            if(tileBase == 0x9000 && (tile > 127))
-                tile -= 256;
-            const tileAddress = tileBase + (tile * 16) + (y << 1);
+            const flags = ppu.getTileAttributes(mapAddress);
+            const yFlip = UInt8.getBit(flags, 6);
+
+            const tx = yFlip ? 7 - y : y; // tile addr offset
+            const tileAddress = ppu.getBGTileAddress(this.parent.read8(mapAddress)) + (tx << 1);
             
-            this.drawTileLine(mapAddress, (x << 3) - 7 + (wx & 7), scanline, tileAddress);
+            this.drawTileLine((x << 3) - 7 + (wx & 7), scanline, tileAddress, flags, Renderer.getPalette(this.parent, true, flags)); // @todo
         }
 
     }
 
-
-    renderSprites() {
-        const cpu = this.parent;
+    renderSpriteLine() {
         const ppu = this.parent.ppu;
-        // return if sprites are disabled
-        if(ppu.regs.lcdc & 0x2 == 0)
+        const cpu = this.parent;
+
+        if(!UInt8.getBit(ppu.regs.lcdc, 1))
             return;
-
+        
         const bigSprite = UInt8.getBit(ppu.regs.lcdc, 2);
+        const height = bigSprite ? 16 : 8;
+        const scanline = ppu.regs.scanline;
+        let addr = 0, objs = 0;
 
-        for(let s = 0; s < 40; s++)
-        {
-            const spriteBase = 0xFE00 + (s << 2);
-            const y = cpu.read8(spriteBase) - 16;
-            const x = cpu.read8(spriteBase + 1) - 8;
-            const tile = cpu.read8(spriteBase + 2);
-            const flags= cpu.read8(spriteBase + 3);
-            const t = (tile << 4) + 0x8000;
+        for(let i = 0; i < 40; i++) {
+            const y = cpu.mem.oam[addr] - 16;
+            const x = cpu.mem.oam[addr + 1] - 8;
+            let tile = cpu.mem.oam[addr + 2];
+            const flg = cpu.mem.oam[addr + 3];
+            const yFlip = UInt8.getBit(flg, 6);
 
-            // draw 8x16 sprites
-            if(bigSprite)
-            {
-                // if y-flip, then then second sprite is drawn above first 
-                if(UInt8.getBit(flags, 6))
-                {
-                    this.drawTile(x, y + 8, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
-                    this.drawTile(x, y, t + 16, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
-                } else {
-                    this.drawTile(x, y, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
-                    this.drawTile(x, y + 8, t + 16, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
-                }
-            } else {
-                this.drawTile(x, y, t, flags, false, this.screen, 160, UInt8.getBit(flags, 3));
+            const dy = (scanline - y) & 15;
+            const pal = Renderer.getPalette(cpu, false, flg);
+            
+            if(!(scanline >= y && scanline < y + height)) {
+                addr += 4;
+                continue;
             }
+
+            if(bigSprite) {
+                tile &= 0xfe;
+                if((yFlip ? 15 - dy : dy) > 7)
+                    tile++;
+            }
+            const tx = yFlip ? 7 - (dy & 7) : dy & 7;
+            const tileAddr = (tile << 4) + 0x8000 + (tx << 1);
+
+            this.drawTileLine(x, y + dy, tileAddr, flg, pal, true);
+
+            if(++objs >= 10) { // obj limit
+                break;
+            }
+
+            addr += 4;
         }
     }
 
 
     /**
-     * @param {UInt16} mapAddress pointer to tile. Used for CGB flags byte
      * @param {number} x 
      * @param {number} y 
      * @param {UInt16} tileAddress
+     * @param {UInt8} flag byte for flags. Either for tiles or sprites
+     * @param {Array} pal palette to use for drawing
+     * @param {Boolean} isObj determine whether to draw using a sprite or background
+     * @note this cannot handle yflips
      */
-    drawTileLine(mapAddress, x, y, tileAddress) {
+    drawTileLine(x, y, tileAddress, flags, pal, isObj = false) {
         if(y >= 144) { return };
         const cpu = this.parent;
-        const flags = cpu.ppu.getTileAttributes(mapAddress);
-        const xFlip = UInt8.getBit(flags, 6);
-        // add yflip
-
-        const pal = Renderer.getPalette(cpu, true, flags);
+        const xFlip = UInt8.getBit(flags, 5);
 
         // override VRAM bank reading
         tileAddress -= 0x8000;
@@ -181,6 +193,7 @@ class Renderer {
         if(UInt8.getBit(flags, 3)) {
             tileAddress += 0x2000;
         }
+
         let byte1 = cpu.mem.vram[tileAddress];
         let byte2 = cpu.mem.vram[tileAddress + 1];
         // since there are four bytes per pixel, we must times by 4
@@ -191,7 +204,7 @@ class Renderer {
             byte1 >>= 1;
             byte2 >>= 1;
             const dx = xFlip ? i : 7 - i;
-            if((x + dx) < 0 || (x + dx) >= 160) {
+            if(((isObj && index == 0)) || ((x + dx) < 0 || (x + dx) >= 160)) {
                 canvasOffset = xFlip ? canvasOffset + 4 : canvasOffset - 4;
                 continue;
             }
