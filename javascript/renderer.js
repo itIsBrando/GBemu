@@ -25,6 +25,13 @@ class Renderer {
 
         this.context.globalAlpha = 1.0;
         this.parent = cpu;
+
+        /**
+         * This is for the weird cases when the window is disabled and reenabled during a frame.
+         * The gameboy resumes drawing where it left off.
+         * @link https://github.com/shonumi/gbe-plus/commit/15df53c83677062f98915293fc03620af65bd7c4
+         */
+        this.internalWinOffset = 0;
         this.drawBuffer();
     }
 
@@ -92,9 +99,6 @@ class Renderer {
     }
 
 
-    /**
-     * X coordinate only works with multiples of 8
-     */
     renderWindow() {
         const ppu = this.parent.ppu;
         // return if window is disabled
@@ -103,10 +107,20 @@ class Renderer {
 
         const wx = ppu.regs.wx;
         const wy = ppu.regs.wy;
+        const scanline = ppu.regs.scanline;
+
+        if(wx >= 160)
+            return;
+
+        if(this.internalWinOffset == 0) {
+            this.internalWinOffset = (scanline - wy) & 255;
+        } else {
+            this.internalWinOffset++;
+            this.internalWinOffset &= 255;
+        }
 
         const mapBase = ppu.winBase;
-        const scanline = ppu.regs.scanline;
-        const yMap = (scanline - wy) & 255;
+        const yMap = this.internalWinOffset;
         
         if(scanline < wy && scanline < 144)
             return;
@@ -115,17 +129,18 @@ class Renderer {
         {
             const xMap = (x & 0xFF);
             const y = yMap & 7;
-            const mapAddress = mapBase + ( (yMap >> 3) * 32) + xMap-(wx>>3);
+            const mapAddress = mapBase + ( ( yMap >> 3 ) * 32 ) + xMap - ( wx >> 3 );
             const flags = ppu.getTileAttributes(mapAddress);
             const yFlip = UInt8.getBit(flags, 6);
 
             const tx = yFlip ? 7 - y : y; // tile addr offset
             const tileAddress = ppu.getBGTileAddress(this.parent.read8(mapAddress)) + (tx << 1);
             
-            this.drawTileLine((x << 3) - 7 + (wx & 7), scanline, tileAddress, flags, Renderer.getPalette(this.parent, true, flags)); // @todo
+            this.drawTileLine((x << 3) - 7 + (wx & 7), scanline, tileAddress, flags, Renderer.getPalette(this.parent, true, flags));
         }
 
     }
+
 
     renderSpriteLine() {
         const ppu = this.parent.ppu;

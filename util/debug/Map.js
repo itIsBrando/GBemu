@@ -88,10 +88,15 @@ var Map = new function() {
 		tx &= 31, ty &= 31;
 
 		const offset = tx + ty * 32;
-		const tile = mapBase ? c.read8(offset + mapBase) : offset;
+		const mapAddr = offset + mapBase;
+		const tile = mapBase ? c.read8(mapAddr) : offset;
 		const addr = c.ppu.getBGTileAddress(tile);
 
-		s += `Tile: ${Debug.hex(tile)}<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}<br>X: ${tx}<br>Y: ${ty}`;
+		s += `Tile: \
+		${Debug.hex(tile)}<br>\
+		Map Address: ${Debug.hex(mapAddr, 4)}\
+		Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}\
+		<br>X: ${tx}<br>Y: ${ty}`;
 
 		if(mapBase != null)
 			s += `<br>Flag: ${Debug.hex(c.ppu.getTileAttributes(offset + mapBase))}`;

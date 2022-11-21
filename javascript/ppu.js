@@ -430,6 +430,7 @@ class PPU {
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;
                         this.mode = PPUMODE.scanlineOAM;
+                        this.parent.renderer.internalWinOffset = 0;
                     }
 
                     this.cycles -= 456;
