@@ -28,7 +28,7 @@ var opBIT_CB = {
     // bit y, [hl]
     0x06: function(cpu, bit) {
         cpu.flags.z = !UInt8.getBit(cpu.indirect_hl, bit);
-        cpu.cycles = 16;
+        cpu.cycles = 12;
     },
     // bit y, a
     0x07: function(cpu, bit) {
