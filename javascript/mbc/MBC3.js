@@ -26,7 +26,7 @@ class MBC3 extends MBC1 {
     }
 
     acceptsWrite(addr) {
-        return (addr <= 0x8000)
+        return (addr < 0x8000)
          || (addr >= 0xA000 && addr < 0xC000);
     }
 
