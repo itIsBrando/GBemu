@@ -2,8 +2,6 @@
 
 const USE_LOG = false;
 
-let outstr = '';
-
 const Arithmetic = {
     ADD: 'add',
     ADC: 'adc',// only supports 8-bit operations
@@ -709,12 +707,6 @@ class CPU {
             return false;
         } else if(this.isHalted === false) {
             opTable[opcode](this);
-        }
-
-        if(this.pc.v == 0xd826) {
-            Debug.start();
-            console.log(outstr);
-            return false;
         }
 
         if(this.isHalted)
