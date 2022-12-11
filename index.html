@@ -186,21 +186,6 @@
            background-color: #777;
         }
 
-        .message-div {
-            width: fit-content;
-            display: none;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #444444;
-            border: 3px solid #dddddd;
-            box-shadow: 0px 16px 32px 0px #666;
-            z-index: 9;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
         .div-separator {
             width: 100%;
             border-top: 2px solid #ddd;
@@ -543,13 +528,15 @@
             <pre class="debug-text debug-memory-text"></pre>
         </div>
         <div id="DisassemblyDiv" class="disasm-main-div">
+            <!-- instructions div -->
             <div class="debug-box" style="overflow: auto;">
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
-                <pre style="margin: 0px;">  addr   opcode     mnemonic</pre>
+                <pre style="margin: 0px;">   addr   opcode     mnemonic</pre>
                 <pre id="DisasmContent" class="debug-text"></pre>
             </div>
             <!-- Register DIV -->
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
+                <canvas width="160" height="144" style="width: 100%;" id="DisassemblyCanvas"></canvas>
                 <pre id="DisassemblyRegisters" class="debug-text" style="padding: 5px; overflow-y: auto;"></pre>
             </div>
             <div class="disasm-buttons">
@@ -559,7 +546,9 @@
                 <!-- <button type="button" class="disasm-btn" onclick="Disassembler.runToBreak();">run until break</button> -->
                 <button type="button" class="disasm-btn" onclick="Disassembler.stepOut();">step out</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.goto();">goto</button>
-                <button type="button" class="disasm-btn" onclick="Debug.showBreak();">breakpoints</button>
+                <button type="button" class="disasm-btn" onclick="Disassembler.search();">search</button>
+                <button type="button" class="disasm-btn" onclick="Disassembler.resetGame();">reset</button>
+                <!-- <button type="button" class="disasm-btn" onclick="Debug.showBreak();">breakpoints</button> -->
                     <!-- <button style="width:100%;" type="button" class="menubtn" title="Add define list from RGBDS sym file."
                     onclick="document.getElementById('symFile').click();">Upload sym file</button> -->
             </div>
@@ -701,13 +690,13 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div class="message-div shadow" id="messageID">
+    <div class="popup shadow" id="messageID">
         <!-- header -->
         <b>
-            <div id="messageHeader" class="menu-header-no-ext" style="padding: 0rem 1rem;">ALERT</div>
+            <div id="messageHeader" class="menu-header-no-ext" style="padding: 0rem 1rem;"></div>
         </b>
         <!-- body -->
-        <p id="messageContent" style="color: aliceblue; padding: 5px 15px 3px 15px; margin:0px; text-align:center;">Message Content</p>
+        <p id="messageContent" style="color: aliceblue; padding-left: 0.5em;">Message Content</p>
         <!-- confirm -->
         <div class="div-separator"></div>
         <button class="menubtn" style="float:left; width: 50%;" id="messageConfirm">Okay</button>

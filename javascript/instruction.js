@@ -1,6 +1,5 @@
 "use strict"
 
-let errorParagraph = document.getElementById("errorP");
 /**
  * @param {number} op
  * @param {CPU} cpu
@@ -1666,10 +1665,11 @@ var opTable = {
 
         // ret nz
         0xC0: function(cpu) {
-            if(cpu.flags.z == false)
+            if(cpu.flags.z == false) {
                 cpu.pc.v = cpu.popStack();
-            else {
-                cpu.cycles -= 12;
+                cpu.cycles = 24;
+            } else {
+                cpu.cycles = 8;
                 cpu.skip(1);
             }
         },
@@ -1681,10 +1681,11 @@ var opTable = {
         // jp nz, d16
         0xC2: function(cpu) {
             let d16 = cpu.readImmediate16();
-            if(cpu.flags.z == false)
+            if(cpu.flags.z == false) {
                 cpu.pc.v = d16;
-            else {
-                cpu.cycles -= 4;
+                cpu.cycles = 12;
+            } else {
+                cpu.cycles = 12;
                 cpu.skip(3);
             }
         },
@@ -1698,10 +1699,10 @@ var opTable = {
             let d16 = cpu.readImmediate16();
 
             cpu.skip(3);
-            if(cpu.flags.z == false)
-            {
+            if(cpu.flags.z == false) {
                 cpu.pushStack(cpu.pc.v);
                 cpu.pc.v = d16;
+                cpu.cycles = 24;
             } else {
                 cpu.cycles = 12;
             }
@@ -1734,8 +1735,9 @@ var opTable = {
         0xC8: function(cpu) {
             if(cpu.flags.z == true) {
                 cpu.pc.v = cpu.popStack();
+                cpu.cycles = 20;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 8;
                 cpu.skip(1);
             }
         },
@@ -1746,10 +1748,11 @@ var opTable = {
         // jp z, d16
         0xCA: function(cpu) {
             let d16 = cpu.readImmediate16();
-            if(cpu.flags.z == true)
+            if(cpu.flags.z == true) {
                 cpu.pc.v = d16;
-            else {
-                cpu.cycles -= 4;
+                cpu.cycles = 16;
+            } else {
+                cpu.cycles = 12;
                 cpu.skip(3);
             }
         },
@@ -1792,8 +1795,9 @@ var opTable = {
             {
                 cpu.pushStack(cpu.pc.v);
                 cpu.pc.v = d16;
+                cpu.cycles = 24;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 12;
             }
         },
         // call d16
@@ -1826,10 +1830,11 @@ var opTable = {
 
         // ret nc
         0xD0: function(cpu) {
-            if(cpu.flags.c == false)
+            if(cpu.flags.c == false) {
                 cpu.pc.v = cpu.popStack();
-            else {
-                cpu.cycles -= 12;
+                cpu.cycles = 20;
+            } else {
+                cpu.cycles = 8;
                 cpu.skip(1);
             }
         },
@@ -1841,10 +1846,11 @@ var opTable = {
         // jp nc, d16
         0xD2: function(cpu) {
             let d16 = cpu.readImmediate16();
-            if(cpu.flags.c == false)
+            if(cpu.flags.c == false) {
                 cpu.pc.v = d16;
-            else {
-                cpu.cycles -= 4;
+                cpu.cycles = 16;
+            } else {
+                cpu.cycles = 12;
                 cpu.skip(3);
             }
         },
@@ -1854,12 +1860,12 @@ var opTable = {
             let d16 = cpu.readImmediate16();
 
             cpu.skip(3);
-            if(cpu.flags.c == false)
-            {
+            if(cpu.flags.c == false) {
                 cpu.pushStack(cpu.pc.v);
                 cpu.pc.v = d16;
+                cpu.cycles = 24;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 12;
             }
         },
         // push de
@@ -1889,8 +1895,9 @@ var opTable = {
         0xD8: function(cpu) {
             if(cpu.flags.c == true) {
                 cpu.pc.v = cpu.popStack();
+                cpu.cycles = 20;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 8;
                 cpu.skip(1);
             }
         },
@@ -1902,10 +1909,11 @@ var opTable = {
         // jp c, d16
         0xDA: function(cpu) {
             let d16 = cpu.readImmediate16();
-            if(cpu.flags.c == true)
+            if(cpu.flags.c == true) {
                 cpu.pc.v = d16;
-            else {
-                cpu.cycles -= 4;
+                cpu.cycles = 16;
+            } else {
+                cpu.cycles = 12;
                 cpu.skip(3);
             }
         },
@@ -1914,12 +1922,12 @@ var opTable = {
             let d16 = cpu.readImmediate16();
 
             cpu.skip(3);
-            if(cpu.flags.c)
-            {
+            if(cpu.flags.c) {
                 cpu.pushStack(cpu.pc.v);
                 cpu.pc.v = d16;
+                cpu.cycles = 24;
             } else {
-                cpu.cycles -= 12;
+                cpu.cycles = 12;
             }
         },
         // sbc a, n

@@ -2,6 +2,8 @@
 
 const USE_LOG = false;
 
+let outstr = '';
+
 const Arithmetic = {
     ADD: 'add',
     ADC: 'adc',// only supports 8-bit operations
@@ -695,7 +697,11 @@ class CPU {
 
     execute() {
         const opcode = this.read8(this.pc.v);
+        const prevPC = this.pc.v;
         this.cycles = opcodeCycles[opcode];
+
+        const o = new Opcode(this.pc.v);
+        outstr += `${hex(prevPC, 4, '')} : ${o.getOpcodeString()} ${o.getString(false)}\n`;
 
         // execute opcode
          if(opTable[opcode] == undefined) {
@@ -703,6 +709,12 @@ class CPU {
             return false;
         } else if(this.isHalted === false) {
             opTable[opcode](this);
+        }
+
+        if(this.pc.v == 0xd826) {
+            Debug.start();
+            console.log(outstr);
+            return false;
         }
 
         if(this.isHalted)

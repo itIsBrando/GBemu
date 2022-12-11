@@ -204,9 +204,14 @@
 
 .disasm-main-div {
     height: 100%;
-    grid-template-columns: 3fr min-content;
-    grid-auto-rows: 1fr min-content;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr min-content;
     overflow: hidden scroll;
+}
+
+#DisassemblyRegisters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
 #MemoryDiv {

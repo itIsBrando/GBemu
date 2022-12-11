@@ -6,7 +6,7 @@ const opcodeLUT = [
     "inc b",
     "dec b",
     "ld b, ${u8}",
-    "rcla",
+    "rlca",
     "ld (${u16}), sp",
     "add hl, bc",
     "ld a, (bc)",
@@ -375,7 +375,7 @@ class Opcode {
         return Opcode.getOpLength(this.op);
     }
 
-    getString() {
+    getString(symbolic = true) {
         let s = opcodeLUT[this.op] ? opcodeLUT[this.op] : '<b style="color:gray;">Illegal Opcode</b>';
         
         // special handling for CB instructions
@@ -442,7 +442,7 @@ class Opcode {
             }
 
             s = s.replace(/\${.+}/g, append);
-            if(addr != null)
+            if(addr != null && symbolic)
                 s += Opcode.getAddressName(addr);
         }
 

@@ -237,6 +237,7 @@ var Debug = new function() {
     }
     
 	this.showRegister = function() {
+		// name, keys, length of number
 		const regs = [
 			["AF", ['af', 'v'], 4],
 			["BC", ['bc', 'v'], 4],
@@ -277,7 +278,7 @@ var Debug = new function() {
 		for(let i in regs)
 		{
 			if(regs[i][0] == '\n') {
-				str += '<div class="div-separator" style="border-color: var(--ui-btn-color); "></div>';
+				str += '<div class="div-separator" style="border-color: var(--ui-btn-color); grid-column: 1 / 3;"></div>';
 				continue;
 			}
 			
@@ -286,7 +287,7 @@ var Debug = new function() {
 			for(let j = 1; j < keys.length; j++)
 				v = v[keys[j]];
 			
-			str += `${(regs[i][0] + ":").padEnd(5)}${Debug.hex(v, regs[i][2])}<br>`;
+			str += `<div>${(regs[i][0] + ":").padEnd(5)}</div><div style="text-align:right; padding-right:1em;">${Debug.hex(v, regs[i][2])}</div>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;

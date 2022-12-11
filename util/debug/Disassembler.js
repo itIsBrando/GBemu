@@ -11,7 +11,6 @@ var Disassembler = new function() {
     this.end = 0x200; // exclusive
 
 
-
     this.init = function() {
         // Add scroll event to disassembler
         DisScrollDiv.addEventListener("scroll", (e) => {
@@ -31,9 +30,11 @@ var Disassembler = new function() {
         this.show();
     }
 
+
     this.isInRange = function(addr) {
         return addr >= this.base && addr < this.end;
     }
+
 
     /**
      * 
@@ -41,14 +42,15 @@ var Disassembler = new function() {
      * @returns {String}
      */
     this.getLine = function(op) {
-        let s = ` ${hex(op.address, 4, '')} | ${op.getOpcodeString().padEnd(6)} :    ${op.getString()}<br>`;
+        let s = `   ${hex(op.address, 4, '')} | ${op.getOpcodeString().padEnd(6)} :    ${op.getString()}<br>`;
 
         if(op.address == c.pc.v) {
-            s = `<b style="background-color: green; color: white; padding-right: 1rem;">${s}</b>`;
+            s = `<b style="color: limegreen; padding-right: 1rem;">${s}</b>`;
         }
         
         return s;
     }
+
 
     /**
      * Draws one line to `DisText`
@@ -58,7 +60,6 @@ var Disassembler = new function() {
      */
     this.renderLine = function(addr, flags={}) {
         const o = new Opcode(addr);
-        const len = o.getLength();
         let s = this.getLine(o);
 
         if('highlight' in flags && flags['highlight'] == addr) {
@@ -73,6 +74,7 @@ var Disassembler = new function() {
         DisText.innerHTML += s;
         return o;
     }
+
 
     /**
      * @param {Number} startPC base address
@@ -97,8 +99,9 @@ var Disassembler = new function() {
         this.numInstructions = i;
         this.end = addr;
 
-        Debug.showRegister();
+    Debug.showRegister();
     }
+
 
     /**
      * Appends instructions to the current rendering
@@ -121,9 +124,13 @@ var Disassembler = new function() {
 
 
     this.show = function() {
+        const DisassemblyCanvas = document.getElementById("DisassemblyCanvas");
         showElement(DisassemblyDiv, 'grid');
         DisScrollDiv.scrollTo(0, 0);
         this.numInstructions = INSTR_SHOWN;
+
+        DisassemblyCanvas.getContext('2d').putImageData(c.renderer.screen, 0, 0);
+
 
         this.render(c.pc.v);
     }
@@ -154,14 +161,14 @@ var Disassembler = new function() {
 
     this.stepLine = function() {
         const exclude = [0xE9, 0xC3, 0x18, 0xC0, 0xD0, 0xC8, 0xC9, 0xD8, 0xD9];
-        const condBranches = [0x20, 0x30, 0x28, 0x38, 0xC2, 0xD2, 0xCA, 0xDA];
+        const conditionalBranches = [0x20, 0x30, 0x28, 0x38, 0xC2, 0xD2, 0xCA, 0xDA];
         
         const op = c.read8(c.pc.v);
         let target = c.pc.v + Opcode.getOpLength(op);
         let cnt = 20000; // max iterations
         
         // if we are a branch or return, then we do not want to go to next line
-        if(exclude.includes(op) || (condBranches.includes(op) && c.read8(c.pc.v + 1) < 0x80)) {
+        if(exclude.includes(op) || (conditionalBranches.includes(op) && c.read8(c.pc.v + 1) < 0x80)) {
             c.execute();
         } else { 
             do {
@@ -176,6 +183,7 @@ var Disassembler = new function() {
         else
             this.render(c.pc.v);
     }
+
 
     this.stepOut = function() {
         const rets = [0xE9, 0xC3, 0x18, 0xC0, 0xD0, 0xC8, 0xC9, 0xD8, 0xD9]; // @TODO CHECK ALL OPS
@@ -213,20 +221,44 @@ var Disassembler = new function() {
             this.render(c.pc.v);
     }
 
-    this._gotocallback = function(a) {
-        const addr = Number("0x" + a);
-        if(addr == null)
-            return;
-            
-        if(!Disassembler.isInRange(addr))
-            Disassembler.base = addr;
-        
-        Disassembler.render(Disassembler.base, INSTR_SHOWN, {'highlight': addr});
-    }
+    this.goto = function() {
+        const m = new PromptMenu("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, (a) => {
+            const address = Number("0x" + a); // @todo can i do Number(a, 16)???
 
-    this.goto = function(addr) {
-        const m = new PromptMenu("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, Disassembler._gotocallback);
+            if(addresss == null)
+                return;
+
+            if(!Disassembler.isInRange(address))
+                Disassembler.base = address;
+
+            Disassembler.render(Disassembler.base, INSTR_SHOWN, {'highlight': address});
+        });
         
         m.show();
+    }
+
+
+    this.search = function() {
+        const m = new PromptMenu(`Enter string to search starting at ${hex(Disassembler.base)}`, "", /[\w ]+/g, 30, function(str) {
+            // search for a string in the disassembly
+            str = str.toLowerCase();
+            for(let i = Disassembler.base + 1; i < 0xfffe; i++) {
+                const op = new Opcode(i);
+
+                if(op.getString().toLowerCase().includes(str)) {
+                    Disassembler.render(i, INSTR_SHOWN, {'highlight': i});
+                    return;
+                }
+            }
+
+            Menu.message.show(`Could not find '${str}'.`, "String not Found");
+        });
+
+        m.show();
+    }
+
+    this.resetGame = function() {
+        c.reset();
+        this.render(c.pc.v);
     }
 }

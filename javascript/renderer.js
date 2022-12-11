@@ -81,7 +81,7 @@ class Renderer {
         const yOffset = ((scanline + scy) >> 3) & 0x1F;
         const y = (scanline + scy) & 7; // same as % 8
         
-        if(!UInt8.getBit(ppu.regs.lcdc, 0))
+        if(!UInt8.getBit(ppu.regs.lcdc, 0) && !this.parent.cgb)
             return; // @todo this should fill in with bgpal color 0
         
         for(let i = 0; i <= 20; i++) {
@@ -94,23 +94,28 @@ class Renderer {
             const tx = yFlip ? 7 - y : y; // tile addr offset
             const tileAddr = ppu.getBGTileAddress(tileNum) + (tx << 1);
             
-            this.drawTileLine((i << 3) - (scx & 7), scanline, tileAddr, flags, Renderer.getPalette(this.parent, true, flags)); // @todo
+            this.drawTileLine((i << 3) - (scx & 7), scanline, tileAddr, flags, Renderer.getPalette(this.parent, true, flags));
         }
     }
 
-
+    /**
+     * Renders one line of the window if enabled
+     */
     renderWindow() {
         const ppu = this.parent.ppu;
         // return if window is disabled
         if(!UInt8.getBit(ppu.regs.lcdc, 5))
+            return;
+        if(!UInt8.getBit(ppu.regs.lcdc, 0) && this.parent.cgb)
             return;
 
         const wx = ppu.regs.wx;
         const wy = ppu.regs.wy;
         const scanline = ppu.regs.scanline;
 
-        if(wx >= 160)
+        if(wx >= 160 || (scanline < wy && scanline < 144))
             return;
+            
 
         if(this.internalWinOffset == 0) {
             this.internalWinOffset = (scanline - wy) & 255;
@@ -121,10 +126,6 @@ class Renderer {
 
         const mapBase = ppu.winBase;
         const yMap = this.internalWinOffset;
-        
-        if(scanline < wy && scanline < 144)
-            return;
-        
         for(let x = wx >> 3; x <= 160 / 8; x++)
         {
             const xMap = (x & 0xFF);
