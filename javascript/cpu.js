@@ -695,11 +695,7 @@ class CPU {
 
     execute() {
         const opcode = this.read8(this.pc.v);
-        const prevPC = this.pc.v;
         this.cycles = opcodeCycles[opcode];
-
-        const o = new Opcode(this.pc.v);
-        outstr += `${hex(prevPC, 4, '')} : ${o.getOpcodeString()} ${o.getString(false)}\n`;
 
         // execute opcode
          if(opTable[opcode] == undefined) {

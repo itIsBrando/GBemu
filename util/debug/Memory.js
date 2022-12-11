@@ -1,10 +1,44 @@
 var Memory = new function() {
     const div = document.getElementById('MemoryDiv');
+	const bytePerRow = 16;
+	
+	this.dumpType = function(str) {
+		const a = document.getElementById('MemoryContent');
+		const mem_types = {
+			"rom0": [0x0000, 0x4000],
+			"romx": [0x4000, 0x8000],
+			"vram": [0x8000, 0xa000],
+			"cram": [0xa000, 0xc000],
+			"wram": [0xc000, 0xf000],
+			"hram": [0xff00, 0x10000],
+		};
+
+		const addr = mem_types[str];
+		const rombank = c.hasMbc() ? c.mbcHandler.bank : '0';
+		const rambank = c.hasMbc() ? c.mbcHandler.ramBank : '0';
+		let s = "";
+
+		if(str == 'romx') {
+			str = `ROM${rombank}`;
+		} else if(str == 'cram') {
+			str = `CRAM${rambank}`;
+		} else if(str == 'wram') {
+			str = `WRAM${0}`;
+		}
+
+		str = str.toUpperCase();
+		
+		for(let i = addr[0]; i < addr[1]; i += bytePerRow) {
+			s += `<b style="color:white";>${str}</b>  ${Memory.dumpMemory(i)}<br>`;
+		}
+
+        a.innerHTML = s;
+	}
 
 	this.dumpMemory = function(pc) {
         let s = `${Debug.hex(pc, 4)} : `;
         
-        for(let i = 0; i < 8; i++) {
+        for(let i = 0; i < bytePerRow; i++) {
 			const byte = c.read8(pc + i);
             s += "  " + Debug.hex(byte, 2, '');
         }
@@ -13,44 +47,8 @@ var Memory = new function() {
     }
 
     this.show = function() {
-        const a = div.getElementsByTagName("pre")[0];
-        let s = "";
-		const rombank = c.hasMbc() ? c.mbcHandler.bank : '0';
-		const rambank = c.hasMbc() ? c.mbcHandler.ramBank : '0';
-		const romx = `ROM${hex(rombank, 2, '')}`;
-		const cram = `RAM${hex(rambank, 2, '')}`;
-		const mem_types = [
-			"ROM0 ", // 0x0000
-			"ROM0 ", // 0x1000
-			"ROM0 ", // 0x2000
-			"ROM0 ", // 0x3000
-			romx,    // 0x4000
-			romx,    // 0x5000
-			romx,    // 0x6000
-			romx,    // 0x7000
-			"VRAM ", // 0x8000
-			"VRAM ", // 0x9000
-			cram,    // 0xA000
-			cram,    // 0xB000
-			"WRAM0", // 0xC000
-			"WRAMX", // 0xD000
-			"MIRR ", // 0xE000
-			"IORAM", // 0xF000
-        ];
-
 		showElement(div);
-
-		if(!c.romLoaded) {
-			a.innerHTML = `<a style="display: grid; align-items: center; height: 100%; text-align: center;">Load a ROM before viewing memory</a>`;
-			return;
-		}
-        
-        for(let i = 0; i < 0xFFFF >> 3; i++)
-        {
-            s += `<b style="color:white";>${mem_types[i >> 9]}</b>:${this.dumpMemory(i << 3)}<br>`;
-        }
-        
-        a.innerHTML = s;
+		this.dumpType("rom0");
     }
 
     this.hide = function() {

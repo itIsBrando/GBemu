@@ -186,10 +186,9 @@
 .debug-memory-text {
     overflow: auto;
     line-height: 175%;
-    padding-right: 5px;
+    padding-left: 10px;
     height: 100%;
     min-height: 250px;
-    text-align: center;
 }
 
 .obj-canvas {

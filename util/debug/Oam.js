@@ -51,8 +51,6 @@ var Oam = new function() {
 
     this.show = function() {
         showElement(div, 'grid');
-        
-		c.renderer.clearBuffer();
 
 		this.draw(0);
 
