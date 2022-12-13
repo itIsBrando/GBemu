@@ -29,21 +29,27 @@ var Memory = new function() {
 		str = str.toUpperCase();
 		
 		for(let i = addr[0]; i < addr[1]; i += bytePerRow) {
-			s += `<b style="color:white";>${str}</b>  ${Memory.dumpMemory(i)}<br>`;
+			s += `${str}  ${Memory.dumpMemory(i)}\n`;
 		}
 
-        a.innerHTML = s;
+        a.innerText = s;
+	}
+
+	this.isValidCharNum = function(c) {
+		return (c >= 32 && c < 127) || (c > 160);
 	}
 
 	this.dumpMemory = function(pc) {
         let s = `${Debug.hex(pc, 4)} : `;
+		let characterString = '';
         
         for(let i = 0; i < bytePerRow; i++) {
 			const byte = c.read8(pc + i);
             s += "  " + Debug.hex(byte, 2, '');
+			characterString += this.isValidCharNum(byte) ? String.fromCharCode(byte) : '.';
         }
         
-        return s;
+        return `${s}  ${characterString}`;
     }
 
     this.show = function() {

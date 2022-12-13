@@ -492,9 +492,9 @@
             <div>
                 <div id="MapInfo" class="debug-box">
                     <fieldset style="border: none;">
-                        <input type="radio" name="displayMode" value="map" checked />
+                        <input type="radio" class="debug-radio" name="displayMode" value="map" checked />
                         <label for="map">Map</label><br>
-                        <input type="radio" name="displayMode" value="window" />
+                        <input type="radio" class="debug-radio" name="displayMode" value="window" />
                         <label for="window">Window</label>
                     </fieldset>
                     <pre class="debug-text" style="padding-left: 10px;"></pre>
@@ -508,7 +508,7 @@
                         <a id="TileInfo" class="debug-text"></a>
                         <div>
                             <label for="mapZoomInput" style="text-align: center;">zoom</label>
-                            <input id="mapZoomInput" type="number" min="1" max="8" value="2">
+                            <input id="mapZoomInput" type="range" min="1" max="8" value="2">
                         </div>
                     </div>
                 </div>

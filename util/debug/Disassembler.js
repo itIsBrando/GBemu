@@ -222,7 +222,7 @@ var Disassembler = new function() {
     }
 
     this.goto = function() {
-        const m = new PromptMenu("Enter Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, (a) => {
+        const m = new PromptMenu("Go to Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, (a) => {
             const address = Number("0x" + a); // @todo can i do Number(a, 16)???
 
             if(addresss == null)
@@ -239,7 +239,7 @@ var Disassembler = new function() {
 
 
     this.search = function() {
-        const m = new PromptMenu(`Enter string to search starting at ${hex(Disassembler.base)}`, "", /[\w ]+/g, 30, function(str) {
+        const m = new PromptMenu(`Search`, "", /[\w ]+/g, 30, function(str) {
             // search for a string in the disassembly
             str = str.toLowerCase();
             for(let i = Disassembler.base + 1; i < 0xfffe; i++) {
@@ -253,6 +253,8 @@ var Disassembler = new function() {
 
             Menu.message.show(`Could not find '${str}'.`, "String not Found");
         });
+
+        m.addText(`<p>Search for a string starting at ${hex(Disassembler.base)}</p>`);
 
         m.show();
     }
