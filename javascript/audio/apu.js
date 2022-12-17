@@ -1,8 +1,8 @@
-const APU_FREQ = 4194304 / 512;
-var audio;
+
 
 class APU {
     static master_enable = Settings.get_core("sound", false) == 'true';
+    static master_vol_multiplier = 4; // half of max output
 
     static set_button_text() {
         document.getElementById('sndButton').innerHTML = APU.master_enable ? "yes" : "no";
@@ -47,7 +47,6 @@ class APU {
         this.c1.setVolume(0);
         this.c2.setVolume(0);
         this.c3.setVolume(0);
-
     }
 
     unmute() {
@@ -83,6 +82,13 @@ class APU {
         }
 
         switch(addr & 0xFF) {
+            case 0x24: // NR50 master vol & VIN panning
+                // @todo
+                // note that VIN can be ignored since we don't use ch5
+                break;
+            case 0x25: // NR51 sound panning
+                // @todo
+                break;
             case 0x26: // NR52 sound on/off
                 this.enabled = UInt8.getBit(byte, 7);
                 break;

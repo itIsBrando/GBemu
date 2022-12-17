@@ -65,6 +65,7 @@ class Channel1 {
         this.env_volume_shadow = 0;
         this.env_direction = Envelope.DOWN;
         this.env_pace = 0;
+        this.env_pace_cycles = 8 * ENVELOPE_STEP_LEN;
         /**
          * 
          * NR13:
@@ -130,7 +131,7 @@ class Channel1 {
     }
 
     updateEnvelope() {
-        this.env_ticks -= ENVELOPE_STEP_LEN * this.env_pace;
+        this.env_ticks -= this.env_pace_cycles;
         // if envelope sweep is enabled
         if(!this.envelope_enabled)
             return;
@@ -149,7 +150,7 @@ class Channel1 {
         this.length_ticks += cycles;
         this.sweep_ticks += cycles;
         
-        if(this.env_pace != 0 && this.env_ticks >= ENVELOPE_STEP_LEN * this.env_pace) {
+        if(this.env_pace != 0 && this.env_ticks >= this.env_pace_cycles) {
             this.updateEnvelope();
         }
         
@@ -183,6 +184,8 @@ class Channel1 {
                 this.env_direction = UInt8.getBit(byte, 3) ? Envelope.UP : Envelope.DOWN;
                 this.env_pace = byte & 7;
                 this.dac_enabled = (byte & 0xf8) > 0;
+                this.env_pace_cycles = ENVELOPE_STEP_LEN * this.env_pace;
+
                 if(!this.dac_enabled)
                     this.enabled = false;
                 
@@ -297,7 +300,7 @@ class Channel1 {
         if(!this.dac_enabled)
             v = 0;
         
-        this.gainNode.gain.value = 6 * (v & 0xf);
+        this.gainNode.gain.value = 0.02 * (v & 0xf);
     }
 
 }
