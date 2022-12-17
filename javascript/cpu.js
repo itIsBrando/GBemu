@@ -229,7 +229,7 @@ class CPU {
         this.timerRegs = new Timer();
         this.ppu = new PPU(this);
         this.serial = new SerialPort(this);
-        // this.apu = new APU(this);
+        this.apu = new APU(this);
         this.renderer = new Renderer(this);
         this.cycles = 0;
         this.cgb = false;
@@ -448,6 +448,9 @@ class CPU {
         } else if(this.serial.accepts(address)) {
             this.serial.write8(address, byte);
             return;
+        } else if(this.apu.accepts(address)) {
+            this.apu.write8(address, byte);
+            return;
         }
 
         if(address < 0x8000) {
@@ -635,6 +638,8 @@ class CPU {
             return this.timerRegs.read8(address);
         else if(this.serial.accepts(address))
             return this.serial.read8(address);
+        else if(this.apu.accepts(address))
+            return this.apu.read8(address);
 
         if(address < 0x8000) {
             return this.mem.rom[address];
@@ -743,7 +748,7 @@ class CPU {
         this.serial.tick(this.cycles);
 
         // update sound
-        // this.apu.tick(this.cycles);
+        this.apu.tick(this.cycles);
 
 
         // HDMA stuff

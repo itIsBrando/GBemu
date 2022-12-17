@@ -35,6 +35,7 @@ function pauseEmulation() {
     if(!c.isRunning || c.timer == null)
         return;
 
+    c.apu.mute();
     clearInterval(c.timer);
     c.timer = null;
     setLEDStatus(false);
@@ -59,6 +60,7 @@ function resumeEmulation() {
         return;
 
     c.timer = setInterval(run, INTERVAL_SPEED);
+    c.apu.unmute();
     setLEDStatus(true);
 }
 

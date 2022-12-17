@@ -4,25 +4,24 @@ var audio;
 class APU {
     static master_enable = Settings.get_core("sound", false) == 'true';
 
-    static init() {
-        audio = new AudioContext({rampleRate: 44100});
-    }
-
     static set_button_text() {
-        document.getElementById('sndButton').innerHTML = this.master_enable ? "yes" : "no";
+        document.getElementById('sndButton').innerHTML = APU.master_enable ? "yes" : "no";
     }
 
     constructor(cpu) {
         this.cpu = cpu;
         this._enabled = false; // set by the gameboy @see APU.enabled
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        this.step = 0;
-        this.cycles = 0;
+        this.c1_vol = 0;
+        this.c2_vol = 0;
+        this.c3_vol = 0;
 
-        this.c1 = new Channel1();
+        this.c1 = new Channel1(this);
+        this.c2 = new Channel2(this);
+        this.c3 = new Channel3(this);
 
-
-        audio.suspend();
+        this.audioCtx.suspend();
     }
 
     get enabled() {
@@ -33,12 +32,28 @@ class APU {
         this._enabled = v;
 
         if(v) {
-            audio.resume();
+            this.audioCtx.resume();
             return;
         }
 
         this.c1.enabled = false;
-        audio.suspend();
+        this.c2.enabled = false;
+        this.c3.enabled = false;
+        this.audioCtx.suspend();
+    }
+
+
+    mute() {
+        this.c1.setVolume(0);
+        this.c2.setVolume(0);
+        this.c3.setVolume(0);
+
+    }
+
+    unmute() {
+        this.c1.setVolume(this.c1_vol);
+        this.c2.setVolume(this.c2_vol);
+        this.c3.setVolume(this.c3_vol);
     }
 
     tick(cycles) {
@@ -46,39 +61,10 @@ class APU {
             return;
 
         this.c1.tick(cycles);
-
-
-        this.cycles += cycles;
-        if(this.cycles >= APU_FREQ) {
-            this.cycles -= APU_FREQ;
-            this.advanceStep();
-        }
+        this.c2.tick(cycles);
+        // this.c3.tick(cycles);
     }
 
-    advanceStep() {
-        switch(this.step) {
-            case 0:
-                this.tickLength();
-                break;
-            case 2:
-                this.tickLength();
-                this.tickSweep();
-                break;
-            case 4:
-                this.tickLength();
-                break;
-            case 6:
-                this.tickLength();
-                this.tickSweep();
-                break;
-            case 7:
-                // this.clockVolume();
-                break;
-        }
-
-        if(++this.step >= 8)
-            this.step = 0;
-    }
 
     accepts(addr) {
         return addr >= 0xFF10 && addr <= 0xFF3F;
@@ -88,8 +74,13 @@ class APU {
         if(!APU.master_enable)
             return;
         
-        if(this.c1.accepts(addr))
+        if(this.c1.accepts(addr)) {
             this.c1.write8(addr, byte);
+        } else if(this.c2.accepts(addr)) {
+            this.c2.write8(addr, byte);
+        } else if(this.c3.accepts(addr)) {
+            this.c3.write8(addr, byte);
+        }
 
         switch(addr & 0xFF) {
             case 0x26: // NR52 sound on/off
@@ -100,34 +91,35 @@ class APU {
 
     read8(addr) {
         if(this.c1.accepts(addr))
-            return this.c1.read8(addr)
+            return this.c1.read8(addr);
+        else if(this.c2.accepts(addr))
+            return this.c2.read8(addr);
+        else if(this.c3.accepts(addr))
+            return this.c3.read8(addr);
 
         switch(addr & 0xFF) {
             case 0x26: // @todo add other channels and update mask
-                const reg = (this.enabled << 7) | this.c1.enabled;
                 if(!this.enabled)
                     return 0x7F;
+
+                let reg = (this.enabled << 7) | 0x70;
+                reg |= this.c1.enabled ? 1 : 0;
+                reg |= this.c2.enabled ? 2 : 0;
+                reg |= this.c3.enabled ? 4 : 0;
+                // reg |= this.c4.enabled ? 8 : 0;
                 
-                return reg | (0x7E);
+                return reg;
         }
 
         return 0xFF;
     }
 
-    tickLength() {
-        this.c1.tickLength();
-    }
-
-    tickSweep() {
-        // @TODO
-    }
-
-
     static toggle() {
         APU.master_enable = !APU.master_enable;
 
         if(APU.master_enable) {
-            Menu.message.show("This feature is NOT fully supported and is not designed for public use", "Experimental Feature");
+            Menu.message.show("This feature is NOT fully supported and is not designed for general use", "Experimental Feature");
+            c.apu.audioCtx.resume();
         } else {
             c.apu.enabled = false;
         }
