@@ -331,6 +331,7 @@ class CPU {
         
         this.timerRegs.reset();
         this.ppu.reset();
+        this.apu.reset();
         this.serial.reset();
         this.cheats.reset();
     }

@@ -199,7 +199,7 @@ class Channel3 {
      * @param {Number} v 0-15
      */
     setVolume(v) {
-        this.gainNode.gain.value = 6.66 * (v & 0xf);
+        this.gainNode.gain.value = 0; // 6.66 * (v & 0xf);
     }
 
 }

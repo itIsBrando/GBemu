@@ -271,7 +271,7 @@ const opcodeLUT = [
     "or a, ${u8}",
     "rst 0x30",
 
-    "ld hl, sp${i8}", // this should be 'i8' but has not been implemented yet @TODO
+    "ld hl, sp${i8}",
     "ld sp, hl",
     "ld a, (${u16})",
     "ei",

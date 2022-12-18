@@ -1,8 +1,13 @@
-
+/**
+ * Sound tests passed:
+ * - 2 len ctr (ch1 and ch2)
+ * - 3 trigger (ch1 and ch2)
+ * - 4 sweep
+ * - 7 len sweep period sync
+ */
 
 class APU {
     static master_enable = Settings.get_core("sound", false) == 'true';
-    static master_vol_multiplier = 4; // half of max output
 
     static set_button_text() {
         document.getElementById('sndButton').innerHTML = APU.master_enable ? "yes" : "no";
@@ -21,7 +26,19 @@ class APU {
         this.c2 = new Channel2(this);
         this.c3 = new Channel3(this);
 
+        this.apu_ticks = 0;
+        this.frame_sequencer = 0;
+
         this.audioCtx.suspend();
+    }
+
+    reset() {
+        this.apu_ticks = 0;
+        this.frame_sequencer = 0;
+        this.c1.reset();
+        this.c2.reset();
+        // this.c3.reset();
+        // this.c4.reset();
     }
 
     get enabled() {
@@ -29,17 +46,19 @@ class APU {
     }
 
     set enabled(v) {
-        this._enabled = v;
-
         if(v) {
+            if(!this._enabled) {
+                this.frame_sequencer = 7;
+            }
             this.audioCtx.resume();
-            return;
+        } else {
+            this.c1.enabled = false;
+            this.c2.enabled = false;
+            this.c3.enabled = false;
+            this.audioCtx.suspend();
         }
 
-        this.c1.enabled = false;
-        this.c2.enabled = false;
-        this.c3.enabled = false;
-        this.audioCtx.suspend();
+        this._enabled = v;
     }
 
 
@@ -56,12 +75,42 @@ class APU {
     }
 
     tick(cycles) {
-        if(!APU.master_enable)
+        if(!APU.master_enable || !this.enabled)
             return;
 
-        this.c1.tick(cycles);
-        this.c2.tick(cycles);
-        // this.c3.tick(cycles);
+        this.apu_ticks += cycles;
+
+        if(this.apu_ticks >= 8192) {
+            this.apu_ticks -= 8192;
+            this.clockSequencer();
+        }
+    }
+
+    clockSequencer() {
+        this.frame_sequencer++;
+        this.frame_sequencer &= 7;
+
+        switch(this.frame_sequencer) {
+            case 0:
+            case 4:
+                this.c1.tick_length();
+                this.c2.tick_length();
+                this.c3.tick_length();
+                break;
+            case 2:
+            case 6:
+                this.c1.tick_length();
+                this.c2.tick_length();
+                this.c3.tick_length();
+
+                this.c1.updateSweep();
+                break;
+            case 7:
+                this.c1.updateEnvelope();
+                this.c2.updateEnvelope();
+                // this.c4.updateEnvelope();
+                break;
+        }
     }
 
 
@@ -69,17 +118,10 @@ class APU {
         return addr >= 0xFF10 && addr <= 0xFF3F;
     }
 
+    // @todo WAVE RAM is readable and writable despite power state
     write8(addr, byte) {
         if(!APU.master_enable)
             return;
-        
-        if(this.c1.accepts(addr)) {
-            this.c1.write8(addr, byte);
-        } else if(this.c2.accepts(addr)) {
-            this.c2.write8(addr, byte);
-        } else if(this.c3.accepts(addr)) {
-            this.c3.write8(addr, byte);
-        }
 
         switch(addr & 0xFF) {
             case 0x24: // NR50 master vol & VIN panning
@@ -92,17 +134,22 @@ class APU {
             case 0x26: // NR52 sound on/off
                 this.enabled = UInt8.getBit(byte, 7);
                 break;
+            default:
+                // block ALL writes if disabled
+                if(!this.enabled)
+                    return;
+                
+                if(this.c1.accepts(addr)) {
+                    this.c1.write8(addr, byte);
+                } else if(this.c2.accepts(addr)) {
+                    this.c2.write8(addr, byte);
+                } else if(this.c3.accepts(addr)) {
+                    this.c3.write8(addr, byte);
+                }
         }
     }
 
     read8(addr) {
-        if(this.c1.accepts(addr))
-            return this.c1.read8(addr);
-        else if(this.c2.accepts(addr))
-            return this.c2.read8(addr);
-        else if(this.c3.accepts(addr))
-            return this.c3.read8(addr);
-
         switch(addr & 0xFF) {
             case 0x26: // @todo add other channels and update mask
                 if(!this.enabled)
@@ -115,9 +162,20 @@ class APU {
                 // reg |= this.c4.enabled ? 8 : 0;
                 
                 return reg;
+            default:
+                if(!this.enabled)
+                    return 0xff;
+                
+                if(this.c1.accepts(addr))
+                    return this.c1.read8(addr);
+                else if(this.c2.accepts(addr))
+                    return this.c2.read8(addr);
+                else if(this.c3.accepts(addr))
+                    return this.c3.read8(addr);
+                else
+                    return 0xFF;
         }
 
-        return 0xFF;
     }
 
     static toggle() {

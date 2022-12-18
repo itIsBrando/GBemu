@@ -51,7 +51,6 @@ class Channel1 {
          */
         this.wave_duty = 0;
         this.length_timer = 0;
-        // this.length_timer_shadow = 0;
 
         /**
          * NR12:
