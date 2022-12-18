@@ -37,9 +37,8 @@ class Channel1 {
          * d= sweep direction
          * s= sweep Slope
          */
-        this.sweep_pace = 0; // in 128Hz a tick
+        this.sweep_pace = 0; // 128Hz
         this.sweep_pace_shadow = 0;
-        this.sweep_pace_cycles = 8 * SWEEP_STEP_LEN;
         this.sweep_direction = Sweep.UP; // 0=>up | 1=>down
         this.sweep_slope = 0; // 0-7
         this.sweep_enable = false;
@@ -65,7 +64,7 @@ class Channel1 {
         this.env_volume_shadow = 0;
         this.env_direction = Envelope.DOWN;
         this.env_pace = 0;
-        this.env_pace_cycles = 8 * ENVELOPE_STEP_LEN;
+        this.env_pace_shadow = 0;
         /**
          * 
          * NR13:
@@ -91,10 +90,10 @@ class Channel1 {
         this.NRx2 = 0xff12;
         this.NRx3 = 0xff13;
         this.NRx4 = 0xff14;
+    }
 
-        this.env_ticks = 0; // runs at 64Hz
-        this.sweep_ticks = 0; // runs at 128Hz
-        this.length_ticks = 0; // runs at 256hz
+    reset() {
+        this.setVolume(0);
     }
 
     accepts(addr) {
@@ -102,6 +101,7 @@ class Channel1 {
     }
 
     calculateSweep() {
+        // L(t+1) = L(t) + L(t)/2^n
         let w = this.wavelength;
         const dw = w >> this.sweep_slope;
 
@@ -116,53 +116,46 @@ class Channel1 {
 
 
     updateSweep() {
-        this.sweep_ticks -= this.sweep_pace_cycles;
-
-        // L(t+1) = L(t) + L(t)/2^n
-        if(this.sweep_pace != 0) {
+        if(!this.enabled || !this.sweep_enable)
+            return;
+        
+        if(--this.sweep_pace <= 0) {
             const w = this.calculateSweep();
-            if(this.sweep_slope != 0) {
-                this.setWavelength(w);
+            
+            if(this.sweep_pace_shadow === 0) {
+                this.sweep_pace = 8;
+            } else {
+                this.sweep_pace = this.sweep_pace_shadow;
+                if(this.sweep_slope !== 0) {
+                    this.setWavelength(w);
+                }
 
+                this.calculateSweep();
             }
         }
         
-        this.calculateSweep();
     }
 
     updateEnvelope() {
-        this.env_ticks -= this.env_pace_cycles;
         // if envelope sweep is enabled
         if(!this.envelope_enabled)
             return;
-        this.env_volume += this.env_direction == Envelope.UP ? 1 : -1;
-
-        if(this.env_volume > 15 || this.env_volume < 0)
-            this.envelope_enabled = false;
-            
-        this.env_volume &= 0xf;
-        this.setVolume(this.env_volume);
-    }
-
-
-    tick(cycles) {
-        this.env_ticks += cycles;
-        this.length_ticks += cycles;
-        this.sweep_ticks += cycles;
         
-        if(this.env_pace != 0 && this.env_ticks >= this.env_pace_cycles) {
-            this.updateEnvelope();
-        }
-        
-        // sweep pace = sweep period
-        // sweep slope = sleep shift
-        if(this.enabled) {
-            while(this.sweep_enable && this.sweep_ticks >= this.sweep_pace_cycles) {
-                this.updateSweep();
+        if(--this.env_pace <= 0) {
+            if(this.env_pace_shadow === 0) {
+                this.env_pace = 8;
+            } else {
+                const vol = this.env_volume + (this.env_direction == Envelope.UP ? 1 : -1); 
+                this.env_pace = this.env_pace_shadow;
+
+                if(vol > 15 || vol < 0)
+                    this.envelope_enabled = false;
+                else
+                    this.env_volume = vol;
+                
+                this.setVolume(this.env_volume);
             }
         }
-
-        this.tick_length();
     }
 
     
@@ -172,8 +165,6 @@ class Channel1 {
                 this.sweep_pace_shadow = UInt8.getRange(byte, 4, 3);
                 this.sweep_direction = UInt8.getBit(byte, 3);
                 this.sweep_slope = byte & 0x7;
-
-                this.sweep_pace_cycles = (this.sweep_pace_shadow == 0 ? 8 : this.sweep_pace_shadow) * SWEEP_STEP_LEN; // 128Hz
                 break;
             case this.NRx1:
                 this.wave_duty = UInt8.getRange(byte, 6, 2);
@@ -182,10 +173,9 @@ class Channel1 {
             case this.NRx2:
                 this.env_volume_shadow = UInt8.getRange(byte, 4, 4);
                 this.env_direction = UInt8.getBit(byte, 3) ? Envelope.UP : Envelope.DOWN;
-                this.env_pace = byte & 7;
+                this.env_pace_shadow = byte & 7;
                 this.dac_enabled = (byte & 0xf8) > 0;
-                this.env_pace_cycles = ENVELOPE_STEP_LEN * this.env_pace;
-
+                
                 if(!this.dac_enabled)
                     this.enabled = false;
                 
@@ -194,45 +184,73 @@ class Channel1 {
                 this.setWavelengthLow(byte);
                 break;
             case this.NRx4:
+                const trigger = UInt8.getBit(byte, 7);
+                const old_enable = this.length_enable;
                 this.length_enable = Boolean(UInt8.getBit(byte, 6));
                 this.setWavelengthHigh(byte);
-                //trigger
-                if(UInt8.getBit(byte, 7) && !this.enabled) {
-                    this.trigger();
+
+                const frame_sequencer_obscure_behavior = (this.parent.frame_sequencer & 1) === 0;
+                
+                if(frame_sequencer_obscure_behavior) {
+                    if(!old_enable && this.length_enable && this.length_timer > 0) {
+                        this.length_timer--;
+                        
+                        if(!trigger && this.length_timer === 0) {
+                            this.enabled = false;
+                        }
+                    }
                 }
+                
+                if(trigger) {
+                    this.trigger();
+                    
+                    if(frame_sequencer_obscure_behavior && this.length_timer === 64 && this.length_enable) {
+                        this.length_timer--;
+                    }
+                }
+
                 break;
 
         }
 
     }
 
+
     trigger() {
+        this.enabled = true;
         this.envelope_enabled = true;
         this.env_volume = this.env_volume_shadow;
-        this.sweep_pace = this.sweep_pace_shadow;
         
         this.setVolume(this.env_volume);
-        this.env_ticks = 0;
-        this.length_ticks = 0;
-        this.sweep_ticks = 0;
         
-        this.sweep_enable = this.sweep_slope || this.sweep_pace;
+        // obscure behavior
+        if(this.sweep_pace_shadow === 0) {
+            this.sweep_pace = 8;
+        } else {
+            this.sweep_pace = this.sweep_pace_shadow;
+        }
+
+        // obscure behavior
+        if(this.env_pace_shadow === 0) {
+            this.env_pace = 8;
+        } else {
+            this.env_pace = this.env_pace_shadow;
+        }
         
-        if(this.length_timer == 0)
-        this.length_timer = 64;
+        this.sweep_enable = this.sweep_slope || this.sweep_pace_shadow;
         
-        if(this.sweep_slope != 0)
-        this.calculateSweep();
+        if(this.length_timer === 0)
+            this.length_timer = 64;
         
-        this.enabled = this.dac_enabled;
+        if(this.sweep_slope !== 0)
+            this.calculateSweep();
+        
+        if(!this.dac_enabled)
+            this.enabled = false;
     }
 
-    tick_length() {
-        if(this.length_ticks < LENGTH_STEP_LEN) {
-            return;
-        }
-        this.length_ticks -= LENGTH_STEP_LEN;
 
+    tick_length() {
         if(!this.length_enable)
             return;
 
@@ -258,13 +276,13 @@ class Channel1 {
 
 
     read8(addr) {
-        switch(addr & 0xFF) {
+        switch(addr) {
             case this.NRx0:
-                return 0xff; // @todo  this is readable
+                return (this.sweep_pace_shadow << 4) | (this.sweep_direction << 3) | this.sweep_slope;
             case this.NRx1:
                 return (this.wave_duty << 6) | 0x3F;
             case this.NRx2:
-                return 0xff; // @todo this is readble
+                return (this.env_volume_shadow << 4) | (this.env_direction << 3) | this.env_pace;
             case this.NRx3:
                 return 0xff;
             case this.NRx4:
