@@ -8,7 +8,6 @@ const def_bindings = {
     "arrowright" : "RIGHT",
     "arrowup" : "UP",
     "arrowdown" : "DOWN",
-    "=" : "RESET",
     "d" : "FAST",
     "f" : "FULLSCREEN"
 };
@@ -20,8 +19,8 @@ var KeyBinding = new function() {
     // used by our keyboard event
     this.isAssigning = false;    
     this.bindings = JSON.parse(
-        Settings.get_core('keybinding', JSON.stringify(def_bindings)
-    ));
+        Settings.get_core('keybinding', JSON.stringify(def_bindings))
+    );
 
     this.modifyingButton = "";
 
@@ -40,6 +39,11 @@ var KeyBinding = new function() {
         }`;
         
         document.head.append(styling);
+
+        // incase any key bindings are added or removed, we will delete user-defined bindings
+        if(Object.keys(this.bindings).length != Object.keys(def_bindings).length) {
+            Settings.del_core('keybinding');
+        }
     }
     
     // shows the keybinding menu
@@ -62,7 +66,6 @@ var KeyBinding = new function() {
             "DOWN",
             "LEFT",
             "RIGHT",
-            "RESET",
             "FAST FORWARD",
             "FULLSCREEN"
         ];
@@ -95,7 +98,6 @@ var KeyBinding = new function() {
             "arrowright" : "RIGHT",
             "arrowup" : "UP",
             "arrowdown" : "DOWN",
-            "=" : "RESET",
             "d" : "FAST",
             "f" : "FULLSCREEN"
         }

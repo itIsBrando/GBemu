@@ -10,25 +10,26 @@ var gamepadButtons = {
 }
 
 
-document.addEventListener('keyup', function(event) {
-    const key = event.key.toLowerCase();
+// document.addEventListener('keyup', function(event) {
+//     const key = event.key.toLowerCase();
 
-    if(key == 'o' && (navigator.platform.match("Mac") ? event.metaKey: event.ctrlKey)) {
-        event.preventDefault();
-        inputForm.click()
-        return;
-    }
-});
+//     if(key == 'o' && (navigator.userAgent.match("Safari") ? event.metaKey: event.ctrlKey)) {
+//         event.preventDefault();
+//         inputForm.click()
+//         return;
+//     }
+// });
 
 
  document.addEventListener('keydown', function(event) {
     const key = event.key.toLowerCase();
 
-    if(key == 'o' && (navigator.platform.match("Mac") ? event.metaKey: event.ctrlKey)) {
-        event.preventDefault();
-        return;
-    } else if(KeyBinding.isAssigning)
-    {
+    if((navigator.userAgent.match("Safari") ? event.metaKey : event.ctrlKey)) {
+        if(key == 'o' || key == 'r' || key == 'd') {
+            event.preventDefault();
+            return;
+        }
+    } else if(KeyBinding.isAssigning) {
         event.preventDefault();
         KeyBinding.setKey(key);
         return;
@@ -36,9 +37,7 @@ document.addEventListener('keyup', function(event) {
 
     const binding = KeyBinding.bindings[key];
     if(binding) {
-        if(binding == "RESET")
-            restartEmulation();
-        else if(binding == "FAST")
+        if(binding == "FAST")
             c.speed = c.FastForwardSpeed;
         else if(binding == "FULLSCREEN")
             requestFullscreen();
@@ -52,8 +51,24 @@ document.addEventListener('keyup', function(event) {
  * Key Released
  * @param {KeyboardEvent} event 
  */
-document.onkeyup = function(event) {
+document.addEventListener('keyup', function(event) {
     const key = event.key.toLowerCase();
+
+    if((navigator.userAgent.match("Safari") ? event.metaKey : event.ctrlKey)) {
+        switch(key) {
+            case 'o': // open file
+                inputForm.click();
+                break;
+            case 'r': // reset game
+                restartEmulation();
+                break;
+            case 'd': // open debugger
+                Debug.start();
+        }
+        
+        event.preventDefault();
+        return;
+    }
 
     const binding = KeyBinding.bindings[key];
     if(binding) {
@@ -63,7 +78,7 @@ document.onkeyup = function(event) {
             gamepadButtons[binding] = false;
     }
 
-}
+});
 
 
 class Controller {

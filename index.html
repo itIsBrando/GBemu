@@ -348,7 +348,7 @@
             <!-- ROM loading -->
             <button type="button" class="dropdown-btn"
                 id="LoadRom" title="Load ROM file from local files.">Load
-                ROM</button>
+                ROM <a class="shortcut-text">(Ctrl+O)</a></button>
             <!-- Savefile uploading -->
             <button type="button" title="Upload .sav files from your local device"
                 class="dropdown-btn" onclick="document.getElementById('inputSaveFile').click()">Import Save File</button>
@@ -358,7 +358,7 @@
             <!-- ROM Info -->
             <button type="button" class="dropdown-btn" onclick="showROMInfo()">ROM Info</button>
             <!-- Reset Game -->
-            <button type="button" class="dropdown-btn" onclick="restartEmulation()">reset game</button>
+            <button type="button" class="dropdown-btn" onclick="restartEmulation()">reset game <a class="shortcut-text">(Ctrl+R)</a></button>
         </div>
     </div>
 
@@ -369,7 +369,7 @@
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
             <button type="button" class="dropdown-btn" onclick="Themes.next();">Themes</button>
             <button type="button" id="enterDebugger" class="dropdown-btn"
-            onclick="Debug.start();">Debugger</button>
+            onclick="Debug.start();">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
             <button type="button" class="dropdown-btn"
             onclick="Cheats.start();">Cheats</button>
             <!-- <button type="button" class="dropdown-btn"
@@ -640,8 +640,6 @@
             <label>RIGHT Button:</label>
             <button type="button" onclick="KeyBinding.assign('RIGHT', this);" class="key-binding settings-btn menubtn"></button>
             <b class="settings-title">Emulation buttons</b>
-            <label>Reset:</label>
-            <button type="button" onclick="KeyBinding.assign('RESET', this);" class="key-binding settings-btn menubtn"></button>
             <label>Fast Foward:</label>
             <button type="button" onclick="KeyBinding.assign('FAST', this);" class="key-binding settings-btn menubtn"></button>
             <label>Fullscreen:</label>

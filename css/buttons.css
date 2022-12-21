@@ -23,10 +23,15 @@
     cursor: pointer;
     transition: background 0.5s;
     font-size: 0.8rem;
+    text-align: center;
 }
 
 .menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
+}
+
+.shortcut-text {
+    color: #555;
 }
 
 .ui-title-btn {
