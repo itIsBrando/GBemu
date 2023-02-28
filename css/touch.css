@@ -53,7 +53,7 @@
     width: 180px;
     height: 180px;
     left: calc(15px + env(safe-area-inset-left));
-    bottom: calc(env(safe-area-inset-bottom));
+    bottom: calc(25px + env(safe-area-inset-bottom));
 }
 
 #UP {
@@ -132,7 +132,7 @@
 
 @media (orientation: portrait) {
     #touchControls {
-        bottom: calc(env(safe-area-inset-bottom) + 10px);
+        bottom: calc(env(safe-area-inset-bottom) + 10%);
     }
 }
 

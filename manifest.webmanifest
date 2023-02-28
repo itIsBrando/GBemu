@@ -2,7 +2,7 @@
     "name": "GBemu",
     "short_name": "GBemu",
     "start_url": "/?pwa=true",
-    "display": "fullscreen",
+    "display": "standalone",
     "orientation": "any",
     "description": "Gameboy Emulator powered by HTML5, CSS, and JavaScript",
     "background_color": "#fff",

@@ -194,11 +194,11 @@
 }
 
 .debug-memory-text {
-    overflow: auto;
+    overflow: visible auto;
     line-height: 175%;
-    padding-left: 10px;
     height: 100%;
     min-height: 250px;
+    width: 100%;
 }
 
 .obj-canvas {

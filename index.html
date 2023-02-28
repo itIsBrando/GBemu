@@ -534,9 +534,11 @@
                 <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">wram</button>
                 <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">hram</button>
                 <br>
-                <b><pre class="debug-text">    address       00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F</pre></b>
             </div>
-            <pre id="MemoryContent" class="debug-text debug-memory-text"></pre>
+            <div style="overflow: auto hidden; padding-left: 10px;">
+                <b><pre class="debug-text">   address       00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F</pre></b>
+                <pre id="MemoryContent" class="debug-text debug-memory-text"></pre>
+            </div>
         </div>
         <div id="DisassemblyDiv" class="disasm-main-div">
             <!-- instructions div -->

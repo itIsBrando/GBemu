@@ -225,7 +225,7 @@ var Disassembler = new function() {
         const m = new PromptMenu("Go to Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, (a) => {
             const address = Number("0x" + a); // @todo can i do Number(a, 16)???
 
-            if(addresss == null)
+            if(address == null)
                 return;
 
             if(!Disassembler.isInRange(address))
