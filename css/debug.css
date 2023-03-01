@@ -194,9 +194,8 @@
 }
 
 .debug-memory-text {
-    overflow: visible auto;
     line-height: 175%;
-    height: 100%;
+    height: calc(100vh - 30px);
     min-height: 250px;
     width: 100%;
 }
