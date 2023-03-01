@@ -535,7 +535,7 @@
                 <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">hram</button>
                 <br>
             </div>
-            <div style="overflow: auto hidden; padding-left: 10px;">
+            <div style="overflow: auto auto; padding-left: 10px;">
                 <b><pre class="debug-text">   address       00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F</pre></b>
                 <pre id="MemoryContent" class="debug-text debug-memory-text"></pre>
             </div>
@@ -677,27 +677,21 @@
             <!-- header -->
             <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
             <!-- arrows -->
-            <button type="button" class="icon-btn"
+            <button type="button" class="icon-btn" style="float: left;"
                 onclick="Palette.onPaletteArrow(-1)">&larr;</button>
-            <button type="button" class="icon-btn" title="save" onclick="Palette.save();">&#9113;</button>
             <button type="button" class="icon-btn" style="float: right;"
                 onclick="Palette.onPaletteArrow(1)">&rarr;</button>
-            <b id="paletteTitle">Color 0</b>
-            <button type="button" class="icon-btn" style="float: right;" title="load"
-                onclick="Palette.load();">&#9112;</button>
+            <!-- <button type="button" class="icon-btn" style="float: right;" onclick="Palette.apply();">&#x2713;</button> -->
+            <b id="paletteTitle"></b>
         </div>
         <!-- color inputs -->
         <div class="palette-menu">
-            <div id="colorPreview" class="color-preview"></div>
-            <div>
-                <input id="colorR" class="palette-input" style="color: orangered;" type="number" min="0" max="255"
-                oninput="Palette.onPaletteChange()">
-                <input id="colorG" class="palette-input" style="color: lightblue;" placeholder="green" type="number" min="0" max="255"
-                oninput="Palette.onPaletteChange()">
-                <input id="colorB" class="palette-input" style="color: lightgreen;" placeholder="blue" type="number" min="0" max="255"
-                oninput="Palette.onPaletteChange()">
-            </div>
+            <div id="colorPreview0" class="color-preview"></div>
+            <div id="colorPreview1" class="color-preview"></div>
+            <div id="colorPreview2" class="color-preview"></div>
+            <div id="colorPreview3" class="color-preview"></div>
         </div>
+        <button onclick="Palette.apply();" type="button" id="colorSelected" class="menubtn" style="width:100%;">select</button>
     </div>
 
     <!-- Pretty-ish messaging system. -->
@@ -759,6 +753,7 @@
     <script src="util/cheats.js"></script>
     <script src="javascript/cpu.js"></script>
     <script src="javascript/initalize.js"></script>
+    <script src="util/palette.js"></script>
     <script src="util/touch.js"></script>
     <script type="text/javascript">
         

@@ -1,4 +1,4 @@
-.menubtn {
+.menubtn, .menubtn-no-hover {
     background-color: var(--ui-btn-color);
     color: var(--ui-text-color);
     display: block;
@@ -9,7 +9,6 @@
     border-radius: 4px;
     cursor: pointer;
     transition: filter 0.4s;
-
 }
 
 .dropdown-btn {

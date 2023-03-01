@@ -257,6 +257,11 @@ class Renderer {
         }
     }
 
+
+    static setPalette(arr) {
+        palette = arr;
+    }
+
     /**
      * Only meant for sprites
      * @param {Number} x 
