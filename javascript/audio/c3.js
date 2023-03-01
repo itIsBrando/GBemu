@@ -58,7 +58,8 @@ class Channel3 {
     }
 
     accepts(addr) {
-        return (addr >= 0xff1a && addr <= 0xff1e) || (addr >= 0xff30 && addr <= 0xff3f);
+        return (addr >= 0xff1a && addr <= 0xff1e)
+         || (addr >= 0xff30 && addr <= 0xff3f);
     }
 
     tick(cycles) {

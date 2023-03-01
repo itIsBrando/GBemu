@@ -1,6 +1,6 @@
 "use strict";
 
-const USE_LOG = false;
+let USE_LOG = false;
 
 const Arithmetic = {
     ADD: 'add',
@@ -639,8 +639,10 @@ class CPU {
             return this.timerRegs.read8(address);
         else if(this.serial.accepts(address))
             return this.serial.read8(address);
-        else if(this.apu.accepts(address))
+        else if(this.apu.accepts(address)) {
+            CPU.LOG(`Reading ${hex(address)}`);
             return this.apu.read8(address);
+        }
 
         if(address < 0x8000) {
             return this.mem.rom[address];

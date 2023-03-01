@@ -22,6 +22,9 @@ class APU {
         this.c2_vol = 0;
         this.c3_vol = 0;
 
+        this.NR50 = 0;
+        this.NR51 = 0;
+
         this.c1 = new Channel1(this);
         this.c2 = new Channel2(this);
         this.c3 = new Channel3(this);
@@ -75,8 +78,10 @@ class APU {
     }
 
     tick(cycles) {
-        if(!APU.master_enable || !this.enabled)
+        if(!APU.master_enable || !this.enabled) {
+            this.mute();
             return;
+        }
 
         this.apu_ticks += cycles;
 
@@ -115,21 +120,23 @@ class APU {
 
 
     accepts(addr) {
-        return addr >= 0xFF10 && addr <= 0xFF3F;
+        return (addr >= 0xff10 && addr <= 0xff1e)
+         || (addr >= 0xff20 && addr <= 0xff26)
+          || (addr >= 0xff30 && addr <= 0xff3f);
     }
 
     // @todo WAVE RAM is readable and writable despite power state
     write8(addr, byte) {
-        if(!APU.master_enable)
-            return;
-
         switch(addr & 0xFF) {
             case 0x24: // NR50 master vol & VIN panning
                 // @todo
                 // note that VIN can be ignored since we don't use ch5
+                // ^ wtf are you talking about (from brando in the future Mar 1, 2023)
+                this.NR50 = byte;
                 break;
-            case 0x25: // NR51 sound panning
+                case 0x25: // NR51 sound panning
                 // @todo
+                this.NR51 = byte;
                 break;
             case 0x26: // NR52 sound on/off
                 this.enabled = UInt8.getBit(byte, 7);
@@ -151,6 +158,10 @@ class APU {
 
     read8(addr) {
         switch(addr & 0xFF) {
+            case 0x24:
+                return this.NR50;
+            case 0x25:
+                return this.NR51;
             case 0x26: // @todo add other channels and update mask
                 if(!this.enabled)
                     return 0x7F;

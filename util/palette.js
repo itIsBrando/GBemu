@@ -87,7 +87,7 @@ var Palette = new function() {
      * @param dir -1 to move left or 1 to move right
      */
     this.onPaletteArrow = function(dir) {
-        if(currentPaletteIndex + dir <= 0)
+        if(currentPaletteIndex + dir < 0)
             currentPaletteIndex = paletteNames.length - 1;
         else
             currentPaletteIndex = (currentPaletteIndex + dir) % paletteNames.length;
