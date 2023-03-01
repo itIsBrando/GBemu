@@ -198,6 +198,7 @@ class Channel3 {
     /**
      * Sets the volume of the channel. Updates AudioContext
      * @param {Number} v 0-15
+     * @todo
      */
     setVolume(v) {
         this.gainNode.gain.value = 0; // 6.66 * (v & 0xf);

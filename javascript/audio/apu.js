@@ -7,7 +7,7 @@
  */
 
 class APU {
-    static master_enable = Settings.get_core("sound", false) == 'true';
+    static master_enable = false; //Settings.get_core("sound", false) == 'true';
 
     static set_button_text() {
         document.getElementById('sndButton').innerHTML = APU.master_enable ? "yes" : "no";
@@ -79,7 +79,6 @@ class APU {
 
     tick(cycles) {
         if(!APU.master_enable || !this.enabled) {
-            this.mute();
             return;
         }
 

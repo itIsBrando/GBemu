@@ -314,7 +314,7 @@ class Channel1 {
      * @param {Number} v 0-15
      */
     setVolume(v) {
-        if(!this.dac_enabled)
+        if(!this.dac_enabled || !APU.master_enable)
             v = 0;
         
         this.gainNode.gain.value = 0.02 * (v & 0xf);
