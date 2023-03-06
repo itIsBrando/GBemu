@@ -15,7 +15,7 @@ class PromptMenu {
     static onsubmit;
     static oncancel;
     
-    constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, oncancel=null, defaulttext='', buttontext='submit') {
+    constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, oncancel=null, defaulttext='', buttontext='OK') {
         div.innerHTML = "";
         this.accepts = accepts;
         this.title = t || 'Title';

@@ -127,7 +127,7 @@
             z-index: 0;
         }
 
-        .popup {
+        .popup, .popup-no-border {
             display: none;
             position: absolute;
             left: 50%;
@@ -146,19 +146,27 @@
         .menu-header, .menu-header-no-ext {
             font-size: 1.25rem;
             font-family: monospace;
-            text-align: center;
+            padding: 5px 0px 5px 5px;
             background-color: var(--ui-title-color);
             color: var(--ui-title-text-color);
             height: fit-content;
             min-height: 30px;
-            margin-bottom: 5px;
+        }
+
+        .menu-header-no-ext {
+            background-color: transparent;
+        }
+
+        .popup-no-border {
+            border: 5px solid #333;
         }
 
 
         .prompt-menu-fieldset {
             width: calc(100% - 12px);
             padding: 7px 5px 10px 5px;
-            margin: 0;
+            margin: 0px;
+            border: none;
         }
 
         .prompt-menu-legend {
@@ -217,8 +225,8 @@
 
         .settings-title {
             grid-column: 1 / 3;
-            font-size: large;
-            text-align: center;
+            padding: 5px 0px 0px 5px;
+            color: #bbeeff;
         }
 
         .info-content {
@@ -257,6 +265,7 @@
 
         #saveButtonDiv {
             height: 100%;
+            width: 100%;
             max-height: 100vh;
             overflow-y: auto;
             text-align: center;
@@ -266,6 +275,7 @@
         .bind-div-child {
             max-height: calc(80vh - 30px);
             overflow-y: auto;
+            width: 100%;
         }
 
         .shadow {
@@ -288,6 +298,8 @@
 
         @media (max-width: 500px),
         (max-height: 500px) and (orientation: landscape) {
+            /* This makes 'popup' menus fullscreen */
+            /* @todo why do some popup menus not get full screen? */
             #popup, #keyBindingDiv, #SettingsDiv {
                 border: none;
                 position: absolute;
@@ -458,7 +470,7 @@
     </div>
 
     <!-- Cheats Menu -->
-    <div id="CheatsDiv" class="popup shadow">
+    <div id="CheatsDiv" class="popup-no-border shadow">
         <div class="menu-header-no-ext">
             Cheats
             <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
@@ -567,7 +579,7 @@
             </div>
         </div>
         <!-- A new menu for managing breakpoints -->
-        <div id="DisassemblyBreakpoints" class="popup shadow">
+        <div id="DisassemblyBreakpoints" class="popup-no-border shadow">
             <div class="menu-header-no-ext">
                 <b>Breakpoints</b>
                 <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
@@ -583,9 +595,9 @@
     </div>
 
     <!-- Cool lookin menu for entering text. See `PromptMenu`-->
-    <div id="PromptMenu" class="popup shadow" style="z-index:10;">
+    <div id="PromptMenu" class="popup-no-border shadow" style="z-index:10;">
         <div class="menu-header-no-ext">
-            <b id="PromptTitle">Title</b>
+            <a id="PromptTitle">Title</a>
             <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
             <div class="info-div" style="display: none;">
                 <button type="button" class="info-btn"></button>
@@ -594,8 +606,8 @@
         </div>
         <div id="PromptDiv"></div>
         <input type="text" name="PromptText" id="PromptText" />
-        <button type="button" id="PromptSubmit" class="menubtn" style="width: 100%;"
-            onclick="PromptMenu.submit();">Submit</button>
+        <button type="button" id="PromptSubmit" class="prompt-button"
+            onclick="PromptMenu.submit();">OK</button>
     </div>
 
     <!-- Virtual Controller -->
@@ -652,7 +664,7 @@
     <!-- Pop up menu for saving/loading states -->
     <div class="popup shadow save-menu" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
-            <b>Save Files</b>
+            <a>Save Files</a>
             <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
             <div class="info-div">
                 <button type="button" class="info-btn"></button>
@@ -672,8 +684,8 @@
     </div>
 
     <!-- Change palette colors -->
-    <div class="popup shadow" id="paletteSetDiv">
-        <div class="menu-header-no-ext">
+    <div class="popup-no-border shadow" id="paletteSetDiv">
+        <div class="menu-header-no-ext" style="border: 1px solid #333; text-align: center;">
             <!-- header -->
             <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
             <!-- arrows -->
@@ -682,7 +694,7 @@
             <button type="button" class="icon-btn" style="float: right;"
                 onclick="Palette.onPaletteArrow(1)">&rarr;</button>
             <!-- <button type="button" class="icon-btn" style="float: right;" onclick="Palette.apply();">&#x2713;</button> -->
-            <b id="paletteTitle"></b>
+            <a id="paletteTitle"></a>
         </div>
         <!-- color inputs -->
         <div class="palette-menu">
@@ -695,17 +707,14 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div class="popup shadow" id="messageID">
+    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid #333;">
         <!-- header -->
-        <b>
-            <div id="messageHeader" class="menu-header-no-ext" style="padding: 0rem 1rem;"></div>
-        </b>
+        <div id="messageHeader" class="menu-header-no-ext"></div>
         <!-- body -->
-        <p id="messageContent" style="color: aliceblue; padding-left: 0.5em;">Message Content</p>
+        <p id="messageContent" style="color: #ccc; padding-left: 0.5em;">Message Content</p>
         <!-- confirm -->
-        <div class="div-separator"></div>
-        <button class="menubtn" style="float:left; width: 50%;" id="messageConfirm">Okay</button>
-        <button class="menubtn" style="float: bottom; float:right; width: 49%;" id="messageCancel">Cancel</button>
+        <button class="prompt-button" style="margin-left: 5px;" id="messageConfirm">OK</button>
+        <button class="prompt-button" id="messageCancel">Cancel</button>
 
     </div>
     

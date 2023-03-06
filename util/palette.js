@@ -43,6 +43,7 @@ var Palette = new function() {
     // color palette
     const colorSelected = document.getElementById('colorSelected');
     const paletteSetDiv = document.getElementById('paletteSetDiv');
+    const paletteTitle = document.getElementById('paletteTitle');
     const colorPreviews = [
         document.getElementById('colorPreview0'),
         document.getElementById('colorPreview1'),
@@ -69,7 +70,7 @@ var Palette = new function() {
     this.setPreviewCol = function() {
         const pal = ALL_PALETTES[paletteNames[currentPaletteIndex]];
         
-        document.getElementById('paletteTitle').innerText = paletteNames[currentPaletteIndex];
+        paletteTitle.innerText = paletteNames[currentPaletteIndex];
         for(let i = 0; i < 4; i++) {
             const col = "rgb(" + pal[i][0] + ', ' + pal[i][1] + ', ' + pal[i][2] + ')';
             colorPreviews[i].style.backgroundColor = col;

@@ -441,7 +441,7 @@ var SaveManager = new function() {
     * Called when the `importTextButton` button is pressed
     */
     this.importJSON = function() {
-        const m = new PromptMenu("JSON Save", "JSON string", /.+/g, 9999999, (v) => {
+        const m = new PromptMenu("Import JSON", "JSON string", /.+/g, 9999999, (v) => {
             let data;
 
             try {

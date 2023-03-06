@@ -11,6 +11,15 @@
     transition: filter 0.4s;
 }
 
+.prompt-button {
+    background-color: transparent;
+    color: #bbddff;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    float: right;
+}
+
 .dropdown-btn {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -25,7 +34,7 @@
     text-align: center;
 }
 
-.menubtn:hover, .dropdown-btn:hover {
+.prompt-button:hover, .menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
 }
 
@@ -72,7 +81,7 @@
     height: 30px;
     border: none;
     cursor: pointer;
-    background-color: inherit;
+    background-color: transparent;
     color: var(--ui-title-text-color);
 }
 
@@ -92,7 +101,7 @@
 
 .x-btn {
     float: right;
-    background-color: inherit;
+    background-color: transparent;
     font-size: large;
     width: 30px;
     height: 30px;
@@ -187,5 +196,11 @@
 #plusButton {
     width: 30px;
     height: 30px;
-    float:right;
+    float: right;
+}
+
+#PromptText {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
 }

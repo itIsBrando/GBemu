@@ -31,17 +31,15 @@ var Menu = new function() {
             const messageHeader = document.getElementById('messageHeader');
         
             messageContent.innerHTML = string || "";
-            messageHeader.textContent = title || "ALERT";
+            messageHeader.textContent = title || "";
         
             showElement(messageDiv);
         
-            if(useCancel) {
-                messageConfirm.style.width = "50%"
+            if(useCancel)
                 showElement(messageCancel);
-            } else {
+            else
                 hideElement(messageCancel);
-                messageConfirm.style.width = "100%"
-            }
+
         
             oncancel = _oncancel;
             onconfirm = _onconfirm;

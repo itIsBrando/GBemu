@@ -78,7 +78,9 @@ input:out-of-range {
 
 
 #PromptDiv {
-    min-height: 50px;
+    min-height: 10px;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 
