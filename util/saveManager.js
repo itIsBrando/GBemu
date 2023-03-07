@@ -41,7 +41,7 @@ class SaveStorage {
     static set_button_text() {
         const PrevImgButton = document.getElementById('PrevImgButton');
 
-        PrevImgButton.innerHTML = SaveStorage.enableImage ? "yes" : "no";
+        PrevImgButton.checked = SaveStorage.enableImage;
     }
 
     static togglePreview() {
@@ -285,7 +285,7 @@ var SaveManager = new function() {
                 <h2>${this.getSaveString(keys[i])}</h2>
                 <button type="button" class='x-btn x-btn-animated' style="background-color:orangered;" name='deleteButton'>&times;</button>
                 <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? obj.label : obj.time}</code>
-                <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%;">${obj.type || "SAV"}</code>
+                <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%; height: fit-content;">${obj.type || "SAV"}</code>
             `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;
@@ -389,7 +389,7 @@ var SaveManager = new function() {
         e.stopPropagation();
         key = this.parentElement.value
         Menu.message.show(
-            `Delete <b style="color:green;">${SaveManager.getSaveString(key)}</b>?`,
+            `Delete <a style="color:white;">${SaveManager.getSaveString(key)}</a>?`,
             "Are You Sure?",
             true,
             null,

@@ -237,14 +237,14 @@ const controlsToggle = document.getElementById('controlsToggle');
 
 // touch controls
 controlsToggle.addEventListener('click', function() {
-    const enabled = touchControls.style.display == "block";
+    const isShown = touchControls.style.display != "none";
     
-    if(enabled)
+    if(isShown)
         hideElement(touchControls);
     else
         showElement(touchControls);
     
-    this.innerText = enabled ? "no" : "yes"
+    this.checked = !isShown;
 })
 
 // auto enable if using a touch device

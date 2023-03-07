@@ -107,35 +107,37 @@ AutoLoadButton.addEventListener('click', function() {
     else
         current = !(current == 'true' ? true : false);
 
-    if(current == true) {
-        this.innerText = "yes";
-    } else {
-        this.innerText = "no";
-    }
+    this.checked = current;
 
     Settings.set_core("autoload", current);
 })
 
-AutoLoadButton.innerHTML = Settings.get_core("autoload", 'true') == 'true' ? 'yes' : 'no';
+AutoLoadButton.checked = Settings.get_core("autoload", 'true') == 'true' ? true : false;
 
 const BorderButton = document.getElementById('BorderButton');
 
 BorderButton.addEventListener('click', function() {
-    let cur = Settings.get_temp('bordershown', 'true');
+    let cur = Settings.get_core('bordershown', 'true');
     const v = document.getElementById('viewport');
 
     cur = !(cur == 'true');
 
     if(cur == true) {
-        this.innerText = 'yes';
+        this.checked = true;
         v.className = 'viewport';
     } else {
-        this.innerText = 'no';
+        this.checked = false;
         v.className = 'viewport viewport-full';
     }
 
-    Settings.set_temp('bordershown', cur);
+    Settings.set_core('bordershown', cur);
 });
+
+
+if(Settings.get_core('bordershown') == 'false') {
+    BorderButton.click();
+    BorderButton.click();
+}
 
 const vars = Settings.parse_url();
 Settings.set_core('pwa', vars['pwa'] || 'false');

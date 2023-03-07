@@ -88,21 +88,29 @@ var KeyBinding = new function() {
     }
 
     this.setDefault = function() {
-        Settings.del_core('keybinding');
-        this.bindings = {
-            "s" : "A",
-            "a" : "B",
-            "enter" : "START",
-            "shift" : "SELECT",
-            "arrowleft" : "LEFT",
-            "arrowright" : "RIGHT",
-            "arrowup" : "UP",
-            "arrowdown" : "DOWN",
-            "d" : "FAST",
-            "f" : "FULLSCREEN"
-        }
-
-        this.fillButtonText();
+        Menu.message.show(
+            '',
+            "Set keybindings to default?",
+            true,
+            null,
+            function() {
+                Settings.del_core('keybinding');
+                KeyBinding.bindings = {
+                    "s" : "A",
+                    "a" : "B",
+                    "enter" : "START",
+                    "shift" : "SELECT",
+                    "arrowleft" : "LEFT",
+                    "arrowright" : "RIGHT",
+                    "arrowup" : "UP",
+                    "arrowdown" : "DOWN",
+                    "d" : "FAST",
+                    "f" : "FULLSCREEN"
+                }
+        
+                KeyBinding.fillButtonText();        
+            }
+        );
     }
     
     this.hide = function() {
@@ -143,7 +151,7 @@ var KeyBinding = new function() {
             if(this.bindings[btn] == this.modifyingButton)
                 delete this.bindings[btn];
                 this.bindings[keyName] = this.modifyingButton;
-                Menu.message.show(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
+                // Menu.message.show(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
                 this.fillButtonText();
                 Settings.set_core('keybinding', JSON.stringify(this.bindings));
                 return;

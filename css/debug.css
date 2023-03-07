@@ -58,8 +58,7 @@
 }
 
 .palette-menu {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: inline;
 }
 
 #TilePrevDiv {
@@ -255,10 +254,6 @@
 
     #MapCanvasDiv {
         grid-row: 1 / 3;
-    }
-
-    .palette-menu {
-        grid-template-columns: 1fr 1fr;
     }
 }
 

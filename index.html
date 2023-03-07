@@ -207,10 +207,12 @@
         }
 
         .settings-grid {
-            display: grid;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
             background-color: #444444;
             margin: 10px;
-            grid-template-columns: 3fr 1fr;
+            /* grid-template-columns: 3fr 1fr; */
             border-radius: 5px;
         }
 
@@ -218,15 +220,36 @@
             padding-left: 10px;
         }
 
-        .settings-grid label, .settings-grid button {
-            border-bottom: 4px solid #333;
-            border-radius: 2px;
+        .settings-title {
+            padding: 5px 0px 0px 5px;
+            margin-bottom: 5px;;
+            color: #bbeeff;
         }
 
-        .settings-title {
-            grid-column: 1 / 3;
-            padding: 5px 0px 0px 5px;
-            color: #bbeeff;
+        .settings-checkbox {
+            appearance: none;
+            cursor: pointer;
+            background-color: transparent;
+            border-radius: 6px;
+            aspect-ratio: 1 / 1;
+            align-self: center;
+            padding: 0px 10px;
+            margin: 3px 6px;
+            max-width: 21px;
+            transition: 0.15s;
+            opacity: 0.5;
+            border: 2px solid #eee;
+            float: right;
+        }
+
+        .settings-checkbox:hover {
+            filter: brightness(0.8);
+        }
+
+        .settings-checkbox:checked {
+            background-color: #aaddee;
+            border-color: #aaddee;
+            opacity: 1;
         }
 
         .info-content {
@@ -268,7 +291,6 @@
             width: 100%;
             max-height: 100vh;
             overflow-y: auto;
-            text-align: center;
             background-color: inherit;
         }
         
@@ -432,39 +454,48 @@
     <!-- Settings menu -->
     <div id="SettingsDiv" class="popup shadow">
         <div class="menu-header">
-            <b>Settings</b>
+            <a style="padding-left: 5px;">Settings</a>
             <button type="button" class="x-btn" onclick="Settings.hide();">&times;</button>
         </div>
         <div class="settings-grid" style="grid-template-rows: repeat(10, 40px);">
             <b class="settings-title">Emulation Settings</b>
             <!-- Emulation Mode -->
-            <label for="emuMode">Emulation Mode:</label>
-            <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
-            class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
-            <label for="sndEnable">Enable Sound:</label>
-            <button type="button" class="menubtn settings-btn" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);"></button>
+            <label for="emuMode">Emulation Mode:
+                <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
+                    class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
+            </label>
+            <label for="sndEnable">Enable Sound:
+                <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
+            </label>
             <!-- DMG Palette -->
-            <label for="dmgPal">DMG Palette Colors:</label>
-            <button type="button" name="dmgPal" class="menubtn settings-btn"
-                    onclick="Palette.show();">edit</button>
+            <label for="dmgPal">DMG Palette Colors:
+                <button type="button" name="dmgPal" class="menubtn settings-btn"
+                        onclick="Palette.show();">edit</button>
+            </label>
             <!-- Power consumption -->
-            <label for="pwrComp">Power consumption:</label>
-            <button type="button" name="pwrComp" title="Show CPU power usage" class="menubtn settings-btn" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">toggle</button>
+            <label for="pwrComp">Power consumption:
+                <input type="checkbox" name="pwrComp" title="Show CPU power usage" class="settings-checkbox" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">
+            </label>
             <!-- Other -->
             <b class="settings-title">Other</b>
-            <label for="BorderButton">Screen border:</label>
-            <button type="button" name="border" id="BorderButton" class="menubtn settings-btn" title="Shows/hides the border around the screen">yes</button>
-            <label for="AutoLoadButton">Automatically load saves:</label>
-            <button type="button" name="autoload" id="AutoLoadButton" class="menubtn settings-btn" title="Loads a save when a game is loaded."></button>
-            <label for="prevImg">Save Preview Image:</label>
-            <button type="button" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="menubtn settings-btn" title="Saves a preview image of the game when using 'internal saves'."></button>
+            <label for="BorderButton">Screen border:
+                <input type="checkbox" name="border" id="BorderButton" class="settings-checkbox" title="Shows/hides the border around the screen" checked>
+            </label>
+            <label for="AutoLoadButton">Load save on startup:
+                <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
+            </label>
+            <label for="prevImg">Save Preview Image:
+                <input type="checkbox" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="settings-checkbox" title="Saves a preview image of the game when using 'internal saves'.">
+            </label>
             <!-- Toggle touch controls -->
-            <label for="Ctrls">Touch Controls:</label>
-            <button type="button" name="Ctrls" id="controlsToggle" class="menubtn settings-btn">no</button>
+            <label for="Ctrls">Touch Controls:
+                <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
+            </label>
             <!-- change keyboard controls -->
-            <label for="keybind">Keyboard Controls:</label>
-            <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
-            onclick="KeyBinding.show();">edit</button>
+            <label for="keybind">Keyboard Controls:
+                <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
+                    onclick="KeyBinding.show();">edit</button>
+            </label>
             <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
         </div>
     </div>
@@ -637,27 +668,37 @@
         <div class="bind-div-child">
         <div class="settings-grid" style="grid-template-rows: repeat(14, 40px);">
             <b class="settings-title">Gameboy buttons</b>
-            <label>A Button:</label>
-            <button type="button" onclick="KeyBinding.assign('A', this);" class="key-binding settings-btn menubtn"></button>
-            <label>B Button:</label>
-            <button type="button" onclick="KeyBinding.assign('B', this);" class="key-binding settings-btn menubtn"></button>
-            <label>SELECT Button:</label>
-            <button type="button" onclick="KeyBinding.assign('SELECT', this);" class="key-binding settings-btn menubtn"></button>
-            <label>START Button:</label>
-            <button type="button" onclick="KeyBinding.assign('START', this);" class="key-binding settings-btn menubtn"></button>
-            <label>UP Button:</label>
-            <button type="button" onclick="KeyBinding.assign('UP', this);" class="key-binding settings-btn menubtn"></button>
-            <label>DOWN Button:</label>
-            <button type="button" onclick="KeyBinding.assign('DOWN', this);" class="key-binding settings-btn menubtn"></button>
-            <label>LEFT Button:</label>
-            <button type="button" onclick="KeyBinding.assign('LEFT', this);" class="key-binding settings-btn menubtn"></button>
-            <label>RIGHT Button:</label>
-            <button type="button" onclick="KeyBinding.assign('RIGHT', this);" class="key-binding settings-btn menubtn"></button>
+            <label>A Button:
+                <button type="button" onclick="KeyBinding.assign('A', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>B Button:
+                <button type="button" onclick="KeyBinding.assign('B', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>SELECT Button:
+                <button type="button" onclick="KeyBinding.assign('SELECT', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>START Button:
+                <button type="button" onclick="KeyBinding.assign('START', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>UP Button:
+                <button type="button" onclick="KeyBinding.assign('UP', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>DOWN Button:
+                <button type="button" onclick="KeyBinding.assign('DOWN', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>LEFT Button:
+                <button type="button" onclick="KeyBinding.assign('LEFT', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>RIGHT Button:
+                <button type="button" onclick="KeyBinding.assign('RIGHT', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
             <b class="settings-title">Emulation buttons</b>
-            <label>Fast Foward:</label>
-            <button type="button" onclick="KeyBinding.assign('FAST', this);" class="key-binding settings-btn menubtn"></button>
-            <label>Fullscreen:</label>
-            <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="key-binding settings-btn menubtn"></button>
+            <label>Fast Foward:
+                <button type="button" onclick="KeyBinding.assign('FAST', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
+            <label>Fullscreen:
+                <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
         </div></div>
     </div>
 
@@ -676,7 +717,7 @@
                     </div>
                 </div>
             </div>
-            <button id="saveEditButton" type="button" class="menubtn ui-title-btn">edit</button>
+            <button id="saveEditButton" type="button" class="menubtn ui-title-btn" style="background-color: transparent">edit</button>
             <button id="plusButton" type="button" class="menubtn ui-title-btn" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->

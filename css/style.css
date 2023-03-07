@@ -82,10 +82,3 @@ input:out-of-range {
     padding: 5px;
     border-radius: 5px;
 }
-
-
-.settings-grid label {
-    display: flex;
-    align-items: center;
-    border-right: 2px solid #333;
-}

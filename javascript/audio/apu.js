@@ -5,12 +5,13 @@
  * - 4 sweep
  * - 7 len sweep period sync
  */
+const sndButton = document.getElementById('sndButton');
 
 class APU {
     static master_enable = false; //Settings.get_core("sound", false) == 'true';
 
     static set_button_text() {
-        document.getElementById('sndButton').innerHTML = APU.master_enable ? "yes" : "no";
+        sndButton.checked = APU.master_enable;
     }
 
     constructor(cpu) {

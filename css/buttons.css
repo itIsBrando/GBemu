@@ -48,8 +48,9 @@
 }
 
 .settings-btn {
-    width: 100%;
-    display: inline-block;
+    width: 45px;
+    margin: 3px 6px;
+    float: right;
 }
 
 .title-btn {
@@ -72,6 +73,7 @@
 }
 
 .key-binding {
+    min-width: fit-content;
     position: relative;
     font-style: italic;
 }
@@ -155,7 +157,13 @@
     width: 100%;
     display: grid;
     grid-template-columns: 2fr 1fr 30px;
-    grid-template-rows: 4fr 1fr;
+    grid-template-rows: 4fr min-content;
+    background-color: transparent;
+    border-bottom: 1px solid var(--ui-title-color);
+}
+
+.save-menu-button:hover {
+    filter: brightness(0.6);
 }
 
 .save-menu {
