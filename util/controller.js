@@ -99,8 +99,10 @@ class Controller {
         gamepadButtons["DOWN"] = gp.buttons[13].pressed || (gp.axes[1] > this.DEADZONE);
         gamepadButtons["UP"] = gp.buttons[12].pressed || (gp.axes[1] < -this.DEADZONE);
 
+        // manage fast forward
         if(gp.buttons[6].pressed || gp.buttons[7].pressed) {
-            c.speed = c.FastForwardSpeed;
+            const v = Math.max(gp.buttons[6].value, gp.buttons[7].value) * 8;
+            c.speed = Math.max(1, v);
         } else {
             c.speed = 1;
         }
@@ -151,11 +153,15 @@ class Controller {
     }
 }
 
+const gamepadConnected = document.getElementById('gamepadConnected');
+
 
 window.addEventListener("gamepadconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
     Menu.alert.show(`Gamepad connected: ${gp.id}`);
     Controller.useGamepad = true;
+    gamepadConnected.checked = true;
+    gp.mapping = 'standard';
 });
 
 
@@ -163,6 +169,7 @@ window.addEventListener("gamepaddisconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
     Menu.alert.show(`Gamepad disconnected.`);
     Controller.useGamepad = false;
+    gamepadConnected.checked = false;
 });
 
 
