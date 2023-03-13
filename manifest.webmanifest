@@ -6,7 +6,7 @@
     "description": "Gameboy Emulator powered by HTML5, CSS, and JavaScript",
     "background_color": "#777777",
     "categories": ["games", "utilities"],
-    "start_url": "/?pwa=true",
+    "start_url": "/index.html/?pwa=true",
     "icons": [
         {
             "src": "icons/icon_108x108.png",
