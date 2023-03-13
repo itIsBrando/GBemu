@@ -75,14 +75,16 @@ var Settings = new function() {
     this.show = function() {
         const versionElem = document.getElementById('version');
 
-        if(caches) {
+        if('caches' in window) {
             caches.keys().then(
                 (keys) => {
-                    versionElem.innerHTML = keys[0] || 'gbemu (offline incompatible)';
+                    versionElem.innerHTML = keys[0] || 'gbemu';
                 }
             );
+        } else {
+             versionElem.innerHTML = 'gbemu (latest)';
         }
-
+        
         Themes.setSettingsBar();
 
         showElement(MainDiv);

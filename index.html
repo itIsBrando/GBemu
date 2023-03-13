@@ -146,7 +146,6 @@
         .menu-header, .menu-header-no-ext {
             font-size: 1.25rem;
             font-family: monospace;
-            padding: 5px 0px 5px 5px;
             background-color: var(--ui-title-color);
             color: var(--ui-title-text-color);
             height: fit-content;
@@ -155,6 +154,12 @@
 
         .menu-header-no-ext {
             background-color: transparent;
+            padding: 5px 0px 5px 5px;
+        }
+
+        .menu-header > a {
+            margin: 5px;
+            display: inline-block;
         }
 
         .popup-no-border {
@@ -209,11 +214,10 @@
         .settings-grid {
             display: flex;
             flex-direction: column;
-            flex-wrap: wrap;
             background-color: #444444;
             margin: 10px;
-            /* grid-template-columns: 3fr 1fr; */
             border-radius: 5px;
+            gap: 5px;
         }
 
         .settings-grid label {
@@ -222,7 +226,7 @@
 
         .settings-title {
             padding: 5px 0px 0px 5px;
-            margin-bottom: 5px;;
+            margin-bottom: 15px;
             color: #bbeeff;
         }
 
@@ -231,11 +235,12 @@
             cursor: pointer;
             background-color: transparent;
             border-radius: 6px;
+            max-width: 21px;
+            max-height: 21px;
             aspect-ratio: 1 / 1;
             align-self: center;
             padding: 0px 10px;
             margin: 3px 6px;
-            max-width: 21px;
             transition: 0.15s;
             opacity: 0.5;
             border: 2px solid #eee;
@@ -498,7 +503,7 @@
             <label for="AutoLoadButton">Load save on startup:
                 <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
             </label>
-            <label for="prevImgButton">Save Preview Image:
+            <label for="PrevImgButton">Save Preview Image:
                 <input type="checkbox" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="settings-checkbox" title="Saves a preview image of the game when using 'internal saves'.">
             </label>
             <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
@@ -666,7 +671,7 @@
     <!-- pop up menu for changing keyboard controls -->
     <div class="popup" id="keyBindingDiv"> 
         <div class="menu-header">
-            <b>Keybindings</b>
+            <a>Keybindings</a>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
             <button class="icon-btn" style="font-family: Lucida Sans Unicode; float: right;" title="reset" onclick="KeyBinding.setDefault();">&#x21bb;</button>
         </div>

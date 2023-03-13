@@ -223,7 +223,7 @@ var SaveManager = new function() {
 
         localStorage.setItem(this.addSuffix(name), json);
         Menu.alert.show(
-            `<b style='color:green;'>${name}</b> saved successfully. You can safely close this webpage`,
+            `<b style='color:green;'>${name}</b> saved.`,
             5000
         );
     }
@@ -303,7 +303,7 @@ var SaveManager = new function() {
         }
     
         if(!hasSaves) {
-            saveButtonDiv.innerHTML = `<code>no files saved</code>`;
+            saveButtonDiv.innerHTML = `<p style="text-align: center;">no saves</p>`;
         } else {
             // Add an onclick event for each delete button
             const btns = getDeleteButtons();
