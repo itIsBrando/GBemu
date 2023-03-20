@@ -82,7 +82,7 @@ var Menu = new function() {
         }
         
         this.hide = function() {
-            div.style.top = '-250px';
+            div.style.top = '-100%';
         }
     }
     

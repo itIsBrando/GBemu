@@ -88,13 +88,18 @@ var Settings = new function() {
         Themes.setSettingsBar();
 
         showElement(MainDiv);
+        MainDiv.style.opacity = 1;
         pauseEmulation();
     }
 
     this.hide = function() {
-        hideElement(MainDiv);
-        Themes.setStatusBar();
+        MainDiv.style.opacity = 0;
         resumeEmulation();
+
+        setTimeout(() => {
+            hideElement(MainDiv);
+            Themes.setStatusBar();
+        }, 200);
     }
 }
 

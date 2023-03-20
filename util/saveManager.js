@@ -234,6 +234,8 @@ var SaveManager = new function() {
      * @returns false if the menu is already open
      */
     this.show = function() {
+        popupMenu.style.opacity = 1;
+
         if(popupMenu.style.display == "block")
             return false;
         
@@ -246,9 +248,12 @@ var SaveManager = new function() {
 
 
     this.hide = function() {
-        Themes.setStatusBar();
-        
-        hideElement(popupMenu);
+        popupMenu.style.opacity = 0;
+
+        setTimeout(() => {
+            Themes.setStatusBar();
+            hideElement(popupMenu);
+        }, 200);
 
         resumeEmulation();
 

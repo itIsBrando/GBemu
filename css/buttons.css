@@ -179,7 +179,7 @@
 .alert-div {
     position: absolute;
     transform: translateX(-50%);
-    top: -200px;
+    top: -100%;
     left: 50%;
     padding: 10px 30px;
     min-height: 50px;
@@ -187,11 +187,12 @@
     color: aliceblue;
     border: 2px solid #777;
     border-radius: 5px;
-    transition: 0.5s ease-in-out;
+    transition: 0.2s ease;
     
     font-size: 1.25rem;
     text-align: center;
     z-index: 20;
+    box-shadow: 1px 1px 5px #222;
 }
 
 #saveEditButton {
