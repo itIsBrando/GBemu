@@ -2,20 +2,22 @@ const textInput = document.getElementById('PromptText');
 const menu = document.getElementById('PromptMenu');
 const title = document.getElementById('PromptTitle');
 const submit = document.getElementById('PromptSubmit');
+const cancel = document.getElementById('PromptCancel');
 const div = document.getElementById('PromptDiv');
 const infoDiv = document.getElementById('PromptInfo');
 
 
 /**
   * Only one prompt menu object can exist at a time
-  * 'oncancel' event is never called
+  * 'onexit' event is never called
  */
 class PromptMenu {
     
     static onsubmit;
-    static oncancel;
+    static onexit;
+	static oncancel;
     
-    constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, oncancel=null, defaulttext='', buttontext='OK') {
+    constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, onexit=null, defaulttext='', buttontext='OK', cancelText=null, oncancel=null) {
         div.innerHTML = "";
         this.accepts = accepts;
         this.title = t || 'Title';
@@ -23,8 +25,10 @@ class PromptMenu {
         this.value = defaulttext;
         this.maxlength = maxlen;
         this.submitText = buttontext;
+		this.cancelText = cancelText;
         PromptMenu.onsubmit = onsubmit;
         PromptMenu.oncancel = oncancel;
+        PromptMenu.onexit = onexit;
         this.submitText = buttontext;
     }
 
@@ -137,6 +141,15 @@ class PromptMenu {
         title.innerHTML = this.title;
 
         submit.innerText = this.submitText;
+
+		// using cancel button
+		if(this.cancelText) {
+			showElement(cancel);
+			cancel.innerText = this.cancelText;
+			cancel.onclick = PromptMenu.oncancel;
+		} else {
+			hideElement(cancel);
+		}
         
         showElement(menu);
 

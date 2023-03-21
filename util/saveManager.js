@@ -7,7 +7,7 @@ class SaveStorage {
     static enableImage = false;
     /**
      * 
-     * @param {String} label Label text so user knows what save this is
+     * @param {String} label Label text so user knows what save this is or null if unknown
      * @param {Uint8Array} data RAM data
      * @param {SaveType} type 'sav' or 'savestate'
      */
@@ -214,7 +214,7 @@ var SaveManager = new function() {
      * @param {SaveType} type either savestate or .sav format
      * @param {Uint8Array} arr array containing saveable data
      */
-    this.save = function(name, arr, type, ROMName = "import") {
+    this.save = function(name, arr, type, ROMName = null) {
         const data = type == SaveType.SAV ? this.pack(arr) : c.createSaveState();
         const s = new SaveStorage(ROMName, data, type);
 
@@ -279,17 +279,18 @@ var SaveManager = new function() {
 
             const obj = JSON.parse(localStorage[keys[i]]);
 
-            if(romName != null && romName != obj.label)
+            if(obj.label != null && romName != null && romName != obj.label)
                 continue;
             
             const btn = document.createElement("button");
+            const label = obj.label || "unknown";
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
             btn.innerHTML = `
                 <img width="160" height="144" style="grid-row: 1 / 3;"></img>
                 <h2>${this.getSaveString(keys[i])}</h2>
                 <button type="button" class='x-btn x-btn-animated' style="background-color:orangered;" name='deleteButton'>&times;</button>
-                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? obj.label : obj.time}</code>
+                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? label : obj.time}</code>
                 <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%; height: fit-content;">${obj.type || "SAV"}</code>
             `;
             btn.value = keys[i];
@@ -362,13 +363,14 @@ var SaveManager = new function() {
                 return;
             }
 
-            
             this.save(v, c.mbcHandler?.ram ?? null, type, c.readROMName());
 
             localSaveButton.click(); // redraw saves
+        }, null, null, "save", "import from device", ()=> {
+            document.getElementById('inputSaveFile').click();
         });
 
-        m.addChoices([".sav", "Save State"], "save_type", "Save Type:");
+        m.addChoices([".sav", "Save State"], "save_type", "Format");
         m.setInfo(
             `<b style="font-size: 1.1rem;" >Save Types:</b>
             <div class="div-separator">
@@ -405,7 +407,6 @@ var SaveManager = new function() {
                 _delKey = null;
                 SaveManager.hide();
                 saveEditButton.innerHTML = "edit";
-                localLoadButton.click();
             }
         );
 

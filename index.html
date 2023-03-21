@@ -346,6 +346,11 @@
             .menu-header {
                 padding-top: max(15px, env(safe-area-inset-top));
             }
+
+            /* Do not show shortcut text on mobile */
+            .shortcut-text {
+                display: none;
+            }
             
             .bind-div-child {
                  max-height: 100%;
@@ -392,9 +397,6 @@
             <button type="button" class="dropdown-btn"
                 id="LoadRom" title="Load ROM file from local files.">Load
                 ROM <a class="shortcut-text">(Ctrl+O)</a></button>
-            <!-- Savefile uploading -->
-            <button type="button" title="Upload .sav files from your local device"
-                class="dropdown-btn" onclick="document.getElementById('inputSaveFile').click()">Import Save File</button>
             <!-- Savefile downloading -->
             <button type="button" title="Download a .sav file to you local device"
                 id="exportSaveButton" class="dropdown-btn">Export Save File</button>
@@ -653,6 +655,7 @@
         <input type="text" name="PromptText" id="PromptText" />
         <button type="button" id="PromptSubmit" class="prompt-button"
             onclick="PromptMenu.submit();">OK</button>
+        <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
     </div>
 
     <!-- Virtual Controller -->
@@ -850,7 +853,12 @@
             let buffer = this.files[0];
 
             reader.onloadend = function () {
-                MBC1.useSaveData(reader.result);
+                const m = new PromptMenu("Save as", "Name", /[0-9A-Za-z]+/g, 20, (v) => {
+                    SaveManager.save(v, new Uint8Array(reader.result), SaveType.SAV);
+                    // SaveManager.hide();
+                    localSaveButton.click(); // redraw saves
+                });
+                m.show();
             }
         });
 

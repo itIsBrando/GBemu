@@ -22,7 +22,7 @@ class MBC3 extends MBC1 {
         this.latDays = 0;
         
         this.isHalted = false;
-        this.start = this.date.getTime();
+        this.start_millis = this.date.getTime();
     }
 
     acceptsWrite(addr) {
@@ -122,8 +122,10 @@ class MBC3 extends MBC1 {
             this.latDays = this.days;
             this.unlatchRTC();
         } else if(!h && this.isHalted) {
-            this.start = this.date.getTime();
+            this.start_millis = this.date.getTime();
         }
+
+        this.isHalted = h;
     }
     
     setRTC(i, val) {
@@ -144,7 +146,7 @@ class MBC3 extends MBC1 {
             case 0xC:
                 this.days &= 0xFF;
                 this.days |= (val & 1) << 8;
-                this.isHalted = UInt8.getBit(val, 6);
+                this.setHalt(UInt8.getBit(val, 6));
                 break;
         }
     }
@@ -207,14 +209,14 @@ class MBC3 extends MBC1 {
     
     
     getTimeInSeconds() {
-        let sec = 0;
+        let millis;
         
         if(this.latchedStart == 0) {
-            sec = this.date.getTime();
+            millis = this.date.getTime();
         } else {
-            sec = this.latchedStart;
+            millis = this.latchedStart;
         }
         
-        return Math.floor(sec - this.start) / 1000;
+        return Math.floor(millis - this.start_millis) / 1000;
     }
 }
