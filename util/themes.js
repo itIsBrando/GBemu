@@ -6,6 +6,7 @@ var Themes = new function() {
         "none",
         "icy-blue-theme",
         "dark-theme",
+        "black-theme",
         "light-theme",
         "purple-theme",
         "yellow-theme",
@@ -33,6 +34,14 @@ var Themes = new function() {
     this.next = function() {
         this.curTheme++;
         this.curTheme %= themes.length;
+        
+        this.apply(this.curTheme);
+    };
+
+    this.prev = function() {
+        if(--this.curTheme < 0) {
+            this.curTheme = themes.length - 1;
+        }
         
         this.apply(this.curTheme);
     };

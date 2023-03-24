@@ -1,0 +1,170 @@
+.popup, .popup-no-border {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    border: 5px solid var(--ui-title-color);
+    color: var(--ui-main-text-color);
+    z-index: 9;
+    border-radius: 5px;
+    width: fit-content;
+    min-width: 350px;
+    max-height: 80vh;
+    transition: all 0.20s ease-in-out;
+}
+
+.menu-header, .menu-header-no-ext {
+    font-size: 1.25rem;
+    font-family: monospace;
+    background-color: var(--ui-title-color);
+    color: var(--ui-title-text-color);
+    height: fit-content;
+    min-height: 30px;
+}
+
+.menu-header-no-ext {
+    background-color: transparent;
+    padding: 5px 0px 5px 5px;
+}
+
+.menu-header > a {
+    margin: 5px;
+    display: inline-block;
+}
+
+.popup-no-border {
+    border: 5px solid #333;
+}
+
+
+.prompt-menu-fieldset {
+    width: calc(100% - 12px);
+    padding: 7px 5px 10px 5px;
+    margin: 0px;
+    border: none;
+}
+
+.prompt-menu-legend {
+    background-color: inherit;
+}
+
+.prompt-menu-radio {
+    display: none;
+}
+
+.prompt-menu-radio:checked + label {
+    background-color: #999;
+}
+
+.prompt-menu-choice {
+    display: block;
+    background-color: #555;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.prompt-menu-choice:hover {
+   background-color: #777;
+}
+
+.settings-grid {
+    display: flex;
+    flex-direction: column;
+    background-color: #444444;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+.settings-grid label {
+    padding-left: 10px;
+    min-height: 40px;
+}
+
+.settings-title {
+    padding: 5px 0px 0px 5px;
+    margin-bottom: 15px;
+    color: #bbeeff;
+}
+
+.settings-checkbox {
+    appearance: none;
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 6px;
+    width: 21px;
+    aspect-ratio: 1 / 1;
+    align-self: center;
+    padding: 0px 10px;
+    margin: 0px 6px;
+    transition: 0.15s;
+    opacity: 0.5;
+    border: 2px solid #eee;
+    float: right;
+}
+
+.settings-checkbox:hover {
+    filter: brightness(0.8);
+}
+
+.settings-checkbox:checked {
+    background-color: #aaddee;
+    border-color: #aaddee;
+    opacity: 1;
+}
+
+.info-content {
+    font-size: 1rem;
+    display: none;
+    position: absolute;
+    background-color: #333;
+    padding: 0.5rem 1rem;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.7);
+    color: aliceblue;
+    text-align: left;
+    top: 100%;
+    right: 0px;
+    width: clamp(150px, 60vw, 650px);
+}
+
+.info-div {
+    position: relative;
+    float: right;
+}
+
+.info-div:hover > .info-content  {
+    display: block;
+}
+
+.info-div:hover > .info-btn, .info-btn:hover {
+    background-color: #333;
+    color: aliceblue;
+}
+
+#keyBindingDiv {
+    width: fit-content;
+    height: fit-content;
+    overflow-y: hidden;
+}
+
+#saveButtonDiv {
+    height: 100%;
+    width: 100%;
+    max-height: 100vh;
+    overflow-y: auto;
+    background-color: inherit;
+}
+
+#ThemeDiv {
+    display: none;
+    margin: calc(5px + env(safe-area-inset-top)) calc(5px + env(safe-area-inset-left));
+    position: absolute;
+    top: 0px;
+    background-color: var(--ui-title-color);
+    box-shadow: 0px 4px 16px 10px rgba(0, 0, 0, 0.7);
+    min-height: 25px;
+    border-radius: 5px;
+}

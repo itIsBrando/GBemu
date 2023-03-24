@@ -22,11 +22,21 @@
 }
 
 .dark-theme {
-    --bg-color: #222222;
-    --screen-shadow: rgba(100, 100, 100, 0.69);
+    --bg-color: #181818;
+    --screen-shadow: rgba(85, 85, 85, 0.69);
     --screen-border-color: #404040;
     --dpad-color: #454545;
     --gamepad-btn-color: darkgray;
+    /* v UI Elements v */
+    --text-color: skyblue;
+}
+
+.black-theme {
+    --bg-color: #000;
+    --screen-shadow: rgba(40, 40, 40, 0.69);
+    --screen-border-color: #202020;
+    --dpad-color: #303030;
+    --gamepad-btn-color: #696969;
     /* v UI Elements v */
     --text-color: skyblue;
 }

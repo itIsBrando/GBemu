@@ -223,7 +223,7 @@ var SaveManager = new function() {
 
         localStorage.setItem(this.addSuffix(name), json);
         Menu.alert.show(
-            `<b style='color:green;'>${name}</b> saved.`,
+            `<b style='color:white;'>${name}</b> saved.`,
             5000
         );
     }
@@ -438,7 +438,7 @@ var SaveManager = new function() {
                 }
            }
 
-           Menu.alert.show(`Loaded <b style="color:green;"> ${this.getSaveString(key)}</b>.`);
+           Menu.alert.show(`Loaded <b style="color:white;"> ${this.getSaveString(key)}</b>.`);
        }
    }
 
