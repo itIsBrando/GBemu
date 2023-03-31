@@ -182,6 +182,7 @@
     top: -100%;
     left: 50%;
     padding: 10px 30px;
+    margin-top: env(safe-area-inset-top);
     min-height: 50px;
     background-color: #333;
     color: aliceblue;

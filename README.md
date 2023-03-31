@@ -10,18 +10,17 @@
 
 ## Emulation Features
  - Support for MBCs 1-5
- - Saving and loading .sav files.
+ - Partial audio support (channels 1 & 2)
+ - Saving and loading .sav files and savestates.
  - Saving in browser with [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
- - Save States (*semi-stable*)
  - Palette customization
- - Custom key bindings
+ - Keyboard, touch, and controller support
  - Debugger and disassembler
 
  *note* most games work but may have graphical glitches in GBC mode.
 
 
  ## Future Plans
-  - Audio
   - GBC double speed mode
   - OAM/BG priority
   - Link Cable
