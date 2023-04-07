@@ -121,13 +121,6 @@
     filter: brightness(0.5);
 }
 
-.x-btn-animated {
-    width: 0px;
-    padding: 0px;
-    border: none;
-    overflow: hidden;
-}
-
 .btn:active {
     background-color: indigo;
 }
@@ -154,27 +147,36 @@
 }
 
 .save-menu-button {
-    width: 100%;
+    width: auto;
     display: grid;
-    grid-template-columns: 2fr 1fr 30px;
-    grid-template-rows: 4fr min-content;
+    grid-template-columns: auto;
+    grid-template-rows: 1fr min-content;
     background-color: transparent;
-    border-bottom: 1px solid var(--ui-title-color);
 }
 
 .save-menu-button:hover {
     filter: brightness(0.6);
 }
 
-.save-menu {
-    height: 80vh;
+.save-menu-button-title {
+    text-align: center;
 }
+
+.save-state-icon {
+    font-size: 0.6rem;
+    border-radius: 2px;
+    background-color:black; 
+    padding: 1px 6px;
+    height: fit-content;
+    float: right;
+    margin-top: 1px;
+}
+
 
 .save-menu-padding {
     width: 1px;
     padding: calc(20px + env(safe-area-inset-bottom)) 0;
 }
-
 
 .alert-div {
     position: absolute;

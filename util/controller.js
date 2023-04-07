@@ -153,14 +153,10 @@ class Controller {
     }
 }
 
-const gamepadConnected = document.getElementById('gamepadConnected');
-
-
 window.addEventListener("gamepadconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
     Menu.alert.show(`Gamepad connected: ${gp.id}`);
     Controller.useGamepad = true;
-    gamepadConnected.checked = true;
     gp.mapping = 'standard';
 });
 
@@ -169,7 +165,6 @@ window.addEventListener("gamepaddisconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
     Menu.alert.show(`Gamepad disconnected.`);
     Controller.useGamepad = false;
-    gamepadConnected.checked = false;
 });
 
 

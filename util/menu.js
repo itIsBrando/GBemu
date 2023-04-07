@@ -61,7 +61,7 @@ var Menu = new function() {
             
             setTimeout(function() {
                 hideElement(messageDiv);
-            }, 600);
+            }, 300);
             
             if(this && this == messageConfirm && onconfirm)
                 onconfirm();

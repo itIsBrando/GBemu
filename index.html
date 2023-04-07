@@ -201,9 +201,6 @@
             <button type="button" class="dropdown-btn"
                 id="LoadRom" title="Load ROM file from local files.">Load
                 ROM <a class="shortcut-text">(Ctrl+O)</a></button>
-            <!-- Savefile downloading -->
-            <button type="button" title="Download a .sav file to you local device"
-                id="exportSaveButton" class="dropdown-btn">Export Save File</button>
             <!-- ROM Info -->
             <button type="button" class="dropdown-btn" onclick="showROMInfo()">ROM Info</button>
             <!-- Reset Game -->
@@ -292,10 +289,6 @@
             <label for="controlsToggle">Touch Controls:
                 <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
             </label>
-            <!-- Gamepad controls -->
-            <label>Gamepad connected:
-                <input type="checkbox" class="settings-checkbox" id="gamepadConnected" disabled>
-            </label>
             <!-- change keyboard controls -->
             <label for="changeKeybinding">Keyboard Controls:
                 <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
@@ -317,6 +310,14 @@
                 <input type="checkbox" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="settings-checkbox" title="Saves a preview image of the game when using 'internal saves'.">
             </label>
             <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
+        </div>
+    </div>
+
+    <div class="selection-menu" id="saveContextMenu">
+        <div class="selection-menu-child">
+            <button type="button">details</button>
+            <button type="button">export</button>
+            <button type="button">delete</button>
         </div>
     </div>
 
@@ -537,7 +538,7 @@
     </div>
 
     <!-- Pop up menu for saving/loading states -->
-    <div class="popup shadow save-menu" id="popup" style="overflow: hidden;">
+    <div class="save-menu" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
             <a>Save Files</a>
             <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
@@ -551,7 +552,6 @@
                     </div>
                 </div>
             </div>
-            <button id="saveEditButton" type="button" class="menubtn ui-title-btn" style="background-color: transparent">edit</button>
             <button id="plusButton" type="button" class="menubtn ui-title-btn" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->

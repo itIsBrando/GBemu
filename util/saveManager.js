@@ -82,14 +82,31 @@ const localSaveButton = document.getElementById('localSaveButton');
 const localLoadButton = document.getElementById('localLoadButton');
 const popupMenu = document.getElementById('popup');
 const plusButton = document.getElementById('plusButton');
-const saveEditButton = document.getElementById('saveEditButton');
+const contextMenuDiv = document.getElementById('saveContextMenu');
 const saveButtonDiv = document.getElementById('saveButtonDiv');
+
+let _timer;
+
+function saveButtonOnTouchStart(event) {
+    const btn = this;
+
+    _timer = setTimeout(function() {
+        event.clientX = event.touches[0].clientX;
+        event.clientY = event.touches[0].clientY;
+        btn.oncontextmenu(event);
+    } , 400);
+
+}
+
+function saveButtonOnTouchEnd() {
+    clearTimeout(_timer);
+}
+
 
 /**
  * Shows the pop up menu for saving to localStorage
  */
 localSaveButton.addEventListener('click', function() {
-    hideElement(saveEditButton);
     showElement(plusButton);
     
     saveButtonDiv.innerHTML = '';
@@ -188,6 +205,11 @@ var SaveManager = new function() {
         return (data.type == null || data.type == SaveType.SAV) ? SaveType.SAV : SaveType.SAVESTATE;
     }
 
+    this.getTime = function(key) {
+        const data = JSON.parse(localStorage.getItem(key));
+        return (data.time);
+    }
+
 
     this.getSuffix = function(key) {
         const match = key.match(/ .*/);
@@ -243,7 +265,6 @@ var SaveManager = new function() {
         Themes.setSettingsBar();
 
         pauseEmulation();
-
     }
 
 
@@ -271,7 +292,7 @@ var SaveManager = new function() {
         const keys = Object.keys(localStorage);
         const romName = c.readROMName();
         let hasSaves = false;
-    
+
         for(let i in keys) {
             // some settings should not be shown
             if(Settings.isSetting(keys[i]))
@@ -283,18 +304,83 @@ var SaveManager = new function() {
                 continue;
             
             const btn = document.createElement("button");
-            const label = obj.label || "unknown";
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
             btn.innerHTML = `
-                <img width="160" height="144" style="grid-row: 1 / 3;"></img>
-                <h2>${this.getSaveString(keys[i])}</h2>
-                <button type="button" class='x-btn x-btn-animated' style="background-color:orangered;" name='deleteButton'>&times;</button>
-                <code style="font-size: 0.75rem; padding-right: 0.75rem;">${romName == null ? label : obj.time}</code>
-                <code style="font-size: 0.6rem; border-radius: 2px; background-color:black; color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'}; width:100%; height: fit-content;">${obj.type || "SAV"}</code>
+                <img width="160" height="144" style="width: 100%; height: 100%; border-radius:5px;"></img>
+                <b class="save-menu-button-title">
+                    ${this.getSaveString(keys[i])}
+                    <code class="save-state-icon" style="color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'};">${obj.type || "SAV"}</code>
+                </b>
             `;
             btn.value = keys[i];
             btn.onclick = onLabelClick;
+
+            // oncontext menu unavaiable for damn iOS devices :'(
+            btn.addEventListener('touchstart', saveButtonOnTouchStart);
+            btn.addEventListener('touchend', saveButtonOnTouchEnd);
+
+            btn.oncontextmenu = function(event) {
+                const key = this.value;
+
+                contextMenuDiv.oncontextmenu = contextMenuDiv.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    hideElement(contextMenuDiv);
+                }
+
+                event.preventDefault();
+                // set position
+                contextMenuDiv.children[0].style.left = event.clientX + "px";
+                contextMenuDiv.children[0].style.top = event.clientY + "px";
+                
+                contextMenuDiv.children[0].children[2].value = key;
+                contextMenuDiv.children[0].children[1].value = key;
+                contextMenuDiv.children[0].children[2].onclick = SaveManager.deleteSelf;
+
+                contextMenuDiv.children[0].children[0].onclick = function() {
+                    const sav = SaveManager.getSave(key);
+                    let str = `Name: ${SaveManager.getSaveString(key)}<br>
+                    Game: ${SaveManager.getSuffix(key)}<br>
+                    Type: ${SaveManager.getType(key) == SaveType.SAV ? ".sav" : "savestate"}<br>
+                    Date: ${SaveManager.getTime(key)}`;
+
+                    if(SaveManager.getType(key) == SaveType.SAV)
+                        str += `<br>Size: ${sav.length} bytes`
+                    Menu.message.show(
+                         str,
+                        "Details"
+                    );
+                }
+
+                contextMenuDiv.children[0].children[1].onclick = function() {
+                    const key = this.value;
+
+                    // cannot save if savestate
+                    if(SaveManager.getType(key) != SaveType.SAV)
+                    {
+                        Menu.message.show("This save cannot be exported");
+                        return;
+                    }
+
+                    const name = SaveManager.getSaveString(key);
+                    const data = SaveManager.getSave(key);
+
+                    // if we are mobile or embedded app on iOS, we cannot download files
+                    if(window.navigator.standalone) {
+                        let str = SaveManager.pack(data);
+                        const data = JSON.stringify(new SaveStorage(name, str, SaveType.SAV));
+
+                        copyClipMenu(new String(data));
+                    } else {
+                        downloadSave(name, data);
+                    }
+
+                }
+
+                showElement(contextMenuDiv, 'flex');
+            };
+
             const can = btn.getElementsByTagName('img')[0];
 
             if(obj.img) {
@@ -309,15 +395,8 @@ var SaveManager = new function() {
         }
     
         if(!hasSaves) {
-            saveButtonDiv.innerHTML = `<p style="text-align: center;">no saves</p>`;
+            saveButtonDiv.innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">no saves</p>`;
         } else {
-            // Add an onclick event for each delete button
-            const btns = getDeleteButtons();
-    
-            btns.forEach(function(curVal) {
-                curVal.onclick = SaveManager.deleteSelf;
-            });
-
             const div = document.createElement('div');
             div.className = 'save-menu-padding';
             saveButtonDiv.appendChild(div);
@@ -348,7 +427,7 @@ var SaveManager = new function() {
      * Called by the `+` button in `id=popup`
      */
     this.addSave = function() {
-        const m = new PromptMenu("Save Name", "Name", /[0-9A-Za-z]+/g, 20, (v, state) => {
+        const m = new PromptMenu("Save Name", "Name", /[0-9A-Za-z]+/g, 12, (v, state) => {
             const type = state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE;
             if(v.length == 0)
                 return;
@@ -393,8 +472,7 @@ var SaveManager = new function() {
      * @param {ButtonEvent} e 
      */
     this.deleteSelf = function(e) {
-        e.stopPropagation();
-        key = this.parentElement.value
+        key = this.value
         Menu.message.show(
             `Delete <a style="color:white;">${SaveManager.getSaveString(key)}</a>?`,
             "Are You Sure?",
@@ -405,8 +483,15 @@ var SaveManager = new function() {
                     delete localStorage[_delKey];
             
                 _delKey = null;
-                SaveManager.hide();
-                saveEditButton.innerHTML = "edit";
+
+                // visually delete item.
+                for(let i in saveButtonDiv.children) {
+                    if(saveButtonDiv.children[i].value == key) {
+                        saveButtonDiv.removeChild(saveButtonDiv.children[i]);
+                        break;
+                    }
+                }
+
             }
         );
 
@@ -491,23 +576,6 @@ function getDeleteButtons() {
     return document.getElementsByName("deleteButton");
 }
 
-
-saveEditButton.addEventListener('click', function() {
-    const isEditing = this.innerHTML == "edit";
-
-    this.innerHTML = isEditing == true ? "done" : "edit";
-
-    const btns = getDeleteButtons();
-    
-    btns.forEach(function(e) {
-        if(isEditing)
-            e.classList.remove('x-btn-animated');
-        else
-            e.classList.add('x-btn-animated');
-    });
-});
-
-
 /**
  * Load from local storage
  * - Creates a list of buttons that correspond to all localStorage saves
@@ -518,8 +586,6 @@ localLoadButton.addEventListener('click', function() {
     if(popupMenu.style.display == "block")
         return;
 
-    // hide text entry
-    showElement(saveEditButton);
     hideElement(plusButton);
 
     SaveManager.populateSaveHTML(function() {
@@ -530,44 +596,18 @@ localLoadButton.addEventListener('click', function() {
     SaveManager.show();
 })
 
-
-const exportSaveButton = document.getElementById('exportSaveButton');
-
-// save file to computer
-exportSaveButton.onclick = function() {
-    if(!c.mbcHandler || c.mbcHandler.ramSize == 0)
-    {
-        Menu.message.show("This ROM does not have a RAM chip", "No RAM");
-        return;
-    }
-
-    // do saving
-
-    // if we are mobile or embeded app, we cannot download files
-    if(window.navigator.standalone) {
-        let str = SaveManager.pack(c.mbcHandler.ram);
-        const data = JSON.stringify(new SaveStorage(c.readROMName(), str, SaveType.SAV));
-
-        copyClipMenu(new String(data));
-    } else {
-        downloadSave();
-    }
-
-};
-
-
-
 /**
  * Downloads the current MBC's RAM to a desktop
  *  - only works from a destkop web browser
+ * @param {String} name file name
+ * @param {Uint8Array} data
  */
-function downloadSave(){
-    const name = c.readROMName() + ".sav"
+function downloadSave(name, data){
     const a = document.getElementById('saveA');
 
     // save file
-    let blob = new Blob([c.mbcHandler.ram]);
-    a.href = window.URL.createObjectURL(blob);
-    a.download = name;
+    let blob = new Blob([data]);
+    a.href = window.URL.createObjectURL(blob, {type: "application/pdf"});
+    a.download = name + ".sav";
     a.click();
 }
