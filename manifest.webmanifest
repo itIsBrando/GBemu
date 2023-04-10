@@ -4,7 +4,7 @@
     "display": "fullscreen",
     "orientation": "any",
     "description": "Gameboy Emulator powered by HTML5, CSS, and JavaScript",
-    "background_color": "#777777",
+    "background_color": "#241f31",
     "categories": ["games", "utilities"],
     "start_url": "index.html?pwa=true",
     "icons": [

@@ -369,9 +369,9 @@ var SaveManager = new function() {
                     // if we are mobile or embedded app on iOS, we cannot download files
                     if(window.navigator.standalone) {
                         let str = SaveManager.pack(data);
-                        const data = JSON.stringify(new SaveStorage(name, str, SaveType.SAV));
+                        const json = JSON.stringify(new SaveStorage(name, str, SaveType.SAV));
 
-                        copyClipMenu(new String(data));
+                        copyClipMenu(new String(json));
                     } else {
                         downloadSave(name, data);
                     }

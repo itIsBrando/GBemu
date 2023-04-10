@@ -22,10 +22,25 @@
             --ui-title-color: #1b1b1b;
             --ui-title-text-color: white;
             --ui-main-text-color: ghostwhite;
+            --ui-highlight-color: #aaddee;
 
             --ui-text-color: white;
             --ui-btn-color: #55555A;
+
+            --ui-background-color: #303030;
         }
+
+        /* .ui-light-theme {
+            --ui-title-color: #ddd;
+            --ui-title-text-color: black;
+            --ui-main-text-color:black;
+            --ui-highlight-color: teal;
+
+            --ui-text-color: lightblue;
+            --ui-btn-color: #55555A;
+
+            --ui-background-color: aliceblue;
+        } */
 
         .viewport {
             /* Why have i positioned this like a piece of dumbo? */
@@ -560,7 +575,7 @@
 
     <!-- Change palette colors -->
     <div class="popup-no-border shadow" id="paletteSetDiv">
-        <div class="menu-header-no-ext" style="border: 1px solid #333; text-align: center;">
+        <div class="menu-header-no-ext" style="text-align: center;">
             <!-- header -->
             <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
             <!-- arrows -->
@@ -581,7 +596,7 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid #333;">
+    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid var(--ui-background-color);">
         <!-- header -->
         <div id="messageHeader" class="menu-header-no-ext"></div>
         <!-- body -->

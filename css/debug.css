@@ -87,7 +87,7 @@
     margin: 0px;
     border-radius: 0px;
     background-color: var(--ui-title-color);
-    color: #ddd;
+    color: var(--ui-text-color);
 }
 
 .debug-title-btn-active {

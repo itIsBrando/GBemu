@@ -151,7 +151,9 @@
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: 1fr min-content;
-    background-color: transparent;
+    background-color: var(--ui-title-color);
+    border-radius: 10px;
+    margin: 5px;
 }
 
 .save-menu-button:hover {
@@ -160,6 +162,7 @@
 
 .save-menu-button-title {
     text-align: center;
+    font-size: 1.5rem;
 }
 
 .save-state-icon {
@@ -175,7 +178,7 @@
 
 .save-menu-padding {
     width: 1px;
-    padding: calc(20px + env(safe-area-inset-bottom)) 0;
+    padding: calc(20px + env(safe-area-inset-bottom)) 0px;
 }
 
 .alert-div {
@@ -186,8 +189,8 @@
     padding: 10px 30px;
     margin-top: env(safe-area-inset-top);
     min-height: 50px;
-    background-color: #333;
-    color: aliceblue;
+    background-color: var(--ui-background-color);
+    color: var(--ui-text-color);
     border: 2px solid #777;
     border-radius: 5px;
     transition: 0.2s ease;
@@ -196,13 +199,6 @@
     text-align: center;
     z-index: 20;
     box-shadow: 1px 1px 5px #222;
-}
-
-#saveEditButton {
-    font: 0.75rem monospace;
-    width: fit-content;
-    height: 30px;
-    float: right;
 }
 
 #plusButton {
