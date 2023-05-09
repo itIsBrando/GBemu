@@ -48,9 +48,17 @@ var KeyBinding = new function() {
     
     // shows the keybinding menu
     this.show = function() {
+        let op = 0;
         showElement(keyBindingDiv);
-        keyBindingDiv.focus();
-
+        
+        const a = function() {
+            keyBindingDiv.style.opacity = op;
+            op += 0.1;
+            if(op < 1)
+                setTimeout(a, 10);
+        }
+        a();
+        
         this.fillButtonText();
     }
 
@@ -115,7 +123,11 @@ var KeyBinding = new function() {
     
     this.hide = function() {
         this.isAssigning = false;
-        hideElement(keyBindingDiv);
+        keyBindingDiv.style.opacity = 0;
+
+        setTimeout(() => {
+            hideElement(keyBindingDiv);
+        }, 200);
     }
 
     /**

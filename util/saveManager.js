@@ -265,6 +265,15 @@ var SaveManager = new function() {
         Themes.setSettingsBar();
 
         pauseEmulation();
+
+        let op = 0;
+        const a = function() {
+            popupMenu.style.opacity = op;
+            op += 0.1;
+            if(op < 1)
+                setTimeout(a, 5);
+        }
+        a();
     }
 
 

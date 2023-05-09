@@ -88,8 +88,16 @@ var Settings = new function() {
         Themes.setSettingsBar();
 
         showElement(MainDiv);
-        MainDiv.style.opacity = 1;
         pauseEmulation();
+
+        let op = 0;
+        const a = function() {
+            MainDiv.style.opacity = op;
+            op += 0.1;
+            if(op < 1)
+                setTimeout(a, 5);
+        }
+        a();
     }
 
     this.hide = function() {

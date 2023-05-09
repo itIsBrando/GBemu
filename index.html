@@ -290,7 +290,12 @@
             <label for="toggleDMGMode">Emulation Mode:
                 <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
                     class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
-                </label>
+            </label>
+            <!-- Emulation Mode -->
+            <label for="changeFilter">Shader Type:
+                <button type="button" name="emuMode" id="changeFilter" title="Changes video shader."
+                    class="menubtn settings-btn" onclick="Filter.change(this);">none</button>
+            </label>
             <!-- DMG Palette -->
             <label for="dmgPal">DMG Palette Colors:
                 <button type="button" id="dmgPal" name="dmgPal" class="menubtn settings-btn"
@@ -509,7 +514,7 @@
 
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="popup" id="keyBindingDiv"> 
+    <div class="popup shadow" id="keyBindingDiv" style="overflow-x: hidden;"> 
         <div class="menu-header">
             <a>Keybindings</a>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
@@ -618,6 +623,7 @@
 <body>
     <script src="util/promptMenu.js"></script>
     <script src="util/menu.js"></script>
+    <script src="util/filter.js"></script>
     <script src="util/settings.js"></script>
     <script src="util/saveManager.js"></script>
     <script src="util/themes.js"></script>
@@ -736,13 +742,13 @@
         x.addListener(_set_var);
 
 
-        // on unload event
-        addEventListener('beforeunload', (event) => {
-            if(!c.romLoaded)
-                return;
-            event.preventDefault();
-            return (event.returnValue = "");
-        });
+        // // on unload event
+        // addEventListener('beforeunload', (event) => {
+        //     if(!c.romLoaded)
+        //         return;
+        //     event.preventDefault();
+        //     return (event.returnValue = "");
+        // });
 
         SaveStorage.init();
         Themes.init();

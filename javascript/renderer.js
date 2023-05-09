@@ -19,13 +19,16 @@ class Renderer {
     
     constructor(cpu) {
         this.context = canvas.getContext('2d');
-        this.context.fillStyle = "#FFFFFF";
-        this.context.fillRect(0, 0, 160, 144);
+        
+        
         this.screen = this.context.getImageData(0, 0, 160, 144);
+        this.clearBuffer();
+        this.filter = new Filter(canvas, 1);
 
         this.context.globalAlpha = 1.0;
         this.parent = cpu;
 
+        
         /**
          * This is for the weird cases when the window is disabled and reenabled during a frame.
          * The gameboy resumes drawing where it left off.
@@ -44,12 +47,14 @@ class Renderer {
     }
 
     drawBuffer() {
-        this.context.putImageData(this.screen, 0, 0);
+        const data = this.filter.apply(this.screen);
+        this.context.putImageData(data, 0, 0);
+
+        // this.context.putImageData(this.screen, 0, 0);
     }
 
     clearBuffer() {
-        for(let i = 0; i < 160 * 144 * 4; i++)
-            this.screen.data[i] = 0xFF;
+        this.screen.data.fill(0xff)
     }
 
     /**
