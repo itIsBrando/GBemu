@@ -73,7 +73,7 @@
 .settings-grid {
     display: flex;
     flex-direction: column;
-    margin: 10px;
+    margin: 10px 8%;
     border-radius: 5px;
 }
 
@@ -264,5 +264,6 @@
             .settings-grid {
                 max-height: calc(100% - 50px);
                 overflow: hidden auto;
+                margin: 10px;
             }
         }

@@ -87,27 +87,16 @@ var Settings = new function() {
         
         Themes.setSettingsBar();
 
-        showElement(MainDiv);
         pauseEmulation();
-
-        let op = 0;
-        const a = function() {
-            MainDiv.style.opacity = op;
-            op += 0.1;
-            if(op < 1)
-                setTimeout(a, 5);
-        }
-        a();
+        
+        showElementFadeIn(MainDiv);
     }
 
     this.hide = function() {
-        MainDiv.style.opacity = 0;
         resumeEmulation();
-
-        setTimeout(() => {
-            hideElement(MainDiv);
-            Themes.setStatusBar();
-        }, 200);
+        
+        hideElementFadeOut(MainDiv);
+        Themes.setStatusBar();
     }
 }
 

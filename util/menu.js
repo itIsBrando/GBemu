@@ -6,6 +6,26 @@ function showElement(e, style = 'block') {
     e.style.display = style;
 }
 
+function hideElementFadeOut(e) {
+    e.style.opacity = 0;
+    setTimeout(() => {
+        hideElement(e);
+    }, 200);
+}
+
+function showElementFadeIn(e, style = 'block') {
+    let opacity = 0;
+
+    showElement(e, style);
+    const a = function() {
+        e.style.opacity = opacity;
+        opacity += 0.1;
+        if(opacity < 1)
+            setTimeout(a, 5);
+    }
+
+    a();
+}
 
 
 let oncancel, onconfirm;

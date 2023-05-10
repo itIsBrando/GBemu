@@ -21,7 +21,7 @@ var Debug = new function() {
 	}
 
 	this.start = function() {
-		showElement(DebugDiv, 'grid');
+		showElementFadeIn(DebugDiv, 'grid');
 		this.hideOpen();
 		pauseEmulation();
 		this.enabled = true;
@@ -172,7 +172,7 @@ var Debug = new function() {
 	this.quit = function() {
 		this.enabled = false;
 		Themes.setStatusBar();
-		hideElement(DebugDiv);
+		hideElementFadeOut(DebugDiv);
 
         this.hideBreak();
 		resumeEmulation();

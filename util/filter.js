@@ -182,6 +182,14 @@ class Filter {
         elem.innerText = Object.keys(FilterType)[Filter.current];
 
         c.renderer.drawBuffer();
+
+        if(c.romLoaded) {
+            Settings.hide();
+            pauseEmulation(); // keep this jawn paused
+            setTimeout(
+                Settings.show, 425
+            )
+        }
     }
 
 }

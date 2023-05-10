@@ -256,7 +256,6 @@ var SaveManager = new function() {
      * @returns false if the menu is already open
      */
     this.show = function() {
-        popupMenu.style.opacity = 1;
 
         if(popupMenu.style.display == "block")
             return false;
@@ -266,24 +265,12 @@ var SaveManager = new function() {
 
         pauseEmulation();
 
-        let op = 0;
-        const a = function() {
-            popupMenu.style.opacity = op;
-            op += 0.1;
-            if(op < 1)
-                setTimeout(a, 5);
-        }
-        a();
+        showElementFadeIn(popupMenu);
     }
 
 
     this.hide = function() {
-        popupMenu.style.opacity = 0;
-
-        setTimeout(() => {
-            Themes.setStatusBar();
-            hideElement(popupMenu);
-        }, 200);
+        hideElementFadeOut(popupMenu);
 
         resumeEmulation();
 
