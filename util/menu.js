@@ -28,6 +28,16 @@ function showElementFadeIn(e, style = 'block') {
 }
 
 
+function getCheckedRadio(formName) {
+    const elems = document.getElementsByName(formName);
+
+    for(let i in elems) {
+        if(elems[i].checked)
+            return elems[i].value;
+    }
+}
+
+
 let oncancel, onconfirm;
 
 var Menu = new function() {

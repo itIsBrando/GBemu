@@ -88,15 +88,42 @@
     color: var(--ui-highlight-color);
 }
 
+.settings-select-radio:checked + .settings-select {
+    filter: brightness(1);
+    font-size: 1.25em;
+}
+
+.settings-select-radio {
+    display: none;
+}
+
+.settings-select {
+    display: grid;
+    align-content: center;
+    text-align: center;
+    font-family: Arial, monospace;
+    filter: brightness(0.8);
+    cursor: pointer;
+    background-color: var(--ui-btn-color);
+    width: 25px;
+    min-height: 25px !important;
+    padding: 0px 5px !important;
+    border-radius: 5px;
+    margin: 1px;
+    float: right;
+    transition: 0.2s;
+}
+
+
 .settings-checkbox {
     appearance: none;
     cursor: pointer;
     background-color: transparent;
     border-radius: 6px;
     width: 21px;
-    aspect-ratio: 1 / 1;
+    height: 21px;
     align-self: center;
-    padding: 0px 10px;
+    /* padding: 0px 10px; */
     margin: 0px 6px;
     transition: 0.15s;
     opacity: 0.5;

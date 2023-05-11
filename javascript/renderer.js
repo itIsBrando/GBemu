@@ -16,6 +16,8 @@ var palette = [
 ];
 
 class Renderer {
+    static frameSkipAmount = 0;
+    static frameSkip = 0;
     
     constructor(cpu) {
         this.context = canvas.getContext('2d');
@@ -47,6 +49,20 @@ class Renderer {
     }
 
     drawBuffer() {
+        const cpu = this.parent;
+
+        if(cpu.speed > 1) {
+            cpu.framesToSkip++;
+            if(cpu.framesToSkip < cpu.speed)
+                return;
+            else
+                cpu.framesToSkip = 0;
+        } else if(Renderer.frameSkip-- != 0) {
+            return;
+        } else {
+            Renderer.frameSkip = Renderer.frameSkipAmount;
+        }
+
         const data = this.filter.apply(this.screen);
         this.context.putImageData(data, 0, 0);
 
@@ -62,13 +78,9 @@ class Renderer {
      */
     renderScanline() {
         const cpu = this.parent;
-        if(cpu.speed > 1)
-        {
-            cpu.framesToSkip++;
-            if(cpu.framesToSkip < 144 * 8)
-                return
-            else if(cpu.framesToSkip >= 144 * 16)
-                cpu.framesToSkip = 0;
+
+        if(Renderer.frameSkip) {
+            return;
         }
 
         this.renderMap();

@@ -301,6 +301,17 @@
                 <button type="button" id="dmgPal" name="dmgPal" class="menubtn settings-btn"
                         onclick="Palette.show();">edit</button>
             </label>
+            <!-- Frame skip -->
+            <label>Frame skip:
+                <input class="settings-select-radio" id="frameskip3" name="FrameSkip" value="3" type="radio" checked>
+                <label class="settings-select" for="frameskip3">3</label>
+                <input class="settings-select-radio" id="frameskip2" name="FrameSkip" value="2" type="radio">
+                <label class="settings-select" for="frameskip2">2</label>
+                <input class="settings-select-radio" id="frameskip1" name="FrameSkip" value="1" type="radio">
+                <label class="settings-select" for="frameskip1">1</label>
+                <input class="settings-select-radio" id="frameskip0" name="FrameSkip" value="0" type="radio" checked>
+                <label class="settings-select" for="frameskip0">0</label>
+            </label>
             <label for="sndButton">Enable Sound:
                 <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
             </label>
@@ -740,15 +751,6 @@
 
         _set_var(x);
         x.addListener(_set_var);
-
-
-        // // on unload event
-        // addEventListener('beforeunload', (event) => {
-        //     if(!c.romLoaded)
-        //         return;
-        //     event.preventDefault();
-        //     return (event.returnValue = "");
-        // });
 
         SaveStorage.init();
         Themes.init();

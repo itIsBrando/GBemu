@@ -93,6 +93,8 @@ var Settings = new function() {
     }
 
     this.hide = function() {
+        Renderer.frameSkip = Renderer.frameSkipAmount = Number(getCheckedRadio("FrameSkip"));
+
         resumeEmulation();
         
         hideElementFadeOut(MainDiv);
