@@ -1,4 +1,4 @@
-.popup, .popup-no-border {
+.popup-no-border {
     display: none;
     position: absolute;
     left: 50%;
@@ -90,22 +90,22 @@
 
 .settings-select-radio:checked + .settings-select {
     filter: brightness(1);
-    font-size: 1.25em;
+    font-size: 1.1em;
 }
 
 .settings-select-radio {
-    display: none;
+    appearance: none;
+    opacity: 0;
 }
 
 .settings-select {
     display: grid;
     align-content: center;
     text-align: center;
-    font-family: Arial, monospace;
+    font-family: monospace;
     filter: brightness(0.8);
     cursor: pointer;
     background-color: var(--ui-btn-color);
-    width: 25px;
     min-height: 25px !important;
     padding: 0px 5px !important;
     border-radius: 5px;
@@ -169,13 +169,6 @@
     color: var(--ui-btn-color);
 }
 
-#keyBindingDiv {
-    opacity: 0;
-    width: fit-content;
-    height: fit-content;
-    overflow-y: hidden;
-}
-
 #saveButtonDiv {
     height: 100%;
     width: 100%;
@@ -197,7 +190,7 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    padding-bottom: 2vh;
+    padding-bottom: 5px;
     width: 100%;
     height: 100%;
     max-height: unset;
@@ -238,6 +231,15 @@
     background-color: #555;
 }
 
+
+.frame-rate-icon {
+    display: none;
+    color: black;
+    width: fit-content;
+    margin-top: 25px;
+    background-color: whitesmoke;
+}
+
 #ThemeDiv {
     display: none;
     margin: calc(5px + env(safe-area-inset-top)) calc(5px + env(safe-area-inset-left));
@@ -257,24 +259,6 @@
 
 @media (max-width: 500px),
         (max-height: 500px) and (orientation: landscape) {
-            /* This makes 'popup' menus fullscreen */
-            /* @todo why do some popup menus not get full screen? */
-            #keyBindingDiv, #SettingsDiv {
-                border: none;
-                position: absolute;
-                top: 0px;
-                left: 0px;
-                transform: translate(0, 0);
-                padding-right: env(safe-area-inset-right);
-                padding-left: env(safe-area-inset-left);
-                padding-bottom: 2vh;
-                width: 100%;
-                height: 100%;
-                max-height: unset;
-                /* overflow: hidden; */
-                border-radius: 0px;
-            }
-
             .menu-header {
                 padding-top: max(15px, env(safe-area-inset-top));
             }

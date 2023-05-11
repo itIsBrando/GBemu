@@ -162,7 +162,6 @@
 
         .shadow {
             box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.5);
-            transform-style: preserve-3d;
         }
 
         .shadow::before {
@@ -264,7 +263,7 @@
     </div>
     
     <!-- Link Cable menu -->
-    <div id="LinkDiv" class="popup shadow">
+    <div id="LinkDiv" class="popup-no-border shadow">
         <div class="menu-header-no-ext">
             <b>Link Cable</b>
             <button type="button" class="x-btn" onclick="Link.hide();">&times;</button>
@@ -327,11 +326,10 @@
             </label>
             <!-- Other -->
             <b class="settings-title">Other</b>
-            <!-- Power consumption -->
-            <label for="pwrComp">Power consumption:
-                <input type="checkbox" name="pwrComp" title="Show CPU power usage" class="settings-checkbox" onclick="c.powerConsumptionShown = !c.powerConsumptionShown; powerConsumption.style.display = powerConsumption.style.display == 'none' ? 'block' : 'none';">
+            <label>Show FPS:
+                <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
             </label>
-            <label for="BorderButton">Screen border:
+            <label>Screen border:
                 <input type="checkbox" name="border" id="BorderButton" class="settings-checkbox" title="Shows/hides the border around the screen" checked>
             </label>
             <label for="AutoLoadButton">Load save on startup:
@@ -380,8 +378,8 @@
     </div>
 
     <!-- Debug menu -->
-    <div id="DebugDiv" class="popup debug-main-div">
-    <div class="debug-title-bar">
+    <div id="DebugDiv" class="save-menu">
+    <div class="menu-header debug-title-bar">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
@@ -399,10 +397,10 @@
             <div>
                 <div id="MapInfo" class="debug-box">
                     <fieldset style="border: none;">
-                        <input type="radio" class="debug-radio" name="displayMode" value="map" checked />
-                        <label for="map">Map</label><br>
-                        <input type="radio" class="debug-radio" name="displayMode" value="window" />
-                        <label for="window">Window</label>
+                        <input type="radio" id="MapSelectMap" class="settings-select-radio" name="displayMode" value="map" checked />
+                        <label class="settings-select" for="MapSelectMap">Map</label>
+                        <input type="radio" id="MapSelectWindow" class="settings-select-radio" name="displayMode" value="window" />
+                        <label class="settings-select" for="MapSelectWindow">Window</label>
                     </fieldset>
                     <pre class="debug-text" style="padding-left: 10px;"></pre>
                 </div>
@@ -433,17 +431,23 @@
         </div>
         <!-- Memory viewer -->
         <div id="MemoryDiv">
-            <div style="justify-content: center;">
+            <div style="margin: 5px;">
                 <!-- control buttons -->
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">rom0</button>
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">romx</button>
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">vram</button>
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">cram</button>
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">wram</button>
-                <button type="button" onclick="Memory.dumpType(this.innerText);" class="disasm-btn">hram</button>
-                <br>
+                <input name="MemoryTypeRadio" type="radio" id="memoryHRAM" class="settings-select-radio">
+                <label for="memoryHRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">hram</label>
+                <input name="MemoryTypeRadio" type="radio" id="memoryWRAM" class="settings-select-radio">
+                <label for="memoryWRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">wram</label>
+                <input name="MemoryTypeRadio" type="radio" id="memoryCRAM" class="settings-select-radio">
+                <label for="memoryCRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">cram</label>
+                <input name="MemoryTypeRadio" type="radio" id="memoryVRAM" class="settings-select-radio">
+                <label for="memoryVRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">vram</label>
+                <input name="MemoryTypeRadio" type="radio" id="memoryROMX" class="settings-select-radio">
+                <label for="memoryROMX" onclick="Memory.dumpType(this.innerText);" class="settings-select">romx</label>
+                <input name="MemoryTypeRadio" type="radio" id="memoryROM0" class="settings-select-radio" checked>
+                <label for="memoryROM0" onclick="Memory.dumpType(this.innerText);" class="settings-select">rom0</label>
             </div>
-            <div style="overflow: auto auto; padding-left: 10px;">
+            <br>
+            <div style="overflow: auto auto; height: 100%; padding-left: 10px;">
                 <b><pre class="debug-text">   address       00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F</pre></b>
                 <pre id="MemoryContent" class="debug-text debug-memory-text"></pre>
             </div>
@@ -525,7 +529,7 @@
 
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="save-menu" id="keyBindingDiv" style="overflow-x: hidden;"> 
+    <div class="save-menu" id="keyBindingDiv"> 
         <div class="menu-header">
             <a>Keybindings</a>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
@@ -626,7 +630,7 @@
     <!-- Pretty-ish alert system. -->
     <div id="AlertDiv" onclick="Menu.alert.hide();" class="alert-div"></div>
 
-    <a id="powerConsumption" style="display: none; color: lightblue;">power consumption: 0%</a>
+    <a id="powerConsumption" class="frame-rate-icon">FPS: 0</a>
 
     <!-- Used to save files but is never shown-->
     <a id="saveA" style="display: none;" download></a>

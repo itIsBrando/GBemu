@@ -81,7 +81,7 @@ function restartEmulation() {
 
 
 const powerConsumption = document.getElementById("powerConsumption");
-let frames = 0;
+let frames = 0, cur_time = 0;
 
 function run() {
     const totalIteration = c.speed * 0x400000 / 1000 * INTERVAL_SPEED;
@@ -93,8 +93,14 @@ function run() {
         if(c.execute() == false) break;
     }
 
-    if(c.powerConsumptionShown && (frames++ & 7) == 3)
-        powerConsumption.innerHTML = "power consumption:" + (100 - Math.floor(c.haltedCycles * 100 / c.currentCycles));
+    if(c.powerConsumptionShown && (frames++ % 125) == 0) {
+        // @todo this math is likely incorrect
+        const newTime = Date.now();
+        const fps = 60 * c.speed / ((newTime - cur_time) / 1000);
+        
+        powerConsumption.innerHTML = `FPS: ${fps.toFixed(2)}`;
+        cur_time = newTime;
+    }
 
     c.currentCycles -= totalIteration;
 }
