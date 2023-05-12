@@ -303,7 +303,7 @@ var SaveManager = new function() {
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
             btn.innerHTML = `
-                <img width="160" height="144" style="width: 100%; height: 100%; border-radius:5px;"></img>
+                <img width="160" height="144" style="width: 100%; height: 100%; border-radius:5px;">
                 <b class="save-menu-button-title">
                     ${this.getSaveString(keys[i])}
                     <code class="save-state-icon" style="color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'};">${obj.type || "SAV"}</code>
