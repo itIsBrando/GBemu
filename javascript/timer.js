@@ -11,6 +11,7 @@ class Timer {
         this.div_cycles = 0;
 
         this.frequency = 0;
+        this.skipDivInc = false;
     }
 
     export() {
@@ -48,6 +49,7 @@ class Timer {
         switch(addr & 0xFF) {
             case 0x04:
                 this.resetDiv();
+                this.skipDivInc = true;
                 break;
             case 0x05:
                 this.regs.tima = byte;
@@ -105,6 +107,17 @@ class Timer {
     }
     
     increaseDiv(cycles) {
+        /**
+         * DIV is reset on the very last cycle mircocode.
+         *  As a result, when `resetDIV` is called from writing to the DIV register,
+         *  this write instruction should not contribute to the write cycle
+         *  */
+
+        if(this.skipDivInc) {
+            this.skipDivInc = false;
+            return;
+        }
+
         this.div_cycles += cycles;
         
         while(this.div_cycles >= 256) {
@@ -123,7 +136,8 @@ class Timer {
     
     resetDiv() {
         this.regs.div = 0;
-        this.regs.div_cycles = 0;
+        this.div_cycles = 0;
+        this.tima_cycles = 0;
     }
     
     writeTAC(v) {
