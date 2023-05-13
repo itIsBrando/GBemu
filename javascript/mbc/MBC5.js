@@ -7,7 +7,7 @@ class MBC5 extends MBC1 {
 
     acceptsWrite(addr) {
         return (addr < 0x6000)
-         || (addr >= 0xA000 && addr <= 0xC000);
+         || (addr >= 0xA000 && addr < 0xC000);
     }
 
     acceptsRead(addr) {
