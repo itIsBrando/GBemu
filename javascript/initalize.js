@@ -84,7 +84,7 @@ const powerConsumption = document.getElementById("powerConsumption");
 let frames = 0, cur_time = 0;
 
 function run() {
-    const totalIteration = (c.speed << c.ppu.cgb.speed_mode) * 0x400000 / 1000 * INTERVAL_SPEED;
+    const totalIteration = c.speed * c.ppu.getSpeedMultiplier() * 0x400000 / 1000 * INTERVAL_SPEED;
 
     c.haltedCycles = 0;
 

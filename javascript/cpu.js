@@ -764,11 +764,11 @@ class CPU {
         this.serial.tick(this.ppu.getAdjustedCycles(this.cycles));
 
         // update sound
-        this.apu.tick(this.cycles);
+        this.apu.tick(this.ppu.getAdjustedCycles(this.cycles));
 
 
         // HDMA stuff
-        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (++this.ticks % 20) == 0)
+        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (++this.ticks % (20 * this.ppu.getSpeedMultiplier())) == 0)
         {
             for(let i = 0; i < 0x10; i++)
                 this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));

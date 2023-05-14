@@ -156,10 +156,10 @@ class PPU {
     /**
      * Adjusts the speed of input cycles for CGB double speed mode.
      * @param {Number} cycles 
-     * @returns {Number} DOUBLES the input cycles if in double speed mode
+     * @returns {Number} halves the input cycles if in double speed mode
      */
     getAdjustedCycles(cycles) {
-        return cycles << this.cgb.speed_mode;
+        return cycles >> this.cgb.speed_mode;
     }
 
     /**
