@@ -145,9 +145,9 @@ var opTable = {
         CPU.LOG("STOP PC: " + hex(cpu.pc.v));
         cpu.skip(2);
 
-        if(cpu.cgb && (cpu.ppu.getSpeedMultiplier() >> 1) != cpu.ppu.cgb.key1) {
-            cpu.ppu.cgb.speed ^= 0b11; // sets to 1 or 2
-            CPU.LOG("Speed switch");
+        if(cpu.cgb && UInt8.getBit(cpu.ppu.cgb.key1, 0)) {
+            cpu.ppu.cgb.speed_mode ^= 1; // change speed mode
+            cpu.ppu.cgb.key1 = 0; // reset bit0 of $ff4d
         }
     },
     // ld de, nn
@@ -1667,7 +1667,7 @@ var opTable = {
         0xC0: function(cpu) {
             if(cpu.flags.z == false) {
                 cpu.pc.v = cpu.popStack();
-                cpu.cycles = 24;
+                cpu.cycles = 20;
             } else {
                 cpu.cycles = 8;
                 cpu.skip(1);
@@ -1683,7 +1683,7 @@ var opTable = {
             let d16 = cpu.readImmediate16();
             if(cpu.flags.z == false) {
                 cpu.pc.v = d16;
-                cpu.cycles = 12;
+                cpu.cycles = 16;
             } else {
                 cpu.cycles = 12;
                 cpu.skip(3);
