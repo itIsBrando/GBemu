@@ -5,6 +5,13 @@ const PPUMODE = {
     scanlineVRAM:3,
 }
 
+const PPUMODE_CYCLES = {
+    0: 204,
+    1: 456,
+    2: 80,
+    3: 172,
+}
+
 class PPU {
     /**
      * Creates a PPU object to be used in conjuction with a CPU object
@@ -121,7 +128,7 @@ class PPU {
         this.regs.obj1 = 0;
         
         this.cgb.key1 = 0;
-        this.cgb.speed = 1;
+        this.cgb.speed_mode = 0;
         
         this.lcdEnabled = true;
     }
@@ -143,7 +150,16 @@ class PPU {
      * @returns How fast the CPU is running (1 for normal mode and 2 for double speed)
      */
     getSpeedMultiplier() {
-        return this.cgb.speed;
+        return this.cgb.speed_mode + 1;
+    }
+
+    /**
+     * Adjusts the speed of input cycles for CGB double speed mode.
+     * @param {Number} cycles 
+     * @returns {Number} DOUBLES the input cycles if in double speed mode
+     */
+    getAdjustedCycles(cycles) {
+        return cycles << this.cgb.speed_mode;
     }
 
     /**
@@ -308,6 +324,14 @@ class PPU {
         }
     }
 
+    // mode 2 and 3 cannot access OAM (fe00-fe9f)
+    oamAccessible() {
+        return this.mode != PPUMODE.scanlineOAM && this.mode != PPUMODE.scanlineVRAM;
+    }
+
+    vramAccessible() {
+        return this.mode != PPUMODE.scanlineVRAM;
+    }
 
     read8(addr) {
         switch (addr & 0xFF) {
@@ -336,7 +360,7 @@ class PPU {
             case 0x4B:
                 return this.regs.wx;
             case 0x4D:
-                return this.cgb.key1 | ((this.getSpeedMultiplier() >> 1) << 7) | 0x7E;
+                return 0x7e | (this.cgb.key1 & 1) | (this.cgb.speed_mode << 7);
             case 0x51:
                 // cgb
                 return this.cgb.HDMASrc >> 8;
@@ -370,7 +394,7 @@ class PPU {
         }
     }
 
-    step() {
+    step(cycles) {
         const cpu = this.parent;
         this.regs.stat &= 252;
 
@@ -379,7 +403,9 @@ class PPU {
             return;
         }
 
-        this.cycles += cpu.cycles;
+        this.cycles += cycles;
+
+        do {
 
         switch(this.mode)
         {
@@ -437,6 +463,8 @@ class PPU {
                 }
                 break;
         }
+        } while (this.cycles >= PPUMODE_CYCLES[this.mode]);
+
 
         this.regs.stat |= this.mode;
     }

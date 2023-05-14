@@ -27,6 +27,7 @@ var Memory = new function() {
 			"vram": {start: 0x8000, end: 0xa000},
 			"cram": {start: 0xa000, end: 0xc000},
 			"wram": {start: 0xc000, end: 0xf000},
+			"oam":  {start: 0xfe00, end: 0xfea0},
 			"hram": {start: 0xff00, end: 0x10000},
 		};
 
@@ -35,6 +36,8 @@ var Memory = new function() {
 		const addr = mem_types[str];
 		const rombank = c.hasMbc() ? c.mbcHandler.bank : '0';
 		const rambank = c.hasMbc() ? c.mbcHandler.ramBank : '0';
+
+		c.ppu.mode = PPUMODE.vblank; // for oam
 
 		if(str == 'romx') {
 			str = `ROM${rombank}`;

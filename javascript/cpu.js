@@ -1,6 +1,6 @@
 "use strict";
 
-let USE_LOG = false;
+let USE_LOG = true;
 
 const Arithmetic = {
     ADD: 'add',
@@ -382,8 +382,10 @@ class CPU {
      * @param {UInt8} high MSB of the DMA location
      */
     DMATransfer(high) {
-        for(let i = 0; i < 160; i++) {
-            this.write8(i + 0xFE00, this.read8(UInt16.makeWord(high, i)));
+        let src = high << 8;
+
+        for(let i = 0xfe00; i < 0xfea0; i++) {
+            this.write8(i, this.read8(src++));
         }
     }
 
@@ -459,7 +461,9 @@ class CPU {
         } else if(address < 0xA000) {
             // VRAM
             address -= 0x8000;
-            this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()] = byte;
+
+            if(this.ppu.vramAccessible())
+                this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()] = byte;
         } else if(address < 0xC000) {
             // cart RAM
             CPU.LOG("illegal RAM read");
@@ -479,7 +483,8 @@ class CPU {
             // mirror WRAM
             this.mem.wram[address - 0xE000] = byte;
         } else if(address < 0xFEA0) {
-            this.mem.oam[address - 0xFE00] = byte;
+            if(this.ppu.oamAccessible())
+                this.mem.oam[address - 0xFE00] = byte;
         } else if(address <= 0xFEFF) {
             // do nothing
             return;
@@ -640,7 +645,6 @@ class CPU {
         else if(this.serial.accepts(address))
             return this.serial.read8(address);
         else if(this.apu.accepts(address)) {
-            CPU.LOG(`Reading ${hex(address)}`);
             return this.apu.read8(address);
         }
 
@@ -649,6 +653,8 @@ class CPU {
         } else if(address < 0xA000) {
             // VRAM read from bank
             address -= 0x8000;
+
+            if(this.ppu.vramAccessible())
             return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
         } else if(address < 0xC000) {
             // cart RAM
@@ -669,7 +675,11 @@ class CPU {
             // mirror WRAM
             return this.mem.wram[address - 0xE000]
         } else if(address < 0xFEA0) {
-            return this.mem.oam[address - 0xFE00]
+            // block OAM read/write on mode 1 & 2
+            if(!this.ppu.oamAccessible())
+                return 0xff;
+
+            return this.mem.oam[address - 0xFE00];
         } else if(address <= 0xFEFF) {
             return 0xFF;
         } else if(address == 0xFF00) {
@@ -679,6 +689,9 @@ class CPU {
             return this.interrupt_flag;
         } else if(address == 0xFF70) {
             return this.ppu.cgb.svbk | 0xF8;
+        } else if(address == 0xff74) {
+            // readonly in cgb mode, otherwise locked at $ff
+            return this.cgb ? this.mem.hram[0x74] : 0xff;
         } else if(address == 0xFFFF) {
             return this.interrupt_enable;
         } else if(address < 0xFFFF) {
@@ -745,10 +758,10 @@ class CPU {
         this.serviceInterrupts();
 
         // update GPU
-        this.ppu.step();
+        this.ppu.step(this.ppu.getAdjustedCycles(this.cycles));
         
         // serial port
-        this.serial.tick(this.cycles);
+        this.serial.tick(this.ppu.getAdjustedCycles(this.cycles));
 
         // update sound
         this.apu.tick(this.cycles);

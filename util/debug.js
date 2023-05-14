@@ -271,6 +271,7 @@ var Debug = new function() {
             ["OBJI", ['ppu', 'cgb', 'obji'], 2],
             ["VBK", ['ppu', 'cgb', 'vbank'], 2],
             ["SVBK", ['ppu', 'cgb', 'svbk'], 2],
+			["Speed Mode", ['ppu', 'cgb', 'speed_mode'], 1],
 		];
 
 		let str = "";

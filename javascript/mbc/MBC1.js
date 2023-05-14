@@ -61,7 +61,7 @@ class MBC1 {
         const expectedSize = getRAMSize(this.ramSize, this.mbcNumber);
         // if the user loaded an incompatible save, then do not use it
         if(useExternalSaveFile) {
-            if(externalSave.length == expectedSize || this.overrideSizeCheck) {
+            if(externalSave.length >= expectedSize || this.overrideSizeCheck) {
                 this.ram = externalSave;
             } else {
                 Menu.message.show("External save size does not match the required amount in the ROM.", "Save Incompatible");
@@ -127,11 +127,11 @@ class MBC1 {
     setLowROMBank(n) {
         this.bank = (this.bank & 0x60) | (n & 0x1F);
 
-        this.bank %= this.TOTAL_BANKS;
-
-        if(this.bank == 0 || this.bank == 0x20 || this.bank == 0x40 || this.bank == 0x60)
+        if((this.bank & 0x1f) == 0)
             this.bank++;
-
+        
+        this.bank %= this.TOTAL_BANKS;
+        
         this.romBankAddress = this.bank * 0x4000;
     }
 
@@ -142,10 +142,10 @@ class MBC1 {
     setHighROMBank(n) {
         this.bank = (this.bank & 0x1F) | ((n & 0x3) << 5)
 
-        this.bank %= this.TOTAL_BANKS;
-
-        if(this.bank == 0 || this.bank == 0x20 || this.bank == 0x40 || this.bank == 0x60)
+        if((this.bank & 0x1f) == 0)
             this.bank++;
+
+        this.bank %= this.TOTAL_BANKS;
 
         this.romBankAddress = this.bank * 0x4000;
     }
@@ -191,7 +191,7 @@ class MBC1 {
                     this.ramBankAddress = 0;
                 }
             } else
-                CPU.LOG("Attempted to change MBC1 to mode1");
+                CPU.LOG(`Attempted to change MBC1 to mode${this.mode}`);
         // RAM
         } else if(address >= 0xA000 && address <= 0xBFFF) {
             if(!this.ramEnable)

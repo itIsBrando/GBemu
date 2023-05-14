@@ -33,6 +33,10 @@ class APU {
         this.apu_ticks = 0;
         this.frame_sequencer = 0;
 
+        this.write8(0xff26, 0xf0);
+        this.write8(0xff25, 0xf3);
+        this.write8(0xff24, 0x77);
+
         this.audioCtx.suspend();
     }
 
@@ -156,15 +160,19 @@ class APU {
         }
     }
 
+    /**
+     * Register reading from gbdev
+     * @see https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware
+     */
     read8(addr) {
         switch(addr & 0xFF) {
             case 0x24:
                 return this.NR50;
             case 0x25:
                 return this.NR51;
-            case 0x26: // @todo add other channels and update mask
+            case 0x26: // @todo add other channels
                 if(!this.enabled)
-                    return 0x7F;
+                    return 0x70;
 
                 let reg = (this.enabled << 7) | 0x70;
                 reg |= this.c1.enabled ? 1 : 0;
