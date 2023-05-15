@@ -1,6 +1,6 @@
 "use strict";
 
-let USE_LOG = true;
+let USE_LOG = false;
 
 const Arithmetic = {
     ADD: 'add',
@@ -212,8 +212,6 @@ class CPU {
         this.powerConsumptionShown = false;
         // set to true once a ROM file has been loaded
         this.romLoaded = false;
-        // Incremented every instruction execution (for HDMA)
-        this.ticks = 0;
         // speed multiplier
         this.speed = 1;
         this.FastForwardSpeed = 8;
@@ -227,6 +225,7 @@ class CPU {
         this.currentCycles = 0;
 
         this.timerRegs = new Timer();
+        this.hdma = new HDMA(this);
         this.ppu = new PPU(this);
         this.serial = new SerialPort(this);
         this.apu = new APU(this);
@@ -234,9 +233,6 @@ class CPU {
         this.cycles = 0;
         this.cgb = false;
         this.mbcHandler = null;
-
-        // Set to true during HDMA H-Blank at register $FF55
-        this.HDMAInProgress = false;
 
         this.af = new UInt16();
         this.bc = new UInt16();
@@ -390,48 +386,6 @@ class CPU {
     }
 
     /**
-     * Performs an DMA to OAM transfer for GBC
-     * Bit 7 - 0 = general purpose DMA. All data is done at once.
-     *       - 1 = HBlank DMA. 0x10 bytes are transferred at H-blank (LY in range of 0-143)
-     * Bit 0-6 - length of the transfer. Range is 0x10-0x800 bytes
-     * @param {UInt8} data
-     */
-    DMATransferCGB(data) {
-        const mode = UInt8.getBit(data, 7);
-        const length = data & 0x7F;
-        // preliminary support for some of the CGB's DMA transfers
-
-        if(!this.cgb)
-            return;
-
-        // if we are in the middle of a HDMA Transfer but we want to stop it.
-        if(!mode && this.HDMAInProgress)
-        {
-            this.HDMAInProgress = false;
-            CPU.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
-            return;
-        }
-
-        if(!mode)
-        {
-            for(let i = 0; i < (length + 1) * 0x10; i++) {
-                const byte = this.read8(this.ppu.cgb.HDMASrc++);
-                this.write8(this.ppu.cgb.HDMADest++, byte);
-            }
-            this.HDMAInProgress = false;
-            this.ppu.cgb.hdma = 0x7F;
-        } else {
-            this.HDMAInProgress = true;
-            this.ppu.cgb.hdma = data;
-            
-            
-        }
-
-        CPU.LOG("hdma mode:" + mode + ". Dest addr:" + hex(this.ppu.cgb.HDMADest, 4) + ". Src addr:" + hex(this.ppu.cgb.HDMASrc, 4));
-    }
-
-
-    /**
      * Writes a byte to an address in memory
      * @param {UInt16} address
      * @param {UInt8} byte
@@ -444,6 +398,9 @@ class CPU {
             return;
         } else if(this.ppu.accepts(address)) {
             this.ppu.write8(address, byte);
+            return;
+        } else if(this.hdma.accepts(address)) {
+            this.hdma.write8(address, byte);
             return;
         } else if(this.timerRegs.accepts(address)) {
             this.timerRegs.write8(address, byte);
@@ -640,6 +597,8 @@ class CPU {
             return this.mbcHandler.read8(address);        
         else if(this.ppu.accepts(address))
             return this.ppu.read8(address);
+        else if(this.hdma.accepts(address))
+            return this.hdma.read8(address);
         else if(this.timerRegs.accepts(address))
             return this.timerRegs.read8(address);
         else if(this.serial.accepts(address))
@@ -719,13 +678,16 @@ class CPU {
         this.cycles = opcodeCycles[opcode];
 
         // execute opcode
-         if(opTable[opcode] == undefined) {
+        if(opTable[opcode] == undefined) {
             illegalOpcode(opcode, this, false);
             return false;
-        } else if(this.isHalted === false) {
+        } else if(this.hdma.shouldTransfer()) {
+            this.cycles = 4;
+            this.hdma.tick(this.ppu.getAdjustedCycles(this.cycles));
+        } else if(!this.isHalted) {
             opTable[opcode](this);
         }
-
+        
         if(this.isHalted)
         {
             this.haltedCycles += 4;
@@ -765,22 +727,6 @@ class CPU {
 
         // update sound
         this.apu.tick(this.ppu.getAdjustedCycles(this.cycles));
-
-
-        // HDMA stuff
-        if(this.HDMAInProgress && (this.ppu.mode == PPUMODE.hblank || !this.ppu.lcdEnabled) && (++this.ticks % (20 * this.ppu.getSpeedMultiplier())) == 0)
-        {
-            for(let i = 0; i < 0x10; i++)
-                this.write8(this.ppu.cgb.HDMADest + i, this.read8(this.ppu.cgb.HDMASrc + i));
-
-            this.ppu.cgb.HDMADest += 0x10;
-            this.ppu.cgb.HDMASrc += 0x10;
-            // when HDMA ends
-            if(this.ppu.cgb.hdma-- == 0) {
-                this.HDMAInProgress = false;
-                this.ppu.cgb.hdma = 0x7F;
-            }
-        }
 
         this.currentCycles += this.cycles;
         return true;

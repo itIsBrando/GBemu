@@ -51,10 +51,6 @@ class PPU {
             rgbBG: [],  // actual representation of `bgPal`
             rgbOBJ:[],
 
-            // some registers
-            HDMASrc: 0, // ff53
-            HDMADest:0, // ff54
-            
             speed: 1, // CPU speed
             key1: 0, // ff4d
         }
@@ -93,8 +89,6 @@ class PPU {
         this.cgb.svbk = 1;
         this.cgb.bgPal.fill(0);
         this.cgb.objPal.fill(0);
-        this.HDMADest = 0;
-        this.HDMASrc = 0;
 
         /**
          * These are both 3D arrays
@@ -218,7 +212,7 @@ class PPU {
 
 
     accepts(addr) {
-        return (addr >= 0xFF40 && addr <= 0xFF55) | (addr >= 0xFF68 && addr <= 0xFF6B);
+        return (addr >= 0xFF40 && addr <= 0xFF50) | (addr >= 0xFF68 && addr <= 0xFF6B);
     }
 
     write8(addr, byte) {
@@ -282,29 +276,6 @@ class PPU {
                 // cgb only
                 this.cgb.vbank = byte & 0x1;
                 break;
-            case 0x51:
-                // cgb. HDMA src high
-                this.cgb.HDMASrc &= 0xF0;
-                this.cgb.HDMASrc |= byte << 8;
-                break;
-            case 0x52:
-                // cgb. HDMA src low
-                this.cgb.HDMASrc &= 0xFF00;
-                this.cgb.HDMASrc |= byte & 0xF0;
-                break;
-            case 0x53:
-                // cgb. HDMA dest high
-                this.cgb.HDMADest &= 0xFF;
-                this.cgb.HDMADest |= 0x8000 | ((byte & 0x1F) << 8);
-                break;
-            case 0x54:
-                // cgb. HDMA dest low
-                this.cgb.HDMADest &= 0xFF00;
-                this.cgb.HDMADest |= byte & 0xF0;
-                break;
-            case 0x55:
-                this.parent.DMATransferCGB(byte);
-                break;
             case 0x68:
                 // cgb only (BCPS/BGPI)
                 this.cgb.bgi = byte & 0x3F;
@@ -361,20 +332,6 @@ class PPU {
                 return this.regs.wx;
             case 0x4D:
                 return 0x7e | (this.cgb.key1 & 1) | (this.cgb.speed_mode << 7);
-            case 0x51:
-                // cgb
-                return this.cgb.HDMASrc >> 8;
-            case 0x52:
-                // cgb
-                return this.cgb.HDMASrc & 0xFF;
-            case 0x53:
-                // cgb
-                return this.cgb.HDMADest >> 8;
-            case 0x54:
-                // cgb
-                return this.cgb.HDMADest & 0xFF;
-            case 0x55:
-                return this.cgb.hdma | (this.HDMAInProgress ? 0 : 0x80);
             case 0x68:
                 // cgb only
                 return this.cgb ? this.cgb.bgi : 0xff;
@@ -420,6 +377,7 @@ class PPU {
             case PPUMODE.scanlineVRAM:
                 if(this.cycles >= 172) {
                     this.mode = PPUMODE.hblank
+                    this.parent.hdma.hasCopied = false;
                     this.cycles -= 172;
                     cpu.renderer.renderScanline();
                     // check for hblank interrupt in rSTAT
@@ -575,8 +533,6 @@ class PPU {
             mode: this.mode,
             cycles: this.cycles,
             cgb: this.cgb,
-            HDMADest: this.HDMADest,
-            HDMASrc: this.HDMASrc,
             obj0pal: this.obj0Pal,
             obj1pal: this.obj1Pal,
             bgPal: this.bgPal,
@@ -596,8 +552,6 @@ class PPU {
         this.cgb = ppu_data.cgb;
         this.cgb.bgPal = Object.values(this.cgb.bgPal);
         this.cgb.objPal = Object.values(this.cgb.objPal);
-        this.HDMADest = ppu_data.HDMADest;
-        this.HDMASrc = ppu_data.HDMASrc;
         this.obj0Pal = ppu_data.obj0Pal;
         this.obj1Pal = ppu_data.obj1Pal;
         this.bgPal = ppu_data.bgPal;
