@@ -47,6 +47,10 @@
     background-color: inherit;
 }
 
+.settings-range {
+    float: right;
+}
+
 .settings-btn {
     width: 55px;
     margin: 3px 6px;

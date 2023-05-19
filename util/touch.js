@@ -103,6 +103,11 @@ function touchMove(event) {
 
 }
 
+function doVibration() {
+    if('vibrate' in navigator && Dpad.vibrationEnable)
+        navigator.vibrate(2);
+}
+
 /**
  * Handles touch movement
  *  - Enables button
@@ -111,12 +116,15 @@ function touchMove(event) {
 function touchStart(event) {
     event.preventDefault();
 
+    doVibration();
+
     if(this.id == "FF")
         c.speed = c.FastForwardSpeed;
     else
         gamepadButtons[this.id] = true;
         
 }
+
 
 /**
  * Handles touch movement (FOR non-directional pad buttons only)
@@ -132,20 +140,28 @@ function touchEnd(event) {
         gamepadButtons[this.id] = false;
 }
 
+
 /**
  * Sets the dpad button `elem` to be pressed
  * @param {HTMLElement} elem 
+ * @param {String} key key of gamepadButtons to enable
  */
-const touchDPADSet = function(elem) {
+const touchDPADSet = function(elem, key) {
     const bot = elem.getElementsByClassName("dpad-button-bottom").item(0);
     const top = elem.getElementsByClassName("dpad-button-top").item(0);
-
 
     if(!bot.classList.contains("dpad-button-bottom-active"))
         bot.classList.add("dpad-button-bottom-active");
     if(!top.classList.contains("dpad-button-top-active"))
         top.classList.add("dpad-button-top-active");
+
     
+    if(!gamepadButtons[key] === true) {
+        gamepadButtons[key] = true;
+        doVibration();
+    }
+    
+
 }
 
 
@@ -153,7 +169,7 @@ const touchDPADSet = function(elem) {
  * Sets the dpad button `elem` to be unpressed
  * @param {HTMLElement} elem 
  */
-const touchDPADReset = function(elem) {
+const touchDPADReset = function(elem, key) {
     const bot = elem.getElementsByClassName("dpad-button-bottom").item(0) || elem.getElementsByClassName("gamepad-button-bottom").item(0);
     const top = elem.getElementsByClassName("dpad-button-top").item(0) || elem.getElementsByClassName("gamepad-button-top").item(0);
     
@@ -169,7 +185,8 @@ const touchDPADReset = function(elem) {
         bot.classList.remove("dpad-button-bottom-active");
     if(top.classList.contains("dpad-button-top-active"))
         top.classList.remove("dpad-button-top-active");
-    
+
+    gamepadButtons[key] = false;
 }
 
 /**
@@ -179,20 +196,15 @@ const touchDPADReset = function(elem) {
  */
 function touchDPAD(event, state) {
     event.preventDefault();
-    
-    gamepadButtons["LEFT"] = false;
-    gamepadButtons["RIGHT"] = false;
-    gamepadButtons["UP"] = false;
-    gamepadButtons["DOWN"] = false;
 
-    // this graphically updates the DPAD button
-    touchDPADReset(buttonDown);
-    touchDPADReset(buttonUp);
-    touchDPADReset(buttonLeft);
-    touchDPADReset(buttonRight);
-    
-    if(state == false)
+    // this graphically updates the DPAD button    
+    if(state == false) {
+        touchDPADReset(buttonDown, "LEFT");
+        touchDPADReset(buttonUp, "RIGHT");
+        touchDPADReset(buttonLeft, "UP");
+        touchDPADReset(buttonRight, "DOWN");
         return;
+    }
 
     const xy = getRelativePosition(dpad, event.changedTouches[0]);
     const x = xy.x, y = xy.y;
@@ -200,20 +212,16 @@ function touchDPAD(event, state) {
 
     // sets button state and graphical state
     if(x <= 0.33) {
-        gamepadButtons["LEFT"] = true;
-        touchDPADSet(buttonLeft);
+        touchDPADSet(buttonLeft, 'LEFT');
         
     } else if(x >= 0.66) {
-        gamepadButtons["RIGHT"] = true;
-        touchDPADSet(buttonRight);
+        touchDPADSet(buttonRight, 'RIGHT');
     }
 
     if(y >= 0.66) {
-        gamepadButtons["DOWN"] = true;
-        touchDPADSet(buttonDown);
+        touchDPADSet(buttonDown, 'DOWN');
     } else if(y <= 0.33) {
-        gamepadButtons["UP"] = true;
-        touchDPADSet(buttonUp);
+        touchDPADSet(buttonUp, 'UP');
     }
 
 }
@@ -245,8 +253,25 @@ controlsToggle.addEventListener('click', function() {
         showElement(touchControls);
     
     this.checked = !isShown;
-})
+});
+
+document.getElementById('vibrationToggle').addEventListener('click', (e)=>{
+    Dpad.vibrationEnable = e.target.checked;
+
+    if(Dpad.vibrationEnable && !('vibrfate' in navigator)) {
+        Menu.message.show("Vibration not supported on this device.");
+        e.target.click();
+    }
+
+    doVibration();
+});
 
 // auto enable if using a touch device
 if(hasTouchscreen())
     controlsToggle.click();
+
+
+
+var Dpad = new function() {
+    let vibrationEnable = false;
+}

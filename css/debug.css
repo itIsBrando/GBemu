@@ -6,7 +6,7 @@
 .debug-tile-div, .debug-map-div {
     overflow: hidden;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     display: none;
     grid-template-columns: 1fr 5fr;
 }
@@ -172,6 +172,14 @@
     filter: brightness(0.8);
 }
 
+.debug-memory-btn:hover {
+    filter: brightness(0.6);
+}
+
+.debug-memory-btn {
+    cursor: pointer;
+}
+
 .debug-pal-tab {
     column-gap: 10px;
     flex-direction: row;
@@ -229,8 +237,6 @@
     overflow: auto;
     background-color:#222;
     max-height: calc(100vh - 60px);
-    grid-row: 1 / 3;
-    grid-column: 2;
     margin-bottom: env(safe-area-inset-bottom);
 }
 
@@ -243,16 +249,17 @@
     #OamDiv {
         grid-template-columns: 1fr 1fr;
     }
-
-    #MapCanvasDiv {
-        grid-row: 1 / 3;
-    }
 }
 
 
 @media (orientation: portrait) {
     .debug-pal-tab {
         flex-direction: column;
+    }
+
+    .debug-map-div {
+        grid-template-columns: 1fr;
+        grid-template-rows: min-content 1fr;
     }
 }
 

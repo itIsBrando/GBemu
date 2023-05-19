@@ -98,6 +98,11 @@
     opacity: 0;
 }
 
+.settings-select:hover {
+    font-size: 1.2em;
+    filter: brightness(0.9);
+}
+
 .settings-select {
     display: grid;
     align-content: center;
