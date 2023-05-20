@@ -105,7 +105,7 @@ function touchMove(event) {
 
 function doVibration() {
     if('vibrate' in navigator && Dpad.vibrationEnable)
-        navigator.vibrate(2);
+        navigator.vibrate(1);
 }
 
 /**
@@ -213,15 +213,24 @@ function touchDPAD(event, state) {
     // sets button state and graphical state
     if(x <= 0.33) {
         touchDPADSet(buttonLeft, 'LEFT');
-        
+        touchDPADReset(buttonRight, 'RIGHT');
     } else if(x >= 0.66) {
         touchDPADSet(buttonRight, 'RIGHT');
+        touchDPADReset(buttonLeft, 'LEFT');
+    } else {
+        touchDPADReset(buttonRight, 'RIGHT');
+        touchDPADReset(buttonLeft, 'LEFT');
     }
 
     if(y >= 0.66) {
         touchDPADSet(buttonDown, 'DOWN');
+        touchDPADReset(buttonUp, 'UP');
     } else if(y <= 0.33) {
         touchDPADSet(buttonUp, 'UP');
+        touchDPADReset(buttonDown, 'DOWN');
+    } else {
+        touchDPADReset(buttonUp, 'UP');
+        touchDPADReset(buttonDown, 'DOWN');
     }
 
 }
@@ -258,7 +267,7 @@ controlsToggle.addEventListener('click', function() {
 document.getElementById('vibrationToggle').addEventListener('click', (e)=>{
     Dpad.vibrationEnable = e.target.checked;
 
-    if(Dpad.vibrationEnable && !('vibrfate' in navigator)) {
+    if(Dpad.vibrationEnable && !('vibrate' in navigator)) {
         Menu.message.show("Vibration not supported on this device.");
         e.target.click();
     }
