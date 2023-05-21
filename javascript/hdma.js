@@ -56,7 +56,7 @@ class HDMA {
             case 0xff54:
                 return 0xff;
             case 0xff55:
-                    return (this.enable ? 0 : 0x80) | (this.len & 0xf);
+                return (this.enable ? 0 : 0x80) | (this.len & 0x7f);
         }
     }
 
