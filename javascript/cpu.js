@@ -693,7 +693,7 @@ class CPU {
             return false;
         } else if(this.hdma.shouldTransfer()) {
             this.cycles = 4;
-            this.hdma.tick(this.ppu.getAdjustedCycles(this.cycles));
+            this.hdma.tick(2);
         } else if(!this.isHalted) {
             opTable[opcode](this);
         }
@@ -729,14 +729,16 @@ class CPU {
         // handle interrupts
         this.serviceInterrupts();
 
+        const adjustedCycles = this.ppu.getAdjustedCycles(this.cycles);
+
         // update GPU
-        this.ppu.step(this.ppu.getAdjustedCycles(this.cycles));
+        this.ppu.step(adjustedCycles);
         
         // serial port
-        this.serial.tick(this.ppu.getAdjustedCycles(this.cycles));
+        this.serial.tick(adjustedCycles);
 
         // update sound
-        this.apu.tick(this.ppu.getAdjustedCycles(this.cycles));
+        this.apu.tick(adjustedCycles);
 
         this.currentCycles += this.cycles;
         return true;

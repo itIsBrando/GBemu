@@ -16,7 +16,7 @@ class Filter {
     constructor(canvasElem, scaleBy) {
         this.target = canvasElem;
         this.data = null;
-        this.out = new Uint32Array(WIDTH * 4 * HEIGHT * 4);
+        this.out = null;
 
         this.setScale(scaleBy);
     }
@@ -26,6 +26,7 @@ class Filter {
 
         this.width = scaleBy * WIDTH;
         this.height = scaleBy * HEIGHT;
+        this.out = new Uint32Array(this.width * this.height);
 
         this.target.width = this.width;
         this.target.height = this.height;
@@ -132,17 +133,18 @@ class Filter {
 
 
     createImageData() {
-        const outArray = new Uint8ClampedArray(this.width * this.height * 4);
-        let i = 0;
+        // const outArray = new Uint8ClampedArray(this.width * this.height * 4);
+        // let i = 0;
 
-        for(let x = 0; x < this.width * this.height; x++) {
-            let short = this.out[x];
+        // for(let x = 0; x < this.width * this.height; x++) {
+        //     let short = this.out[x];
 
-            for(let j = 0; j < 4; j++) {
-                outArray[i++] = short & 0xff;
-                short >>= 8;
-            }
-        }
+        //     for(let j = 0; j < 4; j++) {
+        //         outArray[i++] = short & 0xff;
+        //         short >>= 8;
+        //     }
+        // }
+        const outArray = new Uint8ClampedArray(this.out.buffer);
 
         return new ImageData(outArray, this.width, this.height);
     }
@@ -153,12 +155,6 @@ class Filter {
      * @returns {ImageData}
      */
     apply(data) {
-        const funcs = [
-            this.nofilter,
-            this.scale2x,
-            this.scale3x,
-        ]
-
         switch(Filter.current) {
             case FilterType.none:
                 return data;
