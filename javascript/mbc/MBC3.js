@@ -25,6 +25,19 @@ class MBC3 extends MBC1 {
         this.start_millis = this.date.getTime();
     }
 
+    handleExtraData() {
+        const size = getRAMSize(this.ramSize, this.mbcNumber);
+        const array = Array.from(externalSave);
+
+        this.ram = externalSave;
+        array.splice(0, size);
+        
+        // `array` now contains the remaining data needed for RTC
+        CPU.LOG(`importing RTC regs: ${array}`);
+        
+        // @todo finish importing the registers
+    }
+
     acceptsWrite(addr) {
         return (addr < 0x8000)
          || (addr >= 0xA000 && addr < 0xC000);

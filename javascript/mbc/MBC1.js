@@ -46,8 +46,6 @@ class MBC1 {
 
         this.mode = 0; // determine whether we read from ROM or RAM
 
-        this.overrideSizeCheck = false; // can be overriden in the debug menu @TODO
-
         CPU.LOG(`RAM size: ${hex(this.ramSize, 2)}`);
         CPU.LOG(`ROM size: ${hex(this.romSize, 2)} Size: ${hex(rom.length, 4)} bytes`);
         CPU.LOG(`Total Banks: ${this.TOTAL_BANKS}`);
@@ -59,14 +57,21 @@ class MBC1 {
      */
     initRAM() {
         const expectedSize = getRAMSize(this.ramSize, this.mbcNumber);
+        
         // if the user loaded an incompatible save, then do not use it
         if(useExternalSaveFile) {
-            if(externalSave.length >= expectedSize || this.overrideSizeCheck) {
+            const len = externalSave.length;
+            console.log(`expected: ${expectedSize}, got: ${externalSave.length}`);
+
+            if(len == expectedSize || true) {
                 this.ram = externalSave;
+            } else if(len > expectedSize && len <= expectedSize + 48) {
+                // MBC3 has additional bytes for RTC
+                this.handleExtraData();
             } else {
                 Menu.message.show("External save size does not match the required amount in the ROM.", "Save Incompatible");
                 CPU.LOG("RAM with mismatching sizes was used.");
-                CPU.LOG(`Attempted: ${hex(externalSave.length, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
+                CPU.LOG(`Attempted: ${hex(len, 4, "$")} bytes, Expected: ${hex(expectedSize, 4, "$")} bytes`);
                 useExternalSaveFile = false;
             }
 
@@ -108,8 +113,17 @@ class MBC1 {
     }
 
     /**
+     * MBC3 has RTC data included in its .sav file.
+     *  More information on the .sav format is found on the link below
+     * @link http://justsolve.archiveteam.org/wiki/GB
+     */
+    handleExtraData() {
+        
+    }
+
+    /**
      * 
-     * @param {ArrayBuffer} array raw array of the save data
+     * @param {Array} array raw array of the save data
      */
     static useSaveData(array) {
         useExternalSaveFile = true;

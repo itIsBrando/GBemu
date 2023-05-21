@@ -134,7 +134,7 @@ localSaveButton.addEventListener('click', function() {
 
 
 var SaveManager = new function() {
-    this.CUR_VERSION = "0.1.0"; // version of save format
+    this.CUR_VERSION = "0.2.0"; // version of save format
     
     /**
      * @param {Uint8Array} arr
@@ -500,27 +500,33 @@ var SaveManager = new function() {
     * @param {String} key key name in localStorage
     */
    this.injectLocalStorage = function(key) {
-       // loading from localStorage
-       const data = SaveManager.getSave(key);
-       const type = SaveManager.getType(key);
-   
-       if(!data)
+        // loading from localStorage
+        const data = SaveManager.getSave(key);
+        const type = SaveManager.getType(key);
+
+        if(!data) {
            Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
-       else {
-           SaveManager.hide();
-           if(type == SaveType.SAV) {
-               MBC1.useSaveData(data);
-           } else {
-               if(c.romLoaded)
-                   c.loadSaveState(data);
-                else {
-                    Menu.message.show(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
+           return;
+        }
+       
+        SaveManager.hide();
+        
+        if(type == SaveType.SAV) {
+            MBC1.useSaveData(data);
+        } else {
+            if(c.romLoaded) {
+                if(!c.loadSaveState(data)) {
+                    Menu.message.show(`Save state is incompatible with the current emulator version.`, `Save state is out of date`);
                     return;
                 }
-           }
+            } else {
+                Menu.message.show(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
+                return;
+            }
+        }
 
-           Menu.alert.show(`Loaded <b style="color:white;"> ${this.getSaveString(key)}</b>.`);
-       }
+        Menu.alert.show(`Loaded <b style="color:white;">${this.getSaveString(key)}</b>.`);
+    
    }
 
 

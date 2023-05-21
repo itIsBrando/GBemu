@@ -14,6 +14,29 @@ class HDMA {
         this.cycles = 0;
     }
 
+    export() {
+        return {
+            source: this.source,
+            destination: this.destination,
+            len: this.len,
+            enable: this.enable,
+            hasCopied: this.hasCopied,
+            cycles: this.cycles
+        };
+    }
+
+    import(data) {
+        const d = data["hdma"];
+        
+        this.source = d.source;
+        this.destination = d.destination;
+        this.len = d.len;
+        this.enable = d.enable;
+        this.hasCopied = d.hasCopied;
+        this.cycles = d.cycles;
+    }
+
+
     accepts(addr) {
         return addr >= 0xff51 && addr <= 0xff55;
     }

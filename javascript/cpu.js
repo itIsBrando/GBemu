@@ -124,7 +124,9 @@ class CPU {
             cpu: this.export(),
             timer: this.timerRegs.export(),
             ppu: this.ppu.export(),
+            apu: this.apu.export(),
             renderer: this.renderer.export(),
+            hdma: this.hdma.export(),
             mbc: this.mbcHandler?.export() ?? null,
             version: SaveManager.CUR_VERSION
         });
@@ -132,11 +134,19 @@ class CPU {
 
     loadSaveState(data) {
         data = JSON.parse(data);
+
+        if(data.version != SaveManager.CUR_VERSION)
+            return false;
+
         this.import(data);
         this.timerRegs.import(data);
         this.ppu.import(data);
+        this.apu.import(data);
+        this.hdma.import(data);
         this.renderer.import(data);
         this.mbcHandler?.import(data);
+
+        return true;
     }
 
     export() {

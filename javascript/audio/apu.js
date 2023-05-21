@@ -40,6 +40,15 @@ class APU {
         this.audioCtx.suspend();
     }
 
+    export() {
+        // @todo
+    }
+
+    import(data) {
+        const d = data["apu"];
+        // @todo
+    }
+
     reset() {
         this.apu_ticks = 0;
         this.frame_sequencer = 0;
