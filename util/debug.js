@@ -272,6 +272,11 @@ var Debug = new function() {
             ["VBK", ['ppu', 'cgb', 'vbank'], 2],
             ["SVBK", ['ppu', 'cgb', 'svbk'], 2],
 			["Speed Mode", ['ppu', 'cgb', 'speed_mode'], 1],
+			["\n"],
+			["HDMA ENA", ['hdma', 'enable'], 1],
+			["HDMA LEN", ['hdma', 'len'], 2],
+			["Src", ['hdma', 'source'], 4],
+			["Dest", ['hdma', 'destination'], 4],
 		];
 
 		let str = "";
