@@ -93,7 +93,7 @@ function saveButtonOnTouchStart(event) {
     _timer = setTimeout(function() {
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
-        btn.oncontextmenu(event);
+        SaveManager.contextMenuCallback(event);
     } , 400);
 
 }
@@ -283,6 +283,93 @@ var SaveManager = new function() {
         return popupMenu.style.display != "none";
     }
 
+
+    // @todo fix this is the absolute shittiest fricking function you've everwritten
+    // SO DAMN MANY HARD CODED NUMBERS
+    // WTF ARE THESE NAMES!!!
+    this.contextMenuCallback = function(event) {
+        const key = this.value;
+        const menuItems = contextMenuDiv.children[0].children;
+
+        // hides the context menu if another right click occurs
+        contextMenuDiv.oncontextmenu = contextMenuDiv.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideElement(contextMenuDiv);
+        }
+
+        event.preventDefault();
+        // set position
+        contextMenuDiv.children[0].style.left = event.clientX + "px";
+        contextMenuDiv.children[0].style.top = event.clientY + "px";
+
+        for(let i = 0; i < menuItems.length; i++) {
+            menuItems[i].value = key;
+        }
+        
+        // delete
+        contextMenuDiv.children[0].children[3].onclick = SaveManager.deleteSelf;
+
+        // rename
+        contextMenuDiv.children[0].children[2].onclick = function() {
+            const m = new PromptMenu("New name", "Name", /[0-9A-Za-z]+/g, 20, (v) => {
+                const sav = localStorage.getItem(key);
+                const label = key.split(' ')[1];
+                delete localStorage[key];
+                
+                localStorage.setItem(`${v} ${label}`, sav);
+                localSaveButton.click(); // redraw saves
+            });
+
+            m.show();
+        }
+
+        // details
+        contextMenuDiv.children[0].children[0].onclick = function() {
+            const sav = SaveManager.getSave(key);
+            let str = `Name: ${SaveManager.getSaveString(key)}<br>
+            Game: ${SaveManager.getSuffix(key)}<br>
+            Type: ${SaveManager.getType(key) == SaveType.SAV ? ".sav" : "savestate"}<br>
+            Date: ${SaveManager.getTime(key)}`;
+
+            if(SaveManager.getType(key) == SaveType.SAV)
+                str += `<br>Size: ${sav.length} bytes`
+            Menu.message.show(
+                 str,
+                "Details"
+            );
+        }
+
+        // export
+        contextMenuDiv.children[0].children[1].onclick = function() {
+            const key = this.value;
+
+            // cannot save if savestate
+            if(SaveManager.getType(key) != SaveType.SAV)
+            {
+                Menu.message.show("This save cannot be exported");
+                return;
+            }
+
+            const name = SaveManager.getSaveString(key);
+            const data = SaveManager.getSave(key);
+
+            // if we are mobile or embedded app on iOS, we cannot download files
+            if(window.navigator.standalone) {
+                let str = SaveManager.pack(data);
+                const json = JSON.stringify(new SaveStorage(name, str, SaveType.SAV));
+
+                copyClipMenu(new String(json));
+            } else {
+                downloadSave(name, data);
+            }
+
+        }
+
+        showElement(contextMenuDiv, 'flex');
+    }
+
+
     this.populateSaveHTML = function(onLabelClick) {
         const saveButtonDiv = document.getElementById('saveButtonDiv');
         const keys = Object.keys(localStorage);
@@ -312,70 +399,13 @@ var SaveManager = new function() {
             btn.value = keys[i];
             btn.onclick = onLabelClick;
 
-            // oncontext menu unavaiable for damn iOS devices :'(
-            btn.addEventListener('touchstart', saveButtonOnTouchStart);
-            btn.addEventListener('touchend', saveButtonOnTouchEnd);
-
-            btn.oncontextmenu = function(event) {
-                const key = this.value;
-
-                contextMenuDiv.oncontextmenu = contextMenuDiv.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    hideElement(contextMenuDiv);
-                }
-
-                event.preventDefault();
-                // set position
-                contextMenuDiv.children[0].style.left = event.clientX + "px";
-                contextMenuDiv.children[0].style.top = event.clientY + "px";
-                
-                contextMenuDiv.children[0].children[2].value = key;
-                contextMenuDiv.children[0].children[1].value = key;
-                contextMenuDiv.children[0].children[2].onclick = SaveManager.deleteSelf;
-
-                contextMenuDiv.children[0].children[0].onclick = function() {
-                    const sav = SaveManager.getSave(key);
-                    let str = `Name: ${SaveManager.getSaveString(key)}<br>
-                    Game: ${SaveManager.getSuffix(key)}<br>
-                    Type: ${SaveManager.getType(key) == SaveType.SAV ? ".sav" : "savestate"}<br>
-                    Date: ${SaveManager.getTime(key)}`;
-
-                    if(SaveManager.getType(key) == SaveType.SAV)
-                        str += `<br>Size: ${sav.length} bytes`
-                    Menu.message.show(
-                         str,
-                        "Details"
-                    );
-                }
-
-                contextMenuDiv.children[0].children[1].onclick = function() {
-                    const key = this.value;
-
-                    // cannot save if savestate
-                    if(SaveManager.getType(key) != SaveType.SAV)
-                    {
-                        Menu.message.show("This save cannot be exported");
-                        return;
-                    }
-
-                    const name = SaveManager.getSaveString(key);
-                    const data = SaveManager.getSave(key);
-
-                    // if we are mobile or embedded app on iOS, we cannot download files
-                    if(window.navigator.standalone) {
-                        let str = SaveManager.pack(data);
-                        const json = JSON.stringify(new SaveStorage(name, str, SaveType.SAV));
-
-                        copyClipMenu(new String(json));
-                    } else {
-                        downloadSave(name, data);
-                    }
-
-                }
-
-                showElement(contextMenuDiv, 'flex');
-            };
+            if('oncontextmenu' in window) {
+                btn.oncontextmenu = this.contextMenuCallback;
+            } else {
+                // oncontext menu unavaiable for damn iOS devices :'(
+                btn.addEventListener('touchstart', saveButtonOnTouchStart);
+                btn.addEventListener('touchend', saveButtonOnTouchEnd);
+            }
 
             const can = btn.getElementsByTagName('img')[0];
 

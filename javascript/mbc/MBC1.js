@@ -61,7 +61,6 @@ class MBC1 {
         // if the user loaded an incompatible save, then do not use it
         if(useExternalSaveFile) {
             const len = externalSave.length;
-            console.log(`expected: ${expectedSize}, got: ${externalSave.length}`);
 
             if(len == expectedSize || true) {
                 this.ram = externalSave;
