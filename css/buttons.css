@@ -49,6 +49,42 @@
 
 .settings-range {
     float: right;
+    background-color: transparent;
+}
+
+.settings-range:focus {
+    outline: none;
+}
+/* 
+.settings-range::-webkit-slider-runnable-track {
+    background: var(--ui-btn-color);
+    padding: 1px;
+    border-radius: 3px;
+} */
+.settings-range::-moz-range-track {
+    background: var(--ui-btn-color);
+    padding: 1px;
+    border-radius: 3px;
+}
+/* 
+.settings-range::-webkit-scrollbar-track-piece {
+    background: #bbddff;
+    padding: 2px;
+    border-radius: 3px;
+} */
+.settings-range::-moz-range-progress {
+    background: #bbddff;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.settings-range::-webkit-slider-thumb {
+    cursor: pointer;
+    background: #bbddff;
+}
+.settings-range::-moz-range-thumb {
+    cursor: pointer;
+    background: #bbddff;
 }
 
 .settings-btn {
