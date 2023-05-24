@@ -357,29 +357,28 @@ class CPU {
     }
 
     serviceInterrupts() {
-        let handlerAddress = [0x40, 0x48, 0x50, 0x58, 0x60];
-        let fired = this.interrupt_flag & this.interrupt_enable;
+        const handlerAddress = [0x40, 0x48, 0x50, 0x58, 0x60];
+        const fired = this.interrupt_flag & this.interrupt_enable;
 
         if(this.interrupt_master && fired != 0 ) {
             for(let i = 0; i < 5; i++) {
                 // if both bits are set
-                if(UInt8.getBit(fired, i))
-                {
-                    // if we are HALTed
-                    if(this.isHalted) {
-                        this.isHalted = false;
-                        this.pc.v++; // pass the HALT instruction
-                    }
-
-                    this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
-                    this.interrupt_master = false;
-                    this.pushStack(this.pc.v);
-                    this.pc.v = handlerAddress[i];
-                    this.cycles += 12;
-                    return;
+                if(!UInt8.getBit(fired, i))
+                    continue;
+                
+                // if we are HALTed
+                if(this.isHalted) {
+                    this.isHalted = false;
+                    this.pc.v++; // skip the HALT instruction
                 }
-            }
 
+                this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
+                this.interrupt_master = false;
+                this.pushStack(this.pc.v);
+                this.pc.v = handlerAddress[i];
+                this.cycles += 12;
+                return;
+            }
         }
     }
 
@@ -655,7 +654,7 @@ class CPU {
             let chkDpad = UInt8.getBit(this.mem.hram[0], 5);
             return Controller.getButtons(chkDpad);
         } else if(address == 0xFF0F) {
-            return this.interrupt_flag;
+            return this.interrupt_flag | 0xe0;
         } else if(address == 0xFF70) {
             return this.ppu.cgb.svbk | 0xF8;
         } else if(address == 0xff74) {
@@ -664,6 +663,12 @@ class CPU {
         } else if(address == 0xFFFF) {
             return this.interrupt_enable;
         } else if(address < 0xFFFF) {
+            // @note that 0xff56 (RP infrared) is included since it is not support and will not ever be
+            const unmapped = [ 0xff03, 0xff08, 0xff09, 0xff0A, 0xff0B, 0xff0C, 0xff0D, 0xff0E, 0xff15, 0xff1F, 0xff27, 0xff28, 0xff29, 0xff56, 0xff57];
+
+            if(unmapped.includes(address))
+                return 0xff;
+
             return this.mem.hram[address - 0xFF00];
         } else {
             CPU.LOG("ERROR READING FROM ADDRESS: " + hex(address, 4));

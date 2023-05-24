@@ -29,7 +29,7 @@ class PPU {
             scy: 0, // ff42 scroll Y
             scx: 0, // ff43 scroll X
             scanline: 0, // FF44
-            syc: 0, // ff45 scanline compare
+            syc: 0, // ff45 scanline compare (aka lyc)
             dma: 0, // ff46 dma transfer address
             bgp: 0, // ff47 background palette
             obj0: 0,// ff48
@@ -221,7 +221,7 @@ class PPU {
                 this.regs.lcdc = byte;
                 break;
             case 0x41:
-                this.regs.stat = byte & 0xF8;
+                this.regs.stat = (byte & 0xF8) | 0x80;
                 break;
             case 0x42:
                 this.regs.scy = byte;
@@ -331,10 +331,13 @@ class PPU {
             case 0x4B:
                 return this.regs.wx;
             case 0x4D:
-                return 0x7e | (this.cgb.key1 & 1) | (this.cgb.speed_mode << 7);
+                if(this.parent.cgb)
+                    return 0x7e | (this.cgb.key1 & 1) | (this.cgb.speed_mode << 7);
+                else
+                    return 0xff;
             case 0x68:
                 // cgb only
-                return this.cgb ? this.cgb.bgi : 0xff;
+                return this.parent.cgb ? this.cgb.bgi : 0xff;
             case 0x69:
                 // cgb only
                 return this.cgb.bgPal[this.cgb.bgi];
@@ -344,8 +347,10 @@ class PPU {
             case 0x6B:
                 return this.cgb.objPal[this.cgb.obji];
             case 0x4F:
-                // cgb only
-                return this.cgb.vbank | 0xFE;
+                if(this.parent.cgb)
+                    return this.cgb.vbank | 0xFE;
+                else
+                    return 0xff;
             default:
                 return 0xFF;
         }

@@ -47,13 +47,15 @@ class SerialPort {
                 this.sb = byte;
                 break;
             case 2:
-                this.sc = byte & 0xf3;
+                this.sc = byte & 0x83;
                 
                 if(this.parent.cgb)
                     if(UInt8.getBit(this.sc, 1))
                         this.freq = 16; // fast
                     else
                         this.freq = 512; // normal
+                else
+                    this.sc |= 0x02;
                     
                 
                 if(this.master && UInt8.getBit(this.sc, 7)) {
@@ -68,7 +70,7 @@ class SerialPort {
             case 1:
                 return this.sb;
             case 2:
-                return this.sc;
+                return this.sc | 0x7c;
         }
     }
     
