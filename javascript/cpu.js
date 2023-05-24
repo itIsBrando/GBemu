@@ -693,13 +693,8 @@ class CPU {
             return false;
         } else if(this.hdma.shouldTransfer()) {
             this.cycles = 4;
-            this.hdma.tick(2);
-        } else if(!this.isHalted) {
-            opTable[opcode](this);
-        }
-        
-        if(this.isHalted)
-        {
+            this.hdma.tick(this.ppu.getAdjustedCycles(4));
+        } else if(this.isHalted) {
             this.haltedCycles += 4;
             // if interrupts are disabled but we have something pending, then break from HALT
             if(!this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
@@ -707,6 +702,8 @@ class CPU {
                 this.skip(1);
                 this.isHalted = false;
             }
+        } else {
+            opTable[opcode](this);
         }
 
         // manage interrupts
