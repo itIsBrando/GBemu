@@ -2,10 +2,10 @@
     display: none;
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 30vh;
+    transform: translateX(-50%);
     background-color: var(--ui-background-color);
-    border: 5px solid var(--ui-title-color);
+    border: 5px solid var(--ui-background-color);
     color: var(--ui-main-text-color);
     z-index: 9;
     border-radius: 5px;
@@ -32,11 +32,6 @@
     margin: 5px 5px 5px 15px;
     display: inline-block;
 }
-
-.popup-no-border {
-    border: 5px solid var(--ui-background-color);
-}
-
 
 .prompt-menu-fieldset {
     width: calc(100% - 12px);
@@ -259,6 +254,7 @@
 @media (orientation: landscape) {
     #saveButtonDiv {
         grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
     }
 }
 

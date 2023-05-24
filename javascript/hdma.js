@@ -134,7 +134,7 @@ class HDMA {
     tick(cycles) {
         this.cycles += cycles;
         
-        if(this.cycles < 32)
+        if(this.cycles < 0x20)
             return;
 
         this.cycles = 0;
