@@ -210,7 +210,6 @@ class APU {
         APU.master_enable = !APU.master_enable;
 
         if(APU.master_enable) {
-            Menu.message.show("This feature is NOT fully supported and is not designed for general use", "Experimental Feature");
             c.apu.audioCtx.resume();
         } else {
             c.apu.enabled = false;
