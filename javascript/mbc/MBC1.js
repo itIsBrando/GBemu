@@ -62,7 +62,7 @@ class MBC1 {
         if(useExternalSaveFile) {
             const len = externalSave.length;
 
-            if(len == expectedSize || true) {
+            if(len == expectedSize) {
                 this.ram = externalSave;
             } else if(len > expectedSize && len <= expectedSize + 48) {
                 // MBC3 has additional bytes for RTC
