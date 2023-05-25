@@ -15,13 +15,15 @@
  - Saving in browser with [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
  - Palette customization
  - Keyboard, touch, and controller support
+ - GBC double speed mode
+ - Support for the rumble pack
  - Debugger and disassembler
 
  *note* most games work but may have graphical glitches in GBC mode.
 
 
  ## Future Plans
-  - GBC double speed mode
-  - OAM/BG priority
-  - Link Cable
-  - Multi-cart memory controllers
+ - Gyroscope support
+ - OAM/BG priority
+ - Link Cable
+ - Multi-cart memory controllers

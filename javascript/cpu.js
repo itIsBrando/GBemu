@@ -1,6 +1,6 @@
 "use strict";
 
-let USE_LOG = false;
+let USE_LOG = true;
 
 const Arithmetic = {
     ADD: 'add',
@@ -641,7 +641,7 @@ class CPU {
                 return this.mem.wram[address + 0x1000];
         } else if(address < 0xFE00) {
             // mirror WRAM
-            return this.mem.wram[address - 0xE000]
+            return this.mem.wram[address - 0xE000];
         } else if(address < 0xFEA0) {
             // block OAM read/write on mode 1 & 2
             if(!this.ppu.oamAccessible())
@@ -711,7 +711,11 @@ class CPU {
             opTable[opcode](this);
         }
 
-        // manage interrupts
+        /**
+         * Manage interrupts
+         * @todo improve this code
+         * it may be the reason for failing mooneye's `ei sequence` test
+         */
         if(opcode != 0xF3 && opcode != 0xFB)
         {
             if(this.shouldDI === true)
