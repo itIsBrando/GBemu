@@ -194,10 +194,11 @@ class PPU {
     }
 
     set lcdEnabled(v) {
-        if(v == true)
+        if(v == true) {
             this.regs.lcdc |= 0x80;
-        else
+        } else {
             this.regs.lcdc &= 0x7F;
+        }
     }
 
     /**
@@ -361,7 +362,7 @@ class PPU {
         this.regs.stat &= 252;
 
         if(!this.lcdEnabled) {
-            this.regs.stat |= PPUMODE.vblank;
+            this.regs.stat |= PPUMODE.hblank;
             return;
         }
 
