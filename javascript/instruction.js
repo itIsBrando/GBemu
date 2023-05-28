@@ -148,8 +148,9 @@ var opTable = {
         if(cpu.cgb && UInt8.getBit(cpu.ppu.cgb.key1, 0)) {
             cpu.ppu.cgb.speed_mode ^= 1; // change speed mode
             cpu.ppu.cgb.key1 = 0; // reset bit0 of $ff4d
-            cpu.cycles += 0;
-            CPU.LOG(`Speed switch to ${cpu.ppu.cgb.speed_mode ? 'double' : 'normal'}`)
+            CPU.LOG(`Speed switch to ${cpu.ppu.cgb.speed_mode ? 'double' : 'normal'}`);
+            CPU.LOG(`PPU in mode ${cpu.ppu.mode}`);
+            cpu.ppu.step(8200);
         }
     },
     // ld de, nn

@@ -14,15 +14,12 @@ class MBC3 extends MBC1 {
                     //  - bit 0: MSB of counter
                     //  - bit 6: Halt (0=active, 1=stopped)
                     //  - bit 7: Day Counter carry (1=overflow)
-        ]
+        ];
 
-        this.latSeconds = 0;
-        this.latMinutes = 0;
-        this.latHours = 0;
-        this.latDays = 0;
-        
-        this.isHalted = false;
-        this.start_millis = this.date.getTime();
+        this.rtc = new RTC();
+
+        this.isLatched = false;
+        this.latch = 0;
     }
 
     handleExtraData() {
@@ -66,7 +63,13 @@ class MBC3 extends MBC1 {
             // do some RTC stuff
             byte &= 0x1;
             if(this.latch == 0 && byte == 1) {
-                this.latchRTC();
+                if(this.isLatched) {
+                    this.rtc.unlatchRTC();
+                    this.isLatched = false;
+                } else {
+                    this.rtc.latchRTC();
+                    this.isLatched = true;
+                }
             }
             this.latch = byte;
         // RAM
@@ -77,7 +80,7 @@ class MBC3 extends MBC1 {
             const addr = address - 0xA000 + (this.ramBank * 0x2000);
             
             if(this.ramBank > 3) {
-                this.setRTC(this.ramBank, byte);
+                this.rtc.write(this.ramBank, byte);
             } else if(this.ramBank <= 3 && addr < this.ram.length) {
                 this.ram[addr] = byte;
             }
@@ -100,7 +103,7 @@ class MBC3 extends MBC1 {
             if(this.ramBank <= 3)
                 return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
             else
-                return this.getRTC(this.ramBank);
+                return this.rtc.read(this.ramBank);
         }
 
         return 0xFF;
@@ -113,123 +116,5 @@ class MBC3 extends MBC1 {
             return 0xFF;
         
         return this.rom[off];
-    }
-
-    /**
-     * latches data using actual time.
-     */
-    latchRTC() {
-        this.latchedStart = this.date.getTime();
-    }
-    
-    unlatchRTC() {
-        this.latchedStart = 0;
-    }
-    
-    setHalt(h) {
-        if(h && !this.isHalted) {
-            this.latchRTC();
-            this.latSeconds = this.seconds;
-            this.latMinutes = this.minutes;
-            this.latHours = this.hours;
-            this.latDays = this.days;
-            this.unlatchRTC();
-        } else if(!h && this.isHalted) {
-            this.start_millis = this.date.getTime();
-        }
-
-        this.isHalted = h;
-    }
-    
-    setRTC(i, val) {
-        switch(i) {
-            case 0x8:
-                this.seconds = val;
-                break;
-            case 0x9:
-                this.minutes = val;
-                break;
-            case 0xA:
-                this.hours = val;
-                break;
-            case 0xB:
-                this.days &= 0x100;
-                this.days |= val;
-                break;
-            case 0xC:
-                this.days &= 0xFF;
-                this.days |= (val & 1) << 8;
-                this.setHalt(UInt8.getBit(val, 6));
-                break;
-        }
-    }
-    
-    getRTC(i) {
-        switch(i) {
-            case 0x8:
-                return this.seconds;
-            case 0x9:
-                return this.minutes;
-            case 0xA:
-                return this.hours;
-            case 0xB:
-                return this.days & 0xFF;
-            case 0xC:
-                let out = (this.days & 0x100) >> 8;
-                return out | (this.isHalted ?  0x40 : 0);
-            default:
-                return 0xFF;
-        }
-    }
-    
-    get seconds() {
-        return this.getTimeInSeconds() % 60;
-    }
-    
-    get minutes() {
-        return (this.getTimeInSeconds() % (60 * 60)) / 60;
-    }
-    
-    get hours() {
-        return (this.getTimeInSeconds() % (60 * 60 * 24)) / (60 * 60);
-    }
-    
-    get days() {
-        return (this.getTimeInSeconds() % (60 * 60 * 24 * 512)) / (60 * 60 * 24);
-    }
-    
-    set seconds(sec) {
-        if(this.isHalted)
-            this.latSeconds = sec;
-    }
-    
-    
-    set minutes(min) {
-        if(this.isHalted)
-            this.latMinutes = min;
-    }
-    
-    
-    set hours(hours) {
-        if(this.isHalted)
-            this.latHours = hours;
-    }
-    
-    set days(days) {
-        if(this.isHalted)
-            this.latDays = days;
-    }
-    
-    
-    getTimeInSeconds() {
-        let millis;
-        
-        if(this.latchedStart == 0) {
-            millis = this.date.getTime();
-        } else {
-            millis = this.latchedStart;
-        }
-        
-        return Math.floor(millis - this.start_millis) / 1000;
     }
 }
