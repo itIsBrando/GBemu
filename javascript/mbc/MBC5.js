@@ -72,7 +72,6 @@ class MBC5 extends MBC1 {
     }
     
     read8(address) {
-
         if(address >= 0x4000 && address < 0x8000) {
             return this.rom[address - 0x4000 + this.romBankAddress];
         // RAM A000-BFFF

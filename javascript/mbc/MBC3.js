@@ -22,6 +22,10 @@ class MBC3 extends MBC1 {
         this.latch = 0;
     }
 
+    reset() {
+        this.rtc.reset();
+    }
+
     handleExtraData() {
         const size = getRAMSize(this.ramSize, this.mbcNumber);
         const array = Array.from(externalSave);
@@ -61,13 +65,12 @@ class MBC3 extends MBC1 {
         // 0x6000-0x7FFF Latch Clock Data
         } else if(address < 0x8000) {
             // do some RTC stuff
-            byte &= 0x1;
             if(this.latch == 0 && byte == 1) {
                 if(this.isLatched) {
-                    this.rtc.unlatchRTC();
+                    this.rtc.unlatch();
                     this.isLatched = false;
                 } else {
-                    this.rtc.latchRTC();
+                    this.rtc.latch();
                     this.isLatched = true;
                 }
             }

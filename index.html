@@ -507,7 +507,7 @@
     </div>
 
     <!-- Cool lookin menu for entering text. See `PromptMenu`-->
-    <div id="PromptMenu" class="popup-no-border shadow" style="z-index:10;">
+    <dialog id="PromptMenu" class="popup-no-border shadow" style="z-index:10;">
         <div class="menu-header-no-ext">
             <a id="PromptTitle">Title</a>
             <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
@@ -521,7 +521,7 @@
         <button type="button" id="PromptSubmit" class="prompt-button"
             onclick="PromptMenu.submit();">OK</button>
         <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
-    </div>
+    </dialog>
 
     <!-- Virtual Controller -->
     <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;">
@@ -667,11 +667,13 @@
     <script src="util/link.js"></script>
     <script src="javascript/types.js"></script>
     <script src="javascript/renderer.js"></script>
-    <script src="javascript/mbc/rtc.js"></script>
+    <script src="javascript/mbc/hardware/rtc.js"></script>
+    <script src="javascript/mbc/hardware/eeprom.js"></script>
     <script src="javascript/mbc/MBC1.js"></script>
     <script src="javascript/mbc/MBC2.js"></script>
     <script src="javascript/mbc/MBC3.js"></script>
     <script src="javascript/mbc/MBC5.js"></script>
+    <script src="javascript/mbc/MBC7.js"></script>
     <script src="javascript/audio/c1.js"></script>
     <script src="javascript/audio/c2.js"></script>
     <script src="javascript/audio/c3.js"></script>

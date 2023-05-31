@@ -1,6 +1,6 @@
 "use strict";
 
-let USE_LOG = true;
+let USE_LOG = false;
 
 const Arithmetic = {
     ADD: 'add',
@@ -59,6 +59,7 @@ const MBCType = {
     MBC_2: 2,
     MBC_3: 3,
     MBC_5: 5,
+    MBC_7: 7,
 }
 
 /**
@@ -90,8 +91,10 @@ function getMBCType(v) {
         case 0x1D:
         case 0x1E:
             return MBCType.MBC_5;
+        case 0x22:
+            return MBCType.MBC_7;
         default:
-            Menu.message.show("Unsupport MBC type.", MemoryControllerText[v]);
+            Menu.message.show(MemoryControllerText[v], "Unsupported MBC type");
     }
 
     return MBCType.NONE;
@@ -518,10 +521,14 @@ class CPU {
             case MBCType.MBC_5:
                 this.mbcHandler = new MBC5(untrimmedROM, 5);
                 break;
+            case MBCType.MBC_7:
+                this.mbcHandler = new MBC7(untrimmedROM, 7);
+                break;
             case MBCType.NONE:
                 this.mbcHandler = null;
                 break;
-
+            default:
+                Menu.message.show(`No mbc handler for ${mbc}.`, "Internal Error");
         }
 
         CPU.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);

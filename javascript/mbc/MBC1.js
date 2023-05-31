@@ -6,11 +6,8 @@ var externalSave = null;
  * @param {Number} size Raw RAM size byte from ROM
  * @param {Number} mbc MBC number
  */
-function getRAMSize(size, mbc)
-{
-    const m1Sizes = [
-        0, 2048, 8192, 32768, 524288, 131072
-    ];
+function getRAMSize(size, mbc) {
+    const m1Sizes = [ 0, 2048, 8192, 32768, 524288, 131072 ];
     switch(mbc) {
         case 1:
             return m1Sizes[size];
@@ -19,8 +16,11 @@ function getRAMSize(size, mbc)
         case 3:
         case 5:
             return m1Sizes[size];
+        case 7:
+            return 256;
         default:
-            Menu.message.show("Unknown MBC" + mbc + ".", "Internal error");
+            Menu.message.show(`RAM Size Unknown for MBC${mbc}.`, "Internal error");
+            return m1Sizes[size];
     }
 }
 
