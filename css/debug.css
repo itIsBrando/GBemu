@@ -31,7 +31,6 @@
 }
 
 .color-preview {
-    background-color: #000000;
     width: 100%;
     aspect-ratio: 4 / 1;
 }
@@ -59,7 +58,6 @@
     grid-template-columns: repeat(6, 1fr) 30px;
     overflow-x: auto;
     padding-top: env(safe-area-inset-top);
-    background-color: var(--ui-title-color);
     border-bottom: 1px solid #666;
 }
 
@@ -69,31 +67,20 @@
     height: 30px;
     margin: 0px;
     border-radius: 0px;
-    background-color: var(--ui-title-color);
-    color: var(--ui-text-color);
-}
-
-.debug-title-btn-active {
-    color: blue;
+    background-color: var(--ui-background);
+    color: var(--ui-background-text);
 }
 
 .debug-text {
     font-family: monospace;
     width: 100%;
     margin: 0px;
-    scrollbar-color: #333333;
+    scrollbar-color: var(--ui-background-text);
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     -webkit-touch-callout: text;
     user-select: text;
-}
-
-.debug-addr-btn {
-    line-height: 150%;
-    padding-left: env(safe-area-inset-left);
-    width: 600px;
-    font-family: monospace;
 }
 
 .disasm-buttons {
@@ -108,20 +95,14 @@
     border: none;
     width: fit-content;
     padding: 3px 5px;
-    background-color: var(--ui-btn-color);
-    color: var(--ui-text-color);
+    background-color: var(--ui-primary-button);
+    color: var(--ui-text);
     margin: 1px;
     border-radius: 3px;
 }
 
 .disasm-btn:hover {
     filter: brightness(0.8);
-}
-
-.debug-radio {
-    color:#888;
-    background-color: aqua;
-    border: 3px solid salmon;
 }
 
 .debug-breakpoint-radio {
@@ -140,23 +121,9 @@
 }
 
 .debug-breakpoint-name:hover {
-    background-color: gray;
-}
-
-.debug-addr-btn {
-    display: inline;
-    width: min-content;
-    height: 1rem;
-    background-color: inherit;
-    color: inherit;
-    text-align: left;
-    border: none;
-    cursor: pointer;
-}
-
-.debug-addr-btn:hover {
     filter: brightness(0.8);
 }
+
 
 .pal-debug-button {
     width: 25%;
@@ -235,7 +202,6 @@
 
 #MapCanvasDiv {
     overflow: auto;
-    background-color:#222;
     max-height: calc(100vh - 60px);
     margin-bottom: env(safe-area-inset-bottom);
 }

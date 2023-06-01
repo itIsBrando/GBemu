@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="ui-dark-theme">
 
 <head>
     <!-- iOS web app info -->
@@ -18,29 +18,23 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        :root {
-            --ui-title-color: #1b1b1b;
-            --ui-title-text-color: white;
-            --ui-main-text-color: ghostwhite;
-            --ui-highlight-color: #aaddee;
-
-            --ui-text-color: white;
-            --ui-btn-color: #55555A;
-
-            --ui-background-color: #303030;
+        .ui-dark-theme {            
+            --ui-background: #121212;
+            --ui-primary-button: #d4ccd3;
+            --ui-secondary-button: #c9fde4;
+            --ui-text: #100e11; /* will be used for buttons */
+            --ui-background-text: #f8f7f8; /* font color for any text that remains on background (must be contrasted with background)*/
+            --ui-accent: lightblue;
         }
 
-        /* .ui-light-theme {
-            --ui-title-color: #ddd;
-            --ui-title-text-color: black;
-            --ui-main-text-color:black;
-            --ui-highlight-color: teal;
-
-            --ui-text-color: lightblue;
-            --ui-btn-color: #55555A;
-
-            --ui-background-color: aliceblue;
-        } */
+        .ui-light-theme {
+            --ui-background: aliceblue;
+            --ui-primary-button: #171739;
+            --ui-secondary-button:#454555;
+            --ui-text: lightblue;
+            --ui-background-text: black;
+            --ui-accent: teal;
+        }
 
         .viewport {
             /* Why have i positioned this like a piece of dumbo? */
@@ -169,7 +163,7 @@
             position: absolute;
             left: -100vw;
             top: -100vh;
-            background-color: black;
+            background-color: transparent;
             width: 500vw;
             height: 500vh;
             opacity: 0.3;
@@ -227,7 +221,7 @@
         <button type="button" id="optionsMenuToggle" class="title-btn"
             style="width: 34vw;"><b>Options</b></button>
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
-            <button type="button" class="dropdown-btn" onclick="document.getElementById('ThemeDiv').style.display='block';">Themes</button>
+            <button type="button" class="dropdown-btn" onclick="document.getElementById('ThemeDiv').style.display='block';">Skin</button>
             <button type="button" id="enterDebugger" class="dropdown-btn"
             onclick="Debug.start();">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
             <button type="button" class="dropdown-btn"
@@ -333,6 +327,10 @@
             </label>
             <!-- Other -->
             <b class="settings-title">Other</b>
+            <label>UI Theme:
+                <button type="button" id="uiThemeButton" title="change UI theme" class="menubtn settings-btn"
+                    onclick="Themes.changeUI();">dark</button>
+            </label>
             <label>Show FPS:
                 <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
             </label>
@@ -372,14 +370,14 @@
                 code</button>
     </div>
 
-    <div id="ThemeDiv">
+    <div id="ThemeDiv" class="theme-div">
         <button class="icon-btn" type="button" onclick="Themes.prev();">&larr;</button>
         <button class="icon-btn" type="button" onclick="Themes.next();">&rarr;</button>
-        theme
+        skin
         <button class="x-btn" type="button" onclick="this.parentNode.style.display = 'none';">&times;</button>
         <br>
         <div style="background: var(--bg-color); padding-bottom: 120px; border-radius: 5px;">
-            <div style="margin:5px; background: aliceblue; aspect-ratio: 111 / 100; border-radius: 15px; border: 10px solid var(--screen-border-color); box-shadow: 0px 10px 8px var(--screen-shadow); text-align: center; font-size: x-small;">
+            <div style="margin:5px; background: aliceblue; color: black; aspect-ratio: 111 / 100; border-radius: 15px; border: 10px solid var(--screen-border-color); box-shadow: 0px 10px 8px var(--screen-shadow); text-align: center; font-size: x-small;">
                 preview
             </div>
         </div>
@@ -507,7 +505,7 @@
     </div>
 
     <!-- Cool lookin menu for entering text. See `PromptMenu`-->
-    <dialog id="PromptMenu" class="popup-no-border shadow" style="z-index:10;">
+    <div id="PromptMenu" class="popup-no-border shadow" style="z-index:10;">
         <div class="menu-header-no-ext">
             <a id="PromptTitle">Title</a>
             <button type="button" class="x-btn" onclick="PromptMenu.hide();">&times;</button>
@@ -521,7 +519,7 @@
         <button type="button" id="PromptSubmit" class="prompt-button"
             onclick="PromptMenu.submit();">OK</button>
         <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
-    </dialog>
+    </div>
 
     <!-- Virtual Controller -->
     <div id="touchControls" oncontextmenu="event.preventDefault();" style="width: 100%; display: none; z-index: 8;">
@@ -628,11 +626,11 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid var(--ui-background-color);">
+    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid var(--ui-background);">
         <!-- header -->
         <div id="messageHeader" class="menu-header-no-ext"></div>
         <!-- body -->
-        <p id="messageContent" style="color: #ccc; padding-left: 0.5em;">Message Content</p>
+        <p id="messageContent" style="color: var(--ui-background-text); padding-left: 0.5em;">Message Content</p>
         <!-- confirm -->
         <button class="prompt-button" style="margin-left: 5px;" id="messageConfirm">OK</button>
         <button class="prompt-button" id="messageCancel">Cancel</button>

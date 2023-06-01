@@ -23,17 +23,17 @@ body {
     -webkit-touch-callout: none;
 
     font-size: medium;
-    color: var(--ui-text-color);
+    color: var(--ui-text);
 
     transition: background 0.5s;
 }
 
 ::-webkit-scrollbar {
-    background-color: #111;
+    background-color: var(--ui-background-text);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #333;
+    background-color: var(--ui-background-text);
 }
 
 h3 {
@@ -43,26 +43,17 @@ h3 {
 }
 
 a:link, a:visited {
-    color: lightblue;
+    color: var(--ui-accent);
 }
 
 fieldset {
     margin-bottom: 5px;
 }
 
-legend {
-    color: aliceblue;
-    background-color: #111111;
-    padding: 2px;
-    border-radius: 3px;
-}
-
 #PromptText {
     min-height: 30px;
     min-width: 60px;
     width: 100%;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
     background: #424141;
     color: aliceblue;
 }
@@ -70,11 +61,6 @@ legend {
 input:focus {
     background: #777777;
 }
-
-input:out-of-range {
-    background-color: darkred;
-}
-
 
 #PromptDiv {
     min-height: 10px;

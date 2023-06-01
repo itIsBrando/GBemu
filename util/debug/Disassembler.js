@@ -45,7 +45,7 @@ var Disassembler = new function() {
         let s = `   ${hex(op.address, 4, '')} | ${op.getOpcodeString().padEnd(6)} :    ${op.getString()}<br>`;
 
         if(op.address == c.pc.v) {
-            s = `<b style="color: limegreen; padding-right: 1rem;">${s}</b>`;
+            s = `<b style="color: var(--ui-secondary-button); padding-right: 1rem;">${s}</b>`;
         }
         
         return s;
@@ -68,7 +68,7 @@ var Disassembler = new function() {
 
         let lbl = Opcode.getAddressName(addr);
         if(lbl != '') {
-            s = `<b style="color:white;">${lbl.replace(' ', '_').replace(/; +/g, '')}</b>:<br>${s}`;
+            s = `<b style="color:var(--ui-secondary-button);">${lbl.replace(' ', '_').replace(/; +/g, '')}</b>:<br>${s}`;
         }
         
         DisText.innerHTML += s;
@@ -223,7 +223,7 @@ var Disassembler = new function() {
 
     this.goto = function() {
         const m = new PromptMenu("Go to Address", "0000-FFFF", /[0-9A-Fa-f]+/g, 4, (a) => {
-            const address = Number("0x" + a); // @todo can i do Number(a, 16)???
+            const address = Number("0x" + a);
 
             if(address == null)
                 return;

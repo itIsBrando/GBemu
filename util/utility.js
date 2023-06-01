@@ -129,12 +129,14 @@ function showROMInfo() {
     }
 
     Menu.message.show(
-        `<div class="debug-text"><b style="color:deepskyblue">ROM Name:</b> ${c.readROMName()}` +
-        '<br><b style="color:deepskyblue;">MBC Type:</b> ' + MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ") +
-        '<br><b style="color:deepskyblue">Emulation Mode:</b> ' + (c.cgb ? "GBC" : "DMG") +
-        '<br><b style="color:deepskyblue">ROM Size:</b> ' + (c.hasMbc() ? c.mbcHandler.rom.length + " bytes": "32kb") +
-        '<br><b style="color:deepskyblue">RAM Size:</b> ' + (c.hasMbc() ? c.mbcHandler.ram.length + " bytes": "none") +
-        '</div>',
+        `<div class="debug-text" style="color:var(ui-background-text);">
+        <b style="color:var(ui--accent;">ROM Name:</b> ${c.readROMName()}
+        <br><b style="color:var(--ui-accent);">MBC Type:</b> ${MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ")}
+        <br><b style="color:var(--ui-accent);">Licensee:</b> ${hex(c.mem.rom[0x14b], 2, "$")}
+        <br><b style="color:var(--ui-accent);">Emulation Mode:</b> ${(c.cgb ? "GBC" : "DMG")}
+        <br><b style="color:var(--ui-accent);">ROM Size:</b> ${(c.hasMbc() ? c.mbcHandler.rom.length + " bytes": "32kb")}
+        <br><b style="color:var(--ui-accent);">RAM Size:</b> ${(c.hasMbc() ? c.mbcHandler.ram.length + " bytes": "none")}
+        </div>`,
         "ROM Info"
     );
 }

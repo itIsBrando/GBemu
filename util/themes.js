@@ -12,11 +12,16 @@ var Themes = new function() {
         "yellow-theme",
         "green-theme",
     ];
+    const uiThemeButton = document.getElementById('uiThemeButton');
 
     this.init = function() {
         const t = Settings.get_core("theme", 0);
 
         Themes.apply(Number(t));
+
+        // change UI theme
+        if(Settings.get_core("uitheme", "dark") == "light")
+            Themes.changeUI();
     }
 
     this.set_theme_color = function(color) {
@@ -63,7 +68,17 @@ var Themes = new function() {
 
     this.setSettingsBar = function(force = false) {
         if(force || Settings.get_temp("change_status_bar", "false") == "true")
-            this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-title-color'));
+            this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-background'));
+    }
+
+
+    this.changeUI = function() {
+        const newTheme = uiThemeButton.innerText == "dark" ? "light" : "dark";
+
+        Settings.set_core("uitheme", newTheme);
+        document.getElementsByTagName('html')[0].className = newTheme == "dark" ? "ui-dark-theme" : "ui-light-theme";
+        uiThemeButton.innerText = newTheme;
+
     }
 
 };

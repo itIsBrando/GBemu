@@ -285,7 +285,7 @@ var Debug = new function() {
 		for(let i in regs)
 		{
 			if(regs[i][0] == '\n') {
-				str += '<div class="div-separator" style="border-color: var(--ui-btn-color); grid-column: 1 / 3;"></div>';
+				str += '<div class="div-separator" style="border-color: var(--ui-primary-button); grid-column: 1 / 3;"></div>';
 				continue;
 			}
 			
@@ -294,7 +294,7 @@ var Debug = new function() {
 			for(let j = 1; j < keys.length; j++)
 				v = v[keys[j]];
 			
-			str += `<div>${(regs[i][0] + ":").padEnd(5)}</div><div style="text-align:right; padding-right:1em;">${Debug.hex(v, regs[i][2])}</div>`;
+			str += `<div style="color:var(--ui-accent);">${(regs[i][0] + ":").padEnd(5)}</div><div style="text-align:right; padding-right:1em;">${Debug.hex(v, regs[i][2])}</div>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;

@@ -4,9 +4,9 @@
     left: 50%;
     top: 30vh;
     transform: translateX(-50%);
-    background-color: var(--ui-background-color);
-    border: 5px solid var(--ui-background-color);
-    color: var(--ui-main-text-color);
+    background-color: var(--ui-background);
+    border: 5px solid var(--ui-background);
+    color: var(--ui-background-text);
     z-index: 9;
     border-radius: 5px;
     width: fit-content;
@@ -17,8 +17,8 @@
 
 .menu-header, .menu-header-no-ext {
     font-size: 1.25rem;
-    background-color: var(--ui-title-color);
-    color: var(--ui-title-text-color);
+    background-color: var(--ui-background);
+    color: var(--ui-background-text);
     height: fit-content;
     min-height: 30px;
 }
@@ -42,6 +42,9 @@
 
 .prompt-menu-legend {
     background-color: inherit;
+    color: var(--ui-background-text);
+    padding: 2px;
+    border-radius: 3px;
 }
 
 .prompt-menu-radio {
@@ -49,12 +52,14 @@
 }
 
 .prompt-menu-radio:checked + label {
-    background-color: #999;
+    filter: brightness(1);
 }
 
 .prompt-menu-choice {
     display: block;
-    background-color: #555;
+    background-color: var(--ui-secondary-button);
+    color: var(--ui-text);
+    filter: brightness(0.6);
     border-radius: 5px;
     margin-bottom: 2px;
     cursor: pointer;
@@ -62,7 +67,7 @@
 }
 
 .prompt-menu-choice:hover {
-   background-color: #777;
+   filter: brightness(0.8);
 }
 
 .settings-grid {
@@ -80,7 +85,7 @@
 .settings-title {
     padding: 5px 0px 0px 5px;
     margin: 15px 0px;
-    color: var(--ui-highlight-color);
+    color: var(--ui-accent);
 }
 
 .settings-select-radio:checked + .settings-select {
@@ -105,7 +110,8 @@
     font-family: monospace;
     filter: brightness(0.8);
     cursor: pointer;
-    background-color: var(--ui-btn-color);
+    background-color: var(--ui-primary-button);
+    color: var(--ui-text);
     min-height: 25px !important;
     padding: 0px 5px !important;
     border-radius: 5px;
@@ -118,16 +124,15 @@
 .settings-checkbox {
     appearance: none;
     cursor: pointer;
-    background-color: transparent;
+    background-color: var(--ui-background);
     border-radius: 6px;
     width: 21px;
     height: 21px;
     align-self: center;
-    /* padding: 0px 10px; */
     margin: 0px 6px;
     transition: 0.15s;
     opacity: 0.5;
-    border: 2px solid #eee;
+    border: 2px solid var(--ui-primary-button);
     float: right;
 }
 
@@ -136,8 +141,8 @@
 }
 
 .settings-checkbox:checked {
-    background-color: var(--ui-highlight-color);
-    border-color: var(--ui-highlight-color);
+    background-color: var(--ui-accent);
+    border-color: var(--ui-accent);
     opacity: 1;
 }
 
@@ -145,14 +150,15 @@
     font-size: 1rem;
     display: none;
     position: absolute;
-    background-color: var(--ui-main-text-color);
+    background-color: var(--ui-background);
     padding: 0.5rem 1rem;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.7);
-    color: var(--ui-btn-color);
+    color: var(--ui-background-text);
     text-align: left;
     top: 100%;
     right: 0px;
     width: clamp(150px, 60vw, 650px);
+    z-index: 1;
 }
 
 .info-div {
@@ -165,8 +171,7 @@
 }
 
 .info-div:hover > .info-btn, .info-btn:hover {
-    background-color: var(--ui-background-color);
-    color: var(--ui-btn-color);
+    filter: brightness(0.8);
 }
 
 #saveButtonDiv {
@@ -176,6 +181,7 @@
     overflow-y: auto;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    padding-bottom: calc(50px + env(safe-area-inset-bottom));
     background-color: inherit;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -185,8 +191,8 @@
 
 .save-menu {
     display: none;
-    color: var(--ui-main-text-color);
-    background-color: var(--ui-background-color);
+    color: var(--ui-background-text);
+    background-color: var(--ui-background);
     position: absolute;
     top: 0px;
     left: 0px;
@@ -214,13 +220,13 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    background-color: var(--ui-background-color);
+    background-color: var(--ui-background);
     border: 1px solid black;
 }
 
 .selection-menu button {
     background: transparent;
-    color: var(--ui-main-text-color);
+    color: var(--ui-background-text);
     border: none;
     padding: 8px 15px;
     transition: all 0.1s;
@@ -228,7 +234,9 @@
 }
 
 .selection-menu button:hover {
-    background-color: #555;
+    background-color: var(--ui-background-text);
+    color: var(--ui-text);
+    filter: brightness(0.9);
 }
 
 
@@ -240,12 +248,13 @@
     background-color: whitesmoke;
 }
 
-#ThemeDiv {
+.theme-div {
     display: none;
-    margin: calc(5px + env(safe-area-inset-top)) calc(5px + env(safe-area-inset-left));
+    margin: calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-left));
     position: absolute;
     top: 0px;
-    background-color: var(--ui-title-color);
+    background-color: var(--ui-background);
+    color: var(--ui-background-text);
     box-shadow: 0px 4px 16px 10px rgba(0, 0, 0, 0.7);
     min-height: 25px;
     border-radius: 5px;

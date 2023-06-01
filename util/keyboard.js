@@ -28,8 +28,8 @@ var KeyBinding = new function() {
     this.init = function() {
         styling.innerHTML = `.keybinding-assigning::after {
             content: '';
-            background-color: var(--ui-background-color);
-            color: aliceblue;
+            background-color: var(--ui-background);
+            color: var(--ui-background-text);
             position: absolute;
             bottom: 100%;
             right: 0;

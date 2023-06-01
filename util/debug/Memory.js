@@ -9,7 +9,7 @@ var Memory = new function() {
 		const a = document.getElementById('MemoryContent');
 
 		for(let i = 0; i < 15; i++) {
-			a.innerHTML += `<a style="color:lightblue;">${memType}</a>  ${Memory.dumpMemory(Memory.curAddr)}\n`;
+			a.innerHTML += `<a style="color:var(--ui-accent);">${memType}</a>  ${Memory.dumpMemory(Memory.curAddr)}\n`;
 			Memory.curAddr += bytePerRow;
 
 			if(Memory.curAddr >= Memory.endAddr) {

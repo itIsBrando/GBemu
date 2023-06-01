@@ -115,7 +115,7 @@ localSaveButton.addEventListener('click', function() {
     SaveManager.populateSaveHTML(function() {
         if(c.mbcHandler && c.romLoaded) {
             Menu.message.show(
-                `Is it okay to overwrite <b style='color:green;'>${SaveManager.getSaveString(this.value)}</b>?`,
+                `Is it okay to overwrite <b style='color:var(--ui-accent);'>${SaveManager.getSaveString(this.value)}</b>?`,
                 "Save Already Exists",
                 true,
                 null,
@@ -245,7 +245,7 @@ var SaveManager = new function() {
 
         localStorage.setItem(this.addSuffix(name), json);
         Menu.alert.show(
-            `<b style='color:white;'>${name}</b> saved.`,
+            `<b style='color:var(--ui-accent);'>${name}</b> saved.`,
             5000
         );
     }
@@ -500,7 +500,7 @@ var SaveManager = new function() {
     this.deleteSelf = function(e) {
         key = this.value
         Menu.message.show(
-            `Delete <a style="color:white;">${SaveManager.getSaveString(key)}</a>?`,
+            `Delete <a style="color:var(--ui-accent);">${SaveManager.getSaveString(key)}</a>?`,
             "Are You Sure?",
             true,
             null,
@@ -535,8 +535,9 @@ var SaveManager = new function() {
         const type = SaveManager.getType(key);
 
         if(!data) {
-           Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
-           return;
+            // this should never be called
+            Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
+            return;
         }
        
         SaveManager.hide();
@@ -555,7 +556,7 @@ var SaveManager = new function() {
             }
         }
 
-        Menu.alert.show(`Loaded <b style="color:white;">${this.getSaveString(key)}</b>.`);
+        Menu.alert.show(`Loaded <b style="color: var(--ui-accent);">${this.getSaveString(key)}</b>.`);
     
    }
 

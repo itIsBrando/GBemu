@@ -338,8 +338,8 @@ class Opcode {
 
     constructor(addr) {
         this.op = c.read8(addr);
-        this.nextByte = c.read8(addr + 1);
         this.nextWord = c.read16(addr + 1);
+        this.nextByte = this.nextWord & 0xff;
         this.address = addr;
     }
 
@@ -376,7 +376,7 @@ class Opcode {
     }
 
     getString(symbolic = true) {
-        let s = opcodeLUT[this.op] ? opcodeLUT[this.op] : '<b style="color:gray;">Illegal Opcode</b>';
+        let s = opcodeLUT[this.op] ? opcodeLUT[this.op] : '<b style="color:var(--ui-secondary-button);">Illegal Opcode</b>';
         
         // special handling for CB instructions
         if(this.op == 0xCB) {
