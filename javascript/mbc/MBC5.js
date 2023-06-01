@@ -91,13 +91,13 @@ class MBC5 extends MBC1 {
             return;
 
         this.vibrate();
-        setTimeout(this.rumble, 10);
+        setTimeout(this.rumble, 6);
     }
 
 
     vibrate() {
         if('vibrate' in navigator)
-            navigator.vibrate(8);
+            navigator.vibrate(6);
     }
 
 
