@@ -22,6 +22,7 @@ class PPU {
         this.parent = cpu;
         this.mode = PPUMODE.vblank;
         this.cycles = 0;
+        this.statInterrupt = 0;
     
         this.regs = {
             lcdc: 0, // ff40
@@ -376,8 +377,7 @@ class PPU {
                 if(this.cycles >= 80) {
                     this.mode = PPUMODE.scanlineVRAM
                     this.cycles -= 80;
-                    // scanline equivalence
-                    this.checkCoincidence();
+                    // this.updateStatInteruptLine();
                 }
                 break;
             case PPUMODE.scanlineVRAM:
@@ -386,9 +386,7 @@ class PPU {
                     this.parent.hdma.hasCopied = false;
                     this.cycles -= 172;
                     cpu.renderer.renderScanline();
-                    // check for hblank interrupt in rSTAT
-                    if(UInt8.getBit(this.regs.stat, 3))
-                        cpu.requestInterrupt(InterruptType.lcd);
+                    // this.updateStatInteruptLine();
                 }
                 break;
             case PPUMODE.hblank:
@@ -398,24 +396,18 @@ class PPU {
                         this.mode = PPUMODE.vblank;
                         cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
-                        // check for vblank interrupt in rSTAT
-                        if(UInt8.getBit(this.regs.stat, 4))
-                            cpu.requestInterrupt(InterruptType.lcd);
-                        
-                            this.checkCoincidence();
+                        // this.updateStatInteruptLine();
                     } else {
                         this.mode = PPUMODE.scanlineOAM;
                         // check for OAM interrupt
-                        //  who on earth would use this interrupt?
-                        if(UInt8.getBit(this.regs.stat, 5))
-                            cpu.requestInterrupt(InterruptType.lcd);
+                        this.updateStatInteruptLine();
                     }
                     this.cycles -= 204;
                 }
                 break;
             case PPUMODE.vblank:
                 if(this.cycles >= 456) {
-                    this.checkCoincidence();
+                    // this.updateStatInteruptLine();
                     this.regs.scanline++;
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;
@@ -429,23 +421,50 @@ class PPU {
         }
         } while (this.cycles >= PPUMODE_CYCLES[this.mode]);
 
+        this.updateStatInteruptLine();
 
         this.regs.stat |= this.mode;
     }
 
-    checkCoincidence() {
+    /**
+     * STAT interrupt blocking
+     */
+    updateStatInteruptLine() {
+        const prevLine = this.statInterrupt;
+        this.statInterrupt = false;
+
+        if(this.mode == PPUMODE.scanlineOAM && UInt8.getBit(this.regs.stat, 5)) {
+            this.statInterrupt = true;
+        }
+
+        if(this.mode == PPUMODE.hblank && UInt8.getBit(this.regs.stat, 3)) {
+            this.statInterrupt = true;
+        }
+
+        if(this.mode == PPUMODE.vblank && UInt8.getBit(this.regs.stat, 4)) {
+            this.statInterrupt = true;
+        }
+
+        if(this.updateCoincidence() && UInt8.getBit(this.regs.stat, 6)) {
+            this.statInterrupt = true;
+        }
+
+        if(!prevLine && this.statInterrupt) {
+            this.parent.requestInterrupt(InterruptType.lcd);
+        }
+    }
+
+    updateCoincidence() {
         // reset coincidence flag
         this.regs.stat &= 0xFB;
 
-        if(this.regs.syc == this.regs.scanline)
-        {
-            // coincidence interrupt
-            if(UInt8.getBit(this.regs.stat, 6)) {
-                this.parent.requestInterrupt(InterruptType.lcd);
-            }
+        if(this.regs.syc == this.regs.scanline) {
             // set coincidence flag
-            this.regs.stat |= 0x04;
-        } 
+            this.regs.stat |= 1 << 2;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // must convert this modified palette into usable RGB
