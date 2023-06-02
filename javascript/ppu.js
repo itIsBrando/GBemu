@@ -196,6 +196,11 @@ class PPU {
 
     set lcdEnabled(v) {
         if(v == true) {
+            if(!this.lcdEnabled) {
+                this.cycles = 0;
+                this.regs.scanline = 0;
+                this.mode = PPUMODE.hblank;
+            }
             this.regs.lcdc |= 0x80;
         } else {
             this.regs.lcdc &= 0x7F;
@@ -220,6 +225,7 @@ class PPU {
     write8(addr, byte) {
         switch(addr & 0xFF) {
             case 0x40:
+                this.lcdEnabled = (byte & 0x80) == 0x80;
                 this.regs.lcdc = byte;
                 break;
             case 0x41:
@@ -377,7 +383,7 @@ class PPU {
                 if(this.cycles >= 80) {
                     this.mode = PPUMODE.scanlineVRAM
                     this.cycles -= 80;
-                    // this.updateStatInteruptLine();
+                    // this.updateStatinterruptLine();
                 }
                 break;
             case PPUMODE.scanlineVRAM:
@@ -386,7 +392,7 @@ class PPU {
                     this.parent.hdma.hasCopied = false;
                     this.cycles -= 172;
                     cpu.renderer.renderScanline();
-                    // this.updateStatInteruptLine();
+                    // this.updateStatinterruptLine();
                 }
                 break;
             case PPUMODE.hblank:
@@ -396,18 +402,17 @@ class PPU {
                         this.mode = PPUMODE.vblank;
                         cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
-                        // this.updateStatInteruptLine();
+                        // this.updateStatinterruptLine();
                     } else {
                         this.mode = PPUMODE.scanlineOAM;
-                        // check for OAM interrupt
-                        this.updateStatInteruptLine();
+                        // this.updateStatinterruptLine();
                     }
                     this.cycles -= 204;
                 }
                 break;
             case PPUMODE.vblank:
                 if(this.cycles >= 456) {
-                    // this.updateStatInteruptLine();
+                    // this.updateStatinterruptLine();
                     this.regs.scanline++;
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;
@@ -421,7 +426,7 @@ class PPU {
         }
         } while (this.cycles >= PPUMODE_CYCLES[this.mode]);
 
-        this.updateStatInteruptLine();
+        this.updateStatinterruptLine();
 
         this.regs.stat |= this.mode;
     }
@@ -429,9 +434,12 @@ class PPU {
     /**
      * STAT interrupt blocking
      */
-    updateStatInteruptLine() {
+    updateStatinterruptLine() {
         const prevLine = this.statInterrupt;
         this.statInterrupt = false;
+
+        if(!this.lcdEnabled)
+            return;
 
         if(this.mode == PPUMODE.scanlineOAM && UInt8.getBit(this.regs.stat, 5)) {
             this.statInterrupt = true;
