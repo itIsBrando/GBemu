@@ -102,6 +102,12 @@ class HDMA {
         if(!cpu.cgb)
             return;
 
+        if(this.source >= 0x8000 && this.source < 0xa000) {
+            this.len = 0;
+            this.enable = false;
+            return;
+        }
+
         // if we are in the middle of a HDMA Transfer but we want to stop it.
         if(!mode && this.enable)
         {
