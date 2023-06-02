@@ -1,5 +1,7 @@
 class Timer {
-    constructor() {
+    constructor(cpu) {
+        this.parent = cpu;
+        
         this.regs = {
             tima: 0,
             div: 0,
@@ -78,9 +80,7 @@ class Timer {
         return 0xFF;
     }
 
-    step(cpu) {
-        let cycles = cpu.cycles;
-        
+    step(cycles) {        
         this.increaseDiv(cycles);
 
         // return if timer is disabled
@@ -97,7 +97,7 @@ class Timer {
             // if we are about to overflow
             if(this.regs.tima == 0xFF) {
                 this.regs.tima = this.regs.tma;
-                cpu.requestInterrupt(InterruptType.timer);
+                this.parent.requestInterrupt(InterruptType.timer);
             } else {
                 this.regs.tima++;
             }

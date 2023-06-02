@@ -237,7 +237,7 @@ class CPU {
         // cycles ran for this setInterval tick
         this.currentCycles = 0;
 
-        this.timerRegs = new Timer();
+        this.timerRegs = new Timer(this);
         this.hdma = new HDMA(this);
         this.ppu = new PPU(this);
         this.serial = new SerialPort(this);
@@ -260,7 +260,7 @@ class CPU {
             c: false,
             hc:false,
             n: false
-        }
+        };
 
         this.isHalted = false;
         this.interrupt_master = false;
@@ -373,13 +373,14 @@ class CPU {
                 if(this.isHalted) {
                     this.isHalted = false;
                     this.pc.v++; // skip the HALT instruction
+                    this.cycles += 4;
                 }
 
                 this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
                 this.interrupt_master = false;
                 this.pushStack(this.pc.v);
                 this.pc.v = handlerAddress[i];
-                this.cycles += 12;
+                this.cycles += 5 * 4;
                 return;
             }
         }
@@ -737,7 +738,7 @@ class CPU {
         }
 
         // update timers
-        this.timerRegs.step(this);
+        this.timerRegs.step(this.cycles);
 
         // handle interrupts
         this.serviceInterrupts();
