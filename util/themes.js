@@ -76,7 +76,9 @@ var Themes = new function() {
         const newTheme = uiThemeButton.innerText == "dark" ? "light" : "dark";
 
         Settings.set_core("uitheme", newTheme);
-        document.body.className = newTheme == "dark" ? "ui-dark-theme" : "ui-light-theme";
+        document.body.classList.remove("ui-light-theme");
+        document.body.classList.remove("ui-dark-theme");
+        document.body.classList.add(newTheme == "dark" ? "ui-dark-theme" : "ui-light-theme");
         uiThemeButton.innerText = newTheme;
 
     }

@@ -16,11 +16,30 @@ const STATE = {
     READ_EXTRA: 2,  // reading extra 16-bit data (WRAL & WRITE) 
 };
 
+const INPUT = {
+    ACCELEROMETER: 0,
+    MOUSE: 1,
+};
+
+
 class EEPROM {
     constructor(parent) {
-        this.x = 0; // 16-bit value
-        this.y = 0; // 16-bit value
+        this.sensitivity = 5;
+        this.x = 0x7fff; // 16-bit value
+        this.y = 0x7fff; // 16-bit value
+        this.accelX = 0; // raw data from the accelerometer if present
+        this.accelY = 0; // raw data from the accelerometer if present
         this.latched = false;
+        this.inputMode = 'ondevicemotion' in window ? INPUT.ACCELEROMETER : INPUT.MOUSE;
+
+        Menu.message.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
+        'Allow Accelerometer?', false, null, (e)=> {
+            window.addEventListener("devicemotion", (e) => {
+                this.accelX = -Math.trunc(e.accelerationIncludingGravity.x * 10 / 9.82) / 10;
+                this.accelY =  Math.trunc(e.accelerationIncludingGravity.y * 10 / 9.82) / 10;
+            });
+            
+        });
 
         this.DO = 0;
         this.DI = false;
@@ -40,18 +59,15 @@ class EEPROM {
 
 
     getX() {
-        if(this.latched)
-            return this.x;
-        else
-            return 0x8000;
+        // max is 2g
+        let ax = this.accelX * this.sensitivity;
+        return (0x81d0 + ax) & 0xffff;
     }
 
     
     getY() {
-        if(this.latched)
-            return this.y;
-        else
-            return 0x8000;
+        let ay = this.accelY * this.sensitivity;
+        return (0x81d0 + ay) & 0xffff;
     }
 
 
@@ -61,13 +77,13 @@ class EEPROM {
             case 0xa010:
                 return 0xff;
             case 0xa020: // x low
-                return this.getX() & 0xff;
+                return this.x & 0xff;
             case 0xa030: // x high
-                return this.getX() >> 8;
+                return this.x >> 8;
             case 0xa040: // y low
-                return this.getY() & 0xff;
+                return this.y & 0xff;
             case 0xa050: // y high
-                return this.getY() >> 8;
+                return this.y >> 8;
             case 0xa060: // z axis (unknown)
                 return 0x00;
             case 0xa070: // z axis (unknown)
@@ -92,12 +108,18 @@ class EEPROM {
     write(address, byte) {
         switch(address & 0xf0f0) {
             case 0xa000: // reset latched data @todo
-                if(byte == 0x55)
+                if((byte & 0x55) == 0x55) {
                     this.latched = false;
+                    this.x = 0x7fff;
+                    this.y = 0x7fff;
+                }
                 break;
             case 0xa010: // latch
-                if(byte == 0xaa)
+                if(!this.latched && byte == 0xaa) {
                     this.latched = true;
+                    this.x = this.getX();
+                    this.y = this.getY();
+                }
                 break;
             case 0xa080: // eeprom write
                 const newCLK = UInt8.getBit(byte, 6);

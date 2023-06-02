@@ -4,7 +4,6 @@ class MBC7 extends MBC5 {
 
         this.ramEnable2 = false;
         this.eeprom = new EEPROM(this);
-        Menu.message.show("MBC not fully supported", "MBC7");
     }
 
     acceptsWrite(addr) {
@@ -20,7 +19,7 @@ class MBC7 extends MBC5 {
     write8(address, byte) {
         // 0x0000-0x1FFF RAM enable (MBC1)
         if(address < 0x2000) {
-            this.ramEnable = (byte == 0x0a)
+            this.ramEnable = byte == 0x0a;
         // 0x2000-0x3FFF set ROM bank
         } else if(address < 0x4000) {
             this.bank = byte % this.TOTAL_BANKS;
@@ -33,9 +32,6 @@ class MBC7 extends MBC5 {
             // EEPROM
             if(this.isRAMEnabled())
                 this.eeprom.write(address, byte);
-            else
-                return false;
-            
         }
     }
     
