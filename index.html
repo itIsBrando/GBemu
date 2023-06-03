@@ -28,7 +28,7 @@
         }
 
         .ui-light-theme {
-            --ui-background: aliceblue;
+            --ui-background: ghostwhite;
             --ui-primary-button: #ddd;
             --ui-secondary-button:#454555;
             --ui-text: black;
@@ -467,7 +467,7 @@
             <div class="debug-box" style="overflow: auto;">
                 <input type="file" name="symFile" id="symFile" accept="*.sym" style="display:none;">
                 <pre style="margin: 0px;">   addr   opcode     mnemonic</pre>
-                <pre id="DisasmContent" class="debug-text"></pre>
+                <pre id="DisasmContent" style="width: 100vw;" class="debug-text"></pre>
             </div>
             <!-- Register DIV -->
             <div style="overflow: hidden auto; height: calc(100% - 30px);" class="debug-box">
