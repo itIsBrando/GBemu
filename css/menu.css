@@ -132,7 +132,7 @@
     margin: 0px 6px;
     transition: 0.15s;
     opacity: 0.5;
-    border: 2px solid var(--ui-primary-button);
+    border: 2px solid var(--ui-secondary-button);
     float: right;
 }
 
@@ -235,7 +235,7 @@
 
 .selection-menu button:hover {
     background-color: var(--ui-background-text);
-    color: var(--ui-text);
+    color: var(--ui-background);
     filter: brightness(0.9);
 }
 
