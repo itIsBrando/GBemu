@@ -77,8 +77,6 @@ class Renderer {
      * Renders a scanline
      */
     renderScanline() {
-        const cpu = this.parent;
-
         if(Renderer.frameSkip) {
             return;
         }
@@ -104,7 +102,7 @@ class Renderer {
         for(let i = 0; i <= 20; i++) {
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
-            const tileNum = this.parent.read8(mapAddress);
+            const tileNum = this.parent.mem.vram[mapAddress - 0x8000];
             const flags = ppu.getTileAttributes(mapAddress);
             const yFlip = UInt8.getBit(flags, 6);
             
@@ -152,7 +150,7 @@ class Renderer {
             const yFlip = UInt8.getBit(flags, 6);
 
             const tx = yFlip ? 7 - y : y; // tile addr offset
-            const tileAddress = ppu.getBGTileAddress(this.parent.read8(mapAddress)) + (tx << 1);
+            const tileAddress = ppu.getBGTileAddress(this.parent.mem.vram[mapAddress - 0x8000]) + (tx << 1);
             
             this.drawTileLine((x << 3) - 7 + (wx & 7), scanline, tileAddress, flags, Renderer.getPalette(this.parent, true, flags));
         }

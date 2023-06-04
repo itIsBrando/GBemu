@@ -230,10 +230,11 @@ var Debug = new function() {
             c.execute();
             
             if(Debug.isBreakpoint(c.pc.v)) {
-                Debug.stopRunTilBreak();
                 return;
             }
         }
+
+		Menu.alert.show("Breakpoint not found after timeout");
     }
     
 	this.showRegister = function() {

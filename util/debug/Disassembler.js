@@ -63,7 +63,9 @@ var Disassembler = new function() {
         let s = this.getLine(o);
 
         if('highlight' in flags && flags['highlight'] == addr) {
-            s = `<i style="background:teal;">${s}</i>`;
+            s = `<i style="background:var(--ui-text); color:var(--ui-background);">${s}</i>`;
+        } else if(Debug.isBreakpoint(addr)) {
+            s = `<i style="background:red;">${s}</i>`;
         }
 
         let lbl = Opcode.getAddressName(addr);
@@ -208,12 +210,7 @@ var Disassembler = new function() {
             return;
         }
         
-        if(this.timer) {
-            this.stopRunTilBreak();
-        } else {
-            this.timer = setInterval(Debug._runTilBreak, 1);
-            setLEDStatus(true);
-        }
+        Debug._runTilBreak();
     
         if(this.isInRange(c.pc.v))
             this.render();
@@ -239,7 +236,7 @@ var Disassembler = new function() {
 
 
     this.search = function() {
-        const m = new PromptMenu(`Search`, "", /[\w ]+/g, 30, function(str) {
+        const m = new PromptMenu(`Search`, "", /[\w \(\),]+/g, 30, function(str) {
             // search for a string in the disassembly
             str = str.toLowerCase();
             for(let i = Disassembler.base + 1; i < 0xfffe; i++) {

@@ -109,10 +109,10 @@ class HDMA {
         }
 
         // if we are in the middle of a HDMA Transfer but we want to stop it.
-        if(!mode && this.enable)
-        {
+        if(!mode && this.enable) {
+            CPU.LOG(`STOPPED HDMA: ${hex(data)}. Remaining len: ${this.len}. ENA:${this.enable}, Cycles:${this.cycles}\n SRC:${hex(this.source)}, Dest: ${hex(this.destination, 4)}\nPPU mode:${this.parent.ppu.mode}`);
             this.enable = false;
-            CPU.LOG("STOPPED HMDA:" + hex(c.read8(0xff55)));
+            this.len = length;
             return;
         }
 
@@ -123,12 +123,14 @@ class HDMA {
                 cpu.write8(this.destination++, byte);
             }
 
-            cpu.cycles += 32 * (length + 1);
+            cpu.cycles += 32 * (length + 1) + 4;
 
             // reads to HDMA5 will be 0xff
             this.enable = false;
             this.len = 0x7f;
         } else {
+            if(this.enable)
+                CPU.LOG(`HDMA Restarted. cur length:${this.len}`)
             this.enable = true;
             this.len = length;
         }
@@ -143,10 +145,10 @@ class HDMA {
     tick(cycles) {
         this.cycles += cycles;
         
-        if(this.cycles < 0x20)
+        if(this.cycles < (0x20 << this.parent.ppu.cgb.speed_mode))
             return;
 
-        this.cycles = 0;
+        this.cycles -= (0x20 << this.parent.ppu.cgb.speed_mode);
             
         for(let i = 0; i < 0x10; i++)
             this.parent.write8(this.destination + i, this.parent.read8(this.source + i));

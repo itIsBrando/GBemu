@@ -478,12 +478,12 @@
                 <button type="button" class="disasm-btn" onclick="Disassembler.step();">step</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.stepLine();">run to next
                     line</button>
-                <!-- <button type="button" class="disasm-btn" onclick="Disassembler.runToBreak();">run until break</button> -->
+                <button type="button" class="disasm-btn" onclick="Disassembler.runToBreak();">run until break</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.stepOut();">step out</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.goto();">goto</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.search();">search</button>
                 <button type="button" class="disasm-btn" onclick="Disassembler.resetGame();">reset</button>
-                <!-- <button type="button" class="disasm-btn" onclick="Debug.showBreak();">breakpoints</button> -->
+                <button type="button" class="disasm-btn" onclick="Debug.showBreak();">breakpoints</button>
                     <!-- <button style="width:100%;" type="button" class="menubtn" title="Add define list from RGBDS sym file."
                     onclick="document.getElementById('symFile').click();">Upload sym file</button> -->
             </div>
@@ -695,6 +695,8 @@
         // for loading ROM
         inputForm.addEventListener('change', function () {
             let reader = new FileReader();
+
+            CPU.LOG(`File: ${this.files[0].name}`);
 
             reader.readAsArrayBuffer(this.files[0]);
             

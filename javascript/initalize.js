@@ -7,6 +7,10 @@ var c = new CPU();
  * @param {ArrayBuffer} rom
  */
 function startEmulation(rom) {
+    if(c.isLoaded) {
+        useExternalSaveFile = false;
+    }
+
     clearInterval(c.timer);
     c.initialize();
     c.loadROM(rom);
@@ -35,9 +39,9 @@ function pauseEmulation() {
     if(!c.isRunning || c.timer == null)
         return;
 
-    c.apu.mute();
     clearInterval(c.timer);
     c.timer = null;
+    c.apu.mute();
     setLEDStatus(false);
     
 };
@@ -59,8 +63,8 @@ function resumeEmulation() {
     if(!c.romLoaded || c.timer != null)
         return;
 
-    c.timer = setInterval(run, INTERVAL_SPEED);
     c.apu.unmute();
+    c.timer = setInterval(run, INTERVAL_SPEED);
     setLEDStatus(true);
 }
 
@@ -88,9 +92,8 @@ function run() {
 
     c.haltedCycles = 0;
 
-    while(c.currentCycles < totalIteration)
-    {
-        if(c.execute() == false) break;
+    while(c.currentCycles < totalIteration) {
+        c.execute();
     }
 
     if(c.powerConsumptionShown && (frames++ % 125) == 0) {

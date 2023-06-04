@@ -212,9 +212,7 @@ class PPU {
      * @returns 1 if we are using first VRAM bank, otherwise 0
      */
     getVRAMBank() {
-        if(this.parent.cgb && this.cgb.vbank)
-            return 1;
-        return 0;
+        return this.cgb.vbank;
     }
 
 
@@ -282,7 +280,7 @@ class PPU {
                 break;
             case 0x4F:
                 // cgb only
-                this.cgb.vbank = byte & 0x1;
+                this.cgb.vbank = this.parent.cgb ? byte & 0x1 : 0;
                 break;
             case 0x68:
                 // cgb only (BCPS/BGPI)
@@ -305,11 +303,11 @@ class PPU {
 
     // mode 2 and 3 cannot access OAM (fe00-fe9f)
     oamAccessible() {
-        return this.mode != PPUMODE.scanlineOAM && this.mode != PPUMODE.scanlineVRAM;
+        return !this.lcdEnabled || (this.mode != PPUMODE.scanlineOAM && this.mode != PPUMODE.scanlineVRAM);
     }
 
     vramAccessible() {
-        return this.mode != PPUMODE.scanlineVRAM;
+        return !this.lcdEnabled || (this.mode != PPUMODE.scanlineVRAM);
     }
 
     read8(addr) {
@@ -391,7 +389,6 @@ class PPU {
                     this.mode = PPUMODE.hblank
                     this.parent.hdma.hasCopied = false;
                     this.cycles -= 172;
-                    cpu.renderer.renderScanline();
                     // this.updateStatinterruptLine();
                 }
                 break;
@@ -404,6 +401,7 @@ class PPU {
                         cpu.requestInterrupt(InterruptType.vBlank);
                         // this.updateStatinterruptLine();
                     } else {
+                        cpu.renderer.renderScanline();
                         this.mode = PPUMODE.scanlineOAM;
                         // this.updateStatinterruptLine();
                     }

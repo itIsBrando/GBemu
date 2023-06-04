@@ -40,7 +40,7 @@ class MBC1 {
         this.romBankAddress = 0x4000; // ROM address for the bank number
         this.initRAM();
         this.TOTAL_BANKS = Math.floor(rom.length / 0x4000);
-        this.RAM_BANKS = Math.floor(this.ram.length / 0x2000);
+        this.RAM_BANKS = this.ram ? Math.floor(this.ram.length / 0x2000) : 0;
         this.ramBank = 0;
         this.bank = 1;
 

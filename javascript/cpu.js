@@ -373,7 +373,7 @@ class CPU {
                 if(this.isHalted) {
                     this.isHalted = false;
                     this.pc.v++; // skip the HALT instruction
-                    this.cycles += 4;
+                    this.cycles += 8;
                 }
 
                 this.interrupt_flag = UInt8.clearBit(this.interrupt_flag, i);
@@ -631,7 +631,7 @@ class CPU {
             address -= 0x8000;
 
             if(this.ppu.vramAccessible())
-            return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
+                return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
         } else if(address < 0xC000) {
             // cart RAM
             CPU.LOG("illegal read: " + hex(address, 4));
@@ -696,22 +696,18 @@ class CPU {
         return UInt16.makeWord(high, low);
     }
 
-    execute() {
+    tick() {
         const opcode = this.read8(this.pc.v);
         this.cycles = opcodeCycles[opcode];
 
         // execute opcode
         if(opTable[opcode] == undefined) {
             illegalOpcode(opcode, this, false);
-            return false;
-        } else if(this.hdma.shouldTransfer()) {
-            this.cycles = 4;
-            this.hdma.tick(this.ppu.getAdjustedCycles(4));
+            pauseEmulation();
         } else if(this.isHalted) {
             this.haltedCycles += 4;
             // if interrupts are disabled but we have something pending, then break from HALT
-            if(!this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0)
-            {
+            if(!this.interrupt_master && (this.interrupt_enable & this.interrupt_flag) != 0) {
                 this.skip(1);
                 this.isHalted = false;
             }
@@ -736,12 +732,22 @@ class CPU {
                 this.shouldEI = false;
             }
         }
+                
+        // handle interrupts
+        this.serviceInterrupts();
+    }
+
+
+    execute() {
+        if(this.hdma.shouldTransfer()) {
+            this.cycles = 2;
+            this.hdma.tick(2);
+        } else {
+            this.tick();
+        }
 
         // update timers
         this.timerRegs.step(this.cycles);
-
-        // handle interrupts
-        this.serviceInterrupts();
 
         const adjustedCycles = this.ppu.getAdjustedCycles(this.cycles);
 
@@ -755,7 +761,6 @@ class CPU {
         this.apu.tick(adjustedCycles);
 
         this.currentCycles += this.cycles;
-        return true;
     };
 
     /**
