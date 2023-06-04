@@ -388,6 +388,7 @@ class PPU {
                 if(this.cycles >= 172) {
                     this.mode = PPUMODE.hblank
                     this.parent.hdma.hasCopied = false;
+                    cpu.renderer.renderScanline();
                     this.cycles -= 172;
                     // this.updateStatinterruptLine();
                 }
@@ -401,7 +402,6 @@ class PPU {
                         cpu.requestInterrupt(InterruptType.vBlank);
                         // this.updateStatinterruptLine();
                     } else {
-                        cpu.renderer.renderScanline();
                         this.mode = PPUMODE.scanlineOAM;
                         // this.updateStatinterruptLine();
                     }
