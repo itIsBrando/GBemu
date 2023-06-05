@@ -9,9 +9,11 @@ var Map = new function() {
     const radioButtons = document.getElementsByName("displayMode");
     const MapInfo = document.getElementById('MapInfo');
     const MapCanvas = document.getElementById('MapCanvas');
+    const MapCanvas2 = document.getElementById('MapCanvas2');
+	const MapCursor = document.getElementById('MapCursor');
 
     this.init = function() {
-		MapCanvas.addEventListener("click", function(e) {
+		MapCursor.onclick = MapCursor.onmousemove = function(e) {
 			const rect = this.getBoundingClientRect();
 			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
 			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
@@ -20,11 +22,13 @@ var Map = new function() {
 				Map.printTileInfo(radioButtons[0].checked ? c.ppu.mapBase : c.ppu.winBase, x, y);
 			else
 				Map.printTileInfo(null, x, y);
-		});
+		};
 
 		document.getElementById('mapZoomInput').addEventListener("change", function(e) {
 			const v = e.target.value;
 			MapCanvas.style.width = (v * 256) + 'px';
+			MapCanvas2.style.width = (v * 256) + 'px';
+			MapCursor.style.width = (v * 256) + 'px';
 		});
 
         for(let i = 0; i < radioButtons.length; i++) {
@@ -32,7 +36,38 @@ var Map = new function() {
                 Map.draw();
             });
         };
+
+		this.drawGrid();
     }
+
+	/**
+	 * Draws a gray grid for each tile
+	 */
+	this.drawGrid = function() {
+		const ctx = MapCanvas2.getContext('2d');
+		ctx.clearRect(0, 0, 2048, 2048);
+		ctx.strokeStyle = "#bbb";
+
+		for(let i = 0; i < 32; i++) {
+			for(let j = 0; j < 32; j++)
+				ctx.rect(i * 4 * 8, j * 4 * 8, (i + 1) * 4 * 8, (j + 1) * 8 * 4);
+		}
+
+		ctx.stroke();
+	}
+
+	this.drawCursor = function(tx, ty) {
+		const ctx = MapCursor.getContext("2d");
+		tx <<= 4, ty <<= 4;
+
+		ctx.clearRect(0, 0, 512, 512);
+		ctx.beginPath();
+		ctx.lineWidth = 1;
+		ctx.lineCap = 'square';
+		ctx.strokeStyle = '#111';
+		ctx.rect(tx, ty, 16, 16);
+		ctx.stroke();
+	}
 
     /**
      * Draws the map or window onto the canvas
@@ -51,7 +86,7 @@ var Map = new function() {
 		{
 			for(let x = 0; x < 32; x++)
 			{
-				const tileNum = c.read8(mapBase++);
+				const tileNum = c.mem.vram[mapBase++ - 0x8000];
 
 				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, true, screen, 256);
 			}
@@ -86,10 +121,10 @@ var Map = new function() {
 		let s = ``;
 
 		tx &= 31, ty &= 31;
-
+		
 		const offset = tx + ty * 32;
 		const mapAddr = offset + mapBase;
-		const tile = mapBase ? c.read8(mapAddr) : offset;
+		const tile = mapBase ? c.mem.vram[mapAddr - 0x8000] : offset;
 		const addr = c.ppu.getBGTileAddress(tile);
 
 		s += `Tile: \
@@ -104,21 +139,7 @@ var Map = new function() {
 		TileInfo.innerHTML = s + "</div>";
 		this.setPreview(tile);
 
-		const ctx = MapCanvas.getContext("2d");
-		tx <<= 3, ty <<= 3;
-		ty += 0.5;
-
-		if(mapBase != null)
-			this.draw();
-		else
-			Tiles.draw();
-
-		ctx.beginPath();
-		ctx.lineWidth = 1;
-		ctx.lineCap = 'square';
-		ctx.strokeStyle = '#111';
-		ctx.rect(tx, ty, 7.5, 7);
-		ctx.stroke();
+		this.drawCursor(tx, ty);
 	}
 
     /**
@@ -145,9 +166,8 @@ var Map = new function() {
 		showElement(MapInfo);
 
 		div.className = "debug-map-div";
-		MapCanvas.name = "map";
-
-		MapCanvas.click();
+		MapCursor.name = "map";
+		MapCursor.click();
 
 		this.draw();
 

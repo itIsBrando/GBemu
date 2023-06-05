@@ -1,6 +1,9 @@
-#MapCanvas {
+.debug-map-canvas {
     aspect-ratio: 1 / 1;
     width: 512px;
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 0;
 }
 
 .debug-tile-div, .debug-map-div {
@@ -201,7 +204,7 @@
 
 #MapCanvasDiv {
     overflow: auto;
-    max-height: calc(100vh - 60px);
+    max-height: 100%;
     margin-bottom: env(safe-area-inset-bottom);
 }
 

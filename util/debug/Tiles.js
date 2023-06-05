@@ -3,6 +3,7 @@
 var Tiles = new function() {
     const div = document.getElementById('MapDiv');
     const MapCanvas = document.getElementById('MapCanvas');
+    const MapCursor = document.getElementById('MapCursor');
 
     /**
      * NOTE SOME TILES ARE CUT OUT AND WRITING OVERFLOWS OUT OF VRAM!! @todo
@@ -32,8 +33,8 @@ var Tiles = new function() {
         showElement(div, 'grid');
 
 		div.className = "debug-tile-div";
-		MapCanvas.name = "tile";
-		MapCanvas.click();
+		MapCursor.name = "tile";
+		MapCursor.click();
 
 		this.draw()
     }

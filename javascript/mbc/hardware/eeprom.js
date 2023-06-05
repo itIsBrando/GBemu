@@ -21,22 +21,25 @@ const INPUT = {
     MOUSE: 1,
 };
 
+// const display = document.getElementById('accel');
+
 
 class EEPROM {
     constructor(parent) {
-        this.sensitivity = 5;
+        this.sensitivity = 0.5;
         this.x = 0x7fff; // 16-bit value
         this.y = 0x7fff; // 16-bit value
         this.accelX = 0; // raw data from the accelerometer if present
         this.accelY = 0; // raw data from the accelerometer if present
-        this.latched = false;
+        this.latched = true;
         this.inputMode = 'ondevicemotion' in window ? INPUT.ACCELEROMETER : INPUT.MOUSE;
 
         Menu.message.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
         'Allow Accelerometer?', false, null, (e)=> {
             window.addEventListener("devicemotion", (e) => {
-                this.accelX = -Math.trunc(e.accelerationIncludingGravity.x * 10 / 9.82) / 10;
-                this.accelY =  Math.trunc(e.accelerationIncludingGravity.y * 10 / 9.82) / 10;
+                this.accelX = -Math.trunc(e.accelerationIncludingGravity.x * 10) / 10;
+                this.accelY =  Math.trunc(e.accelerationIncludingGravity.y * 10) / 10;
+                display.innerHTML = `ACCELX: ${this.accelX}, x: ${this.getX()}<br>ACCELY: ${this.accelY} y: ${this.getY()}`;
             });
             
         });
@@ -61,13 +64,13 @@ class EEPROM {
     getX() {
         // max is 2g
         let ax = this.accelX * this.sensitivity;
-        return (0x81d0 + ax) & 0xffff;
+        return (0x0800 + ax) & 0xffff;
     }
 
     
     getY() {
         let ay = this.accelY * this.sensitivity;
-        return (0x81d0 + ay) & 0xffff;
+        return (0x0800 + ay) & 0xffff;
     }
 
 
@@ -77,12 +80,16 @@ class EEPROM {
             case 0xa010:
                 return 0xff;
             case 0xa020: // x low
+                if(!this.latched) CPU.LOG(`Reading accel unlatched`);
                 return this.x & 0xff;
             case 0xa030: // x high
+                if(!this.latched) CPU.LOG(`Reading accel unlatched`);
                 return this.x >> 8;
             case 0xa040: // y low
+                if(!this.latched) CPU.LOG(`Reading accel unlatched`);
                 return this.y & 0xff;
             case 0xa050: // y high
+                if(!this.latched) CPU.LOG(`Reading accel unlatched`);
                 return this.y >> 8;
             case 0xa060: // z axis (unknown)
                 return 0x00;
@@ -110,8 +117,7 @@ class EEPROM {
             case 0xa000: // reset latched data @todo
                 if((byte & 0x55) == 0x55) {
                     this.latched = false;
-                    this.x = 0x7fff;
-                    this.y = 0x7fff;
+                    CPU.LOG(`Unlatching accel`);
                 }
                 break;
             case 0xa010: // latch
@@ -119,6 +125,7 @@ class EEPROM {
                     this.latched = true;
                     this.x = this.getX();
                     this.y = this.getY();
+                    CPU.LOG(`latching accel. X:${this.x}, Y: ${this.y}`);
                 }
                 break;
             case 0xa080: // eeprom write

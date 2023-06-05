@@ -424,8 +424,10 @@
                     </div>
                 </div>
             </div>
-            <div id="MapCanvasDiv" class="debug-box">
-                <canvas id="MapCanvas" width="256" height="256"></canvas>
+            <div id="MapCanvasDiv" class="debug-box" style="display: grid;">
+                <canvas id="MapCanvas" class="debug-map-canvas" width="256" height="256"></canvas>
+                <canvas id="MapCanvas2" class="debug-map-canvas" width="1024" height="1024"></canvas>
+                <canvas id="MapCursor" class="debug-map-canvas" width="512" height="512"></canvas>
             </div>
         </div>
         <div id="OamDiv" style="font-family: monospace;">
