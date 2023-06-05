@@ -29,11 +29,11 @@ body {
 }
 
 ::-webkit-scrollbar {
-    background-color: var(--ui-background-text);
+    background-color: var(--ui-background);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--ui-background-text);
+    background-color: var(--ui-background);
 }
 
 h3 {

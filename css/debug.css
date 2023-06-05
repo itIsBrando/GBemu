@@ -75,7 +75,6 @@
     font-family: monospace;
     width: 100%;
     margin: 0px;
-    scrollbar-color: var(--ui-background-text);
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;

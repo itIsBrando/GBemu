@@ -381,7 +381,6 @@ class PPU {
                 if(this.cycles >= 80) {
                     this.mode = PPUMODE.scanlineVRAM
                     this.cycles -= 80;
-                    // this.updateStatinterruptLine();
                 }
                 break;
             case PPUMODE.scanlineVRAM:
@@ -390,7 +389,6 @@ class PPU {
                     this.parent.hdma.hasCopied = false;
                     cpu.renderer.renderScanline();
                     this.cycles -= 172;
-                    // this.updateStatinterruptLine();
                 }
                 break;
             case PPUMODE.hblank:
@@ -400,17 +398,14 @@ class PPU {
                         this.mode = PPUMODE.vblank;
                         cpu.requestBufferCopy();
                         cpu.requestInterrupt(InterruptType.vBlank);
-                        // this.updateStatinterruptLine();
                     } else {
                         this.mode = PPUMODE.scanlineOAM;
-                        // this.updateStatinterruptLine();
                     }
                     this.cycles -= 204;
                 }
                 break;
             case PPUMODE.vblank:
                 if(this.cycles >= 456) {
-                    // this.updateStatinterruptLine();
                     this.regs.scanline++;
                     if(this.regs.scanline > 153) {
                         this.regs.scanline = 0;

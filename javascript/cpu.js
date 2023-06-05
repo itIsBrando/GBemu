@@ -632,6 +632,8 @@ class CPU {
 
             if(this.ppu.vramAccessible())
                 return this.mem.vram[address + 0x2000 * this.ppu.getVRAMBank()];
+            else
+                return 0xff;
         } else if(address < 0xC000) {
             // cart RAM
             CPU.LOG("illegal read: " + hex(address, 4));
