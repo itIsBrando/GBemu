@@ -13,7 +13,7 @@ var Map = new function() {
 	const MapCursor = document.getElementById('MapCursor');
 
     this.init = function() {
-		MapCursor.onclick = MapCursor.onmousemove = function(e) {
+		MapCursor.onclick = MapCursor.onmousemove = MapCursor.ontouchmove = function(e) {
 			const rect = this.getBoundingClientRect();
 			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
 			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
@@ -130,11 +130,16 @@ var Map = new function() {
 		s += `Tile: \
 		${Debug.hex(tile)}<br>\
 		Map Address: ${Debug.hex(mapAddr, 4)}\
-		Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}\
+		<br>Tile Address: ${tile > 255 ? '1:': '0:'}${Debug.hex(addr, 4)}\
 		<br>X: ${tx}<br>Y: ${ty}`;
 
-		if(mapBase != null)
-			s += `<br>Flag: ${Debug.hex(c.ppu.getTileAttributes(offset + mapBase))}`;
+		if(mapBase != null) {
+			const attr = c.ppu.getTileAttributes(offset + mapBase);
+			s += `<br>Palette: ${attr & 7}` +
+			`<br>X-flip: ${(attr >> 5) & 1}` +
+			`<br>Y-flip: ${(attr >> 6) & 1}` +
+			`<br>Priority: ${(attr >> 7) & 1}`;
+		}
         
 		TileInfo.innerHTML = s + "</div>";
 		this.setPreview(tile);

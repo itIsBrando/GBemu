@@ -205,6 +205,7 @@
     border: none;
     z-index: 9;
     transition: all 0.20s ease-in-out;
+    grid-template-rows: min-content;
 }
 
 .selection-menu {

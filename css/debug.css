@@ -170,7 +170,7 @@
 
 .obj-canvas {
     width: 100%;
-    padding: 0px;
+    padding: 5px;
 
 }
 
@@ -199,7 +199,8 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(5, 1fr);
-    gap: 1px;
+    gap: 5px;
+    padding: 5px;
 }
 
 #MapCanvasDiv {
@@ -216,6 +217,7 @@
 @media (orientation: landscape) {
     #OamDiv {
         grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr;
     }
 }
 
