@@ -65,12 +65,19 @@ class Renderer {
 
         const data = this.filter.apply(this.screen);
         this.context.putImageData(data, 0, 0);
-
-        // this.context.putImageData(this.screen, 0, 0);
     }
 
+    /**
+     * Fills the screen with GB color white
+     */
     clearBuffer() {
-        this.screen.data.fill(0xff)
+        for(let i = 0; i < this.screen.data.length; i += 4) {
+            this.screen.data[i] = 208;
+            this.screen.data[i + 1] = 224;
+            this.screen.data[i + 2] = 64;
+            this.screen.data[i + 3] = 255;
+        }
+
     }
 
     /**

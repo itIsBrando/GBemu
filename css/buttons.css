@@ -183,12 +183,15 @@
     grid-template-rows: 1fr min-content;
     background-color: transparent;
     border-radius: 10px;
-    margin: 5px;
+    margin: 10px;
     gap: 0.5em;
+    transition: all 0.25s;
 }
 
 .save-menu-button:hover {
     filter: brightness(0.6);
+    transform: translate(-5px, 0);
+    margin: 1px;
 }
 
 .save-menu-img {
