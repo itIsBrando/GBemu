@@ -22,9 +22,13 @@ class Renderer {
     constructor(cpu) {
         this.context = canvas.getContext('2d');
         
-        
+        /** @TODO DONT flipping use this hacked together method for implementing obj-bg priority
+         * This holds `color indexes` (0-3) of the respective pixel on the screen.
+         * However, this is not enough detail to determine palette or if the pixel was generated from the background or obj
+         */
+        this.scrnIndexes = new Uint8Array(160 * 144);
         this.screen = this.context.getImageData(0, 0, 160, 144);
-        this.clearBuffer();
+        this.fillBuffer(palette[0][0], palette[0][1], palette[0][2]);
         this.filter = new Filter(canvas, 1);
 
         this.context.globalAlpha = 1.0;
@@ -37,7 +41,7 @@ class Renderer {
          * @link https://github.com/shonumi/gbe-plus/commit/15df53c83677062f98915293fc03620af65bd7c4
          */
         this.internalWinOffset = 0;
-        this.drawBuffer();
+        this.drawBuffer(240, 255, 240);
     }
 
     export() {
@@ -70,11 +74,11 @@ class Renderer {
     /**
      * Fills the screen with GB color white
      */
-    clearBuffer() {
+    fillBuffer(r, g, b) {
         for(let i = 0; i < this.screen.data.length; i += 4) {
-            this.screen.data[i] = 208;
-            this.screen.data[i + 1] = 224;
-            this.screen.data[i + 2] = 64;
+            this.screen.data[i] = r;
+            this.screen.data[i + 1] = g;
+            this.screen.data[i + 2] = b;
             this.screen.data[i + 3] = 255;
         }
 
@@ -210,6 +214,20 @@ class Renderer {
         }
     }
 
+    /**
+     * 
+     * @param {Number} oamPriority oam attr bit 7
+     * @param {Number} bgPriority bg tile attr bit 7
+     * @returns 
+     */
+    objHasPriority(oamPriority, bgPriority) {
+        if((this.parent.ppu.regs.lcdc & 1) == 0)
+            return true;
+        if(oamPriority == 0&& bgPriority == 0)
+            return true;
+        return false;
+    }
+
 
     /**
      * @param {number} x 
@@ -228,30 +246,46 @@ class Renderer {
         // override VRAM bank reading
         tileAddress -= 0x8000;
         // if we are using bank 1
-        if(UInt8.getBit(flags, 3)) {
+        if(flags & (1 << 3)) {
             tileAddress += 0x2000;
         }
 
         let byte1 = cpu.mem.vram[tileAddress];
         let byte2 = cpu.mem.vram[tileAddress + 1];
+
         // since there are four bytes per pixel, we must times by 4
         let canvasOffset = (x + (xFlip?0:7) + y * 160) << 2;
+        let canvasDelta = xFlip ? +4 : -4;
 
         for(let i = 0; i < 8; i++) {
             const index = (byte1 & 1) | ((byte2 & 1) << 1);
+            const dx = xFlip ? i : 7 - i;
             byte1 >>= 1;
             byte2 >>= 1;
-            const dx = xFlip ? i : 7 - i;
             if(((isObj && index == 0)) || ((x + dx) < 0 || (x + dx) >= 160)) {
-                canvasOffset = xFlip ? canvasOffset + 4 : canvasOffset - 4;
+                canvasOffset += canvasDelta;
                 continue;
+            }
+
+            // must account for priorities
+            if(isObj) {
+                const tx = (cpu.ppu.regs.scx + (x + dx)) >> 3;
+                const ty = (cpu.ppu.regs.scy + y) >> 3;
+                const tileAddr = tx + (ty << 5) + cpu.ppu.mapBase; // points to tile
+                const tileAttr = cpu.ppu.getTileAttributes(tileAddr)
+
+                if(!this.objHasPriority(flags & 0x80, tileAttr & 0x80) && this.scrnIndexes[canvasOffset >> 2] != 0) {
+                    canvasOffset += canvasDelta;
+                    continue;
+                }
             }
             
             const col = pal[index];
+            this.scrnIndexes[canvasOffset >> 2] = index;
             this.screen.data[canvasOffset + 0] = col[0];
             this.screen.data[canvasOffset + 1] = col[1];
             this.screen.data[canvasOffset + 2] = col[2];
-            canvasOffset = xFlip ? canvasOffset + 4 : canvasOffset - 4;
+            canvasOffset += canvasDelta;
         }
     }
 
