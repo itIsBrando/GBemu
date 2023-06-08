@@ -198,12 +198,12 @@ class PPU {
         if(v == true) {
             if(!this.lcdEnabled) {
                 this.cycles = 0;
-                this.regs.scanline = 0;
                 this.mode = PPUMODE.hblank;
             }
             this.regs.lcdc |= 0x80;
         } else {
             this.regs.lcdc &= 0x7F;
+            this.regs.scanline = 0;
         }
     }
 
