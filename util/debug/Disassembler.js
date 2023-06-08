@@ -208,14 +208,38 @@ var Disassembler = new function() {
         if(Debug.breakpoints.length == 0) {
             Menu.message.show("Add a breakpoint first.", "No Breakpoints");
             return;
+        } else if(!c.romLoaded) {
+            Menu.message.show("Load a ROM before using breakpoints.", "No ROM Loaded");
+            return;
         }
         
-        Debug._runTilBreak();
+        this._runTilBreak();
+
+        Debug.quit(false);
+        pauseEmulation();
     
-        if(this.isInRange(c.pc.v))
-            this.render();
-        else
-            this.render(c.pc.v);
+        // if(this.isInRange(c.pc.v))
+        //     this.render();
+        // else
+        //     this.render(c.pc.v);
+    }
+
+    this._runTilBreak = function() {
+        let i = 0;
+
+        while(i < 0x400000 / 1000 * 20) {
+            c.execute();
+            
+            if(Debug.isBreakpoint(c.pc.v)) {
+                Debug.start(false);
+                Menu.alert.show("Breakpoint hit")
+                return;
+            }
+
+            i += c.cycles;
+        }
+
+        setTimeout(Disassembler._runTilBreak, 20);
     }
 
     this.goto = function() {

@@ -20,8 +20,12 @@ var Debug = new function() {
 		hideElement(PalDiv);
 	}
 
-	this.start = function() {
-		showElementFadeIn(DebugDiv, 'grid');
+	this.start = function(fadeIn = true) {
+		if(fadeIn)
+			showElementFadeIn(DebugDiv, 'grid');
+		else
+			showElement(DebugDiv, 'grid');
+		
 		this.hideOpen();
 		pauseEmulation();
 		this.enabled = true;
@@ -169,10 +173,13 @@ var Debug = new function() {
 		m.show();
 	}
 
-	this.quit = function() {
+	this.quit = function(fadeOut = true) {
 		this.enabled = false;
 		Themes.setStatusBar();
-		hideElementFadeOut(DebugDiv);
+		if(fadeOut)
+			hideElementFadeOut(DebugDiv);
+		else
+			hideElement(DebugDiv);
 
         this.hideBreak();
 		resumeEmulation();
@@ -223,19 +230,6 @@ var Debug = new function() {
 
 		return this.breakpoints[pc] == true;
 	}
-    
-    
-    this._runTilBreak = function() {
-        for(let i = 0; i < 0x400000 / 1000; i++) {
-            c.execute();
-            
-            if(Debug.isBreakpoint(c.pc.v)) {
-                return;
-            }
-        }
-
-		Menu.alert.show("Breakpoint not found after timeout");
-    }
     
 	this.showRegister = function() {
 		// name, keys, length of number
