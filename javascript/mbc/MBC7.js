@@ -28,7 +28,7 @@ class MBC7 extends MBC5 {
         } else if(address < 0x6000) {
             if(this.ramEnable)
                 this.ramEnable2 = byte == 0x40;
-        } else if(address >= 0xa000 && address < 0xc000) {
+        } else if(address >= 0xa000 && address < 0xb000) {
             // EEPROM
             if(this.isRAMEnabled())
                 this.eeprom.write(address, byte);
@@ -40,7 +40,7 @@ class MBC7 extends MBC5 {
         if(address >= 0x4000 && address < 0x8000) {
             return super.read8(address);
         // RAM A000-BFFF
-        } else if(address >= 0xA000 && address < 0xC000) {
+        } else if(address >= 0xa000 && address < 0xb000) {
             if(this.isRAMEnabled())
                 return this.eeprom.read(address);
             else
