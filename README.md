@@ -9,21 +9,38 @@
  - Full mobile support
 
 ## Emulation Features
- - Support for MBCs 1-5
- - Partial audio support (channels 1 & 2)
+ - Support for MBCs 1-5 & 7
  - Saving and loading .sav files and savestates.
  - Saving in browser with [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
- - Palette customization
+ - Palette customization (DMG) & Color Correction (GBC)
+ - Graphical upscaling
+ - Partial audio support (channels 1 & 2)
  - Keyboard, touch, and controller support
  - GBC double speed mode
- - Support for the rumble pack
+ - Support for the rumble pack & Accelerometer on supported devices
  - Debugger and disassembler
-
- *note* most games work but may have graphical glitches in GBC mode.
 
 
  ## Future Plans
- - Gyroscope support
- - OAM/BG priority
  - Link Cable
+ - MBC 6
  - Multi-cart memory controllers
+
+
+## Color Correction Modes
+In order to account for modern screens, there are a few different color modes described below:
+### Prescaled
+Linearly scales the intensity of colors. Often causes games to be oversaturated.
+
+### Desaturate
+Desaturates colors, probably looks the best of all options.
+
+### Gamma
+This is a gamma filter coupled with accurate color balancing.
+@todo needs more investigation
+
+## Rumble pack & Accelerometer
+Both futures are supported on devices that support them.
+If your device supports the Vibration API, then games supporting rumble pack will automatically vibrate. This feature can usually be disabled within the game itself.
+
+When starting a game with MBC7, a prompt will appear informing you whether your device supports access to/presence of an accelerometer. No calibration is necessary as the game will do so by default.
