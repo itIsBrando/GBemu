@@ -1,3 +1,73 @@
+
+var CoreSetting = new function() {
+    this.registeredNames = [];
+    this.indexes = {};
+    this.possibleValues = {};
+    this.onchanges = {}; /* Dictionary of functions */
+
+    /**
+     * @param {String} name
+     * @param {Dictionary} possibleValues
+     * @param {Number} initialValueIndex
+     * @param {Function} onchange optional callback function called opon changing and registration. Passes the current setting's index as a parameter
+     */
+    this.register = function(name, possibleValues, initialValueIndex, onchange=null) {
+        if(this.registeredNames.includes(name)) {
+            return "Setting already registered";
+        }
+
+        this.registeredNames.push(name);
+        this.possibleValues[name] = possibleValues;
+        this.onchanges[name] = onchange;
+
+        const curValue = Settings.get_core(name);
+        if(curValue === null) {
+            this.indexes[name] = initialValueIndex;
+        } else {
+            this.indexes[name] = Math.max(0, possibleValues.indexOf(curValue));
+        }
+
+        if(onchange)
+            onchange(this.indexes[name]);
+    }
+
+    this.next = function(name) {
+        let i = this.indexes[name];
+        i++;
+        if(i >= this.possibleValues[name].length)
+            i = 0;
+        
+        this.indexes[name] = i;
+
+        const val = this.getVal(name);
+        Settings.set_core(name, val);
+
+        if(this.onchanges[name])
+            this.onchanges[name](this.indexes[name]);
+
+        return val;
+    }
+
+    this.setVal = function(name, val) {
+        const i = this.possibleValues[name].indexOf(val);
+
+        if(i == -1) {
+            this.indexes[name] = 0;
+            return `Value ${val} no in ${name}`;
+        }
+
+        this.indexes[name] = i;
+        Settings.set_core(name, val);
+    }
+
+    this.getVal = function(name) {
+        const i =  this.indexes[name];
+
+        return this.possibleValues[name][i];
+    }
+}
+
+
 var Settings = new function() {
     const CORE_PREFIX = "__core_";
     const MainDiv = document.getElementById('SettingsDiv');
@@ -11,7 +81,7 @@ var Settings = new function() {
         key = CORE_PREFIX + key;
         const value = localStorage.getItem(key);
         
-        if(value)
+        if(value !== null)
             return value;
 
         localStorage.setItem(key, def);

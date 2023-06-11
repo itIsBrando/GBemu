@@ -1,7 +1,9 @@
 
-
+/**
+ * This module originally describes the user's `skin` but
+ *  code relating to the UI theme has been tied in.
+ */
 var Themes = new function() {
-    this.curTheme = 0;
     const themes = [
         "none",
         "icy-blue-theme",
@@ -13,15 +15,13 @@ var Themes = new function() {
         "green-theme",
     ];
     const uiThemeButton = document.getElementById('uiThemeButton');
+    this.prefersDarkUITheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.curTheme = 0;
 
     this.init = function() {
         const t = Settings.get_core("theme", 0);
 
         Themes.apply(Number(t));
-
-        // change UI theme
-        if(Settings.get_core("uitheme", "dark") == "light")
-            Themes.changeUI();
     }
 
     this.set_theme_color = function(color) {
@@ -72,15 +72,27 @@ var Themes = new function() {
     }
 
 
-    this.changeUI = function() {
-        const newTheme = uiThemeButton.innerText == "dark" ? "light" : "dark";
+    this.setUI = function(i) {
+        // auto/system
+        let theme = CoreSetting.getVal("UITheme");
 
-        Settings.set_core("uitheme", newTheme);
+        uiThemeButton.innerText = theme;
+        this.applyUITheme(theme);
+    }
+
+    this.applyUITheme = function(theme) {
         document.body.classList.remove("ui-light-theme");
         document.body.classList.remove("ui-dark-theme");
-        document.body.classList.add(newTheme == "dark" ? "ui-dark-theme" : "ui-light-theme");
-        uiThemeButton.innerText = newTheme;
 
+        document.body.classList.add(theme == "dark" || (theme == "system" && this.prefersDarkUITheme) ? "ui-dark-theme" : "ui-light-theme");
     }
 
 };
+
+/**
+ * To detect user's current system theme
+ */
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    Themes.prefersDarkUITheme = event.matches;
+    Themes.applyUITheme(CoreSetting.getVal("UITheme"));
+});

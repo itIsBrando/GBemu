@@ -3,14 +3,20 @@ const PPUMODE = {
     vblank:      1,
     scanlineOAM: 2,
     scanlineVRAM:3,
-}
+};
 
 const PPUMODE_CYCLES = {
     0: 204,
     1: 456,
     2: 80,
     3: 172,
-}
+};
+
+const ColorMode = {
+    SCALED: 0,
+    GAMMA: 1,
+    DESATURATE: 2,
+};
 
 class PPU {
     /**
@@ -23,6 +29,7 @@ class PPU {
         this.mode = PPUMODE.vblank;
         this.cycles = 0;
         this.statInterrupt = 0;
+        this.colorMode = ColorMode.SCALED;
     
         this.regs = {
             lcdc: 0, // ff40
@@ -468,62 +475,76 @@ class PPU {
         }
     }
 
+    
+    translateColor(r, g, b) {
+        r <<= 3, g <<= 3, b <<= 3;
+
+        switch(this.colorMode) {
+            case ColorMode.DESATURATE:
+                const l = 0.3 * r + 0.6 * g + 0.1 * b;
+                const f = 0.5;
+                return [Math.floor(r + f * (l - r)), Math.floor(g + f * (l - g)), Math.floor(b + f * (l - b))];
+            case ColorMode.GAMMA:
+                r /= (0x1f * 8); // intensity (0-1)
+                g /= (0x1f * 8); // intensity (0-1)
+                b /= (0x1f * 8); // intensity (0-1)
+                r **= 7/2;
+                g **= 7/2;
+                b **= 7/2;
+
+                const tr = 0xff * r + 0xc1 * g + 0x3b * b;
+                const tg = 0x71 * r + 0xd6 * g + 0xce * b;
+                const tb = 0x45 * r + 0x50 * g + 0xff * b;
+                return [tr, tg, tb];
+            case ColorMode.SCALED:
+            default:
+                return [r, g, b];
+        }
+    }
+
     // must convert this modified palette into usable RGB
     updateBackgroundRGB(bgi, byte) {
         const palNum = bgi >> 3;
         const colorIndex = (bgi >> 1) & 3;
-        const a = (bgi & 0x1) == 1;
         
-        if(a)
+        if((bgi & 0x1) == 1)
             byte &= 0x7F;
             
         this.cgb.bgPal[bgi] = byte;
         // ^ this is only used for reading. Functionality is in `rgbBG`
 
-        if(!a) {
-            // write r and g
-            const r = byte & 0x1F;
-            const green_low = UInt8.getRange(byte, 5, 3);
-            const green_high = UInt8.getRange(this.cgb.bgPal[bgi + 1], 0, 2);
-            const g = (green_high << 3) | green_low;
-            this.cgb.rgbBG[palNum][colorIndex][0] = r << 3;
-            this.cgb.rgbBG[palNum][colorIndex][1] = g << 3;
-        } else {
-            // write g
-            const green_low = UInt8.getRange(this.cgb.bgPal[bgi - 1], 5, 3);
-            const green_high = UInt8.getRange(byte, 0, 2);
-            const g = (green_high << 3) | green_low;
-            this.cgb.rgbBG[palNum][colorIndex][1] = g << 3;
-            // write b
-            const b = UInt8.getRange(byte, 2, 5);
-            this.cgb.rgbBG[palNum][colorIndex][2] = b << 3;
-        }
+        bgi &= 0xfffe;
+
+        const rgb555 = UInt16.makeWord(this.cgb.bgPal[bgi + 1], this.cgb.bgPal[bgi]);
+        
+        const r = rgb555 & 0x1f;
+        const g = UInt8.getRange(rgb555, 5, 5);
+        const b = UInt8.getRange(rgb555, 10, 5);
+        const colors = this.translateColor(r, g, b);
+
+        this.cgb.rgbBG[palNum][colorIndex][0] = colors[0];
+        this.cgb.rgbBG[palNum][colorIndex][1] = colors[1];
+        this.cgb.rgbBG[palNum][colorIndex][2] = colors[2];
     }
 
     updateObjectRGB(obji, byte) {
-        this.cgb.objPal[obji] = byte;
-
         const palNum = obji >> 3;
         const colorIndex = (obji >> 1) & 3;
-        const a = obji & 0x1;
 
-        if(a == 0) {
-            // write r and g
-            const r = byte & 0x1F;
-            const green_low = UInt8.getRange(byte, 5, 3);
-            const green_high = UInt8.getRange(this.cgb.objPal[obji + 1], 0, 2);
-            const g = (green_high << 3) | green_low;
-            this.cgb.rgbOBJ[palNum][colorIndex][0] = r << 3;
-            this.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
-        } else {
-            // write g and b
-            const green_low = UInt8.getRange(this.cgb.objPal[obji - 1], 5, 3);
-            const green_high = UInt8.getRange(byte, 0, 2);
-            const g = (green_high << 3) | green_low;
-            const b = UInt8.getRange(byte, 2, 5);
-            this.cgb.rgbOBJ[palNum][colorIndex][1] = g << 3;
-            this.cgb.rgbOBJ[palNum][colorIndex][2] = b << 3;
-        }
+        this.cgb.objPal[obji] = (obji & 0x1) == 1 ? byte & 0x7f : byte;
+
+        obji &= 0xfffe;
+
+        const rgb555 = UInt16.makeWord(this.cgb.objPal[obji + 1], this.cgb.objPal[obji]);
+        
+        const r = rgb555 & 0x1f;
+        const g = UInt8.getRange(rgb555, 5, 5);
+        const b = UInt8.getRange(rgb555, 10, 5);
+        const colors = this.translateColor(r, g, b);
+
+        this.cgb.rgbOBJ[palNum][colorIndex][0] = colors[0];
+        this.cgb.rgbOBJ[palNum][colorIndex][1] = colors[1];
+        this.cgb.rgbOBJ[palNum][colorIndex][2] = colors[2];
     }
     
     writeBGPal(byte) {

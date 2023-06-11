@@ -5,8 +5,9 @@ const FilterType = {
     none: 0,
     scale2x: 1,
     scale3x: 2,
-    length: 3,
 };
+
+const changeFilterElem = document.getElementById('changeFilter');
 
 const FilterScaleFactor = [1, 2, 3];
 
@@ -133,17 +134,6 @@ class Filter {
 
 
     createImageData() {
-        // const outArray = new Uint8ClampedArray(this.width * this.height * 4);
-        // let i = 0;
-
-        // for(let x = 0; x < this.width * this.height; x++) {
-        //     let short = this.out[x];
-
-        //     for(let j = 0; j < 4; j++) {
-        //         outArray[i++] = short & 0xff;
-        //         short >>= 8;
-        //     }
-        // }
         const outArray = new Uint8ClampedArray(this.out.buffer);
 
         return new ImageData(outArray, this.width, this.height);
@@ -167,16 +157,14 @@ class Filter {
     }
 
 
-    static change(elem) {
-        Filter.current++;
-        Filter.current %= FilterType.length;
+    static change(i) {
+        Filter.current = i;
+
+        changeFilterElem.innerText = Object.keys(FilterType)[i];
 
         // set canvas size
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
         
-        // set button text
-        elem.innerText = Object.keys(FilterType)[Filter.current];
-
         c.renderer.drawBuffer();
 
         if(c.romLoaded) {

@@ -284,10 +284,14 @@
                 <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
                     class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
             </label>
-            <!-- Emulation Mode -->
+            <label for="correctionType">Color Correction:
+                <button type="button" name="colorCorrection" id="correctionType" title="Changes GBC correction modes."
+                    class="menubtn settings-btn" onclick="CoreSetting.next('ColorCorrection');"></button>
+                </button>
+            </label>
             <label for="changeFilter">Shader Type:
                 <button type="button" name="emuMode" id="changeFilter" title="Changes video shader."
-                    class="menubtn settings-btn" onclick="Filter.change(this);">none</button>
+                    class="menubtn settings-btn" onclick="CoreSetting.next('ShaderType');">none</button>
             </label>
             <!-- DMG Palette -->
             <label for="dmgPal">DMG Palette Colors:
@@ -329,7 +333,7 @@
             <b class="settings-title">Other</b>
             <label>UI Theme:
                 <button type="button" id="uiThemeButton" title="change UI theme" class="menubtn settings-btn"
-                    onclick="Themes.changeUI();">dark</button>
+                    onclick="CoreSetting.next('UITheme');">dark</button>
             </label>
             <label>Show FPS:
                 <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
@@ -776,6 +780,20 @@
 
         SaveStorage.init();
         Themes.init();
+
+
+
+        CoreSetting.register("ColorCorrection", ["prescaled", "gamma", "desaturate"], 0, function(i) {
+            c.ppu.colorMode = i;
+            document.getElementById('correctionType').innerText = CoreSetting.getVal("ColorCorrection");
+        });
+        CoreSetting.register("ShaderType", ["none", "scale2x", "scale3x"], 0, function(i) {
+            Filter.change(i);
+        });
+        
+        CoreSetting.register("UITheme", ["system", "light", "dark"], 0, function(i) {
+            Themes.setUI(i);
+        });
     </script>
 </body>
 </head>
