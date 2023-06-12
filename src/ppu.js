@@ -30,7 +30,7 @@ class PPU {
         this.cycles = 0;
         this.statInterrupt = 0;
         this.colorMode = ColorMode.SCALED;
-    
+
         this.regs = {
             lcdc: 0, // ff40
             stat: 0, // ff41
@@ -62,7 +62,7 @@ class PPU {
             speed: 1, // CPU speed
             key1: 0, // ff4d
         }
-        
+
         this.reset();
     }
 
@@ -103,7 +103,7 @@ class PPU {
          * rgbOBJ[0-7] grabs the first palette
          * rgbOBJ[x][0] grabs the first (of 4) color of a palette
          * rgbOBJ[x][y][0] grabs the 'red' intensity of a palette
-         * 
+         *
          * they are 8x4x3
          *  - num of palettes
          *  - num of colors in each palette
@@ -128,13 +128,13 @@ class PPU {
         this.regs.bgp = 0;
         this.regs.obj0 = 0;
         this.regs.obj1 = 0;
-        
+
         this.cgb.key1 = 0;
         this.cgb.speed_mode = 0;
-        
+
         this.lcdEnabled = true;
     }
-    
+
     /**
      * Safely gets the flags byte of a tile in VRAM
      * @note CGB Mode only
@@ -157,7 +157,7 @@ class PPU {
 
     /**
      * Adjusts the speed of input cycles for CGB double speed mode.
-     * @param {Number} cycles 
+     * @param {Number} cycles
      * @returns {Number} halves the input cycles if in double speed mode
      */
     getAdjustedCycles(cycles) {
@@ -165,16 +165,16 @@ class PPU {
     }
 
     /**
-     * 
+     *
      * @param {Number} tile 0-255
-     * @returns 
+     * @returns
      */
     getBGTileAddress(tile) {
         // check for signed tile
         tile &= 255;
         if(this.tileBase == 0x9000 && tile > 127)
             tile -= 256;
-        
+
         return this.tileBase + (tile << 4);
     }
 
@@ -192,7 +192,7 @@ class PPU {
     get mapBase() {
         return UInt8.getBit(this.regs.lcdc, 3) ? 0x9C00 : 0x9800;
     }
-    
+
     get winBase() {
         return UInt8.getBit(this.regs.lcdc, 6) ? 0x9C00 : 0x9800;
     }
@@ -475,7 +475,7 @@ class PPU {
         }
     }
 
-    
+
     translateColor(r, g, b) {
         r <<= 3, g <<= 3, b <<= 3;
 
@@ -506,17 +506,17 @@ class PPU {
     updateBackgroundRGB(bgi, byte) {
         const palNum = bgi >> 3;
         const colorIndex = (bgi >> 1) & 3;
-        
+
         if((bgi & 0x1) == 1)
             byte &= 0x7F;
-            
+
         this.cgb.bgPal[bgi] = byte;
         // ^ this is only used for reading. Functionality is in `rgbBG`
 
         bgi &= 0xfffe;
 
         const rgb555 = UInt16.makeWord(this.cgb.bgPal[bgi + 1], this.cgb.bgPal[bgi]);
-        
+
         const r = rgb555 & 0x1f;
         const g = UInt8.getRange(rgb555, 5, 5);
         const b = UInt8.getRange(rgb555, 10, 5);
@@ -536,7 +536,7 @@ class PPU {
         obji &= 0xfffe;
 
         const rgb555 = UInt16.makeWord(this.cgb.objPal[obji + 1], this.cgb.objPal[obji]);
-        
+
         const r = rgb555 & 0x1f;
         const g = UInt8.getRange(rgb555, 5, 5);
         const b = UInt8.getRange(rgb555, 10, 5);
@@ -546,30 +546,30 @@ class PPU {
         this.cgb.rgbOBJ[palNum][colorIndex][1] = colors[1];
         this.cgb.rgbOBJ[palNum][colorIndex][2] = colors[2];
     }
-    
+
     writeBGPal(byte) {
         // cgb only
         const bgi = this.cgb.bgi;
-            
+
         if(this.cgb.bgAutoInc)
         this.cgb.bgi = (this.cgb.bgi + 1) & 0x3F;
-        
+
         if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
             return;
-        
+
         this.updateBackgroundRGB(bgi, byte);
     }
-    
+
     writeOBJPal(byte) {
         // cgb only
         const obji = this.cgb.obji;
 
         if(this.cgb.objAutoInc)
             this.cgb.obji = (this.cgb.obji + 1) & 0x3F;
-            
+
         if(!this.parent.cgb || this.mode == PPUMODE.scanlineVRAM)
             return;
-            
+
         this.updateObjectRGB(obji, byte);
     }
 
