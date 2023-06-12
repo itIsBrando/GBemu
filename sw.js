@@ -37,6 +37,7 @@ const FILES = [
     "./src/mbc/MBC3.js",
     "./src/mbc/MBC5.js",
     "./src/mbc/MBC7.js",
+    "./src/mbc/HuC1.js",
     "./src/serial.js",
     "./src/ppu.js",
     "./src/hdma.js",

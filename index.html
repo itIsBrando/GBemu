@@ -679,6 +679,7 @@
     <script src="src/mbc/MBC3.js"></script>
     <script src="src/mbc/MBC5.js"></script>
     <script src="src/mbc/MBC7.js"></script>
+    <script src="src/mbc/HuC1.js"></script>
     <script src="src/audio/c1.js"></script>
     <script src="src/audio/c2.js"></script>
     <script src="src/audio/c3.js"></script>
@@ -695,6 +696,7 @@
     <script src="src/initalize.js"></script>
     <script src="src/util/palette.js"></script>
     <script src="src/util/touch.js"></script>
+    <!-- <script src="wasm/pkg/wasm.js"></script> -->
     <script type="text/javascript">
         let inputForm = document.getElementById('inputfile');
 
@@ -782,7 +784,6 @@
         Themes.init();
 
 
-
         CoreSetting.register("ColorCorrection", ["prescaled", "gamma", "desaturate"], 0, function(i) {
             c.ppu.colorMode = i;
             document.getElementById('correctionType').innerText = CoreSetting.getVal("ColorCorrection");
@@ -795,6 +796,15 @@
             Themes.setUI(i);
         });
     </script>
+    <!-- <script type="module">
+        import init, {scale2x} from '/wasm/pkg/lib_wasm.js'
+
+        await init();
+
+        Filter.test = scale2x;
+
+        // scale2x(8);
+    </script> -->
 </body>
 </head>
 

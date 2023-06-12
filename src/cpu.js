@@ -60,6 +60,7 @@ const MBCType = {
     MBC_3: 3,
     MBC_5: 5,
     MBC_7: 7,
+    MBC_HuC1: 0xff
 }
 
 /**
@@ -93,6 +94,8 @@ function getMBCType(v) {
             return MBCType.MBC_5;
         case 0x22:
             return MBCType.MBC_7;
+        case 0xff:
+            return MBCType.MBC_HuC1;
         default:
             Menu.message.show(MemoryControllerText[v], "Unsupported MBC type");
     }
@@ -178,7 +181,7 @@ class CPU {
             interrupt_master: this.interrupt_master,
             interrupt_enable: this.interrupt_enable,
             interrupt_flag: this.interrupt_flag,
-    
+
             shouldEI: this.shouldEI,
             shouldDI: this.shouldDI,
         }
@@ -254,7 +257,7 @@ class CPU {
 
         this.pc = new UInt16(0x100);
         this.sp = new UInt16(0xFFFE);
-        
+
         this.flags = {
             z: false,
             c: false,
@@ -278,7 +281,7 @@ class CPU {
             oam : new Uint8Array(0x00A0), // OAM RAM FE00-FE9F
             hram: new Uint8Array(0x0100) // HRAM FF00-FFFF
         };
-        
+
         this.cheats = new Cheats()
     }
 
@@ -329,15 +332,15 @@ class CPU {
         this.isHalted = false;
         this.currentCycles = 0;
         this.ticks = 0;
-        
+
         if(this.mbcHandler)
             this.mbcHandler.reset();
-        
+
         for(let i = 0xFF00; i <= 0xFFFF; i++)
             // skip HDMA
             if(i != 0xFF55)
                 this.write8(i, 0);
-        
+
         this.timerRegs.reset();
         this.ppu.reset();
         this.apu.reset();
@@ -368,7 +371,7 @@ class CPU {
                 // if both bits are set
                 if(!UInt8.getBit(fired, i))
                     continue;
-                
+
                 // if we are HALTed
                 if(this.isHalted) {
                     this.isHalted = false;
@@ -475,7 +478,7 @@ class CPU {
         } else {
             CPU.LOG("ERROR WRITING FROM ADDRESS: 0x" + hex(address, 4));
         }
-        
+
     };
 
     /**
@@ -510,20 +513,22 @@ class CPU {
         // create our memory bank controller
         switch(mbc) {
             case MBCType.MBC_1:
-                this.mbcHandler = new MBC1(untrimmedROM, 1);
+                this.mbcHandler = new MBC1(untrimmedROM, mbc);
                 break;
             case MBCType.MBC_2:
-                this.mbcHandler = new MBC2(untrimmedROM, 2);
-                alert("MBC2 Untested");
+                this.mbcHandler = new MBC2(untrimmedROM, mbc);
                 break;
             case MBCType.MBC_3:
-                this.mbcHandler = new MBC3(untrimmedROM, 3);
+                this.mbcHandler = new MBC3(untrimmedROM, mbc);
                 break;
             case MBCType.MBC_5:
-                this.mbcHandler = new MBC5(untrimmedROM, 5);
+                this.mbcHandler = new MBC5(untrimmedROM, mbc);
                 break;
             case MBCType.MBC_7:
-                this.mbcHandler = new MBC7(untrimmedROM, 7);
+                this.mbcHandler = new MBC7(untrimmedROM, mbc);
+                break;
+            case MBCType.MBC_HuC1:
+                this.mbcHandler = new HuC1(untrimmedROM, mbc);
                 break;
             case MBCType.NONE:
                 this.mbcHandler = null;
@@ -551,7 +556,7 @@ class CPU {
             console.log(str);
     }
 
-    
+
     /**
      * Reads the game title embeded inside the ROM
      * @returns String
@@ -611,7 +616,7 @@ class CPU {
         if(this.cheats.accepts(address))
             return this.cheats.read(address);
         else if(this.mbcHandler && this.mbcHandler.acceptsRead(address))
-            return this.mbcHandler.read8(address);        
+            return this.mbcHandler.read8(address);
         else if(this.ppu.accepts(address))
             return this.ppu.read8(address);
         else if(this.hdma.accepts(address))
@@ -734,7 +739,7 @@ class CPU {
                 this.shouldEI = false;
             }
         }
-                
+
         // handle interrupts
         this.serviceInterrupts();
     }
@@ -755,7 +760,7 @@ class CPU {
 
         // update GPU
         this.ppu.step(adjustedCycles);
-        
+
         // serial port
         this.serial.tick(adjustedCycles);
 

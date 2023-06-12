@@ -9,14 +9,14 @@ var externalSave = null;
 function getRAMSize(size, mbc) {
     const m1Sizes = [ 0, 2048, 8192, 32768, 524288, 131072 ];
     switch(mbc) {
-        case 1:
+        case MBCType.MCB_1:
+        case MBCType.MCB_3:
+        case MBCType.MCB_5:
+        case MBCType.MBC_HuC1:
             return m1Sizes[size];
-        case 2:
+        case MBCType.MCB_2:
             return 512;
-        case 3:
-        case 5:
-            return m1Sizes[size];
-        case 7:
+        case MBCType.MCB_7:
             return 256;
         default:
             Menu.message.show(`RAM Size Unknown for MBC${mbc}.`, "Internal error");
