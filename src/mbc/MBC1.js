@@ -9,14 +9,14 @@ var externalSave = null;
 function getRAMSize(size, mbc) {
     const m1Sizes = [ 0, 2048, 8192, 32768, 524288, 131072 ];
     switch(mbc) {
-        case MBCType.MCB_1:
-        case MBCType.MCB_3:
-        case MBCType.MCB_5:
+        case MBCType.MBC_1:
+        case MBCType.MBC_3:
+        case MBCType.MBC_5:
         case MBCType.MBC_HuC1:
             return m1Sizes[size];
-        case MBCType.MCB_2:
+        case MBCType.MBC_2:
             return 512;
-        case MBCType.MCB_7:
+        case MBCType.MBC_7:
             return 256;
         default:
             Menu.message.show(`RAM Size Unknown for MBC${mbc}.`, "Internal error");
@@ -57,7 +57,7 @@ class MBC1 {
      */
     initRAM() {
         const expectedSize = getRAMSize(this.ramSize, this.mbcNumber);
-        
+
         // if the user loaded an incompatible save, then do not use it
         if(useExternalSaveFile) {
             const len = externalSave.length;
@@ -92,7 +92,7 @@ class MBC1 {
 
     import(data) {
         const d = data["mbc"];
-        
+
         this.bank = d.bank;
         this.ramBank = d.ramBank;
         this.mode = d.mode;
@@ -117,11 +117,11 @@ class MBC1 {
      * @link http://justsolve.archiveteam.org/wiki/GB
      */
     handleExtraData() {
-        
+
     }
 
     /**
-     * 
+     *
      * @param {Array} array raw array of the save data
      */
     static useSaveData(array) {
@@ -142,9 +142,9 @@ class MBC1 {
 
         if((this.bank & 0x1f) == 0)
             this.bank++;
-        
+
         this.bank %= this.TOTAL_BANKS;
-        
+
         this.romBankAddress = this.bank * 0x4000;
     }
 
@@ -177,10 +177,10 @@ class MBC1 {
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
             this.ramEnable = ((byte & 0x0A) == 0x0A) && this.ramSize != 0;
-        // 0x2000-0x3FFF ROM bank number 
+        // 0x2000-0x3FFF ROM bank number
         } else if(address < 0x4000) {
             this.setLowROMBank(byte);
-            
+
         // 0x4000-0x5FFF RAM bank or upper bits of ROM bank
         } else if(address < 0x6000) {
             // set RAM bank if RAM size is 32K
@@ -209,7 +209,7 @@ class MBC1 {
         } else if(address >= 0xA000 && address <= 0xBFFF) {
             if(!this.ramEnable)
                 return;
-                
+
             address -= 0xA000;
             if(this.mode == 0)
             {
@@ -219,7 +219,7 @@ class MBC1 {
             }
         }
     }
-    
+
     read8(address) {
 
         // banks 01-7f
@@ -245,5 +245,5 @@ class MBC1 {
     }
 
 
-    
+
 }
