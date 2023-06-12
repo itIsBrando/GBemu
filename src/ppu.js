@@ -482,7 +482,7 @@ class PPU {
         switch(this.colorMode) {
             case ColorMode.DESATURATE:
                 const l = 0.3 * r + 0.6 * g + 0.1 * b;
-                const f = 0.5;
+                const f = 0.4;
                 return [Math.floor(r + f * (l - r)), Math.floor(g + f * (l - g)), Math.floor(b + f * (l - b))];
             case ColorMode.GAMMA:
                 r /= (0x1f * 8); // intensity (0-1)
