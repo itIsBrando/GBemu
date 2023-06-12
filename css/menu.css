@@ -263,13 +263,6 @@
     border-radius: 5px;
 }
 
-@media (orientation: landscape) {
-    #saveButtonDiv {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-    }
-}
-
 @media (max-width: 500px),
         (max-height: 500px) and (orientation: landscape) {
             .menu-header {
@@ -280,7 +273,7 @@
             .shortcut-text {
                 display: none;
             }
-            
+
             .keybinding-div-child {
                  max-height: calc(100% - 50px);
             }

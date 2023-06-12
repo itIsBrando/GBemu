@@ -6,7 +6,7 @@ const SaveType = {
 class SaveStorage {
     static enableImage = false;
     /**
-     * 
+     *
      * @param {String} label Label text so user knows what save this is or null if unknown
      * @param {Uint8Array} data RAM data
      * @param {SaveType} type 'sav' or 'savestate'
@@ -27,7 +27,7 @@ class SaveStorage {
     populateImage() {
         if(!SaveStorage.enableImage)
             return;
-        
+
         this.img = canvas.toDataURL('image/jpg');
     }
 
@@ -63,7 +63,7 @@ function saveButtonClick(name) {
         SaveManager.save(name, c.mbcHandler.ram, c.readROMName());
     else
         Menu.message.show("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
-    
+
 }
 
 
@@ -87,9 +87,18 @@ const saveButtonDiv = document.getElementById('saveButtonDiv');
 
 let _timer;
 
-function saveButtonOnTouchStart(event) {
-    const btn = this;
+/**
+ * Sets the number of columns of save tiles.
+ */
+function saveButtonDivResize() {
+    const rect = saveButtonDiv.getBoundingClientRect();
+    const cols = Math.max(2, rect.width / 230);
 
+    saveButtonDiv.style.gridTemplateColumns = " 1fr".repeat(cols + 0.5);
+}
+
+
+function saveButtonOnTouchStart(event) {
     _timer = setTimeout(function() {
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
@@ -108,9 +117,9 @@ function saveButtonOnTouchEnd() {
  */
 localSaveButton.addEventListener('click', function() {
     showElement(plusButton);
-    
+
     saveButtonDiv.innerHTML = '';
-    
+
     // This will only get called when the save already exists
     SaveManager.populateSaveHTML(function() {
         if(c.mbcHandler && c.romLoaded) {
@@ -121,7 +130,7 @@ localSaveButton.addEventListener('click', function() {
                 null,
                 _canSave
             );
-            
+
             _delKey = this.value; // save for `_canSave`. this is a poor implementation
         } else {
             Menu.message.show("No ROM is loaded or ROM does not support saving.", "Could Not Save");
@@ -135,7 +144,7 @@ localSaveButton.addEventListener('click', function() {
 
 var SaveManager = new function() {
     this.CUR_VERSION = "0.2.0"; // version of save format
-    
+
     /**
      * @param {Uint8Array} arr
      * @returns {String}
@@ -144,7 +153,7 @@ var SaveManager = new function() {
         let str = "";
 
         for(let i = 0; i < arr.length; i++) {
-            str += hex(arr[i] & 0xFF, 2, "");    
+            str += hex(arr[i] & 0xFF, 2, "");
         }
 
         return str;
@@ -159,7 +168,7 @@ var SaveManager = new function() {
         // if we are not a string or if we are a JSON object in a string
         if(typeof str != "string" || String(str) == "" || str.indexOf("[") != -1)
             return null;
-        
+
         let arr = new Uint8Array(str.length >> 1);
         for(let i = 0; i < str.length; i += 2)
         {
@@ -172,7 +181,7 @@ var SaveManager = new function() {
     }
 
     /**
-     * 
+     *
      * @param {String} key string in localStorage
      * @returns null if not found, otherwise:
      *   - a Uint8Array of the save data IF is type SaveType.SAV
@@ -180,10 +189,10 @@ var SaveManager = new function() {
      */
     this.getSave = function(key) {
         const data = localStorage.getItem(key);
-    
+
         if(!data)
             return null;
-            
+
         const obj = JSON.parse(data);
 
         if(this.getType(key) == SaveType.SAV) {
@@ -192,7 +201,7 @@ var SaveManager = new function() {
             // using new, condensed format
             if(unpacked != null)
                 return unpacked
-            
+
             // support old save type
             return new Uint8Array(Object.values(obj.ram));
         } else {
@@ -250,7 +259,7 @@ var SaveManager = new function() {
         );
     }
 
-    
+
     /**
      * @note does nothing if this menu is already open
      * @returns false if the menu is already open
@@ -259,13 +268,16 @@ var SaveManager = new function() {
 
         if(popupMenu.style.display == "block")
             return false;
-        
+
         showElement(popupMenu);
         Themes.setSettingsBar();
 
         pauseEmulation();
 
         showElementFadeIn(popupMenu);
+
+
+        window.addEventListener('resize', saveButtonDivResize);
     }
 
 
@@ -276,9 +288,10 @@ var SaveManager = new function() {
 
         // now we must delete buttons from popup menu
         saveButtonDiv.innerHTML = "";
+        window.removeEventListener('resize', saveButtonDivResize);
     }
 
-    
+
     this.showing = function() {
         return popupMenu.style.display != "none";
     }
@@ -306,7 +319,7 @@ var SaveManager = new function() {
         for(let i = 0; i < menuItems.length; i++) {
             menuItems[i].value = key;
         }
-        
+
         // delete
         contextMenuDiv.children[0].children[3].onclick = SaveManager.deleteSelf;
 
@@ -316,7 +329,7 @@ var SaveManager = new function() {
                 const sav = localStorage.getItem(key);
                 const label = key.split(' ')[1];
                 delete localStorage[key];
-                
+
                 localStorage.setItem(`${v} ${label}`, sav);
                 localSaveButton.click(); // redraw saves
             });
@@ -385,7 +398,7 @@ var SaveManager = new function() {
 
             if(obj.label != null && romName != null && romName != obj.label)
                 continue;
-            
+
             const btn = document.createElement("button");
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
@@ -416,10 +429,10 @@ var SaveManager = new function() {
 
 
             saveButtonDiv.appendChild(btn);
-    
+
             hasSaves = true;
         }
-    
+
         if(!hasSaves) {
             saveButtonDiv.innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">no saves</p>`;
         } else {
@@ -457,7 +470,7 @@ var SaveManager = new function() {
             const type = state.save_type.checked == ".sav" ? SaveType.SAV : SaveType.SAVESTATE;
             if(v.length == 0)
                 return;
-            
+
             if(!c.romLoaded) {
                 Menu.message.show("Load a ROM before saving.","No ROM Loaded");
                 return;
@@ -495,7 +508,7 @@ var SaveManager = new function() {
 
     /**
      * Attach to button event to delete a localStorage save.
-     * @param {ButtonEvent} e 
+     * @param {ButtonEvent} e
      */
     this.deleteSelf = function(e) {
         key = this.value
@@ -507,7 +520,7 @@ var SaveManager = new function() {
             function() {
                 if(_delKey)
                     delete localStorage[_delKey];
-            
+
                 _delKey = null;
 
                 // visually delete item.
@@ -522,9 +535,9 @@ var SaveManager = new function() {
         );
 
         _delKey = key;
-        
+
     }
-    
+
     /**
     * Loads a key into MBC ram
     * @param {String} key key name in localStorage
@@ -539,9 +552,9 @@ var SaveManager = new function() {
             Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
             return;
         }
-       
+
         SaveManager.hide();
-        
+
         if(type == SaveType.SAV) {
             MBC1.useSaveData(data);
         } else {
@@ -557,7 +570,7 @@ var SaveManager = new function() {
         }
 
         Menu.alert.show(`Loaded <b style="color: var(--ui-accent);">${this.getSaveString(key)}</b>.`);
-    
+
    }
 
 
@@ -582,7 +595,7 @@ var SaveManager = new function() {
 
             const ram = SaveManager.unpack(data["ram"]);
             const name = data['label'].toUpperCase();
-            
+
             this.save(name, ram, SaveType.SAV, name);
         });
 
@@ -625,7 +638,7 @@ localLoadButton.addEventListener('click', function() {
         const key = this.value;
         SaveManager.injectLocalStorage(key);
     });
-    
+
     SaveManager.show();
 })
 
