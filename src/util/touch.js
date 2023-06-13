@@ -57,6 +57,9 @@ for(let i = 0; i < d.length; i++)
 {
     d[i].id = ids[i + 5];
     d[i].innerHTML = squareSample.innerHTML;
+    d[i].getElementsByClassName('gamepad-button-bottom').item(0).classList = 'dpad-button-bottom';
+    d[i].getElementsByClassName('gamepad-button-top').item(0).classList = 'dpad-button-top';
+    console.log(d[i]);
 }
 
 delete d;
@@ -81,7 +84,7 @@ dpad.addEventListener('touchcancel', function(event) {
 /**
  * Handles touch movement
  *  Disables buttons when they move out of viewpoint
- * @param {Event} event 
+ * @param {Event} event
  */
 function touchMove(event) {
     event.preventDefault();
@@ -93,7 +96,7 @@ function touchMove(event) {
         let rect = target.getBoundingClientRect();
         const x = touch.clientX - rect.left;
         const y = touch.clientY - rect.top;
-        
+
         if(x < 0 || y < 0 || x > rect.width || y > rect.height) {
             gamepadButtons[target.id] = false;
         } else {
@@ -111,7 +114,7 @@ function doVibration() {
 /**
  * Handles touch movement
  *  - Enables button
- * @param {Event} event 
+ * @param {Event} event
  */
 function touchStart(event) {
     event.preventDefault();
@@ -122,14 +125,14 @@ function touchStart(event) {
         c.speed = c.FastForwardSpeed;
     else
         gamepadButtons[this.id] = true;
-        
+
 }
 
 
 /**
  * Handles touch movement (FOR non-directional pad buttons only)
  *  - Disables button
- * @param {Event} event 
+ * @param {Event} event
  */
 function touchEnd(event) {
     event.preventDefault();
@@ -143,7 +146,7 @@ function touchEnd(event) {
 
 /**
  * Sets the dpad button `elem` to be pressed
- * @param {HTMLElement} elem 
+ * @param {HTMLElement} elem
  * @param {String} key key of gamepadButtons to enable
  */
 const touchDPADSet = function(elem, key) {
@@ -155,24 +158,24 @@ const touchDPADSet = function(elem, key) {
     if(!top.classList.contains("dpad-button-top-active"))
         top.classList.add("dpad-button-top-active");
 
-    
+
     if(!gamepadButtons[key] === true) {
         gamepadButtons[key] = true;
         doVibration();
     }
-    
+
 
 }
 
 
 /**
  * Sets the dpad button `elem` to be unpressed
- * @param {HTMLElement} elem 
+ * @param {HTMLElement} elem
  */
 const touchDPADReset = function(elem, key) {
     const bot = elem.getElementsByClassName("dpad-button-bottom").item(0) || elem.getElementsByClassName("gamepad-button-bottom").item(0);
     const top = elem.getElementsByClassName("dpad-button-top").item(0) || elem.getElementsByClassName("gamepad-button-top").item(0);
-    
+
     if(bot.classList.contains("gamepad-button-bottom"))
     {
         bot.classList.remove("gamepad-button-bottom");
@@ -191,13 +194,13 @@ const touchDPADReset = function(elem, key) {
 
 /**
  * Handles touch movement for the dPad
- * @param {TouchEvent} event 
+ * @param {TouchEvent} event
  * @param {boolean} state true to enable button, false to clear all
  */
 function touchDPAD(event, state) {
     event.preventDefault();
 
-    // this graphically updates the DPAD button    
+    // this graphically updates the DPAD button
     if(state == false) {
         touchDPADReset(buttonDown, "LEFT");
         touchDPADReset(buttonUp, "RIGHT");
@@ -239,7 +242,7 @@ function touchDPAD(event, state) {
 /**
  * Returns a number between 0.0-1.0 of the relative position the touch is between `elem`
  * @param {HTMLElement} elem element to check position in
- * @param {Touch} touch 
+ * @param {Touch} touch
  */
 function getRelativePosition(elem, touch) {
     const rect = elem.getBoundingClientRect();
@@ -255,12 +258,12 @@ const controlsToggle = document.getElementById('controlsToggle');
 // touch controls
 controlsToggle.addEventListener('click', function() {
     const isShown = touchControls.style.display != "none";
-    
+
     if(isShown)
         hideElement(touchControls);
     else
         showElement(touchControls);
-    
+
     this.checked = !isShown;
 });
 
