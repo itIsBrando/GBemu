@@ -15,7 +15,7 @@ const loadModule = async (modulePath) => {
 
 
 async function fetchWasm() {
-    const {default: init, scale2x, scale3x} = await loadModule('./../wasm/pkg/lib_wasm.js');
+    const {default: init, scale2x, scale3x} = await loadModule('./../../wasm/pkg/lib_wasm.js');
 
     await init();
     Filter.wasmScale2x = scale2x;
