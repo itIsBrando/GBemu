@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .ui-dark-theme {            
+        .ui-dark-theme {
             --ui-background: #252424;
             --ui-primary-button: #d4ccd3;
             --ui-secondary-button: #c9fde4;
@@ -51,9 +51,9 @@
         .viewport-no-title {
             top: 0px;
         }
-        
+
         #viewport, #viewport * {
-            transition: background 0.5s, border 0.5s, box-shadow 0.5s, top 0.4s; 
+            transition: background 0.5s, border 0.5s, box-shadow 0.5s, top 0.4s;
         }
 
         .screen-container {
@@ -171,7 +171,7 @@
             z-index: -1;
         }
 
-        
+
 
         * {
             box-sizing: border-box;
@@ -255,7 +255,7 @@
         <!-- Menu button to show the top menu -->
         <div class="show-menu-btn" onclick="Menu.title.toggle();"></div>
     </div>
-    
+
     <!-- Link Cable menu -->
     <div id="LinkDiv" class="popup-no-border shadow">
         <div class="menu-header-no-ext">
@@ -289,7 +289,7 @@
                     class="menubtn settings-btn" onclick="CoreSetting.next('ColorCorrection');"></button>
                 </button>
             </label>
-            <label for="changeFilter">Shader Type:
+            <label id="labelChangeFilter" for="changeFilter">Shader Type:
                 <button type="button" name="emuMode" id="changeFilter" title="Changes video shader."
                     class="menubtn settings-btn" onclick="CoreSetting.next('ShaderType');">none</button>
             </label>
@@ -545,7 +545,7 @@
 
 
     <!-- pop up menu for changing keyboard controls -->
-    <div class="save-menu" id="keyBindingDiv"> 
+    <div class="save-menu" id="keyBindingDiv">
         <div class="menu-header">
             <a>Keybindings</a>
             <button class="x-btn" onclick="KeyBinding.hide();">&times;</button>
@@ -642,7 +642,7 @@
         <button class="prompt-button" id="messageCancel">Cancel</button>
 
     </div>
-    
+
     <!-- Pretty-ish alert system. -->
     <div id="AlertDiv" onclick="Menu.alert.hide();" class="alert-div"></div>
 
@@ -655,6 +655,7 @@
 <body class="ui-dark-theme">
     <script src="src/util/promptMenu.js"></script>
     <script src="src/util/menu.js"></script>
+    <script src="src/util/linker.js" type="module"></script>
     <script src="src/util/filter.js"></script>
     <script src="src/util/settings.js"></script>
     <script src="src/util/saveManager.js"></script>
@@ -707,7 +708,7 @@
             CPU.LOG(`File: ${this.files[0].name}`);
 
             reader.readAsArrayBuffer(this.files[0]);
-            
+
             reader.onloadend = function () {
                 startEmulation(reader.result);
             }
@@ -746,7 +747,7 @@
                     console.log('[Service Worker] No workers found.');
                     return
                 }
-                
+
                 for(let registration of registrations) {
                     registration.unregister().then(function (bool) {
                         console.log(
@@ -791,20 +792,11 @@
         CoreSetting.register("ShaderType", ["none", "scale2x", "scale3x"], 0, function(i) {
             Filter.change(i);
         });
-        
+
         CoreSetting.register("UITheme", ["system", "light", "dark"], 0, function(i) {
             Themes.setUI(i);
         });
     </script>
-    <!-- <script type="module">
-        import init, {scale2x} from '/wasm/pkg/lib_wasm.js'
-
-        await init();
-
-        Filter.test = scale2x;
-
-        // scale2x(8);
-    </script> -->
 </body>
 </head>
 

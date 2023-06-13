@@ -37,14 +37,14 @@ class Filter {
     getpx(x, y) {
         if(x >= WIDTH || y >= HEIGHT || x < 0 || y < 0)
             return 0;
-        
+
         return this.data[x + y * WIDTH];
     }
 
     setoutpx(x, y, c) {
         if(x >= this.width || y >= this.height || x < 0 || y < 0)
             return;
-        
+
         this.out[x + y * this.width] = c;
     }
 
@@ -114,9 +114,9 @@ class Filter {
                     e7 = h;
                 if(f==h && f!=b && h!=d)
                     e8 = f;
-                
+
                 const xout = x * 3, yout = y * 3;
-                
+
                 this.setoutpx(xout - 1, yout - 1, e0);
                 this.setoutpx(xout, yout - 1, e1);
                 this.setoutpx(xout + 1, yout - 1, e2);
@@ -140,7 +140,7 @@ class Filter {
     }
 
     /**
-     * 
+     *
      * @param {ImageData} data
      * @returns {ImageData}
      */
@@ -149,9 +149,19 @@ class Filter {
             case FilterType.none:
                 return data;
             case FilterType.scale2x:
-                return this.scale2x(new Uint32Array(data.data.buffer));
+                if(typeof Filter.wasmScale2x == "function") {
+                    Filter.wasmScale2x(new Uint32Array(data.data.buffer), this.out);
+                    return this.createImageData();
+                } else {
+                    return this.scale2x(new Uint32Array(data.data.buffer));
+                }
             case FilterType.scale3x:
-                return this.scale3x(new Uint32Array(data.data.buffer));
+                if(typeof Filter.wasmScale2x == "function") {
+                    Filter.wasmScale3x(new Uint32Array(data.data.buffer), this.out);
+                    return this.createImageData();
+                } else {
+                    return this.scale3x(new Uint32Array(data.data.buffer));
+                }
         }
 
     }
@@ -164,7 +174,7 @@ class Filter {
 
         // set canvas size
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
-        
+
         c.renderer.drawBuffer();
 
         if(c.romLoaded) {
