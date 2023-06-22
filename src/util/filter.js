@@ -5,14 +5,17 @@ const FilterType = {
     none: 0,
     scale2x: 1,
     scale3x: 2,
+    LCD: 3,
 };
 
 const changeFilterElem = document.getElementById('changeFilter');
 
-const FilterScaleFactor = [1, 2, 3];
+const FilterScaleFactor = [1, 2, 3, 3];
+
 
 class Filter {
     static current = 0;
+    static supportsWasm = false;
 
     constructor(canvasElem, scaleBy) {
         this.target = canvasElem;
@@ -20,6 +23,8 @@ class Filter {
         this.out = null;
 
         this.setScale(scaleBy);
+
+        Filter.supportsWasm = typeof Filter.wasmScale2x == "function";
     }
 
     setScale(scaleBy) {
@@ -132,6 +137,42 @@ class Filter {
         return this.createImageData();
     }
 
+    lcd(data) {
+        let j = 0;
+        for(let y = 0; y < 144; y++) {
+            for(let x = 0; x < 160; x++) {
+                const rr = data[j];
+                const rg = (0x71 * data[j] + 1) >> 8;
+                const rb = (0x45 * data[j] + 1) >> 8;
+                const color_r = 0xff00_0000 | (rb << 16) | (rg << 8) | (rr);
+                this.setoutpx(x * 3, y * 3, color_r);
+                this.setoutpx(x * 3, y * 3 + 1, color_r);
+                this.setoutpx(x * 3, y * 3 + 2, color_r);
+                j += 1;
+
+                const gr = (0xc1 * data[j] + 1) >> 8;
+                const gg = (0xd6 * data[j] + 1) >> 8;
+                const gb = (0x50 * data[j] + 1) >> 8;
+                const color_g = 0xff00_0000 | (gb << 16) | (gg << 8) | (gr);
+                this.setoutpx(x * 3 + 1, y * 3, color_g);
+                this.setoutpx(x * 3 + 1, y * 3 + 1, color_g);
+                this.setoutpx(x * 3 + 1, y * 3 + 2, color_g);
+                j += 1;
+
+                const br = (0x3b * data[j] + 1) >> 8;
+                const bg = (0xce * data[j] + 1) >> 8;
+                const bb = data[j];
+                const color_b = 0xff00_0000 | (bb << 16) | (bg << 8) | br;
+                this.setoutpx(x * 3 + 2, y * 3, color_b);
+                this.setoutpx(x * 3 + 2, y * 3 + 1, color_b);
+                this.setoutpx(x * 3 + 2, y * 3 + 2, color_b);
+                j += 2; // skip alpha
+            }
+        }
+
+        return this.createImageData();
+    }
+
 
     createImageData() {
         const outArray = new Uint8ClampedArray(this.out.buffer);
@@ -148,24 +189,30 @@ class Filter {
         switch(Filter.current) {
             case FilterType.none:
                 return data;
+            case FilterType.LCD:
+                if(Filter.supportsWasm) {
+                    Filter.wasmLcd(data.data, this.out);
+                    return this.createImageData();
+                } else {
+                    return this.lcd(data.data);
+                }
             case FilterType.scale2x:
-                if(typeof Filter.wasmScale2x == "function") {
+                if(Filter.supportsWasm) {
                     Filter.wasmScale2x(new Uint32Array(data.data.buffer), this.out);
-                    return this.createImageData();
                 } else {
-                    return this.scale2x(new Uint32Array(data.data.buffer));
+                    this.scale2x(new Uint32Array(data.data.buffer));
                 }
+                return this.createImageData();
             case FilterType.scale3x:
-                if(typeof Filter.wasmScale2x == "function") {
+                if(Filter.supportsWasm) {
                     Filter.wasmScale3x(new Uint32Array(data.data.buffer), this.out);
-                    return this.createImageData();
                 } else {
-                    return this.scale3x(new Uint32Array(data.data.buffer));
+                    this.scale3x(new Uint32Array(data.data.buffer));
                 }
+                return this.createImageData();
         }
 
     }
-
 
     static change(i) {
         Filter.current = i;
@@ -175,6 +222,7 @@ class Filter {
         // set canvas size
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
 
+        document.getElementById('screen').style.imageRendering = Filter.current == FilterType.LCD ? "auto" : "pixelated";
         c.renderer.drawBuffer();
 
         if(c.romLoaded) {

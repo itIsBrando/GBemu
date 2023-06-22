@@ -1,5 +1,6 @@
 .vscode/
 wasm/target/
+*.sh
 todo.md
 
 old_icon.jpg

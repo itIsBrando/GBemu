@@ -1,4 +1,11 @@
+extern crate console_error_panic_hook;
+
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn init_panic_hook() {
+    console_error_panic_hook::set_once();
+}
 
 
 fn get_px(data: &[u32], x: usize, y: usize) -> u32 {
@@ -8,6 +15,46 @@ fn get_px(data: &[u32], x: usize, y: usize) -> u32 {
 fn set_px(out: &mut [u32], x: usize, y: usize, width: usize, val: u32) {
     out[x + y * width] = val;
 }
+
+
+#[wasm_bindgen]
+pub fn lcd_filter(data: &[u8], out: &mut [u32]) {
+    const WIDTH: usize = 160 * 3;
+    let mut j = 0;
+
+    for y in 0..144 {
+        for x in 0..160 {
+            let rr = data[j] as u32;
+            let rg = (0x71 * (data[j] as u32) + 1) >> 8;
+            let rb = (0x45 * (data[j] as u32) + 1) >> 8;
+            let color_r = 0xff00_0000 | (rb << 16) | (rg << 8) | (rr);
+            set_px(out, x * 3, y * 3, WIDTH, color_r);
+            set_px(out, x * 3, y * 3 + 1, WIDTH, color_r);
+            set_px(out, x * 3, y * 3 + 2, WIDTH, color_r);
+            j += 1;
+
+            let gr = (0xc1 * (data[j] as u32) + 1) >> 8;
+            let gg = (0xd6 * (data[j] as u32) + 1) >> 8;
+            let gb = (0x50 * (data[j] as u32) + 1) >> 8;
+            let color_g = 0xff00_0000 | (gb << 16) | (gg << 8) | (gr);
+            set_px(out, x * 3 + 1, y * 3, WIDTH, color_g);
+            set_px(out, x * 3 + 1, y * 3 + 1, WIDTH, color_g);
+            set_px(out, x * 3 + 1, y * 3 + 2, WIDTH, color_g);
+            j += 1;
+
+            let br = (0x3b * (data[j] as u32) + 1) >> 8;
+            let bg = (0xce * (data[j] as u32) + 1) >> 8;
+            let bb = data[j] as u32;
+            let color_b = 0xff00_0000 | (bb << 16) | (bg << 8) | br;
+            set_px(out, x * 3 + 2, y * 3, WIDTH, color_b);
+            set_px(out, x * 3 + 2, y * 3 + 1, WIDTH, color_b);
+            set_px(out, x * 3 + 2, y * 3 + 2, WIDTH, color_b);
+            j += 2; // skip alpha
+        }
+    }
+
+}
+
 
 #[wasm_bindgen]
 pub fn scale3x(data: &[u32], out: &mut [u32]) {

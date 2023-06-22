@@ -14,7 +14,7 @@ body {
     image-rendering: optimizeSpeed;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: optimize-contrast;
-    image-rendering: pixelated;
+    image-rendering:pixelated;
 
     -webkit-user-select: none;
     -moz-user-select: none;

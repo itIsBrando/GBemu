@@ -15,11 +15,14 @@ const loadModule = async (modulePath) => {
 
 
 async function fetchWasm() {
-    const {default: init, scale2x, scale3x} = await loadModule('./../../wasm/pkg/lib_wasm.js');
+    const {default: init, scale2x, scale3x, lcd_filter, init_panic_hook} = await loadModule('./../../wasm/pkg/lib_wasm.js');
 
     await init();
+    init_panic_hook();
+
     Filter.wasmScale2x = scale2x;
     Filter.wasmScale3x = scale3x;
+    Filter.wasmLcdc    = lcd_filter;
 
     document.getElementById('labelChangeFilter').classList.add('wasm-supported-badge');
 
