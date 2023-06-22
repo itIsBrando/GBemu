@@ -742,31 +742,32 @@
             }
         });
 
-
         // remove old service workers
-        const removeServiceWorkers = function() {
-            navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                if (!registrations.length) {
-                    console.log('[Service Worker] No workers found.');
-                    return
-                }
-
-                for(let registration of registrations) {
-                    registration.unregister().then(function (bool) {
-                        console.log(
-                            bool ? '[Service Worker] Successfully removed worker'
-                            : '[Service Worker] Failed to remove worker');
-                    })
-                }
-            }).catch(err => {
-                console.log('[Service Worker] Not in secure context');
-            })
-        }
-
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(null, (err) => {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.addEventListener('updatefound', (e) => {
+                    let newWorker = reg.installing;
+                    console.log(newWorker);
+
+                    caches.keys().then( (keys) => {
+                        newWorker.addEventListener('statechange', () => {
+                            if(newWorker.state == 'installed') {
+                                Menu.message.show(`Would you like to ${keys.at(-1)} now?`, "New update available", true, null, () => {
+                                    newWorker.postMessage({ action: 'skipWaiting'});
+                                });
+                            }
+                        });
+                    });
+
+
+                });
+            }).catch((err) => {
                     console.log('[Service Worker] Could not install service worker.', err);
                     Settings.set_core('sw_status', 'n/a');
+            });
+
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
             });
         }
 

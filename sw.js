@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v4.6.4';
+const CACHE_NAME = 'gbemu-v4.6.41';
 
 const FILES = [
     "./",
@@ -97,4 +97,15 @@ self.addEventListener('fetch', (e) => {
         cache.put(e.request, response.clone());
         return response;
     })());
+});
+
+
+self.addEventListener('message', (e) => {
+    switch(e.data.action) {
+        case 'skipWaiting':
+            self.skipWaiting();
+            break;
+        default:
+            console.log(`[Service Worker] Unknown message: ${e.data.action}`);
+    }
 });
