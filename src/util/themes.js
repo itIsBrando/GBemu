@@ -26,7 +26,7 @@ var Themes = new function() {
 
     this.set_theme_color = function(color) {
         const tags = document.getElementsByTagName('meta');
-        
+
         for(let i = 0; i < tags.length; i++)
         {
             if(tags[i].name == "theme-color")
@@ -39,7 +39,7 @@ var Themes = new function() {
     this.next = function() {
         this.curTheme++;
         this.curTheme %= themes.length;
-        
+
         this.apply(this.curTheme);
     };
 
@@ -47,10 +47,10 @@ var Themes = new function() {
         if(--this.curTheme < 0) {
             this.curTheme = themes.length - 1;
         }
-        
+
         this.apply(this.curTheme);
     };
-    
+
     this.apply = function(i) {
         i %= themes.length;
         Themes.curTheme = i;
@@ -66,9 +66,8 @@ var Themes = new function() {
     }
 
 
-    this.setSettingsBar = function(force = false) {
-        if(force || Settings.get_temp("change_status_bar", "false") == "true")
-            this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-background'));
+    this.setSettingsBar = function() {
+        this.set_theme_color(getComputedStyle(document.body).getPropertyValue('--ui-background'));
     }
 
 
@@ -78,6 +77,7 @@ var Themes = new function() {
 
         uiThemeButton.innerText = theme;
         this.applyUITheme(theme);
+        Themes.setSettingsBar();
     }
 
     this.applyUITheme = function(theme) {

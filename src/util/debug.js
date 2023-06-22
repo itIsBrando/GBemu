@@ -25,18 +25,18 @@ var Debug = new function() {
 			showElementFadeIn(DebugDiv, 'grid');
 		else
 			showElement(DebugDiv, 'grid');
-		
+
 		this.hideOpen();
 		pauseEmulation();
 		this.enabled = true;
-		
-		Themes.setSettingsBar(true);
+
+		Themes.setSettingsBar();
 
         if(this.initialized) {
 			this.showDisasm();
 			return;
 		}
-			
+
 		Map.init();
         Oam.init();
 		Disassembler.init();
@@ -53,7 +53,7 @@ var Debug = new function() {
                 console.log(Debug.parseSymFile(reader.result));
             }
         });
-        
+
         this.initialized = true;
 	}
 
@@ -69,7 +69,7 @@ var Debug = new function() {
 		Oam.show();
 	}
 
-	
+
 	this.showMap = function() {
 		this.hideOpen();
         Map.show();
@@ -86,7 +86,7 @@ var Debug = new function() {
 	this.getBGColor = function(palNum, color) {
 		palNum *= 8;
 		const bgi = color * 2 + palNum;
-		return (c.ppu.cgb.bgPal[bgi + 1] << 8) | c.ppu.cgb.bgPal[bgi];	 
+		return (c.ppu.cgb.bgPal[bgi + 1] << 8) | c.ppu.cgb.bgPal[bgi];
 	}
 
 	/**
@@ -134,12 +134,12 @@ var Debug = new function() {
 				const button = document.createElement('button');
 				const col = Renderer.getPalette(c, isBG, palNum)[i];
 				const color = `#${hex(col[0], 2, '')}${hex(col[1], 2, '')}${hex(col[2], 2, '')}`;
-				
+
 				button.type = "button";
 				button.value = i | (palNum << 3);
 				if(window.innerWidth >= 500)
 					button.innerText = hex(this.getBGColor(palNum, i), 4, '');
-				
+
 				button.className = "pal-debug-button";
 				button.style.backgroundColor = color;
 
@@ -183,7 +183,7 @@ var Debug = new function() {
 
         this.hideBreak();
 		resumeEmulation();
-	}	
+	}
 
 	this.parseSymFile = function(str) {
 		const expr = /.+/g; // /(^[0-9a-f]{2}(?=:)|[0-9a-f]{4}|(?<=\s+).+)/g
@@ -197,7 +197,7 @@ var Debug = new function() {
 				CPU.LOG(`Error reading line ${i + 1}: ${m, lines[i]}`);
 				continue;
 			}
-	
+
 			const bank = Number('0x' + m[0]);
 			const addr = Number('0x' + m[1]);
 			const lbl = m[2];
@@ -230,7 +230,7 @@ var Debug = new function() {
 
 		return this.breakpoints[pc] == true;
 	}
-    
+
 	this.showRegister = function() {
 		// name, keys, length of number
 		const regs = [
@@ -283,18 +283,18 @@ var Debug = new function() {
 				str += '<div class="div-separator" style="border-color: var(--ui-primary-button); grid-column: 1 / 3;"></div>';
 				continue;
 			}
-			
+
 			const keys = regs[i][1];
 			let v = c[keys[0]];
 			for(let j = 1; j < keys.length; j++)
 				v = v[keys[j]];
-			
+
 			str += `<div style="color:var(--ui-accent);">${(regs[i][0] + ":").padEnd(5)}</div><div style="text-align:right; padding-right:1em;">${Debug.hex(v, regs[i][2])}</div>`;
 		}
 
 		DisassemblyRegisters.innerHTML = str;
 	}
-    
+
     this.showMemory = function() {
 		this.hideOpen();
 		Memory.show();
@@ -332,11 +332,11 @@ var Debug = new function() {
 			}
 		}
 	}
-    
+
     this.drawBreaks = function() {
         const breakList = document.getElementById("DisBreakpointList");
         breakList.innerHTML = "";
-        
+
         for(let i in this.breakpoints) {
 			let addr = Debug.hex(Number(i), 4);
             if(this.breakpoints[i] != false)
@@ -346,14 +346,14 @@ var Debug = new function() {
 				`;
 		}
     }
-    
+
     this.showBreak = function() {
         const breakpointMenu = document.getElementById("DisassemblyBreakpoints");
-        
+
         showElement(breakpointMenu);
         this.drawBreaks();
     }
-    
+
     this.hideBreak = function() {
         hideElement(document.getElementById("DisassemblyBreakpoints"));
     }

@@ -766,24 +766,6 @@
             });
         }
 
-        const _set_var = function(x) {
-            Settings.set_temp("change_status_bar", x.matches);
-
-            if(SaveManager.showing() || Settings.showing())
-                Themes.setSettingsBar();
-        }
-
-        const x = window.matchMedia(
-            "(max-width: 500px), (max-height: 500px) and (orientation: landscape)"
-        );
-
-        _set_var(x);
-        x.addListener(_set_var);
-
-        SaveStorage.init();
-        Themes.init();
-
-
         CoreSetting.register("ColorCorrection", ["prescaled", "gamma", "desaturate"], 0, function(i) {
             c.ppu.colorMode = i;
             document.getElementById('correctionType').innerText = CoreSetting.getVal("ColorCorrection");
@@ -795,6 +777,10 @@
         CoreSetting.register("UITheme", ["system", "light", "dark"], 0, function(i) {
             Themes.setUI(i);
         });
+
+
+        SaveStorage.init();
+        Themes.init();
     </script>
 </body>
 </head>

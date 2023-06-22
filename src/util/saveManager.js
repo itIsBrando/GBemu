@@ -276,7 +276,6 @@ var SaveManager = new function() {
 
         showElementFadeIn(popupMenu);
 
-
         window.addEventListener('resize', saveButtonDivResize);
     }
 
@@ -285,6 +284,8 @@ var SaveManager = new function() {
         hideElementFadeOut(popupMenu);
 
         resumeEmulation();
+
+        Themes.setStatusBar();
 
         // now we must delete buttons from popup menu
         saveButtonDiv.innerHTML = "";
