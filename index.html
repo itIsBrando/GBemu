@@ -747,19 +747,13 @@
             navigator.serviceWorker.register('sw.js').then(reg => {
                 reg.addEventListener('updatefound', (e) => {
                     let newWorker = reg.installing;
-                    console.log(newWorker);
-
-                    caches.keys().then( (keys) => {
-                        newWorker.addEventListener('statechange', () => {
-                            if(newWorker.state == 'installed') {
-                                const body = keys[keys.length - 1] ? `Would you like to update to ${keys.at(-1)} now?` : `Would you like to update now?`;
-                                Menu.message.show(body, "New update available", true, null, () => {
-                                    newWorker.postMessage({ action: 'skipWaiting'});
-                                });
-                            }
-                        });
+                    newWorker.addEventListener('statechange', () => {
+                        if(newWorker.state == 'installed') {
+                            Menu.message.show("Would you like to update now?", "New update available", true, null, () => {
+                                newWorker.postMessage({ action: 'skipWaiting'});
+                            });
+                        }
                     });
-
 
                 });
             }).catch((err) => {
