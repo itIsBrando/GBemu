@@ -57,8 +57,8 @@ for(let i = 0; i < d.length; i++)
 {
     d[i].id = ids[i + 5];
     d[i].innerHTML = squareSample.innerHTML;
-    d[i].getElementsByClassName('gamepad-button-bottom').item(0).classList = 'dpad-button-bottom';
-    d[i].getElementsByClassName('gamepad-button-top').item(0).classList = 'dpad-button-top';
+    d[i].getElementsByClassName('gamepad-button-bottom').item(0).classList = ['dpad-button-bottom'];
+    d[i].getElementsByClassName('gamepad-button-top').item(0).classList = ['dpad-button-top'];
 }
 
 delete d;
