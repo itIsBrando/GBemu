@@ -1,11 +1,17 @@
 
 var canvas = document.getElementById("screen");
+let isFullscreen = false;
 
-// grayscale palette
-//     [255, 255, 255],
-//     [170, 170, 170],
-//     [85, 85, 85],
-//     [0, 0, 0,],
+canvas.addEventListener('dblclick', (e) => {
+    if(isFullscreen) {
+        isFullscreen = false;
+        if(!exitFullscreen())
+            isFullscreen = requestFullscreen();
+    } else {
+        isFullscreen = requestFullscreen();
+    }
+});
+
 
 // greenish palette
 var palette = [

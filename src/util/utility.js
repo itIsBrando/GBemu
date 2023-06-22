@@ -30,20 +30,16 @@ function hasNotch() {
  * Enters full screen if possible, or does nothing
  * @returns true if we could get fullscreen, otherwise false
  */
-function requestFullscreen() 
-{
+function requestFullscreen() {
     if(!c.isRunning)
         return;
-    if(canvas.requestFullscreen)
-    {
+    if(canvas.requestFullscreen) {
         canvas.requestFullscreen();
         return true;
-    } else if(canvas.webkitRequestFullscreen)
-    {
+    } else if(canvas.webkitRequestFullscreen) {
         canvas.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         return true;
-    } else if(canvas.msRequestFullscreen)
-    {
+    } else if(canvas.msRequestFullscreen) {
         canvas.msRequestFullscreen();
         return true;
     }
@@ -56,22 +52,20 @@ function requestFullscreen()
  * Exits full screen mode if possible
  */
 function exitFullscreen() {
-    if(canvas.requestFullscreen)
-    {
-        canvas.exitFullscreen();
-    } else if(canvas.webkitRequestFullscreen)
-    {
-        canvas.webkitExitFullscreen();
-    } else if(canvas.msRequestFullscreen)
-    {
-        canvas.msExitFullscreen();
+    if(document.exitFullscreen) {
+        document.exitFullscreen().then(() => {
+            return true;
+        }).catch(err => {
+            CPU.LOG("Not in fullscreen: " + err);
+            return false;
+        });
+        return false;
     }
 }
 
-
 /**
  * Converts a value into a hexidemical string
- * @param {any} v 
+ * @param {any} v
  * @param {Number} pad number of min digits to display
  * @param {String} prefix string to use as a prefix. Defaults to 0x
  */
@@ -82,7 +76,7 @@ function hex(v, pad=0, prefix="0x") {
 
 /**
  * Converts a value into a binary string
- * @param {any} v 
+ * @param {any} v
  */
 function bin(v, pad=0) {
     return "0b" + v.toString(2).toUpperCase().padStart(pad, "0");
@@ -92,14 +86,14 @@ function bin(v, pad=0) {
 function selectAll() {
     const elem = document.getElementById('PromptText');
     elem.select();
-    
+
     const range = document.createRange();
     range.selectNodeContents(elem);
-    
+
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-    
+
     elem.setSelectionRange(0, 999999);
 }
 
@@ -114,7 +108,7 @@ function copyClipMenu(text) {
         document.execCommand("copy");
         Menu.message.show("Copied to clipboard", "Success");
     }, null, text, "copy");
-    
+
     m.show();
 }
 
