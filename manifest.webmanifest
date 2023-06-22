@@ -18,6 +18,12 @@
             "src": "icons/old_icon_200x200.png",
             "sizes": "200x200",
             "type": "image/png"
+        },
+        {
+            "src": "icons/splash_512x512.png",
+            "sizes": "200x200",
+            "type": "image/png"
         }
+
      ]
 }

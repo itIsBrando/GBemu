@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v4.6.42';
+const CACHE_NAME = 'gbemu-v4.6.43';
 
 const FILES = [
     "./",
@@ -49,6 +49,7 @@ const FILES = [
     "./src/initalize.js",
     "./icons/icon_108x108.png",
     "./icons/old_icon_200x200.png",
+    "./icons/splash_512x512.png",
     "./wasm/pkg/lib_wasm.js",
     "./wasm/pkg/lib_wasm_bg.wasm",
     "./index.html",
