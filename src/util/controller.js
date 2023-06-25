@@ -9,23 +9,11 @@ var gamepadButtons = {
     "DOWN": false,
 }
 
-
-// document.addEventListener('keyup', function(event) {
-//     const key = event.key.toLowerCase();
-
-//     if(key == 'o' && (navigator.userAgent.match("Safari") ? event.metaKey: event.ctrlKey)) {
-//         event.preventDefault();
-//         inputForm.click()
-//         return;
-//     }
-// });
-
-
  document.addEventListener('keydown', function(event) {
     const key = event.key.toLowerCase();
 
     if((navigator.userAgent.match("Safari") ? event.metaKey : event.ctrlKey)) {
-        if(key == 'o' || key == 'r' || key == 'd') {
+        if(key == 'o' || key == 'r' || key == 'd' || key == ',') {
             event.preventDefault();
             return;
         }
@@ -66,6 +54,10 @@ document.addEventListener('keyup', function(event) {
                 break;
             case 'd': // open debugger
                 Debug.start();
+                break;
+            case ',': // open settings
+                Settings.show();
+                break;
         }
 
         event.preventDefault();
@@ -168,6 +160,8 @@ window.addEventListener("gamepaddisconnected", (e) => {
     Menu.alert.show(`Gamepad disconnected.`);
     Controller.useGamepad = false;
 });
+
+// @todo add ability to remap controls
 
 
 // function time() {

@@ -1,31 +1,3 @@
-// desktop needs innerWidth
-const getWidth = function() {
-    return document.documentElement.clientWidth;
-}
-
-
-const getHeight = function() {
-    return document.documentElement.clientHeight;
-}
-
-
-/**
- * Checks if the game is landscape of potrait
- * @returns true if the window is being displayed in landscape
- */
-function isLandscape() {
-    return getHeight() < getWidth();
-}
-
-
-/**
- * @returns true if the device is an iPhone with a notch
- */
-function hasNotch() {
-    return navigator.userAgent.match(/(iPhone)/) && window.innerWidth * window.innerHeight == "304500";
-}
-
-
 /**
  * Enters full screen if possible, or does nothing
  * @returns true if we could get fullscreen, otherwise false

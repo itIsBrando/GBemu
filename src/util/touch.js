@@ -282,7 +282,7 @@ if(hasTouchscreen())
     controlsToggle.click();
 
 
-
+// @todo bundle button features
 var Dpad = new function() {
     let vibrationEnable = false;
 }
