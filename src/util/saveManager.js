@@ -269,6 +269,8 @@ var SaveManager = new function() {
         if(popupMenu.style.display == "block")
             return false;
 
+        state = MainState.Menu;
+
         showElement(popupMenu);
         Themes.setSettingsBar();
 
@@ -284,6 +286,7 @@ var SaveManager = new function() {
         hideElementFadeOut(popupMenu);
 
         resumeEmulation();
+        state = MainState.Main;
 
         Themes.setStatusBar();
 

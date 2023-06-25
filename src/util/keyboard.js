@@ -9,15 +9,15 @@ const def_bindings = {
     "arrowup" : "UP",
     "arrowdown" : "DOWN",
     "d" : "FAST",
-    "f" : "FULLSCREEN"
+    "f" : "FULLSCREEN",
+    "p" : "PAUSE",
 };
 
 
 var KeyBinding = new function() {
     const keyBindingDiv = document.getElementById('keyBindingDiv');
     const styling = document.createElement('style');
-    // used by our keyboard event
-    this.isAssigning = false;    
+
     this.bindings = JSON.parse(
         Settings.get_core('keybinding', JSON.stringify(def_bindings))
     );
@@ -37,7 +37,7 @@ var KeyBinding = new function() {
             z-index: 1;
             box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.4);
         }`;
-        
+
         document.head.append(styling);
 
         // incase any key bindings are added or removed, we will delete user-defined bindings
@@ -45,7 +45,7 @@ var KeyBinding = new function() {
             Settings.del_core('keybinding');
         }
     }
-    
+
     // shows the keybinding menu
     this.show = function() {
         showElementFadeIn(keyBindingDiv);
@@ -55,18 +55,7 @@ var KeyBinding = new function() {
     this.fillButtonText = function() {
         // initialize button texts
         const keywordbuttons = keyBindingDiv.getElementsByClassName("key-binding");
-        const strings = [
-            "A button",
-            "B button",
-            "SELECT button",
-            "START button",
-            "UP",
-            "DOWN",
-            "LEFT",
-            "RIGHT",
-            "FAST FORWARD",
-            "FULLSCREEN"
-        ];
+        const def_binding_values = Object.values(def_bindings);
         const keyboardBindings = Object.keys(this.bindings);
 
         const bindingsValues = Object.values(this.bindings);
@@ -77,12 +66,12 @@ var KeyBinding = new function() {
                 the order of `this.bindings` changes whenever a key is reassigned,
                  so we must ensure that everything lines up in the same order
             */
-            const index = bindingsValues.findIndex(txt => txt == strings[i].split(' ')[0]);
+            const index = bindingsValues.findIndex(txt => txt == def_binding_values[i].split(' ')[0]);
             keywordbuttons[i].innerHTML = `${keyboardBindings[index] || "<b style='color:red;'>unset</b>"}`;
             keywordbuttons[i].classList.remove("keybinding-assigning");
 
         }
-        
+
     }
 
     this.setDefault = function() {
@@ -93,26 +82,14 @@ var KeyBinding = new function() {
             null,
             function() {
                 Settings.del_core('keybinding');
-                KeyBinding.bindings = {
-                    "s" : "A",
-                    "a" : "B",
-                    "enter" : "START",
-                    "shift" : "SELECT",
-                    "arrowleft" : "LEFT",
-                    "arrowright" : "RIGHT",
-                    "arrowup" : "UP",
-                    "arrowdown" : "DOWN",
-                    "d" : "FAST",
-                    "f" : "FULLSCREEN"
-                }
-        
-                KeyBinding.fillButtonText();        
+                KeyBinding.bindings = def_bindings;
+
+                KeyBinding.fillButtonText();
             }
         );
     }
-    
+
     this.hide = function() {
-        this.isAssigning = false;
         hideElementFadeOut(keyBindingDiv);
     }
 
@@ -122,10 +99,10 @@ var KeyBinding = new function() {
      * @param {HTMLElement} elem button that was clicked
      */
     this.assign = function(buttonName, elem) {
-        if(this.isAssigning)
+        if(state === MainState.KeyboardAssign)
             this.fillButtonText();
-        
-        this.isAssigning = true;
+
+        state = MainState.KeyboardAssign;
         this.modifyingButton = buttonName;
         elem.classList.add("keybinding-assigning");
         styling.innerHTML = styling.innerHTML.replace(/content: *'.*'/, `content:'Press key to bind for ${buttonName}.<esc> to cancel'`);
@@ -136,10 +113,8 @@ var KeyBinding = new function() {
      * for some reason this function gets called 8 times from the keyboard event but whatever
     */
     this.setKey = function(keyName) {
-        if(!this.isAssigning)
-            return;
-        
-        this.isAssigning = false;
+        state = MainState.Menu;
+
         if(keyName === 'escape') {
             this.fillButtonText();
             return;

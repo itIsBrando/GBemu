@@ -36,7 +36,7 @@ var CoreSetting = new function() {
         i++;
         if(i >= this.possibleValues[name].length)
             i = 0;
-        
+
         this.indexes[name] = i;
 
         const val = this.getVal(name);
@@ -80,7 +80,7 @@ var Settings = new function() {
     this.get_core = function(key, def = null) {
         key = CORE_PREFIX + key;
         const value = localStorage.getItem(key);
-        
+
         if(value !== null)
             return value;
 
@@ -90,8 +90,8 @@ var Settings = new function() {
 
     /**
      * Sets a localStorage key
-     * @param {String} key 
-     * @param {String} value 
+     * @param {String} key
+     * @param {String} value
      */
     this.set_core = function(key, value) {
         localStorage.setItem(CORE_PREFIX + key, value);
@@ -131,7 +131,7 @@ var Settings = new function() {
     }
 
     /**
-     * @param {String} key 
+     * @param {String} key
      * @returns true if the key is part of the internal settings
      */
     this.isSetting = function(key) {
@@ -154,11 +154,12 @@ var Settings = new function() {
         } else {
              versionElem.innerHTML = 'gbemu (latest)';
         }
-        
+
         Themes.setSettingsBar();
 
         pauseEmulation();
-        
+        state = MainState.Menu;
+
         showElementFadeIn(MainDiv);
     }
 
@@ -166,7 +167,8 @@ var Settings = new function() {
         Renderer.frameSkip = Renderer.frameSkipAmount = Number(getCheckedRadio("FrameSkip"));
 
         resumeEmulation();
-        
+        state = MainState.Main;
+
         hideElementFadeOut(MainDiv);
         Themes.setStatusBar();
     }

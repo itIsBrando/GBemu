@@ -26,6 +26,8 @@ var Debug = new function() {
 		else
 			showElement(DebugDiv, 'grid');
 
+		state = MainState.Menu;
+
 		this.hideOpen();
 		pauseEmulation();
 		this.enabled = true;
@@ -175,6 +177,8 @@ var Debug = new function() {
 
 	this.quit = function(fadeOut = true) {
 		this.enabled = false;
+		state = MainState.Main;
+
 		Themes.setStatusBar();
 		if(fadeOut)
 			hideElementFadeOut(DebugDiv);

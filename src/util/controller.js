@@ -29,18 +29,20 @@ var gamepadButtons = {
             event.preventDefault();
             return;
         }
-    } else if(KeyBinding.isAssigning) {
+    } else if(state == MainState.KeyboardAssign) {
         event.preventDefault();
         KeyBinding.setKey(key);
         return;
     }
 
     const binding = KeyBinding.bindings[key];
-    if(binding) {
+    if(binding && state == MainState.Main) {
         if(binding == "FAST")
             c.speed = c.FastForwardSpeed;
         else if(binding == "FULLSCREEN")
             requestFullscreen();
+        else if(binding == "PAUSE")
+            pauseToggle();
         else
             gamepadButtons[binding] = true;
     }
@@ -49,12 +51,12 @@ var gamepadButtons = {
 
 /**
  * Key Released
- * @param {KeyboardEvent} event 
+ * @param {KeyboardEvent} event
  */
 document.addEventListener('keyup', function(event) {
     const key = event.key.toLowerCase();
 
-    if((navigator.userAgent.match("Safari") ? event.metaKey : event.ctrlKey)) {
+    if(state == MainState.Main && (navigator.userAgent.match("Safari") ? event.metaKey : event.ctrlKey)) {
         switch(key) {
             case 'o': // open file
                 inputForm.click();
@@ -65,7 +67,7 @@ document.addEventListener('keyup', function(event) {
             case 'd': // open debugger
                 Debug.start();
         }
-        
+
         event.preventDefault();
         return;
     }
@@ -93,7 +95,7 @@ class Controller {
         const gp = navigator.getGamepads()[0];
         if(!gp)
             return -1;
-        
+
         gamepadButtons["RIGHT"] = gp.buttons[15].pressed || (gp.axes[0] > this.DEADZONE);
         gamepadButtons["LEFT"] = gp.buttons[14].pressed || (gp.axes[0] < -this.DEADZONE);
         gamepadButtons["DOWN"] = gp.buttons[13].pressed || (gp.axes[1] > this.DEADZONE);
