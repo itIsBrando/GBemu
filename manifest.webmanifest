@@ -21,7 +21,7 @@
         },
         {
             "src": "icons/splash_512x512.png",
-            "sizes": "200x200",
+            "sizes": "512x512",
             "type": "image/png"
         }
 
