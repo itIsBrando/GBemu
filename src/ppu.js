@@ -66,28 +66,36 @@ class PPU {
         this.reset();
     }
 
+    onPaletteChange() {
+        let bg0 = this.regs.bgp;
+        this.bgPal = [
+            palette[(bg0 & 0b00000011)],
+            palette[(bg0 & 0b00001100) >> 2],
+            palette[(bg0 & 0b00110000) >> 4],
+            palette[(bg0 & 0b11000000) >> 6]
+        ];
+
+        let o0 = this.regs.obj0;
+        this.obj0Pal = [
+            palette[(o0 & 0b00000011)],
+            palette[(o0 & 0b00001100) >> 2],
+            palette[(o0 & 0b00110000) >> 4],
+            palette[(o0 & 0b11000000) >> 6]
+        ];
+        let o1 = this.regs.obj1;
+        this.obj1Pal = [
+            palette[(o1 & 0b00000011)],
+            palette[(o1 & 0b00001100) >> 2],
+            palette[(o1 & 0b00110000) >> 4],
+            palette[(o1 & 0b11000000) >> 6]
+        ];
+    }
+
     /**
      * Resets palettes
      */
     reset() {
-        this.obj0Pal = [
-            [3,3,3],
-            [3,3,3],
-            [3,3,3],
-            [3,3,3],
-        ];
-        this.obj1Pal = [
-            palette[3],
-            palette[2],
-            palette[1],
-            palette[0],
-        ];
-        this.bgPal = [
-            palette[0],
-            palette[1],
-            palette[2],
-            palette[3],
-        ];
+        this.onPaletteChange();
 
         this.cgb.bgAutoInc = 0;
         this.cgb.objAutoInc = 0;

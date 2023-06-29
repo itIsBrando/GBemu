@@ -322,6 +322,7 @@ class Renderer {
 
     static setPalette(arr) {
         palette = arr;
+        c.ppu.onPaletteChange();
     }
 
     /**
