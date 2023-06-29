@@ -232,7 +232,7 @@
             onclick="Cheats.start();">Cheats</button>
             <!-- <button type="button" class="dropdown-btn"
             onclick="Link.start();">Link Cable</button> -->
-            <button type="button" title="open settings" class="dropdown-btn" onclick="Settings.show();">Settings</button>
+            <button type="button" title="open settings" class="dropdown-btn" onclick="Settings.show();">Settings <a class="shortcut-text">(Ctrl+ ,)</a></button>
         </div>
     </div>
 
@@ -589,6 +589,9 @@
             <label>Fullscreen:
                 <button type="button" onclick="KeyBinding.assign('FULLSCREEN', this);" class="key-binding settings-btn menubtn"></button>
             </label>
+            <label>Pause:
+                <button type="button" onclick="KeyBinding.assign('PAUSE', this);" class="key-binding settings-btn menubtn"></button>
+            </label>
         </div></div>
     </div>
 
@@ -720,6 +723,10 @@
 
         document.getElementById('LoadRom').addEventListener('click', function() {
             inputForm.click();
+
+            if(Boolean(Settings.get_core('sound', 'false')) == true) {
+                APU.setEnabled(true);
+            }
         })
 
         // Save file loading
@@ -780,8 +787,20 @@
         });
 
 
+        KeyBinding.init();
         SaveStorage.init();
         Themes.init();
+
+        document.addEventListener('visibilitychange', () => {
+            if(!c.romLoaded || state !== MainState.Main)
+                return;
+
+            if(document.visibilityState === "visible") {
+                resumeEmulation();
+            } else {
+                pauseEmulation();
+            }
+        })
     </script>
 </body>
 </head>

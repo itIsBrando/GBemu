@@ -1,25 +1,26 @@
 const QUEUE_CYCLES = 4_194_304 / 44000;
 
 class Channel3 {
-        
+
     constructor(parent) {
         this.parent = parent; // APU
         this._enabled = false;
         this.buffer = parent.audioCtx.createBuffer(1, 8192, parent.audioCtx.sampleRate);
         this.gainNode = parent.audioCtx.createGain();
-        
+
+        this.panNode = parent.audioCtx.createStereoPanner();
         this.gainNode.gain.value = 0;
-        
+
         this.queue = new Float32Array(this.buffer.length);
         this.queue_index = 0;
         this.queue_cycles = 0;
-        
+
         /**
          * NR10:
          *  exxxxxxx
          * e=enable
          */
-        
+
         /**
          * NR11:
          *  llllllll
@@ -34,7 +35,7 @@ class Channel3 {
          */
         this.output_level = 0;
         /**
-         * 
+         *
          * NR13:
          *  wwwwwwww
          * w= lower  byte of wavelength (w)
@@ -42,7 +43,7 @@ class Channel3 {
         this.wavelength = 0;
 
         /**
-         * 
+         *
          * NR14:
          *  tcxxxwww
          * t = trigger (w)
@@ -176,7 +177,7 @@ class Channel3 {
     setWavelengthLow(f) {
         this.setWavelength((this.wavelength & 0x700) | (f & 0xFF));
     }
-    
+
     setWavelengthHigh(f) {
         this.setWavelength((this.wavelength & 0xff) | ((f & 0x7) << 8));
     }
@@ -203,5 +204,23 @@ class Channel3 {
     setVolume(v) {
         this.gainNode.gain.value = 0; // 6.66 * (v & 0xf);
     }
+
+
+    /**
+     * Sets left/right channel panning
+     * @param {Number} left left side panning
+     * @param {Number} right side panning
+     */
+    setPan(left, right) {
+        let v = 0;
+
+        if(left)
+            v -= 1;
+        if(right)
+            v += 1;
+
+        this.panNode.pan.value = v;
+    }
+
 
 }

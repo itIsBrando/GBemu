@@ -131,5 +131,3 @@ var KeyBinding = new function() {
         });
     }
 }
-
-KeyBinding.init();

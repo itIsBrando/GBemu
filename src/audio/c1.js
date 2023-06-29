@@ -15,20 +15,15 @@ const LENGTH_STEP_LEN       = APU_CLK / 256;
 
 
 class Channel1 {
-    
+
     constructor(parent) {
         this.parent = parent; // APU
         this._enabled = false;
-        this.oscillator = parent.audioCtx.createOscillator();
-        this.gainNode = parent.audioCtx.createGain();
+        this.oscillator = null;
+        this.gainNode = null;
+        this.panNode = null;
 
-        this.gainNode.gain.value = 0;
-        
-        this.oscillator.type = 'square';
-        this.oscillator.connect(this.gainNode).connect(parent.audioCtx.destination);
-        this.oscillator.start();
-
-        // this.wave = parent.audioCtx.createPeriodicWave(real, imag);
+        this.createAudioNodes(parent.audioCtx);
 
         /**
          * NR10:
@@ -42,7 +37,7 @@ class Channel1 {
         this.sweep_direction = Sweep.UP; // 0=>up | 1=>down
         this.sweep_slope = 0; // 0-7
         this.sweep_enable = false;
-        
+
         /**
          * NR11:
          *  ddllllll
@@ -65,7 +60,7 @@ class Channel1 {
         this.env_pace = 0;
         this.env_pace_shadow = 0;
         /**
-         * 
+         *
          * NR13:
          *  wwwwwwww
          * w= lower  byte of wavelength (w)
@@ -73,7 +68,7 @@ class Channel1 {
         this.wavelength = 0;
 
         /**
-         * 
+         *
          * NR14:
          *  tcxxxwww
          * t = trigger (w)
@@ -89,6 +84,20 @@ class Channel1 {
         this.NRx2 = 0xff12;
         this.NRx3 = 0xff13;
         this.NRx4 = 0xff14;
+    }
+
+    createAudioNodes(audioCtx) {
+        this.oscillator = audioCtx.createOscillator();
+        this.gainNode = audioCtx.createGain();
+        this.panNode = audioCtx.createStereoPanner();
+
+        this.gainNode.gain.value = 0;
+        this.panNode.pan.value = 0;
+        this.oscillator.type = 'square';
+
+
+        this.oscillator.connect(this.gainNode).connect(this.panNode).connect(audioCtx.destination);
+        this.oscillator.start();
     }
 
     reset() {
@@ -109,7 +118,7 @@ class Channel1 {
             w = 0;
             this.enabled = false;
         }
-            
+
         return w;
     }
 
@@ -117,10 +126,10 @@ class Channel1 {
     updateSweep() {
         if(!this.enabled || !this.sweep_enable)
             return;
-        
+
         if(--this.sweep_pace <= 0) {
             const w = this.calculateSweep();
-            
+
             if(this.sweep_pace_shadow === 0) {
                 this.sweep_pace = 8;
             } else {
@@ -132,32 +141,32 @@ class Channel1 {
                 this.calculateSweep();
             }
         }
-        
+
     }
 
     updateEnvelope() {
         // if envelope sweep is enabled
         if(!this.envelope_enabled)
             return;
-        
+
         if(--this.env_pace <= 0) {
             if(this.env_pace_shadow === 0) {
                 this.env_pace = 8;
             } else {
-                const vol = this.env_volume + (this.env_direction == Envelope.UP ? 1 : -1); 
+                const vol = this.env_volume + (this.env_direction == Envelope.UP ? 1 : -1);
                 this.env_pace = this.env_pace_shadow;
 
                 if(vol > 15 || vol < 0)
                     this.envelope_enabled = false;
                 else
                     this.env_volume = vol;
-                
+
                 this.setVolume(this.env_volume);
             }
         }
     }
 
-    
+
     write8(addr, byte) {
         switch(addr) {
             case this.NRx0:
@@ -173,11 +182,11 @@ class Channel1 {
                 this.env_volume_shadow = UInt8.getRange(byte, 4, 4);
                 this.env_direction = UInt8.getBit(byte, 3) ? Envelope.UP : Envelope.DOWN;
                 this.env_pace_shadow = byte & 7;
-                this.dac_enabled = (byte & 0xf8) > 0;
-                
+                this.dac_enabled = (byte & 0xf8) != 0;
+
                 if(!this.dac_enabled)
                     this.enabled = false;
-                
+
                 break;
             case this.NRx3:
                 this.setWavelengthLow(byte);
@@ -185,24 +194,24 @@ class Channel1 {
             case this.NRx4:
                 const trigger = UInt8.getBit(byte, 7);
                 const old_enable = this.length_enable;
-                this.length_enable = Boolean(UInt8.getBit(byte, 6));
+                this.length_enable = UInt8.getBit(byte, 6);
                 this.setWavelengthHigh(byte);
 
                 const frame_sequencer_obscure_behavior = (this.parent.frame_sequencer & 1) === 0;
-                
+
                 if(frame_sequencer_obscure_behavior) {
                     if(!old_enable && this.length_enable && this.length_timer > 0) {
                         this.length_timer--;
-                        
+
                         if(!trigger && this.length_timer === 0) {
                             this.enabled = false;
                         }
                     }
                 }
-                
+
                 if(trigger) {
                     this.trigger();
-                    
+
                     if(frame_sequencer_obscure_behavior && this.length_timer === 64 && this.length_enable) {
                         this.length_timer--;
                     }
@@ -219,9 +228,9 @@ class Channel1 {
         this.enabled = true;
         this.envelope_enabled = true;
         this.env_volume = this.env_volume_shadow;
-        
+
         this.setVolume(this.env_volume);
-        
+
         // obscure behavior
         if(this.sweep_pace_shadow === 0) {
             this.sweep_pace = 8;
@@ -235,15 +244,15 @@ class Channel1 {
         } else {
             this.env_pace = this.env_pace_shadow;
         }
-        
+
         this.sweep_enable = this.sweep_slope || this.sweep_pace_shadow;
-        
+
         if(this.length_timer === 0)
             this.length_timer = 64;
-        
+
         if(this.sweep_slope !== 0)
             this.calculateSweep();
-        
+
         if(!this.dac_enabled)
             this.enabled = false;
     }
@@ -303,7 +312,7 @@ class Channel1 {
     setWavelengthLow(f) {
         this.setWavelength((this.wavelength & 0x700) | (f & 0xFF));
     }
-    
+
     setWavelengthHigh(f) {
         this.setWavelength((this.wavelength & 0xff) | ((f & 0x7) << 8));
     }
@@ -316,8 +325,25 @@ class Channel1 {
     setVolume(v) {
         if(!this.dac_enabled || !APU.master_enable)
             v = 0;
-        
+
         this.gainNode.gain.value = 0.02 * (v & 0xf);
+    }
+
+
+    /**
+     * Sets left/right channel panning
+     * @param {Number} left left side panning
+     * @param {Number} right side panning
+     */
+    setPan(left, right) {
+        let v = 0;
+
+        if(left)
+            v -= 1;
+        if(right)
+            v += 1;
+
+        this.panNode.pan.value = v;
     }
 
 }
