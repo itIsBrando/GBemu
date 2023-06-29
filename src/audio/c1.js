@@ -306,7 +306,7 @@ class Channel1 {
 
     setWavelength(w) {
         this.wavelength = w & 0x7ff;
-        this.oscillator.frequency.value = this.getFrequency();
+        this.oscillator.frequency.value = Math.max(Math.min(this.getFrequency(), this.oscillator.frequency.maxValue), this.oscillator.frequency.minValue);
     }
 
     setWavelengthLow(f) {
