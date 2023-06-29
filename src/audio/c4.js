@@ -92,8 +92,8 @@ class Channel4 extends Channel1 {
 
         this.cycles += cycles;
 
-        while(this.cycles >= this.freq) {
-            const next_bit = (UInt8.getBit(this.lfsr, 0) ^ UInt8.getBit(this.lfsr, 1)) | 0;
+        if(this.cycles >= this.freq) {
+            const next_bit = ((this.lfsr & 2) >> 1) ^ (this.lfsr & 1);
             this.cycles -= this.freq;
 
             this.lfsr >>= 1;
@@ -105,12 +105,13 @@ class Channel4 extends Channel1 {
             if(this.lfsr_width_is_byte) {
                 this.lfsr |= next_bit << 6;
             }
-        }
 
-        if(this.lfsr_lsb & 1) {
-            this.oscillator.offset.value = -1;
-        } else {
-            this.oscillator.offset.value = 1;
+
+            if(this.lfsr_lsb & 1) {
+                this.oscillator.offset.value = -1;
+            } else {
+                this.oscillator.offset.value = 1;
+            }
         }
     }
 
