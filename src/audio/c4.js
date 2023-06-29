@@ -108,9 +108,9 @@ class Channel4 extends Channel1 {
 
 
             if(this.lfsr_lsb & 1) {
-                this.oscillator.offset.value = -1;
+                // this.oscillator.offset.value = -1;
             } else {
-                this.oscillator.offset.value = 1;
+                // this.oscillator.offset.value = 1;
             }
         }
     }
