@@ -540,6 +540,9 @@ class CPU {
         CPU.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
         CPU.LOG(`ROM Name: ${this.readROMName()}`);
 
+        // change document title
+        document.title = `GBemu - ${this.readROMName()}`;
+
         this.romLoaded = true;
     }
 
