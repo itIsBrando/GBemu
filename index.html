@@ -801,6 +801,14 @@
                 pauseEmulation();
             }
         })
+
+        if(Settings.get_core('pwa', 'false') != false) {
+            window.history.pushState({}, '');
+
+            window.addEventListener('popstate', function() {
+                window.history.pushState({}, '');
+            })
+        }
     </script>
 </body>
 </head>
