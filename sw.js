@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v4.6.54';
+const CACHE_NAME = 'gbemu-v4.6.55';
 
 const FILES = [
     "./",

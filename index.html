@@ -802,7 +802,11 @@
             }
         })
 
-        if(Settings.get_core('pwa', 'false') != false) {
+        function isSafari() {
+            return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        }
+
+        if(Settings.get_core('pwa', 'false') != false && !isSafari()) {
             window.history.pushState({}, '');
 
             window.addEventListener('popstate', function() {
