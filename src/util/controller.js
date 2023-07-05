@@ -53,10 +53,10 @@ document.addEventListener('keyup', function(event) {
                 restartEmulation();
                 break;
             case 'd': // open debugger
-                Debug.start();
+                State.push(MainState.DebugMenu);
                 break;
             case ',': // open settings
-                Settings.show();
+                State.push(MainState.SettingsMenu);
                 break;
         }
 

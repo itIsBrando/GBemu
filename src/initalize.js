@@ -1,14 +1,7 @@
 "use strict"
 const INTERVAL_SPEED = 8;
 
-const MainState = {
-    Main: 0,
-    Menu: 1,
-    KeyboardAssign: 2,
-}
-
 var c = new CPU();
-var state = MainState.Main;
 
 /**
  * @param {ArrayBuffer} rom

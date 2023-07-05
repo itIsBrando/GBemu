@@ -227,12 +227,12 @@
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
             <button type="button" class="dropdown-btn" onclick="document.getElementById('ThemeDiv').style.display='block';">Skin</button>
             <button type="button" id="enterDebugger" class="dropdown-btn"
-            onclick="Debug.start();">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
+            onclick="State.push(MainState.DebugMenu);">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
             <button type="button" class="dropdown-btn"
             onclick="Cheats.start();">Cheats</button>
             <!-- <button type="button" class="dropdown-btn"
             onclick="Link.start();">Link Cable</button> -->
-            <button type="button" title="open settings" class="dropdown-btn" onclick="Settings.show();">Settings <a class="shortcut-text">(Ctrl+ ,)</a></button>
+            <button type="button" title="open settings" class="dropdown-btn" onclick="State.push(MainState.SettingsMenu);">Settings <a class="shortcut-text">(Ctrl+ ,)</a></button>
         </div>
     </div>
 
@@ -279,7 +279,7 @@
     <div id="SettingsDiv" style="opacity: 0;" class="save-menu">
         <div class="menu-header">
             <a style="padding-left: 5px;">Settings</a>
-            <button type="button" class="x-btn" onclick="Settings.hide();">&times;</button>
+            <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
         </div>
         <div class="settings-grid" style="grid-template-rows: repeat(10, 40px);">
             <b class="settings-title">Emulation</b>
@@ -401,7 +401,7 @@
                 onclick="Debug.showDisasm();">Disassembly</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMemory();">Memory</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showPalette();">Palette</button>
-            <button type="button" class="menubtn debug-title-btn" onclick="Debug.quit();">&times;</button>
+            <button type="button" class="menubtn debug-title-btn" onclick="State.pop();">&times;</button>
         </div>
         <div id="PalDiv" class="debug-pal-tab">
             <div id="PalBG" class="debug-pal-prev debug-box"></div>
@@ -502,7 +502,7 @@
         <div id="DisassemblyBreakpoints" class="popup-no-border shadow">
             <div class="menu-header-no-ext">
                 <b>Breakpoints</b>
-                <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
+                <button onclick="State.pop();" class="x-btn" type="button">&times;</button>
             </div>
             <fieldset id="DisBreakpointList"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
@@ -599,7 +599,7 @@
     <div class="save-menu" id="popup" style="overflow: hidden;">
         <div class="menu-header" id="popup-title">
             <a>Save Files</a>
-            <button type="button" class="x-btn" onclick="SaveManager.hide();">&times;</button>
+            <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
             <div class="info-div">
                 <button type="button" class="info-btn"></button>
                 <div class="info-content">
@@ -703,8 +703,8 @@
     <script src="src/cpu.js"></script>
     <script src="src/initalize.js"></script>
     <script src="src/util/palette.js"></script>
+    <script src="src/util/state.js"></script>
     <script src="src/util/touch.js"></script>
-    <!-- <script src="wasm/pkg/wasm.js"></script> -->
     <script type="text/javascript">
         let inputForm = document.getElementById('inputfile');
 
@@ -743,7 +743,6 @@
             reader.onloadend = function () {
                 const m = new PromptMenu("Save as", "Name", /[0-9A-Za-z]+/g, 20, (v) => {
                     SaveManager.save(v, new Uint8Array(reader.result), SaveType.SAV);
-                    // SaveManager.hide();
                     localSaveButton.click(); // redraw saves
                 });
                 m.show();
@@ -801,18 +800,6 @@
                 pauseEmulation();
             }
         })
-
-        function isSafari() {
-            return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        }
-
-        if(Settings.get_core('pwa', 'false') != false && !isSafari()) {
-            window.history.pushState({}, '');
-
-            window.addEventListener('popstate', function() {
-                window.history.pushState({}, '');
-            })
-        }
     </script>
 </body>
 </head>

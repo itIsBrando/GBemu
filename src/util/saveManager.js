@@ -74,7 +74,7 @@ function _canSave()
     SaveManager.save(SaveManager.getSaveString(_delKey), c.mbcHandler.ram, type, c.readROMName());
 
     _delKey = null;
-    SaveManager.hide();
+    State.pop();
 }
 
 
@@ -137,8 +137,7 @@ localSaveButton.addEventListener('click', function() {
         }
     });
 
-    if(!SaveManager.show())
-        return;
+    State.push(MainState.SaveMenu);
 });
 
 
@@ -269,8 +268,6 @@ var SaveManager = new function() {
         if(popupMenu.style.display == "block")
             return false;
 
-        state = MainState.Menu;
-
         showElement(popupMenu);
         Themes.setSettingsBar();
 
@@ -286,7 +283,6 @@ var SaveManager = new function() {
         hideElementFadeOut(popupMenu);
 
         resumeEmulation();
-        state = MainState.Main;
 
         Themes.setStatusBar();
 
@@ -553,11 +549,11 @@ var SaveManager = new function() {
 
         if(!data) {
             // this should never be called
-            Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, SaveManager.hide);
+            Menu.message.show(`Could not find <b style="color:green;">${key}</b>.`, "Internal Error", false, null, State.pop);
             return;
         }
 
-        SaveManager.hide();
+        State.pop();
 
         if(type == SaveType.SAV) {
             MBC1.useSaveData(data);
@@ -643,7 +639,7 @@ localLoadButton.addEventListener('click', function() {
         SaveManager.injectLocalStorage(key);
     });
 
-    SaveManager.show();
+    State.push(MainState.SaveMenu);
 })
 
 /**

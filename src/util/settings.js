@@ -158,7 +158,6 @@ var Settings = new function() {
         Themes.setSettingsBar();
 
         pauseEmulation();
-        state = MainState.Menu;
 
         showElementFadeIn(MainDiv);
     }
@@ -167,7 +166,6 @@ var Settings = new function() {
         Renderer.frameSkip = Renderer.frameSkipAmount = Number(getCheckedRadio("FrameSkip"));
 
         resumeEmulation();
-        state = MainState.Main;
 
         hideElementFadeOut(MainDiv);
         Themes.setStatusBar();

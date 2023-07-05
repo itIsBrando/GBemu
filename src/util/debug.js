@@ -26,16 +26,14 @@ var Debug = new function() {
 		else
 			showElement(DebugDiv, 'grid');
 
-		state = MainState.Menu;
-
-		this.hideOpen();
+		Debug.hideOpen();
 		pauseEmulation();
-		this.enabled = true;
+		Debug.enabled = true;
 
 		Themes.setSettingsBar();
 
-        if(this.initialized) {
-			this.showDisasm();
+        if(Debug.initialized) {
+			Debug.showDisasm();
 			return;
 		}
 
@@ -176,8 +174,7 @@ var Debug = new function() {
 	}
 
 	this.quit = function(fadeOut = true) {
-		this.enabled = false;
-		state = MainState.Main;
+		Debug.enabled = false;
 
 		Themes.setStatusBar();
 		if(fadeOut)
@@ -185,7 +182,7 @@ var Debug = new function() {
 		else
 			hideElement(DebugDiv);
 
-        this.hideBreak();
+        Debug.hideBreak();
 		resumeEmulation();
 	}
 

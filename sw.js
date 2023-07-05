@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gbemu-v4.6.55';
+const CACHE_NAME = 'gbemu-v4.6.6';
 
 const FILES = [
     "./",
@@ -47,6 +47,7 @@ const FILES = [
     "./src/timer.js",
     "./src/cpu.js",
     "./src/initalize.js",
+    "./src/util/state.js",
     "./icons/icon_108x108.png",
     "./icons/old_icon_200x200.png",
     "./icons/splash_512x512.png",
