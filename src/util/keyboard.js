@@ -101,8 +101,9 @@ var KeyBinding = new function() {
     this.assign = function(buttonName, elem) {
         if(state === MainState.KeyboardAssign)
             this.fillButtonText();
+        else
+            State.push(MainState.KeyboardAssign);
 
-        setState(MainState.KeyboardAssign);
         this.modifyingButton = buttonName;
         elem.classList.add("keybinding-assigning");
         styling.innerHTML = styling.innerHTML.replace(/content: *'.*'/, `content:'Press key to bind for ${buttonName}.<esc> to cancel'`);
@@ -113,7 +114,7 @@ var KeyBinding = new function() {
      * for some reason this function gets called 8 times from the keyboard event but whatever
     */
     this.setKey = function(keyName) {
-        setState(MainState.SettingsMenu);
+        State.pop();
 
         if(keyName === 'escape') {
             this.fillButtonText();
@@ -124,7 +125,7 @@ var KeyBinding = new function() {
             if(this.bindings[btn] == this.modifyingButton)
                 delete this.bindings[btn];
                 this.bindings[keyName] = this.modifyingButton;
-                // Menu.message.show(`<code>${this.modifyingButton}</code> assigned to ${keyName}`, "Key rebound");
+                Menu.alert.show(`<code>${this.modifyingButton}</code> assigned to ${keyName}`);
                 this.fillButtonText();
                 Settings.set_core('keybinding', JSON.stringify(this.bindings));
                 return;

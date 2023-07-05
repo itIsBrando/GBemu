@@ -4,7 +4,7 @@ const MainState = {
     SettingsMenu: { id: 1, onload: Settings.show, onunload: Settings.hide },
     DebugMenu: { id: 2, onload: Debug.start, onunload: Debug.quit },
     SaveMenu: { id: 3, onload: SaveManager.show, onunload: SaveManager.hide },
-    KeyboardAssign: { id: 4, onload: null, onunload: null },
+    KeyboardAssign: { id: 4, onload: null, onunload: () => {KeyBinding.fillButtonText();} },
 }
 
 var state = MainState.Main;
@@ -21,7 +21,7 @@ var State = new function() {
         if(s && s.onload)
             s.onload();
 
-        // console.log(`State set to ${s}`)
+        // console.log(`State set to ${s.id}`)
     }
 
     /**
@@ -44,7 +44,10 @@ var State = new function() {
         }
 
         // console.log('popped state');
-        this.set(stateStack.pop());
+        stateStack.pop();
+
+
+        this.set(stateStack[stateStack.length - 1]);
     }
 }
 

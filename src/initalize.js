@@ -11,7 +11,7 @@ function startEmulation(rom) {
         useExternalSaveFile = false;
     }
 
-    state = MainState.Main;
+    State.set(MainState.Main);
     clearInterval(c.timer);
     c.initialize();
     c.loadROM(rom);

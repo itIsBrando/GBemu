@@ -167,6 +167,7 @@ var Settings = new function() {
 
         resumeEmulation();
 
+        KeyBinding.hide();
         hideElementFadeOut(MainDiv);
         Themes.setStatusBar();
     }
