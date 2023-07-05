@@ -74,7 +74,7 @@
     max-height: calc(100% - 50px);
     display: flex;
     flex-direction: column;
-    margin: 10px 8%;
+    margin: 10px 15%;
     border-radius: 5px;
     overflow: hidden auto;
 }

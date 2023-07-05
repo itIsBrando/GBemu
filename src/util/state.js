@@ -57,13 +57,15 @@ function isSafari() {
 }
 
 
-window.onload = function() {
+/**
+ * Disabled feature on safari because it partially reloads the page when
+ *  rewinding so no thank you.
+ */
+window.addEventListener('onload', function() {
     if(('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari()) {
         window.history.pushState({'base': 1}, ''); // object is actually unused
 
         window.addEventListener('popstate', function(e) {
-            // console.log(e.state);
-
             window.history.pushState(e.state, '');
             // console.log('push history');
 
@@ -72,4 +74,4 @@ window.onload = function() {
             }
         })
     }
-}
+});

@@ -276,6 +276,7 @@ var SaveManager = new function() {
         showElementFadeIn(popupMenu);
 
         window.addEventListener('resize', saveButtonDivResize);
+        saveButtonDivResize();
     }
 
 
