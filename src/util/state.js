@@ -61,7 +61,7 @@ function isSafari() {
  * Disabled feature on safari because it partially reloads the page when
  *  rewinding so no thank you.
  */
-window.addEventListener('onload', function() {
+window.addEventListener('load', function() {
     if(('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari()) {
         window.history.pushState({'base': 1}, ''); // object is actually unused
 
