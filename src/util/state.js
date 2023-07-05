@@ -58,7 +58,7 @@ function isSafari() {
 
 
 window.onload = function() {
-    if(true || (('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari())) {
+    if(('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari()) {
         window.history.pushState({'base': 1}, ''); // object is actually unused
 
         window.addEventListener('popstate', function(e) {
