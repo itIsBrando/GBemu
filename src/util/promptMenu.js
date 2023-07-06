@@ -12,11 +12,11 @@ const infoDiv = document.getElementById('PromptInfo');
   * 'onexit' event is never called
  */
 class PromptMenu {
-    
+
     static onsubmit;
     static onexit;
 	static oncancel;
-    
+
     constructor(t, p='', accepts = /\w+/g, maxlen=999999, onsubmit=null, onexit=null, defaulttext='', buttontext='OK', cancelText=null, oncancel=null) {
         div.innerHTML = "";
         this.accepts = accepts;
@@ -37,12 +37,12 @@ class PromptMenu {
 	 */
 	static getChoice() {
 		const list = div.getElementsByTagName('fieldset')[0];
-		
+
 		if(list == null)
 			return [null, null];
 
 		const id = list.id;
-		
+
 		for(let i = 0; i < list.children.length; i++) {
 			const child = list.children[i];
 
@@ -113,14 +113,14 @@ class PromptMenu {
 		infoDiv.innerHTML = content;
 		showElement(infoDiv.parentElement);
 	}
-    
+
     show() {
         const pat = this.accepts;
         const len = this.maxlength;
-        
+
 		if(!this.maxlength)
 			this.maxlength = 999999;
-		
+
         textInput.oninput = function(e) {
 			const match = e.target.value.match(pat);
             e.target.value = match ? match[0] : '';
@@ -136,7 +136,7 @@ class PromptMenu {
 				PromptMenu.submit();
 			}
 		}
-        
+
         textInput.value = this.value;
         title.innerHTML = this.title;
 
@@ -150,18 +150,20 @@ class PromptMenu {
 		} else {
 			hideElement(cancel);
 		}
-        
+
         showElement(menu);
 
 		textInput.focus();
+
+		State.push(MainState.Prompt);
     }
-    
+
     static submit() {
 		const [id, chc] = this.getChoice();
 
 		if(textInput.value.length == 0)
 			return;
-		
+
         if(PromptMenu.onsubmit) {
 			const dict = {};
 			dict[id] = {
@@ -169,15 +171,25 @@ class PromptMenu {
 			};
 			PromptMenu.onsubmit(textInput.value, dict);
 		}
-        
+
         this.hide();
     }
-    
-    static hide() {
-        hideElement(menu);
+
+	static shown() {
+		return menu.style.display != 'none';
+	}
+
+	static _hide() {
+		hideElement(menu);
 		hideElement(infoDiv.parentElement);
 
 		textInput.value = "";
 		infoDiv.innerHTML = "";
+	}
+
+    static hide() {
+		if(PromptMenu.shown())
+			State.pop();
+        PromptMenu._hide();
     }
 }

@@ -5,6 +5,7 @@ const MainState = {
     DebugMenu: { id: 2, onload: Debug.start, onunload: Debug.quit },
     SaveMenu: { id: 3, onload: SaveManager.show, onunload: SaveManager.hide },
     KeyboardAssign: { id: 4, onload: null, onunload: () => {KeyBinding.fillButtonText();} },
+    Prompt: {id: 5, onload: null, onunload: PromptMenu._hide},
 }
 
 var state = MainState.Main;
@@ -44,7 +45,12 @@ var State = new function() {
         }
 
         // console.log('popped state');
-        stateStack.pop();
+        if(stateStack.length > 1) {
+            stateStack.pop();
+        } else {
+            // fallback in case we somehow pop the first elem
+            stateStack[0] = MainState.Main;
+        }
 
 
         this.set(stateStack[stateStack.length - 1]);
@@ -61,7 +67,7 @@ function isSafari() {
  * Disabled feature on safari because it partially reloads the page when
  *  rewinding so no thank you.
  */
-window.addEventListener('load', function() {
+window.onload = function() {
     if(('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari()) {
         window.history.pushState({'base': 1}, ''); // object is actually unused
 
@@ -74,4 +80,4 @@ window.addEventListener('load', function() {
             }
         })
     }
-});
+}
