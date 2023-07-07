@@ -11,6 +11,7 @@ const MainState = {
 
 var state = MainState.Main;
 let stateStack = [MainState.Main];
+let useHistory = false;
 
 var State = new function() {
 
@@ -33,7 +34,7 @@ var State = new function() {
     this.push = function(s) {
         stateStack.push(s);
 
-        if('history' in window)
+        if(useHistory)
             window.history.replaceState({'hello': s.id}, '', `?m=${s.id}`);
 
         this.set(s);
@@ -69,7 +70,9 @@ function isSafari() {
  *  rewinding so no thank you.
  */
 window.onload = function() {
-    if(('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari()) {
+    useHistory = ('history' in window) && Settings.get_core('pwa', 'false') != false && !isSafari();
+
+    if(useHistory) {
         window.history.pushState({'base': 1}, ''); // object is actually unused
 
         window.addEventListener('popstate', function(e) {
