@@ -263,7 +263,7 @@
     <!-- Link Cable menu -->
     <div id="LinkDiv" class="popup-no-border shadow">
         <div class="menu-header-no-ext">
-            <b>Link Cable</b>
+            <a>Link Cable</a>
             <button type="button" class="x-btn" onclick="Link.hide();">&times;</button>
         </div>
         Get started by creating a session and a code,
@@ -278,7 +278,7 @@
     <!-- Settings menu -->
     <div id="SettingsDiv" style="opacity: 0;" class="save-menu">
         <div class="menu-header">
-            <a style="padding-left: 5px;">Settings</a>
+            <a>Settings</a>
             <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
         </div>
         <div class="settings-grid" style="grid-template-rows: repeat(10, 40px);">
@@ -298,9 +298,9 @@
                     class="menubtn settings-btn" onclick="CoreSetting.next('ShaderType');">none</button>
             </label>
             <!-- DMG Palette -->
-            <label for="dmgPal">DMG Palette Colors:
+            <label for="dmgPal">DMG Palette:
                 <button type="button" id="dmgPal" name="dmgPal" class="menubtn settings-btn"
-                        onclick="Palette.show();">edit</button>
+                        onclick="State.push(MainState.PaletteMenu);">edit</button>
             </label>
             <!-- Frame skip -->
             <label>Frame skip:
@@ -367,7 +367,7 @@
     <!-- Cheats Menu -->
     <div id="CheatsDiv" class="popup-no-border shadow">
         <div class="menu-header-no-ext">
-            Cheats
+            <a>Cheats</a>
             <button type="button" class="x-btn" onclick="Cheats.hide();">&times;</button>
             <button onclick="Cheats.add();" class="icon-btn" style="float: right;" type="button">+</button>
         </div>
@@ -501,7 +501,7 @@
         <!-- A new menu for managing breakpoints -->
         <div id="DisassemblyBreakpoints" class="popup-no-border shadow">
             <div class="menu-header-no-ext">
-                <b>Breakpoints</b>
+                <a>Breakpoints</a>
                 <button onclick="State.pop();" class="x-btn" type="button">&times;</button>
             </div>
             <fieldset id="DisBreakpointList"
@@ -617,23 +617,14 @@
     </div>
 
     <!-- Change palette colors -->
-    <div class="popup-no-border shadow" id="paletteSetDiv">
-        <div class="menu-header-no-ext" style="text-align: center;">
-            <!-- header -->
-            <button type="button" class="x-btn" onclick="Palette.hide()">&times;</button>
-            <!-- arrows -->
-            <button type="button" class="icon-btn" style="float: left;"
-                onclick="Palette.onPaletteArrow(-1)">&larr;</button>
-            <button type="button" class="icon-btn" style="float: right;"
-                onclick="Palette.onPaletteArrow(1)">&rarr;</button>
-            <a id="paletteTitle"></a>
+    <div class="save-menu" id="paletteSetDiv">
+        <div class="menu-header">
+            <a>Palette Menu</a>
+            <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
         </div>
         <!-- color inputs -->
-        <div class="palette-menu">
-            <div id="colorPreview0" class="color-preview"></div>
-            <div id="colorPreview1" class="color-preview"></div>
-            <div id="colorPreview2" class="color-preview"></div>
-            <div id="colorPreview3" class="color-preview"></div>
+        <div style="height: 100%; width: 100%; overflow: hidden auto; padding-bottom: 50px;">
+            <div id="PaletteList"></div>
         </div>
         <button onclick="Palette.apply();" type="button" id="colorSelected" class="menubtn" style="width:100%;">select</button>
     </div>
@@ -789,6 +780,7 @@
         KeyBinding.init();
         SaveStorage.init();
         Themes.init();
+        Palette.load();
 
         document.addEventListener('visibilitychange', () => {
             if(!c.romLoaded || state !== MainState.Main)

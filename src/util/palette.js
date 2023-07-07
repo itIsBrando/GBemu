@@ -23,6 +23,24 @@ const ALL_PALETTES = {
         [175, 85, 85],
         [80, 0, 0]
     ],
+    "Dandelion": [
+        [218, 172, 0],
+        [166, 131, 6],
+        [102, 80, 3],
+        [38, 30, 1]
+    ],
+    "Teal": [
+        [0, 147, 138],
+        [0, 112, 105],
+        [0, 69, 64],
+        [0, 25, 24]
+    ],
+    "Pink": [
+        [248, 192, 248],
+        [232, 136, 136],
+        [120, 48, 232],
+        [40, 40, 152]
+    ],
     "Rustic": [
         [0xed, 0xb4, 0xa1],
         [0xa9, 0x68, 0x68],
@@ -45,76 +63,67 @@ const ALL_PALETTES = {
 
 var Palette = new function() {
     // color palette
-    const colorSelected = document.getElementById('colorSelected');
     const paletteSetDiv = document.getElementById('paletteSetDiv');
-    const paletteTitle = document.getElementById('paletteTitle');
-    const colorPreviews = [
-        document.getElementById('colorPreview0'),
-        document.getElementById('colorPreview1'),
-        document.getElementById('colorPreview2'),
-        document.getElementById('colorPreview3'),
-    ];
     const paletteNames = Object.keys(ALL_PALETTES);
-    
+
     // color index
-    let currentPaletteIndex = 0;
     let appliedPaletteIndex = 0;
-    
+
     this.show = function() {
         showElement(paletteSetDiv);
-        this.onPaletteArrow(0);
+        Palette.draw();
     }
-    
+
     // hides the palette selection menu
     this.hide = function() {
         hideElement(paletteSetDiv);
     }
-    
+
     // sets the preview color's background color
-    this.setPreviewCol = function() {
-        const pal = ALL_PALETTES[paletteNames[currentPaletteIndex]];
-        
-        paletteTitle.innerText = paletteNames[currentPaletteIndex];
-        for(let i = 0; i < 4; i++) {
-            const col = "rgb(" + pal[i][0] + ', ' + pal[i][1] + ', ' + pal[i][2] + ')';
-            colorPreviews[i].style.backgroundColor = col;
-        }
+    this.getPreviewCol = function(pal) {
+        return `rgb(${pal[0]}, ${pal[1]}, ${pal[2]})`;
     }
 
-
-    this.applyPalette = function() {
-        Renderer.setPalette(ALL_PALETTES[paletteNames[currentPaletteIndex]]);
-        appliedPaletteIndex = currentPaletteIndex;
-    }
-    
     /**
      * Changes the color index that the user is editing
-     * @param dir -1 to move left or 1 to move right
      */
-    this.onPaletteArrow = function(dir) {
-        if(currentPaletteIndex + dir < 0)
-            currentPaletteIndex = paletteNames.length - 1;
-        else
-            currentPaletteIndex = (currentPaletteIndex + dir) % paletteNames.length;
+    this.draw = function() {
+        const PaletteList = document.getElementById('PaletteList');
 
-        if(currentPaletteIndex == appliedPaletteIndex) {
-            colorSelected.disabled = true;
-            colorSelected.className = "menubtn-no-hover";
-            colorSelected.innerText = "selected";
-        } else {
-            colorSelected.disabled = false;
-            colorSelected.className = "menubtn";
-            colorSelected.innerText = "select";
+        let s = '';
+
+        for(let i in paletteNames) {
+            const key = paletteNames[i];
+            const bg = i == appliedPaletteIndex ? 'var(--ui-accent)' : 'var(--ui-primary-button)';
+            const prototype = `
+            <div class="menubtn palette-card" style="background: ${bg};" onclick="Palette.apply(${i});">
+                    <div class="palette-menu-text">${key}</div>
+                    <div class="palette-menu">
+                        <div style="background: ${this.getPreviewCol(ALL_PALETTES[key][0])}"></div>
+                        <div style="background: ${this.getPreviewCol(ALL_PALETTES[key][1])}"></div>
+                        <div style="background: ${this.getPreviewCol(ALL_PALETTES[key][2])}"></div>
+                        <div style="background: ${this.getPreviewCol(ALL_PALETTES[key][3])}"></div>
+                    </div>
+            </div>`;
+
+            s += prototype;
         }
-        
-        this.setPreviewCol();
+
+        PaletteList.innerHTML = s;
     }
 
-    this.apply = function() {
-        const data = currentPaletteIndex;
+
+    this.setPalette = function(i) {
+        Renderer.setPalette(ALL_PALETTES[paletteNames[i]]);
+        appliedPaletteIndex = i;
+    }
+
+
+    this.apply = function(i) {
+        const data = i;
         Settings.set_core("defaultPalette", data);
-        this.applyPalette();
-        this.onPaletteArrow(0);
+        this.setPalette(i);
+        this.draw();
     }
 
     this.load = function() {
@@ -123,10 +132,7 @@ var Palette = new function() {
         if(!palIndex)
             return;
 
-        currentPaletteIndex = Number(palIndex) || 0;
-        this.applyPalette();
+        this.setPalette(Number(palIndex) | 0);
 
     }
 }
-
-Palette.load();

@@ -6,6 +6,7 @@ const MainState = {
     SaveMenu: { id: 3, onload: SaveManager.show, onunload: SaveManager.hide },
     KeyboardAssign: { id: 4, onload: null, onunload: () => {KeyBinding.fillButtonText();} },
     Prompt: {id: 5, onload: null, onunload: PromptMenu._hide},
+    PaletteMenu: {id: 6, onload: Palette.show, onunload: Palette.hide},
 }
 
 var state = MainState.Main;

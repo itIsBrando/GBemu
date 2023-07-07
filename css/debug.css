@@ -33,17 +33,18 @@
     border: 1px solid #666;
 }
 
-.color-preview {
-    width: 100%;
-    aspect-ratio: 4 / 1;
-}
-
 .palette-input {
     height: 33%;
 }
 
 .palette-menu {
-    display: inline;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    aspect-ratio: 1 / 1;
+    max-height: 175px;
+    min-height: 90px;
+    padding: 5px;
+    transition: all 0.2s;
 }
 
 #TilePrevDiv {

@@ -21,6 +21,7 @@
     color: var(--ui-background-text);
     height: fit-content;
     min-height: 30px;
+    padding-top: max(15px, env(safe-area-inset-top));
 }
 
 .menu-header-no-ext {
@@ -265,10 +266,6 @@
 
 @media (max-width: 500px),
         (max-height: 500px) and (orientation: landscape) {
-            .menu-header {
-                padding-top: max(15px, env(safe-area-inset-top));
-            }
-
             /* Do not show shortcut text on mobile */
             .shortcut-text {
                 display: none;

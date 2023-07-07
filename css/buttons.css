@@ -11,6 +11,30 @@
     transition: filter 0.4s;
 }
 
+
+.palette-card {
+    display: grid;
+    grid-template-columns: 2fr auto;
+    width: calc(100% - 10px);
+    margin: 5px;
+}
+
+.palette-card:hover .palette-menu  {
+    padding: 0;
+    transform: translate(-5px);
+}
+
+.palette-card:hover .palette-menu-text {
+    font-size: 1.3em;
+}
+
+.palette-menu-text {
+    display: grid;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+
 .prompt-button {
     background-color: transparent;
     color: var(--ui-accent);

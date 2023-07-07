@@ -34,7 +34,7 @@ class Renderer {
          */
         this.scrnIndexes = new Uint8Array(160 * 144);
         this.screen = this.context.getImageData(0, 0, 160, 144);
-        this.fillBuffer(palette[0][0], palette[0][1], palette[0][2]);
+        this.fillBuffer(0);
         this.filter = new Filter(canvas, 1);
 
         this.context.globalAlpha = 1.0;
@@ -47,7 +47,7 @@ class Renderer {
          * @link https://github.com/shonumi/gbe-plus/commit/15df53c83677062f98915293fc03620af65bd7c4
          */
         this.internalWinOffset = 0;
-        this.drawBuffer(240, 255, 240);
+        this.drawBuffer();
     }
 
     export() {
@@ -79,8 +79,10 @@ class Renderer {
 
     /**
      * Fills the screen with GB color white
+     * @param palIndex index of the DMG palette color to fill screen with (0-3)
      */
-    fillBuffer(r, g, b) {
+    fillBuffer(palIndex) {
+        let [r, g, b] = palette[palIndex & 3];
         for(let i = 0; i < this.screen.data.length; i += 4) {
             this.screen.data[i] = r;
             this.screen.data[i + 1] = g;

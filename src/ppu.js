@@ -89,14 +89,17 @@ class PPU {
             palette[(o1 & 0b00110000) >> 4],
             palette[(o1 & 0b11000000) >> 6]
         ];
+
+        if(!this.parent.romLoaded) {
+            this.parent.renderer.fillBuffer(0);
+            this.parent.renderer.drawBuffer();
+        }
     }
 
     /**
      * Resets palettes
      */
     reset() {
-        this.onPaletteChange();
-
         this.cgb.bgAutoInc = 0;
         this.cgb.objAutoInc = 0;
         this.cgb.bgi = 0;
