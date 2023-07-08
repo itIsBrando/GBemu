@@ -110,20 +110,21 @@ class Renderer {
      */
     renderMap() {
         const ppu = this.parent.ppu;
+
+        if((ppu.regs.lcdc & 1) == 0 && !this.parent.cgb)
+            return; // @todo this should fill in with bgpal color 0
+
         const scy = ppu.regs.scy, scx = ppu.regs.scx;
         const scanline = ppu.regs.scanline;
         const yOffset = ((scanline + scy) >> 3) & 0x1F;
         const y = (scanline + scy) & 7; // same as % 8
-
-        if(!UInt8.getBit(ppu.regs.lcdc, 0) && !this.parent.cgb)
-            return; // @todo this should fill in with bgpal color 0
 
         for(let i = 0; i <= 20; i++) {
             const xOffset = (i + (scx >> 3)) & 0x1F;
             const mapAddress = ppu.mapBase + xOffset + (yOffset << 5);
             const tileNum = this.parent.mem.vram[mapAddress - 0x8000];
             const flags = ppu.getTileAttributes(mapAddress);
-            const yFlip = UInt8.getBit(flags, 6);
+            const yFlip = flags & 64;
 
             const tx = yFlip ? 7 - y : y; // tile addr offset
             const tileAddr = ppu.getBGTileAddress(tileNum) + (tx << 1);
@@ -138,9 +139,9 @@ class Renderer {
     renderWindow() {
         const ppu = this.parent.ppu;
         // return if window is disabled
-        if(!UInt8.getBit(ppu.regs.lcdc, 5))
+        if((ppu.regs.lcdc & 32) === 0)
             return;
-        if(!UInt8.getBit(ppu.regs.lcdc, 0) && this.parent.cgb)
+        if((ppu.regs.lcdc & 1) === 0 && !this.parent.cgb)
             return;
 
         const wx = ppu.regs.wx;
@@ -166,7 +167,7 @@ class Renderer {
             const y = yMap & 7;
             const mapAddress = mapBase + ( ( yMap >> 3 ) * 32 ) + xMap - ( wx >> 3 );
             const flags = ppu.getTileAttributes(mapAddress);
-            const yFlip = UInt8.getBit(flags, 6);
+            const yFlip = flags & 64;
 
             const tx = yFlip ? 7 - y : y; // tile addr offset
             const tileAddress = ppu.getBGTileAddress(this.parent.mem.vram[mapAddress - 0x8000]) + (tx << 1);
@@ -249,7 +250,7 @@ class Renderer {
     drawTileLine(x, y, tileAddress, flags, pal, isObj = false) {
         if(y >= 144) { return };
         const cpu = this.parent;
-        const xFlip = UInt8.getBit(flags, 5);
+        const xFlip = flags & 32;
 
         // override VRAM bank reading
         tileAddress -= 0x8000;
@@ -308,16 +309,14 @@ class Renderer {
     static getPalette(cpu, isBG, flags) {
         if(!cpu.cgb) {
             if(isBG)
+                return cpu.ppu.cgb.rgbBG[flags & 7];
+            else
+                return cpu.ppu.cgb.rgbOBJ[flags & 7];
+        } else {
+            if(isBG)
                 return cpu.ppu.bgPal;
 
-            return UInt8.getBit(flags, 4) ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
-        } else {
-            // CGB palettes
-            const palNum = flags & 0x7;
-            if(isBG)
-                return cpu.ppu.cgb.rgbBG[palNum];
-            else
-                return cpu.ppu.cgb.rgbOBJ[palNum];
+            return flags & 16 ? cpu.ppu.obj1Pal : cpu.ppu.obj0Pal;
         }
     }
 
