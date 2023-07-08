@@ -307,7 +307,7 @@ class Renderer {
      * @returns Array with four entries encoded in RGB
      */
     static getPalette(cpu, isBG, flags) {
-        if(!cpu.cgb) {
+        if(cpu.cgb) {
             if(isBG)
                 return cpu.ppu.cgb.rgbBG[flags & 7];
             else
