@@ -18,8 +18,9 @@ function showElementFadeIn(e, style = 'block') {
 
     showElement(e, style);
     const a = function() {
+        opacity += 0.2;
         e.style.opacity = opacity;
-        opacity += 0.1;
+
         if(opacity < 1)
             setTimeout(a, 5);
     }
@@ -41,8 +42,8 @@ function getCheckedRadio(formName) {
 let oncancel, onconfirm;
 
 var Menu = new function() {
-    
-    
+
+
     this.message = new function() {
         var messageDiv = document.getElementById('messageID');
         var messageConfirm = document.getElementById('messageConfirm');
@@ -59,64 +60,64 @@ var Menu = new function() {
         this.show = function(string, title, useCancel = false, _oncancel = null, _onconfirm = null) {
             const messageContent = document.getElementById('messageContent');
             const messageHeader = document.getElementById('messageHeader');
-        
+
             messageContent.innerHTML = string || "";
             messageHeader.textContent = title || "";
-        
+
             showElement(messageDiv);
-        
+
             if(useCancel)
                 showElement(messageCancel);
             else
                 hideElement(messageCancel);
 
-        
+
             oncancel = _oncancel;
             onconfirm = _onconfirm;
-        
+
             messageConfirm.focus();
-        
+
             messageConfirm.onkeydown = function(event)
             {
                 if(event.key.toLowerCase() == "enter") {
                     messageConfirm.click();
                 }
             }
-            
+
             messageDiv.style.opacity = "1";
         }
-        
+
         this.hide = function() {
             messageDiv.style.opacity = "0";
-            
+
             setTimeout(function() {
                 hideElement(messageDiv);
             }, 300);
-            
+
             if(this && this == messageConfirm && onconfirm)
                 onconfirm();
             else if(this && this == messageCancel && oncancel)
                 oncancel();
             }
     }
-    
+
     this.alert = new function() {
         const div = document.getElementById('AlertDiv');
-        
+
         this.show = function(content, time=3000) {
             if(div.style.display != 'none')
                 setTimeout(this.hide, time);
-            
+
             div.innerHTML = content;
             div.style.top = '15px';
         }
-        
+
         this.hide = function() {
             div.style.top = '-100%';
         }
     }
-    
-    
+
+
     this.title = new function() {
         const viewport = document.getElementById('viewport');
         const d = [document.getElementById('dropdown1'), document.getElementById('dropdown2'), document.getElementById('dropdown3')];
@@ -130,14 +131,14 @@ var Menu = new function() {
                 this.show();
             }
         }
-        
+
         this.show = function() {
             for(let i = 0; i < 3; i++) {
                 showElement(d[i])
             }
             viewport.classList.remove('viewport-no-title');
         }
-        
+
         this.hide = function() {
             for(let i = 0; i < 3; i++) {
                 hideElement(d[i])
