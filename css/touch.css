@@ -52,7 +52,7 @@
     position: absolute;
     width: 180px;
     height: 180px;
-    left: calc(15px + env(safe-area-inset-left));
+    left: calc(20px + env(safe-area-inset-left));
     bottom: calc(25px + env(safe-area-inset-bottom));
 }
 
@@ -86,20 +86,20 @@
 
 #A {
     position: absolute;
-    right: calc(35px + env(safe-area-inset-right));
+    right: calc(15px + 25px + env(safe-area-inset-right));
     bottom: 110px;
 }
 
 #B {
     position: absolute;
-    right: calc(100px + env(safe-area-inset-right));
+    right: calc(15px + 90px + env(safe-area-inset-right));
     bottom: 70px;
 }
 
 #FF {
     position: absolute;
     fill: var(--dpad-color);
-    right: calc(10px + env(safe-area-inset-right));
+    right: calc(15px + env(safe-area-inset-right));
     bottom: 175px;
 }
 
@@ -132,7 +132,7 @@
 
 @media (orientation: portrait) {
     #touchControls {
-        bottom: calc(env(safe-area-inset-bottom) + 10%);
+        bottom: calc(env(safe-area-inset-bottom) + 15vh);
     }
 }
 
