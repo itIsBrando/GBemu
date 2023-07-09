@@ -490,7 +490,10 @@ class PPU {
     translateColor(r, g, b) {
         r <<= 3, g <<= 3, b <<= 3;
 
-        switch(this.colorMode) {
+        // force LCD filter to choose the SCALED color mode
+        const mode = Filter.current == FilterType.LCD ? ColorMode.SCALED : this.colorMode;
+
+        switch(mode) {
             case ColorMode.DESATURATE:
                 const l = 0.3 * r + 0.6 * g + 0.1 * b;
                 const f = 0.4;

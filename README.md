@@ -48,4 +48,6 @@ When starting a game with _MBC7_, a prompt will appear informing you whether you
 ## Shaders
 There is support for _scale2x_ and _scale3x_ filters if your device can handle it. If you see a green icon next to the **Shader Type** section in the settings, then your device will use the compiled Web Assembly version of the shaders that have significant performance benefits over the JavaScript variants.
 
-The _LCD_ shader simulates the GameBoy Color's screen. Subpixels may be visible and are a result of canvas rendering :( This is something that will be fixed in the future. It looks best with color correction set to "prescaled."
+The _LCD_ shader simulates the GameBoy Color's screen. Subpixels may be visible and are a result of canvas rendering :( This is something that will be fixed in the future.
+
+The _Monochrome_ shader is similar to the LCD filter but works better on poorly performant devices and does not affect coloration.

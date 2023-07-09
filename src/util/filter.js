@@ -34,8 +34,7 @@ class Filter {
 
         Filter.supportsWasm = typeof Filter.wasmScale2x == "function";
 
-
-        this.setBorder("#00000030");
+        this.setBorder("#00000040");
     }
 
     setBorder(colorString) {
@@ -229,12 +228,12 @@ class Filter {
             case FilterType.Monochrome:
                 return data;
             case FilterType.LCD:
-                if(Filter.supportsWasm) {
-                    Filter.wasmLcd(data.data, this.out);
-                    return this.createImageData();
-                } else {
+                // if(Filter.supportsWasm) {
+                    // Filter.wasmLcd(data.data, this.out);
+                    // return this.createImageData();
+                // } else {
                     return this.lcd(data.data);
-                }
+                // }
             case FilterType.scale2x:
                 if(Filter.supportsWasm) {
                     Filter.wasmScale2x(new Uint32Array(data.data.buffer), this.out);
@@ -261,7 +260,13 @@ class Filter {
         // set canvas size
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
 
-        document.getElementById('screen').style.imageRendering = Filter.current == FilterType.LCD ? "auto" : "pixelated";
+        if(Filter.current === FilterType.LCD) {
+            canvas.style.imageRendering = "auto";
+            canvas.style.filter = "blur(1px)";
+        } else {
+            canvas.style.imageRendering = "pixelated";
+            canvas.style.filter = "none";
+        }
 
         if(Filter.current === FilterType.Monochrome) {
             showElement(filterScreen);
