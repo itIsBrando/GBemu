@@ -1,28 +1,6 @@
 var useExternalSaveFile = false;
 var externalSave = null;
 
-/**
- * Gets the RAM size in bytes for a given ROM
- * @param {Number} size Raw RAM size byte from ROM
- * @param {Number} mbc MBC number
- */
-function getRAMSize(size, mbc) {
-    const m1Sizes = [ 0, 2048, 8192, 32768, 524288, 131072 ];
-    switch(mbc) {
-        case MBCType.MBC_1:
-        case MBCType.MBC_3:
-        case MBCType.MBC_5:
-        case MBCType.MBC_HuC1:
-            return m1Sizes[size];
-        case MBCType.MBC_2:
-            return 512;
-        case MBCType.MBC_7:
-            return 256;
-        default:
-            Menu.message.show(`RAM Size Unknown for MBC${mbc}.`, "Internal error");
-            return m1Sizes[size];
-    }
-}
 
 class MBC1 {
     /**
@@ -52,11 +30,33 @@ class MBC1 {
     }
 
     /**
+     * Gets the RAM size in bytes for a given ROM
+     */
+    getRAMSize() {
+        const m1Sizes = [ 0, 2048, 8192, 32768, 524288, 131072 ];
+        switch(this.mbcNumber) {
+            case MBCType.MBC_1:
+            case MBCType.MBC_3:
+            case MBCType.MBC_5:
+            case MBCType.MBC_HuC1:
+                return m1Sizes[this.ramSize];
+            case MBCType.MBC_2:
+                return 512;
+            case MBCType.MBC_7:
+                return 256;
+            default:
+                Menu.message.show(`RAM Size Unknown for MBC${mbc}.`, "Internal error");
+                return m1Sizes[this.ramSize];
+        }
+    }
+
+
+    /**
      * If an external save is loaded, then that will be used or
      *   RAM will be allocated
      */
     initRAM() {
-        const expectedSize = getRAMSize(this.ramSize, this.mbcNumber);
+        const expectedSize = this.getRAMSize();
 
         // if the user loaded an incompatible save, then do not use it
         if(useExternalSaveFile) {

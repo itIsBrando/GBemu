@@ -27,15 +27,15 @@ class MBC3 extends MBC1 {
     }
 
     handleExtraData() {
-        const size = getRAMSize(this.ramSize, this.mbcNumber);
+        const size = this.getRAMSize();
         const array = Array.from(externalSave);
 
         this.ram = externalSave;
         array.splice(0, size);
-        
+
         // `array` now contains the remaining data needed for RTC
         CPU.LOG(`importing RTC regs: ${array}`);
-        
+
         // @todo finish importing the registers
     }
 
@@ -48,12 +48,12 @@ class MBC3 extends MBC1 {
         return (addr < 0x8000)
          || (addr >= 0xA000 && addr < 0xC000);
     }
-    
+
     write8(address, byte) {
         // 0x0000-0x1FFF RAM enable
         if(address < 0x2000) {
             this.ramEnable = (byte & 0x0A) != 0;
-        // 0x2000-0x3FFF ROM bank number 
+        // 0x2000-0x3FFF ROM bank number
         } else if(address < 0x4000) {
             byte &= 0x7F;
             if(byte == 0)
@@ -81,7 +81,7 @@ class MBC3 extends MBC1 {
             // ramEnable doubles up as an RTC enable
             // if ramBank>3, then we are trying to use RTC, not RAM
             const addr = address - 0xA000 + (this.ramBank * 0x2000);
-            
+
             if(this.ramBank > 3) {
                 this.rtc.write(this.ramBank, byte);
             } else if(this.ramBank <= 3 && addr < this.ram.length) {
@@ -89,7 +89,7 @@ class MBC3 extends MBC1 {
             }
         }
     }
-    
+
     read8(address) {
         // ROM bank 0
         if(address < 0x4000) {
@@ -102,7 +102,7 @@ class MBC3 extends MBC1 {
         {
             if(!this.ramEnable)
                 return 0xFF;
-                
+
             if(this.ramBank <= 3)
                 return this.ram[address - 0xA000 + (this.ramBank * 0x2000)];
             else
@@ -111,13 +111,13 @@ class MBC3 extends MBC1 {
 
         return 0xFF;
     }
-    
+
     getROMByte(addr, bank) {
         const off = addr + (bank * 0x4000);
-        
+
         if(off > this.rom.length)
             return 0xFF;
-        
+
         return this.rom[off];
     }
 }

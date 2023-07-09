@@ -782,6 +782,21 @@
         Themes.init();
         Palette.load();
 
+        if('launchQueue' in window) {
+            launchQueue.setConsumer((params) => {
+                if(!params.files.length)
+                    return;
+
+                let reader = new FileReader();
+
+                reader.readAsArrayBuffer(params.files[0]);
+
+                reader.onloadend = function () {
+                    startEmulation(reader.result);
+                }
+            });
+        }
+
         document.addEventListener('visibilitychange', () => {
             if(!c.romLoaded || state !== MainState.Main)
                 return;

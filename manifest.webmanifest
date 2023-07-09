@@ -7,6 +7,14 @@
     "background_color": "#241f31",
     "categories": ["games", "utilities"],
     "start_url": "index.html?pwa=true",
+    "file_handlers": [
+        {
+            "action": "?pwa=true",
+            "accept": {
+                "application/octet-stream": [".gb", ".gbc"]
+            }
+        }
+    ],
     "icons": [
         {
             "src": "icons/icon_108x108.png",

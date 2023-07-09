@@ -114,6 +114,9 @@ var Palette = new function() {
 
 
     this.setPalette = function(i) {
+        if(i > paletteNames.length - 1)
+            i = 0;
+
         Renderer.setPalette(ALL_PALETTES[paletteNames[i]]);
         appliedPaletteIndex = i;
     }
@@ -129,9 +132,7 @@ var Palette = new function() {
     this.load = function() {
         const palIndex = Settings.get_core("defaultPalette");
 
-        if(!palIndex)
-            return;
-
+        // this conversion will always produce a number.
         this.setPalette(Number(palIndex) | 0);
 
     }
