@@ -19,10 +19,6 @@
     grid-template-rows: min-content 1fr;
 }
 
-#mapZoomInput {
-    width: 80px;
-}
-
 .debug-box {
     font-family: monospace;
     margin: 15px;

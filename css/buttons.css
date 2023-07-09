@@ -88,6 +88,7 @@
 .settings-range {
     float: right;
     background-color: transparent;
+    max-width: 90px;
 }
 
 .settings-range:focus {
@@ -275,16 +276,4 @@
     text-align: center;
     z-index: 20;
     box-shadow: 1px 1px 5px #222;
-}
-
-#plusButton {
-    width: 30px;
-    height: 30px;
-    float: right;
-}
-
-#PromptText {
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
 }

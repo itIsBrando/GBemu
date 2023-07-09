@@ -177,7 +177,7 @@
     filter: brightness(0.8);
 }
 
-#saveButtonDiv {
+.save-main-div {
     height: 100%;
     width: 100%;
     max-height: 100vh;

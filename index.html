@@ -525,8 +525,8 @@
                 <div id="PromptInfo" class="info-content"></div>
             </div>
         </div>
-        <div id="PromptDiv"></div>
-        <input type="text" name="PromptText" id="PromptText" />
+        <div id="PromptDiv" class="prompt-content"></div>
+        <input type="text" name="PromptText" id="PromptText" class="prompt-text" />
         <button type="button" id="PromptSubmit" class="prompt-button"
             onclick="PromptMenu.submit();">OK</button>
         <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
@@ -611,10 +611,10 @@
                     </div>
                 </div>
             </div>
-            <button id="plusButton" type="button" class="menubtn ui-title-btn" onclick="SaveManager.addSave();">+</button>
+            <button id="plusButton" type="button" class="icon-btn" style="float: right;" onclick="SaveManager.addSave();">+</button>
         </div>
         <!-- Holds all of the save's button -->
-        <div id="saveButtonDiv" ></div>
+        <div id="saveButtonDiv" class="save-main-div" ></div>
     </div>
 
     <!-- Change palette colors -->

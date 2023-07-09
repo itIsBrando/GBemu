@@ -11,9 +11,7 @@ body {
     overscroll-behavior-y: contain;
 
     image-rendering: crisp-edges;
-    image-rendering: optimizeSpeed;
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: optimize-contrast;
     image-rendering:pixelated;
 
     -webkit-user-select: none;
@@ -50,20 +48,22 @@ fieldset {
     margin-bottom: 5px;
 }
 
-#PromptText {
+.prompt-text {
     min-height: 30px;
     min-width: 60px;
     width: 100%;
     background: #424141;
     color: aliceblue;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+.prompt-content {
+    padding: 5px;
+    border-radius: 5px;
 }
 
 input:focus {
     background: #777777;
-}
-
-#PromptDiv {
-    min-height: 10px;
-    padding: 5px;
-    border-radius: 5px;
 }
