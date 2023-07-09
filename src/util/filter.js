@@ -6,11 +6,19 @@ const FilterType = {
     scale2x: 1,
     scale3x: 2,
     LCD: 3,
+    Monochrome: 4,
 };
 
 const changeFilterElem = document.getElementById('changeFilter');
+const filterScreen = document.getElementById('filterScreen');
 
-const FilterScaleFactor = [1, 2, 3, 3];
+const FilterScaleFactor = [
+    1,
+    2,
+    3,
+    3,
+    1
+];
 
 
 class Filter {
@@ -25,6 +33,24 @@ class Filter {
         this.setScale(scaleBy);
 
         Filter.supportsWasm = typeof Filter.wasmScale2x == "function";
+
+
+        this.setBorder("#00000030");
+    }
+
+    setBorder(colorString) {
+        console.log(colorString)
+        let ctx = filterScreen.getContext('2d');
+
+        ctx.strokeStyle = colorString;
+        for(let y = 0; y < 144; y++) {
+            ctx.rect(0, y * 7, filterScreen.width, y * 7);
+        }
+        for(let x = 0; x < 160; x++) {
+            ctx.rect(x * 7, 0, x * 7, filterScreen.height);
+
+        }
+        ctx.stroke();
     }
 
     setScale(scaleBy) {
@@ -137,6 +163,18 @@ class Filter {
         return this.createImageData();
     }
 
+    brighten(color, intensity) {
+        let r = (color >> 16) * intensity,
+        g = ((color >> 8) & 0xff) * intensity,
+        b = (color & 0xff) * intensity;
+
+        r = Math.min(r, 255);
+        g = Math.min(g, 255);
+        b = Math.min(b, 255);
+
+        return 0xff000000 | (r << 16) | (g << 8) | b;
+    }
+
     lcd(data) {
         let j = 0;
         for(let y = 0; y < 144; y++) {
@@ -147,7 +185,7 @@ class Filter {
                 const color_r = 0xff00_0000 | (rb << 16) | (rg << 8) | (rr);
                 this.setoutpx(x * 3, y * 3, color_r);
                 this.setoutpx(x * 3, y * 3 + 1, color_r);
-                this.setoutpx(x * 3, y * 3 + 2, color_r);
+                this.setoutpx(x * 3, y * 3 + 2, this.brighten(color_r, 0.8));
                 j += 1;
 
                 const gr = (0xc1 * data[j] + 1) >> 8;
@@ -156,7 +194,7 @@ class Filter {
                 const color_g = 0xff00_0000 | (gb << 16) | (gg << 8) | (gr);
                 this.setoutpx(x * 3 + 1, y * 3, color_g);
                 this.setoutpx(x * 3 + 1, y * 3 + 1, color_g);
-                this.setoutpx(x * 3 + 1, y * 3 + 2, color_g);
+                this.setoutpx(x * 3 + 1, y * 3 + 2, this.brighten(color_g, 0.8));
                 j += 1;
 
                 const br = (0x3b * data[j] + 1) >> 8;
@@ -165,7 +203,7 @@ class Filter {
                 const color_b = 0xff00_0000 | (bb << 16) | (bg << 8) | br;
                 this.setoutpx(x * 3 + 2, y * 3, color_b);
                 this.setoutpx(x * 3 + 2, y * 3 + 1, color_b);
-                this.setoutpx(x * 3 + 2, y * 3 + 2, color_b);
+                this.setoutpx(x * 3 + 2, y * 3 + 2, this.brighten(color_b, 0.8));
                 j += 2; // skip alpha
             }
         }
@@ -188,6 +226,7 @@ class Filter {
     apply(data) {
         switch(Filter.current) {
             case FilterType.none:
+            case FilterType.Monochrome:
                 return data;
             case FilterType.LCD:
                 if(Filter.supportsWasm) {
@@ -223,6 +262,13 @@ class Filter {
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
 
         document.getElementById('screen').style.imageRendering = Filter.current == FilterType.LCD ? "auto" : "pixelated";
+
+        if(Filter.current === FilterType.Monochrome) {
+            showElement(filterScreen);
+        } else {
+            hideElement(filterScreen);
+        }
+
         c.renderer.drawBuffer();
 
         if(c.romLoaded) {

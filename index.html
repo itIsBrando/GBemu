@@ -104,11 +104,8 @@
             margin: 0px;
         }
 
-        .viewport-full #screen {
-            /* border-radius: 0px; */
+        .viewport-full .main-canvas {
             border-radius: 5px 5px 12px 12px;
-            /* border-bottom-right-radius: 12px; */
-            /* border-bottom-left-radius: 12px; */
         }
 
         .viewport-full .screen-container-left, .viewport-full .screen-container-right {
@@ -255,6 +252,7 @@
                 <div class="power-LED"></div>
             </div>
             <canvas class="main-canvas" id="screen" width="160" height="144"> </canvas>
+            <canvas class="main-canvas" id="filterScreen" style="image-rendering: auto;" width="1120" height="1008"> </canvas>
             <div class="screen-container-right"></div>
         </div>
         <!-- Menu button to show the top menu -->
@@ -768,7 +766,7 @@
             c.ppu.colorMode = i;
             document.getElementById('correctionType').innerText = CoreSetting.getVal("ColorCorrection");
         });
-        CoreSetting.register("ShaderType", ["none", "scale2x", "scale3x", "LCD"], 0, function(i) {
+        CoreSetting.register("ShaderType", Object.keys(FilterType), 0, function(i) {
             Filter.change(i);
         });
 
