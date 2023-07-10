@@ -38,7 +38,6 @@ class Filter {
     }
 
     setBorder(colorString) {
-        console.log(colorString)
         let ctx = filterScreen.getContext('2d');
 
         ctx.strokeStyle = colorString;

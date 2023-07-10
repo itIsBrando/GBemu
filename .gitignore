@@ -3,4 +3,5 @@ wasm/target/
 *.sh
 todo.md
 
+*.xcf
 old_icon.jpg

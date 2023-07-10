@@ -326,7 +326,7 @@ class Channel1 {
         if(!this.dac_enabled || !APU.master_enable)
             v = 0;
 
-        this.gainNode.gain.value = 0.02 * (v & 0xf);
+        this.gainNode.gain.value = 0.02 * (v & 0xf) * APU.master_vol;
     }
 
 

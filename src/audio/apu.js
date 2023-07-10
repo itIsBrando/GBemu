@@ -6,9 +6,11 @@
  * - 7 len sweep period sync
  */
 const sndButton = document.getElementById('sndButton');
+const sndSlider = document.getElementById('sndSlider');
 
 class APU {
     static master_enable = false; //Settings.get_core("sound", false) == 'true';
+    static master_vol = 1;
 
     static set_button_text() {
         sndButton.checked = APU.master_enable;
@@ -89,6 +91,9 @@ class APU {
         this.c4.setVolume(0);
     }
 
+    /**
+     * @note this does nothing since `cx_vol` is always 0
+     */
     unmute() {
         this.c1.setVolume(this.c1_vol);
         this.c2.setVolume(this.c2_vol);
@@ -194,7 +199,7 @@ class APU {
                 return this.NR50;
             case 0x25:
                 return this.NR51;
-            case 0x26: // @todo add other channels
+            case 0x26:
                 if(!this.enabled)
                     return 0x70;
 
@@ -241,5 +246,10 @@ class APU {
         APU.setEnabled(!APU.master_enable);
     }
 }
+
+sndSlider.addEventListener('change', (e) => {
+    APU.master_vol = e.target.value;
+    Menu.alert.show(`Volume set to ${APU.master_vol * 100}%`);
+});
 
 APU.set_button_text();
