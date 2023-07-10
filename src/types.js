@@ -7,51 +7,50 @@ class UInt16 {
      * @param {number} num
      */
     constructor(num) {
-        this.value = num == null ? 0 : num & 0xFFFF;
+        this.v = num;
     }
 
     /**
-     * @param {number} _v
+     * @param {number} num
      */
-    set v(_v) {
-        this.value = _v & 0xFFFF;
+    set v(num) {
+        this._l = num & 0xff;
+        this._h = (num >> 8) & 0xff;
     }
 
     /**
      * @returns {number}
      */
     get v() {
-        return this.value;
+        return (this._h << 8) | this._l;
     }
 
     /**
      * @returns {number} uint8
      */
     get low() {
-        return this.value & 0xFF;
+        return this._l;
     }
 
     /**
      * @returns {number} uint8
      */
     get high() {
-        return this.value >> 8;
+        return this._h;
     }
 
     /**
      * @param {number} uint8
      */
     set low(uint8) {
-        this.value &= 0xFF00;
-        this.value |= uint8 & 0xFF;
+        this._l = uint8 & 0xff;
     }
 
     /**
      * @param {number} uint8
      */
     set high(uint8) {
-        this.value &= 0x00FF;
-        this.value |= (uint8 & 0xFF) << 8;
+        this._h = uint8 & 0xff;
     }
 
     /**
@@ -80,7 +79,7 @@ class UInt16 {
 
 
 class UInt8 {
-    
+
     /**
      * Creates an unsigned integer between 0x00-0xFF
      * @param {number} num
@@ -126,11 +125,11 @@ class UInt8 {
     }
 
     /**
-     * 
+     *
      * @param {Number} v number
      * @param {Number} start bit to start at.
      * @param {Number} length number of bits to return
-     * @returns 
+     * @returns
      */
     static getRange(v, start, length) {
         v >>= start;
