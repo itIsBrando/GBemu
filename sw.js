@@ -50,7 +50,7 @@ const FILES = [
     "./src/util/state.js",
     "./icons/icon_108x108.png",
     "./icons/old_icon_200x200.png",
-    "./icons/splash_512x512.png",
+    "./icons/icon_512x512.png",
     "./wasm/pkg/lib_wasm.js",
     "./wasm/pkg/lib_wasm_bg.wasm",
     "./index.html",
