@@ -169,7 +169,11 @@ class PromptMenu {
 			dict[id] = {
 				"checked": chc ? chc.value : null,
 			};
-			PromptMenu.onsubmit(textInput.value, dict);
+
+			if(PromptMenu.onsubmit(textInput.value, dict) === false) {
+				// do not hide
+				return;
+			}
 		}
 
         this.hide();
@@ -190,6 +194,5 @@ class PromptMenu {
     static hide() {
 		if(PromptMenu.shown())
 			State.pop();
-        PromptMenu._hide();
     }
 }

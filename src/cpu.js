@@ -220,7 +220,8 @@ class CPU {
     }
 
     constructor() {
-        // timer that runs every 100ms
+        this.title = 'untitled';
+        // timer that runs every few milliseconds
         this.timer = null;
         // used to boot in DMG mode
         this.forceDMG = false;
@@ -538,10 +539,11 @@ class CPU {
         }
 
         CPU.LOG(`MBC Type: ${MemoryControllerText[this.mem.rom[0x0147]]}`);
-        CPU.LOG(`ROM Name: ${this.readROMName()}`);
+        CPU.LOG(`ROM Name: ${this.getTitle()}`);
 
         // change document title
-        document.title = `GBemu - ${this.readROMName()}`;
+        document.title = `GBemu - ${this.getTitle()}`;
+        this.setTitle();
 
         this.romLoaded = true;
     }
@@ -564,17 +566,22 @@ class CPU {
      * Reads the game title embeded inside the ROM
      * @returns String
      */
-    readROMName() {
+    getTitle() {
+        return this.title;
+    }
+
+    setTitle() {
         let str = "", i = 0;
 
-        if(this.mem.rom[0x134] == 0)
-            return null;
+        if(this.mem.rom[0x134] === 0)
+            return 'untitled';
 
         do {
             str += String.fromCharCode(this.mem.rom[0x134 + i]);
             i++;
-        } while(i <= 16 && this.mem.rom[0x134 + i] != 0);
-        return str;
+        } while(i <= 16 && this.mem.rom[0x134 + i] !== 0);
+
+        this.title = str;
     }
 
     /**

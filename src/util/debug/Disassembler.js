@@ -16,14 +16,14 @@ var Disassembler = new function() {
         DisScrollDiv.addEventListener("scroll", (e) => {
             if(Disassembler.scrolling)
                 return;
-            
+
             window.requestAnimationFrame(() => {
                 if(Math.ceil(e.target.clientHeight + e.target.scrollTop) >= e.target.scrollHeight) {
                     Disassembler.scroll();
                 }
                 Disassembler.scrolling = false;
             });
-            
+
             Disassembler.scrolling = true;
         });
 
@@ -37,8 +37,8 @@ var Disassembler = new function() {
 
 
     /**
-     * 
-     * @param {Opcode} op 
+     *
+     * @param {Opcode} op
      * @returns {String}
      */
     this.getLine = function(op) {
@@ -47,7 +47,7 @@ var Disassembler = new function() {
         if(op.address == c.pc.v) {
             s = `<b style="color: var(--ui-secondary-button); padding-right: 1rem;">${s}</b>`;
         }
-        
+
         return s;
     }
 
@@ -72,7 +72,7 @@ var Disassembler = new function() {
         if(lbl != '') {
             s = `<b style="color:var(--ui-secondary-button);">${lbl.replace(' ', '_').replace(/; +/g, '')}</b>:<br>${s}`;
         }
-        
+
         DisText.innerHTML += s;
         return o;
     }
@@ -88,12 +88,12 @@ var Disassembler = new function() {
         let addr = startPC;
 
         DisText.innerHTML = "";
-        
+
         this.base = startPC;
 
         while(i < numInstr) {
             const o = this.renderLine(addr, flags);
-            
+
             addr += o.getLength();
             i++;
         }
@@ -156,7 +156,7 @@ var Disassembler = new function() {
             this.base = c.pc.v;
             this.numInstructions = INSTR_SHOWN;
         }
-        
+
         this.render();
     }
 
@@ -164,15 +164,15 @@ var Disassembler = new function() {
     this.stepLine = function() {
         const exclude = [0xE9, 0xC3, 0x18, 0xC0, 0xD0, 0xC8, 0xC9, 0xD8, 0xD9];
         const conditionalBranches = [0x20, 0x30, 0x28, 0x38, 0xC2, 0xD2, 0xCA, 0xDA];
-        
+
         const op = c.read8(c.pc.v);
         let target = c.pc.v + Opcode.getOpLength(op);
         let cnt = 20000; // max iterations
-        
+
         // if we are a branch or return, then we do not want to go to next line
         if(exclude.includes(op) || (conditionalBranches.includes(op) && c.read8(c.pc.v + 1) < 0x80)) {
             c.execute();
-        } else { 
+        } else {
             do {
                 c.execute();
                 if(cnt-- == 0)
@@ -212,12 +212,12 @@ var Disassembler = new function() {
             Menu.message.show("Load a ROM before using breakpoints.", "No ROM Loaded");
             return;
         }
-        
+
         this._runTilBreak();
 
         Debug.quit(false);
         pauseEmulation();
-    
+
         // if(this.isInRange(c.pc.v))
         //     this.render();
         // else
@@ -229,7 +229,7 @@ var Disassembler = new function() {
 
         while(i < 0x400000 / 1000 * 20) {
             c.execute();
-            
+
             if(Debug.isBreakpoint(c.pc.v)) {
                 Debug.start(false);
                 Menu.alert.show("Breakpoint hit")
@@ -247,14 +247,15 @@ var Disassembler = new function() {
             const address = Number("0x" + a);
 
             if(address == null)
-                return;
+                return false;
 
             if(!Disassembler.isInRange(address))
                 Disassembler.base = address;
 
             Disassembler.render(Disassembler.base, INSTR_SHOWN, {'highlight': address});
+            return true;
         });
-        
+
         m.show();
     }
 

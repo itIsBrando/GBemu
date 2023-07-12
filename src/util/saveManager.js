@@ -4,7 +4,6 @@ const SaveType = {
 };
 
 class SaveStorage {
-    static enableImage = false;
     /**
      *
      * @param {String} label Label text so user knows what save this is or null if unknown
@@ -25,9 +24,6 @@ class SaveStorage {
 
 
     populateImage() {
-        if(!SaveStorage.enableImage)
-            return;
-
         this.img = canvas.toDataURL('image/jpg');
     }
 
@@ -38,44 +34,17 @@ class SaveStorage {
         return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}\r${t}`;
     }
 
-    static set_button_text() {
-        const PrevImgButton = document.getElementById('PrevImgButton');
-
-        PrevImgButton.checked = SaveStorage.enableImage;
-    }
-
-    static togglePreview() {
-        SaveStorage.enableImage = !SaveStorage.enableImage;
-
-        Settings.set_core("savePreviews", SaveStorage.enableImage);
-        SaveStorage.set_button_text();
-    }
-
-    static init() {
-        SaveStorage.enableImage = Settings.get_core("savePreviews", "true") == "true";
-        SaveStorage.set_button_text();
-    }
 }
 
 
 function saveButtonClick(name) {
     if(c.mbcHandler)
-        SaveManager.save(name, c.mbcHandler.ram, c.readROMName());
+        SaveManager.save(name, c.mbcHandler.ram, c.getTitle());
     else
         Menu.message.show("ROM does not support saving.", "Could not Save", false, null, SaveManager.hide());
 
 }
 
-
-function _canSave()
-{
-    const type = SaveManager.getType(_delKey);
-    delete localStorage[_delKey];
-    SaveManager.save(SaveManager.getSaveString(_delKey), c.mbcHandler.ram, type, c.readROMName());
-
-    _delKey = null;
-    State.pop();
-}
 
 
 const localSaveButton = document.getElementById('localSaveButton');
@@ -113,7 +82,7 @@ function saveButtonOnTouchEnd() {
 
 
 /**
- * Shows the pop up menu for saving to localStorage
+ * Shows the pop up menu for SAVING to localStorage
  */
 localSaveButton.addEventListener('click', function() {
     showElement(plusButton);
@@ -121,23 +90,24 @@ localSaveButton.addEventListener('click', function() {
     saveButtonDiv.innerHTML = '';
 
     // This will only get called when the save already exists
+    // brandon from the future (07/12/2023): otherwise the user must've pressed the `+` button
     SaveManager.populateSaveHTML(function() {
-        if(c.mbcHandler && c.romLoaded) {
-            Menu.message.show(
-                `Is it okay to overwrite <b style='color:var(--ui-accent);'>${SaveManager.getSaveString(this.value)}</b>?`,
-                "Save Already Exists",
-                true,
-                null,
-                _canSave
-            );
+        if(!c.romLoaded)
+            return;
 
-            _delKey = this.value; // save for `_canSave`. this is a poor implementation
-        } else {
-            Menu.message.show("No ROM is loaded or ROM does not support saving.", "Could Not Save");
+        const type = SaveManager.getType(this.value);
+
+        if(!c.mbcHandler && type !== SaveType.SAVESTATE) {
+            Menu.message.show("ROM does not support saving.", "Could Not Save");
+            return;
         }
+
+        SaveManager.save(SaveManager.getSaveString(this.value), c.mbcHandler.ram, type, c.getTitle());
+
     });
 
-    State.push(MainState.SaveMenu);
+    if(!SaveManager.showing())
+        State.push(MainState.SaveMenu);
 });
 
 
@@ -218,22 +188,25 @@ var SaveManager = new function() {
         return (data.time);
     }
 
-
+    /**
+     * Returns the save's real name, trimming off the ROM's name
+     * @param {String} key localStorage key
+     * @returns
+     */
     this.getSuffix = function(key) {
-        const match = key.match(/ .*/);
-        return match ? match[0] : '';
+        return key.slice(key.indexOf(' ') + 1)
     }
 
     this.addSuffix = function(key) {
-        return key + ' ' + c.readROMName();
+        return `${key} ${c.getTitle()}`;
     }
 
     this.rmSuffix = function(key) {
-        return key.replace(/ .*/, '');
+        return key.substring(0, key.indexOf(' '));
     }
 
     this.getSaveString = function(key) {
-        return this.rmSuffix(key);
+        return this.rmSuffix(key).replace(/\s+/g, '');
     }
 
     /**
@@ -248,14 +221,39 @@ var SaveManager = new function() {
         const data = type == SaveType.SAV ? this.pack(arr) : c.createSaveState();
         const s = new SaveStorage(ROMName, data, type);
 
+        /**
+         * Valid characters a-z 0-9 . -
+         */
+        name = name.match(/[0-9A-Za-z\-\.]+/g,'').join('-').substring(0, 20);
+
+        if(name.length === 1)
+            name = "untitled";
+
         s.populateImage();
         let json = JSON.stringify(s);
 
-        localStorage.setItem(this.addSuffix(name), json);
-        Menu.alert.show(
-            `<b style='color:var(--ui-accent);'>${name}</b> saved.`,
-            5000
-        );
+        const performSaveToStorage = function() {
+            localStorage.setItem(SaveManager.addSuffix(name), json);
+            Menu.alert.show(
+                `<b style='color:var(--ui-accent);'>${name}</b> saved.`,
+                5000
+            );
+
+        }
+
+        if(this.addSuffix(name) in localStorage) {
+
+            Menu.message.show(
+                `Is it okay to overwrite <b style='color:var(--ui-accent);'>${name}</b>?`,
+                "Save Already Exists",
+                true,
+                null,
+                // on succes
+                performSaveToStorage
+            );
+        } else {
+            performSaveToStorage();
+        }
     }
 
 
@@ -265,7 +263,7 @@ var SaveManager = new function() {
      */
     this.show = function() {
 
-        if(popupMenu.style.display == "block")
+        if(popupMenu.style.display === "block")
             return false;
 
         showElement(popupMenu);
@@ -294,7 +292,7 @@ var SaveManager = new function() {
 
 
     this.showing = function() {
-        return popupMenu.style.display != "none";
+        return popupMenu.style.display != "none" && popupMenu.style.display != '';
     }
 
 
@@ -328,11 +326,22 @@ var SaveManager = new function() {
         contextMenuDiv.children[0].children[2].onclick = function() {
             const m = new PromptMenu("New name", "Name", /[0-9A-Za-z]+/g, 20, (v) => {
                 const sav = localStorage.getItem(key);
-                const label = key.split(' ')[1];
-                delete localStorage[key];
+                const romName = key.slice(key.indexOf(' ') + 1);
 
-                localStorage.setItem(`${v} ${label}`, sav);
+                if(`${v} ${romName}` in localStorage) {
+                    Menu.alert.show("Name already exists", 5000);
+                    return false;
+                }
+
+                localStorage.setItem(`${v} ${romName}`, sav);
+
+                delete localStorage[key]; // remove old
+
+                // this is jank but we must mainly hide promptmenu so that we can
+                //  force the proper order
+                // PromptMenu.hide();
                 localSaveButton.click(); // redraw saves
+                return true;
             });
 
             m.show();
@@ -387,7 +396,7 @@ var SaveManager = new function() {
     this.populateSaveHTML = function(onLabelClick) {
         const saveButtonDiv = document.getElementById('saveButtonDiv');
         const keys = Object.keys(localStorage);
-        const romName = c.readROMName();
+        const romName = c.getTitle();
         let hasSaves = false;
 
         for(let i in keys) {
@@ -397,7 +406,7 @@ var SaveManager = new function() {
 
             const obj = JSON.parse(localStorage[keys[i]]);
 
-            if(obj.label != null && romName != null && romName != obj.label)
+            if(obj.label != null && c.romLoaded && romName != obj.label)
                 continue;
 
             const btn = document.createElement("button");
@@ -478,11 +487,11 @@ var SaveManager = new function() {
             }
 
             if(!c.mbcHandler && type == SaveType.SAV) {
-                Menu.message.show("ROM does not support saving.", "Could not Save");
-                return;
+                Menu.alert.show("This ROM only supports save states.");
+                return false;
             }
 
-            this.save(v, c.mbcHandler?.ram ?? null, type, c.readROMName());
+            this.save(v, c.mbcHandler?.ram ?? null, type, c.getTitle());
 
             localSaveButton.click(); // redraw saves
         }, null, null, "save", "import from device", ()=> {
@@ -565,7 +574,7 @@ var SaveManager = new function() {
                     return;
                 }
             } else {
-                Menu.message.show(`Cannot load Save State until a ROM is loaded.`, `Load ROM`);
+                Menu.message.show(`Save States cannot be loaded until a ROM is running.`, `Unable to Load`);
                 return;
             }
         }

@@ -96,7 +96,7 @@ function showROMInfo() {
 
     Menu.message.show(
         `<div class="debug-text" style="color:var(ui-background-text);">
-        <b style="color:var(ui--accent;">ROM Name:</b> ${c.readROMName()}
+        <b style="color:var(ui--accent;">ROM Name:</b> ${c.getTitle()}
         <br><b style="color:var(--ui-accent);">MBC Type:</b> ${MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ")}
         <br><b style="color:var(--ui-accent);">Licensee:</b> ${hex(c.mem.rom[0x14b], 2, "$")}
         <br><b style="color:var(--ui-accent);">Emulation Mode:</b> ${(c.cgb ? "GBC" : "DMG")}

@@ -224,10 +224,10 @@
             style="width: 34vw;"><b>Options</b></button>
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
             <button type="button" class="dropdown-btn" onclick="document.getElementById('ThemeDiv').style.display='block';">Skin</button>
-            <button type="button" id="enterDebugger" class="dropdown-btn"
-            onclick="State.push(MainState.DebugMenu);">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
             <button type="button" class="dropdown-btn"
             onclick="Cheats.start();">Cheats</button>
+            <button type="button" id="enterDebugger" class="dropdown-btn"
+            onclick="State.push(MainState.DebugMenu);">Debugger <a class="shortcut-text">(Ctrl+D)</a></button>
             <!-- <button type="button" class="dropdown-btn"
             onclick="Link.start();">Link Cable</button> -->
             <button type="button" title="open settings" class="dropdown-btn" onclick="State.push(MainState.SettingsMenu);">Settings <a class="shortcut-text">(Ctrl+ ,)</a></button>
@@ -238,8 +238,8 @@
     <div class="dropdown" style="float: left;" id="dropdown3">
         <button type="button" id="saveMenuToggle" class="title-btn"><b>Saves</b></button>
         <div id="saveMenu" style="width: 33vw;" class="dropdown-background">
-            <button type="button" id="localSaveButton" class="dropdown-btn">Internal Save</button>
-            <button type="button" id="localLoadButton" class="dropdown-btn">Internal Load</button>
+            <button type="button" id="localSaveButton" class="dropdown-btn">Save</button>
+            <button type="button" id="localLoadButton" class="dropdown-btn">Load</button>
             <button type="button" id="importTextButton" class="dropdown-btn"
                 onclick="SaveManager.importJSON();">Import JSON Text</button>
         </div>
@@ -346,9 +346,6 @@
             </label>
             <label for="AutoLoadButton">Load save on startup:
                 <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
-            </label>
-            <label for="PrevImgButton">Save Preview Image:
-                <input type="checkbox" name="prevImg" id="PrevImgButton" onclick="SaveStorage.togglePreview();" class="settings-checkbox" title="Saves a preview image of the game when using 'internal saves'.">
             </label>
             <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
         </div>
@@ -501,7 +498,7 @@
         <div id="DisassemblyBreakpoints" class="popup-no-border shadow">
             <div class="menu-header-no-ext">
                 <a>Breakpoints</a>
-                <button onclick="State.pop();" class="x-btn" type="button">&times;</button>
+                <button onclick="Debug.hideBreak();" class="x-btn" type="button">&times;</button>
             </div>
             <fieldset id="DisBreakpointList"
                 style="height: clamp(100px, 150px, 250px); overflow-y: auto; border:none; font-family: monospace;">
@@ -725,16 +722,16 @@
             if (!this.files[0])
                 return;
 
+            let name = this.files[0].name;
+
             reader.readAsArrayBuffer(this.files[0]);
 
             let buffer = this.files[0];
 
             reader.onloadend = function () {
-                const m = new PromptMenu("Save as", "Name", /[0-9A-Za-z]+/g, 20, (v) => {
-                    SaveManager.save(v, new Uint8Array(reader.result), SaveType.SAV);
-                    localSaveButton.click(); // redraw saves
-                });
-                m.show();
+                SaveManager.save(name, new Uint8Array(reader.result), SaveType.SAV);
+                PromptMenu.hide();
+                localSaveButton.click(); // redraw saves
             }
         });
 
@@ -776,7 +773,6 @@
 
 
         KeyBinding.init();
-        SaveStorage.init();
         Themes.init();
         Palette.load();
 

@@ -9,7 +9,7 @@ class Code {
         this.bank = type;
         this.byte = byte;
         this.addr = addr;
-        
+
         this.oldByte = 0;
         this.enabled = true;
     }
@@ -21,7 +21,7 @@ class Code {
     accepts(addr) {
         if(!this.enabled)
             return false;
-        
+
         return true;
     }
 }
@@ -40,7 +40,7 @@ class Cheats {
         code = code.trim().toLowerCase();
         if(!Cheats.valid(code))
             return false;
-        
+
         const cht = new Code(label, code);
 
         this.codes[cht.getKey()] = cht;
@@ -63,7 +63,7 @@ class Cheats {
     }
 
     reset() {
-        
+
     }
 
     static start() {
@@ -88,10 +88,10 @@ class Cheats {
             `;
         }
     }
-    
+
     static showRmButton(visible) {
         const btn = document.getElementById('CheatsRm');
-        
+
         if(visible == true)
             btn.style.visibility = 'visible';
         else
@@ -102,14 +102,15 @@ class Cheats {
         const m = new PromptMenu("Gameshark Code", "0ZYYXXXX", /[0-9a-fA-F]+/g, 8, (v) => {
 			if(!Cheats.valid(v)) {
                 Menu.message.show("Not a valid cheat code", "Error");
-                return;
+                return false;
             }
 
-            
+
             c.cheats.addCode(v);
             Cheats.drawCodes();
+            return true;
 		}, null);
-        
+
         m.addText(
             `<b style='text-align:center; width:100%;'>01YYXXXX</b><br>
             YY = byte<br>
@@ -121,7 +122,7 @@ class Cheats {
 
     static rm() {
         Cheats.showRmButton(false);
-        
+
         for(let i = 0; i < CheatsList.children.length; i++) {
 			const child = CheatsList.children[i];
 			if(child.checked) {

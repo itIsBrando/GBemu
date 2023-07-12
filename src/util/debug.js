@@ -166,8 +166,9 @@ var Debug = new function() {
 
 		const m = new PromptMenu("Color", "0000-7FFF", /[0-9a-fA-F]+/g, 4, (v) => {
 			const pal = Number(e.target.value);
-			v = Number("0x" + v);
+			v = Number("0x" + v) | 0;
 			Debug.setBGColor(pal >> 3, pal & 3, v);
+			return true;
 		}, null, e.target.innerText.replace('$', ''));
 
 		m.show();
@@ -311,10 +312,11 @@ var Debug = new function() {
 			addr = Number("0x" + addr);
 
 			if(addr == null || Number.isNaN(addr))
-				return;
+				return false;
 
 			this.newBreakpoint(addr);
 			this.drawBreaks();
+			return true;
 		});
 
 		m.show();
