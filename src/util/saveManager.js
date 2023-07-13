@@ -222,11 +222,12 @@ var SaveManager = new function() {
         const s = new SaveStorage(ROMName, data, type);
 
         /**
-         * Valid characters a-z 0-9 . -
+         * Valid characters a-z 0-9 .
          */
-        name = name.match(/[0-9A-Za-z\-\.]+/g,'').join('-').substring(0, 20);
+        name = name.match(/[0-9A-Za-z\.]+/g,'').join('-').substring(0, 20);
+        console.log(name);
 
-        if(name.length === 1)
+        if(name.length === 0)
             name = "untitled";
 
         s.populateImage();
