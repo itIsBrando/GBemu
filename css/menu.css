@@ -72,7 +72,7 @@
 }
 
 .settings-grid {
-    max-height: calc(100% - 50px);
+    max-height: calc(100% - 50px - env(safe-area-inset-top));
     display: flex;
     flex-direction: column;
     margin: 10px 15%;
