@@ -6,6 +6,33 @@ class MBC7 extends MBC5 {
         this.eeprom = new EEPROM(this);
     }
 
+    reset() {
+        super.reset();
+        this.ramEnable2 = false;
+        this.eeprom.reset();
+    }
+
+
+    export() {
+        return {
+            bank: this.bank,
+            romBankAddr: this.romBankAddress,
+            ramEna1: this.ramEnable,
+            ramEna2: this.ramEnable2,
+        }
+    }
+
+
+    import(data) {
+        const d = data["mbc"];
+
+        this.bank = d.bank;
+        this.romBankAddress = d.romBankAddr;
+        this.ramEnable = d.ramEna1;
+        this.ramEnable2 = d.ramEna2;
+    }
+
+
     acceptsWrite(addr) {
         return (addr < 0x6000)
          || (addr >= 0xa000 && addr < 0xc000);
@@ -34,7 +61,7 @@ class MBC7 extends MBC5 {
                 this.eeprom.write(address, byte);
         }
     }
-    
+
 
     read8(address) {
         if(address >= 0x4000 && address < 0x8000) {
@@ -45,7 +72,7 @@ class MBC7 extends MBC5 {
                 return this.eeprom.read(address);
             else
                 return 0xff;
-            
+
         } else if(address >= 0xb000 && address < 0xc000) {
             return 0xff;
         }

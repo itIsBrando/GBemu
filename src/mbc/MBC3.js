@@ -5,16 +5,6 @@ class MBC3 extends MBC1 {
         super(rom, mbc);
 
         this.date = new Date();
-        this.regs = [
-            0,      // seconds
-            0,      // minutes
-            0,      // hours
-            0,      // lower 8-bits of day counter (0-ff)
-            0,      // upper 1-bit of day counter
-                    //  - bit 0: MSB of counter
-                    //  - bit 6: Halt (0=active, 1=stopped)
-                    //  - bit 7: Day Counter carry (1=overflow)
-        ];
 
         this.rtc = new RTC();
 
@@ -24,6 +14,30 @@ class MBC3 extends MBC1 {
 
     reset() {
         this.rtc.reset();
+    }
+
+    export() {
+        return {
+            ramEna: this.ramEnable,
+            bank: this.bank,
+            ramBank: this.ramBank,
+            romBankAddress: this.romBankAddress,
+            ramBankAddress: this.ramBankAddress,
+            isLatched: this.isLatched,
+            latch: this.latch,
+        }
+    }
+
+    import(data) {
+        const d = data['mbc'];
+
+        this.ramEnable = d.ramEna;
+        this.bank = d.bank;
+        this.ramBank = d.ramBank;
+        this.romBankAddress = d.romBankAddress;
+        this.ramBankAddress = d.ramBankAddress;
+        this.isLatched = d.isLatched;
+        this.latch = d.latch;
     }
 
     handleExtraData() {

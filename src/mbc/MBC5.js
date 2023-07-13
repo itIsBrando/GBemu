@@ -8,6 +8,29 @@ class MBC5 extends MBC1 {
         this.rumbleEnabled = false;
     }
 
+
+    export() {
+        return {
+            bank: this.bank,
+            ramBank: this.ramBank,
+            ramBankAddress: this.ramBankAddress,
+            romBankAddress: this.romBankAddress,
+            hasRumble: this.supportsRumble,
+            rumbleEna: this.rumbleEnabled,
+        };
+    }
+
+    import(data) {
+        const d = data["mbc"];
+
+        this.bank = d.bank;
+        this.ramBank = d.ramBank;
+        this.ramBankAddress = d.ramBankAddress;
+        this.romBankAddress = d.romBankAddress;
+        this.supportsRumble = d.hasRumble;
+        this.rumbleEnabled = d.rumbleEna;
+    }
+
     acceptsWrite(addr) {
         return (addr < 0x8000)
          || (addr >= 0xA000 && addr < 0xC000);
@@ -18,7 +41,7 @@ class MBC5 extends MBC1 {
          || (addr >= 0xA000 && addr < 0xC000);
     }
 
-    
+
     /**
      * Sets the lower 8 bits of the bank number
      * @param {Number} n bank
@@ -70,7 +93,7 @@ class MBC5 extends MBC1 {
                 CPU.LOG("Illegal write to RAM while disabled", true);
         }
     }
-    
+
     read8(address) {
         if(address >= 0x4000 && address < 0x8000) {
             return this.rom[address - 0x4000 + this.romBankAddress];
@@ -101,5 +124,5 @@ class MBC5 extends MBC1 {
     }
 
 
-    
+
 }

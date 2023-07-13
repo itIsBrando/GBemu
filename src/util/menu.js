@@ -103,11 +103,18 @@ var Menu = new function() {
 
     this.alert = new function() {
         const div = document.getElementById('AlertDiv');
+        let timer;
+
+        this.isVisible = function() {
+            return div.style.top === '15px';
+        }
 
         this.show = function(content, time=3000) {
-            if(div.style.display != 'none')
-                setTimeout(this.hide, time);
+            if(this.isVisible()) {
+                clearTimeout(timer);
+            }
 
+            timer = setTimeout(this.hide, time);
             div.innerHTML = content;
             div.style.top = '15px';
         }

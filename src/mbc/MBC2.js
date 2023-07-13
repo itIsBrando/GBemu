@@ -7,11 +7,16 @@ class MBC2 extends MBC1 {
         super(rom, mbc);
     }
 
+    /**
+     * @note this conforms to all the conditions of MBC1
+     * for `reset`, `import`, & `export`
+     */
+
     acceptsWrite(addr) {
         return addr < 0x4000
          || (addr >= 0xA000 && addr <= 0xA200);
     }
-    
+
     acceptsRead(addr) {
          return (addr >= 0x4000 && addr < 0x8000)
           || (addr >= 0xA000 && addr <= 0xBFFF);
@@ -28,8 +33,8 @@ class MBC2 extends MBC1 {
             } else
                 // set RAM bank
                 this.ramEnable = byte == 0x0A;
-                
-        // 0xA000-0xA1FF RAM 
+
+        // 0xA000-0xA1FF RAM
         } else if(address >= 0xA000 && address <= 0xA1FF) {
             // only allow writing if RAM is enabled
             if(this.ramEnable) {
@@ -38,7 +43,7 @@ class MBC2 extends MBC1 {
             }
         }
     }
-    
+
     read8(address) {
         // 0x4000-0x7FFF banks 01-0F (mbc1)
         if(address >= 0x4000 && address < 0x8000) {
@@ -56,5 +61,5 @@ class MBC2 extends MBC1 {
 
         return 0xFF;
     }
-    
+
 }

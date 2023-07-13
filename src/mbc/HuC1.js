@@ -7,7 +7,28 @@ class HuC1 extends MBC1 {
     }
 
     reset() {
-        this.rtc.reset();
+        super.reset();
+        this.ramEnable = true;
+    }
+
+    export() {
+        return {
+            ramEna: this.ramEnable,
+            bank: this.bank,
+            ramBank: this.ramBank,
+            romBankAddress: this.romBankAddress,
+            ramBankAddress: this.ramBankAddress,
+        }
+    }
+
+    import(data) {
+        const d = data['mbc'];
+
+        this.ramEnable = d.ramEna;
+        this.bank = d.bank;
+        this.ramBank = d.ramBank;
+        this.romBankAddress = d.romBankAddress;
+        this.ramBankAddress = d.ramBankAddress;
     }
 
     acceptsWrite(addr) {

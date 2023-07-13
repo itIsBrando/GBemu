@@ -13,7 +13,7 @@ const COMMANDS = {
 const STATE = {
     IDLE: 0,        // waiting for start condition
     READ_CMD: 1,    // reading 10bit command
-    READ_EXTRA: 2,  // reading extra 16-bit data (WRAL & WRITE) 
+    READ_EXTRA: 2,  // reading extra 16-bit data (WRAL & WRITE)
 };
 
 const INPUT = {
@@ -34,14 +34,14 @@ class EEPROM {
         this.latched = false;
         this.inputMode = 'ondevicemotion' in window ? INPUT.ACCELEROMETER : INPUT.MOUSE;
 
-        Menu.message.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
+        Menu.alert.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
         'Allow Accelerometer?', false, null, (e)=> {
             window.addEventListener("devicemotion", (e) => {
                 this.accelX =  Math.trunc(e.accelerationIncludingGravity.x * 100 / 9.8) / 100;
                 this.accelY = -Math.trunc(e.accelerationIncludingGravity.y * 100 / 9.8) / 100;
                 // display.innerHTML = `ACCELX: ${this.accelX}, x: ${this.getX()}<br>ACCELY: ${this.accelY} y: ${this.getY()}`;
             });
-            
+
         });
 
         this.DO = 0;
@@ -60,6 +60,16 @@ class EEPROM {
         this.parent = parent;
     }
 
+    reset() {
+        this.latched = false;
+        this.DO = 0;
+        this.CS = false;
+        this.CLK = false;
+        this.state = STATE.IDLE;
+        this.clockNums = 0;
+        this.outLength = 0;
+    }
+
 
     getX() {
         // max is 2g
@@ -67,7 +77,7 @@ class EEPROM {
         return (0x81d0 + ax) & 0xffff;
     }
 
-    
+
     getY() {
         let ay = this.accelY * this.sensitivity;
         return (0x81d0 + ay) & 0xffff;
@@ -129,7 +139,7 @@ class EEPROM {
                 if(!this.CLK && newCLK && this.CS) {
                     this.proccessCycle();
                 }
-                
+
                 this.CLK = newCLK;
                 break;
         }
@@ -195,7 +205,7 @@ class EEPROM {
     /**
      * Sends data to `DO` pin of the EEPROM
      * @param {Number} data data
-     * @param {Number} bits number of bits to shift out 
+     * @param {Number} bits number of bits to shift out
      */
     sendDataOut(data, bits) {
         this.outLength += bits;
@@ -226,7 +236,7 @@ class EEPROM {
      */
     runCommand(cmd) {
         const addr = this.opcode & 0x7f;
-        
+
         switch(cmd) {
             case "READ":
                 this.sendDataOut(0, 1); // datasheet says that a `0` preceeds data
