@@ -34,15 +34,31 @@
     transition: all 0.2s;
 }
 
+.prompt-button-wrapper {
+    display: flex;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-top: 10px;
+    background-color: var(--ui-background-text);
+}
 
 .prompt-button {
-    background-color: transparent;
+    background-color: var(--ui-background);
+    filter: brightness(0.8);
     color: var(--ui-accent);
     padding: 10px;
     border: none;
+    border-top: 1px solid var(--ui-background-text);
     cursor: pointer;
-    float: right;
+    width: 100%;
+    text-align: center;
 }
+
+.prompt-button:hover {
+    /* background-color: color-mix(in srgb, currentColor, var(--ui-background) 60%); */
+    filter: brightness(1.2);
+}
+
 
 .dropdown-btn {
     background-color: var(--bg-color);
@@ -58,7 +74,7 @@
     text-align: center;
 }
 
-.show-menu-btn:hover, .icon-btn:hover, .prompt-button:hover, .menubtn:hover, .dropdown-btn:hover {
+.show-menu-btn:hover, .icon-btn:hover, .menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
 }
 

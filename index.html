@@ -522,9 +522,11 @@
         </div>
         <div id="PromptDiv" class="prompt-content"></div>
         <input type="text" name="PromptText" id="PromptText" class="prompt-text" />
-        <button type="button" id="PromptSubmit" class="prompt-button"
-            onclick="PromptMenu.submit();">OK</button>
-        <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
+        <div class="prompt-button-wrapper">
+            <button type="button" id="PromptCancel" class="prompt-button">cancel</button>
+            <button type="button" id="PromptSubmit" class="prompt-button"
+                onclick="PromptMenu.submit();">OK</button>
+        </div>
     </div>
 
     <!-- Virtual Controller -->
@@ -625,14 +627,16 @@
     </div>
 
     <!-- Pretty-ish messaging system. -->
-    <div id="messageID" class="popup-no-border shadow" style="border: 1px solid var(--ui-background);">
+    <div id="messageID" class="popup-no-border shadow">
         <!-- header -->
         <div id="messageHeader" class="menu-header-no-ext"></div>
         <!-- body -->
         <p id="messageContent" style="color: var(--ui-background-text); padding-left: 0.5em;">Message Content</p>
         <!-- confirm -->
-        <button class="prompt-button" style="margin-left: 5px;" id="messageConfirm">OK</button>
-        <button class="prompt-button" id="messageCancel">Cancel</button>
+        <div class="prompt-button-wrapper">
+            <button class="prompt-button" id="messageCancel">Cancel</button>
+            <button class="prompt-button" id="messageConfirm">OK</button>
+        </div>
 
     </div>
 
@@ -710,7 +714,7 @@
         document.getElementById('LoadRom').addEventListener('click', function() {
             inputForm.click();
 
-            if(Boolean(Settings.get_core('sound', 'false')) == true) {
+            if(Settings.get_core('sound', 'false') == true) {
                 APU.setEnabled(true);
             }
         })

@@ -89,21 +89,21 @@ function copyClipMenu(text) {
  * Shows the information of a ROM if it is loaded
  */
 function showROMInfo() {
-    if(!c.isRunning) {
+    if(!c.romLoaded) {
         Menu.alert.show("No ROM loaded");
         return;
     }
 
     Menu.message.show(
         `<div class="debug-text" style="color:var(ui-background-text);">
-        <b style="color:var(ui--accent;">ROM Name:</b> ${c.getTitle()}
         <br><b style="color:var(--ui-accent);">MBC Type:</b> ${MemoryControllerText[c.mem.rom[0x0147]].replace(/\++/g, " ")}
         <br><b style="color:var(--ui-accent);">Licensee:</b> ${hex(c.mem.rom[0x14b], 2, "$")}
-        <br><b style="color:var(--ui-accent);">Emulation Mode:</b> ${(c.cgb ? "GBC" : "DMG")}
-        <br><b style="color:var(--ui-accent);">ROM Size:</b> ${(c.hasMbc() ? c.mbcHandler.rom.length + " bytes": "32kb")}
-        <br><b style="color:var(--ui-accent);">RAM Size:</b> ${(c.hasMbc() ? c.mbcHandler.ram.length + " bytes": "none")}
+        <br><b style="color:var(--ui-accent);">Header Checksum:</b> ${hex(c.mem.rom[0x14d], 2, "$")}
+        <br><b style="color:var(--ui-accent);">Emulation Mode:</b> ${(c.cgb ? "CGB" : "Non-CGB")} mode
+        <br><b style="color:var(--ui-accent);">ROM Size:</b> ${(c.hasMbc() ? c.mbcHandler.rom.length >> 10 : 32)} KB
+        <br><b style="color:var(--ui-accent);">RAM Size:</b> ${(c.hasMbc() ? c.mbcHandler.ram.length >> 10 : 0)} KB
         </div>`,
-        "ROM Info"
+        c.getTitle()
     );
 }
 

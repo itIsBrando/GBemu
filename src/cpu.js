@@ -545,6 +545,10 @@ class CPU {
         document.title = `GBemu - ${this.getTitle()}`;
         this.setTitle();
 
+        if(!this.validateChecksum()) {
+            Menu.message.show('Valid Gameboy ROM?', 'Header checksum failed');
+        }
+
         this.romLoaded = true;
     }
 
@@ -563,18 +567,21 @@ class CPU {
 
 
     /**
-     * Reads the game title embeded inside the ROM
+     * Gets the game title embeded inside the ROM
      * @returns String
      */
     getTitle() {
         return this.title;
     }
 
+    /**
+     * Sets the ROMs title to `this.title`
+     */
     setTitle() {
         let str = "", i = 0;
 
         if(this.mem.rom[0x134] === 0)
-            return 'untitled';
+            this.title = 'untitled';
 
         do {
             str += String.fromCharCode(this.mem.rom[0x134 + i]);
@@ -582,6 +589,20 @@ class CPU {
         } while(i <= 16 && this.mem.rom[0x134 + i] !== 0);
 
         this.title = str;
+    }
+
+
+    validateChecksum() {
+        let checksum = 0;
+
+        for(let i = 0x0134; i < 0x014d; i++) {
+            checksum -= c.mem.rom[i] + 1;
+            checksum &= 0xff;
+        }
+
+        CPU.LOG(`Got: ${checksum}. Expected: ${c.mem.rom[0x14d]}`);
+
+        return checksum === c.mem.rom[0x14d];
     }
 
     /**
