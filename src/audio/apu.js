@@ -247,9 +247,9 @@ class APU {
     }
 }
 
-sndSlider.addEventListener('change', (e) => {
+sndSlider.addEventListener('input', (e) => {
     APU.master_vol = e.target.value;
-    Menu.alert.show(`Volume set to ${APU.master_vol * 100}%`);
+    Menu.alert.show(`Volume set to ${APU.master_vol * 100}%`, 1000);
 });
 
 APU.set_button_text();

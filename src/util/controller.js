@@ -74,9 +74,37 @@ document.addEventListener('keyup', function(event) {
 
 });
 
+
 class Controller {
     static DEADZONE = 0.5;
     static useGamepad = false;
+    static hapticStrength = 1;
+    static gp = null;
+    static gamepadMap = {
+        'A': 0,
+        'B': 1,
+        'START':    9,
+        'SELECT':   8,
+        'RIGHT':    15,
+        'LEFT':     14,
+        'DOWN':     13,
+        'UP':       12,
+    };
+
+    static vibrate(ms=6) {
+        ms *= this.hapticStrength;
+
+        if(this.gp && 'vibrationActuator' in Controller.gp) {
+            this.gp.vibrationActuator.playEffect('dual-rumble', {
+                startDelay: 0,
+                duration: ms * 4,
+                weakMagnitude: 1.0,
+                strongMagnitude: 1.0,
+            });
+        } else if('vibrate' in navigator) {
+            navigator.vibrate(ms);
+        }
+    }
 
     /**
      * 0 -> A
@@ -84,36 +112,38 @@ class Controller {
      * 11 -> button to the right of xbox logo. three lines
      */
     static getGamepadDPAD() {
-        const gp = navigator.getGamepads()[0];
-        if(!gp)
+        this.gp = navigator.getGamepads()[0];
+        if(!this.gp)
             return -1;
 
-        gamepadButtons["RIGHT"] = gp.buttons[15].pressed || (gp.axes[0] > this.DEADZONE);
-        gamepadButtons["LEFT"] = gp.buttons[14].pressed || (gp.axes[0] < -this.DEADZONE);
-        gamepadButtons["DOWN"] = gp.buttons[13].pressed || (gp.axes[1] > this.DEADZONE);
-        gamepadButtons["UP"] = gp.buttons[12].pressed || (gp.axes[1] < -this.DEADZONE);
+        gamepadButtons["RIGHT"] = this.lookupGamepadKey('RIGHT') || (this.gp.axes[0] > this.DEADZONE);
+        gamepadButtons["LEFT"] = this.lookupGamepadKey('LEFT') || (this.gp.axes[0] < -this.DEADZONE);
+        gamepadButtons["DOWN"] = this.lookupGamepadKey('DOWN') || (this.gp.axes[1] > this.DEADZONE);
+        gamepadButtons["UP"] = this.lookupGamepadKey('UP') || (this.gp.axes[1] < -this.DEADZONE);
 
         // manage fast forward
-        if(gp.buttons[6].pressed || gp.buttons[7].pressed) {
-            const v = Math.max(gp.buttons[6].value, gp.buttons[7].value) * 8;
+        if(this.gp.buttons[6].pressed || this.gp.buttons[7].pressed) {
+            const v = Math.max(this.gp.buttons[6].value, this.gp.buttons[7].value) * 8;
             c.speed = Math.max(1, v);
         } else {
             c.speed = 1;
         }
     }
 
+    static lookupGamepadKey(key) {
+        return this.gp.buttons[this.gamepadMap[key]].pressed;
+    }
+
     static getGamepadBUTTONS() {
-        const gp = navigator.getGamepads()[0];
-        if(!gp)
+        this.gp = navigator.getGamepads()[0];
+
+        if(!this.gp)
             return -1;
 
-        gamepadButtons["A"] = gp.buttons[0].pressed;
-
-        gamepadButtons["B"] = gp.buttons[1].pressed;
-
-        gamepadButtons["START"] = gp.buttons[9].pressed;
-
-        gamepadButtons["SELECT"] = gp.buttons[8].pressed;
+        gamepadButtons["A"] = this.lookupGamepadKey('A');
+        gamepadButtons["B"] = this.lookupGamepadKey('B');
+        gamepadButtons["START"] = this.lookupGamepadKey('START');
+        gamepadButtons["SELECT"] = this.lookupGamepadKey('SELECT');
     }
 
     /**
@@ -147,11 +177,14 @@ class Controller {
     }
 }
 
+
 window.addEventListener("gamepadconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
+
     Menu.alert.show(`Gamepad connected: ${gp.id}`);
+    gp.mapping = 'standard'
     Controller.useGamepad = true;
-    gp.mapping = 'standard';
+    Controller.gp = gp;
 });
 
 
@@ -159,7 +192,16 @@ window.addEventListener("gamepaddisconnected", (e) => {
     const gp = navigator.getGamepads()[e.gamepad.index];
     Menu.alert.show(`Gamepad disconnected.`);
     Controller.useGamepad = false;
+    Controller.gp = null;
 });
+
+
+document.getElementById('gpDeadzoneSlider').addEventListener('input', (e) => {
+    Controller.DEADZONE = e.target.value;
+    Menu.alert.show(`Deadzone set to ${e.target.value * 100}%`, 1000);
+});
+
+
 
 // @todo add ability to remap controls
 

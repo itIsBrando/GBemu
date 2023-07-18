@@ -119,8 +119,7 @@ class MBC5 extends MBC1 {
 
 
     vibrate() {
-        if('vibrate' in navigator)
-            navigator.vibrate(6);
+        Controller.vibrate();
     }
 
 
