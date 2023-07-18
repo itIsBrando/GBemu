@@ -19,6 +19,7 @@ const ColorMode = {
 };
 
 class PPU {
+    static colorMode = ColorMode.SCALED;
     /**
      * Creates a PPU object to be used in conjuction with a CPU object
      * @param {CPU} cpu parent
@@ -29,7 +30,6 @@ class PPU {
         this.mode = PPUMODE.vblank;
         this.cycles = 0;
         this.statInterrupt = 0;
-        this.colorMode = ColorMode.SCALED;
 
         this.regs = {
             lcdc: 0, // ff40
@@ -491,7 +491,7 @@ class PPU {
         r <<= 3, g <<= 3, b <<= 3;
 
         // force LCD filter to choose the SCALED color mode
-        const mode = Filter.current == FilterType.LCD ? ColorMode.SCALED : this.colorMode;
+        const mode = Filter.current == FilterType.LCD ? ColorMode.SCALED : PPU.colorMode;
 
         switch(mode) {
             case ColorMode.DESATURATE:

@@ -9,7 +9,7 @@ const FilterType = {
     Monochrome: 4,
 };
 
-const changeFilterElem = document.getElementById('changeFilter');
+const filterSelect = document.getElementById('filterSelect');
 const filterScreen = document.getElementById('filterScreen');
 
 const FilterScaleFactor = [
@@ -251,20 +251,18 @@ class Filter {
 
     }
 
-    static change(i) {
-        Filter.current = i;
-
-        changeFilterElem.innerText = Object.keys(FilterType)[i];
+    static set(key) {
+        Filter.current = FilterType[key] || 0;
+        filterSelect.value = key;
+        Settings.set_core('FilterType', key);
 
         // set canvas size
         c.renderer.filter.setScale(FilterScaleFactor[Filter.current]);
 
         if(Filter.current === FilterType.LCD) {
             canvas.style.imageRendering = "auto";
-            canvas.style.filter = "blur(1px)";
         } else {
             canvas.style.imageRendering = "pixelated";
-            canvas.style.filter = "none";
         }
 
         if(Filter.current === FilterType.Monochrome) {
@@ -282,6 +280,12 @@ class Filter {
                 Settings.show, 425
             )
         }
+    }
+
+    static init() {
+        const f = Settings.get_core('FilterType', 'none');
+
+        Filter.set(f);
     }
 
 }

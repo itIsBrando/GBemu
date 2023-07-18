@@ -151,7 +151,6 @@
         }
 
         .keybinding-div-child {
-            max-height: calc(80vh - 30px);
             overflow-y: auto;
             width: 100%;
         }
@@ -288,13 +287,22 @@
                     class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
             </label>
             <label for="correctionType">Color Correction:
-                <button type="button" name="colorCorrection" id="correctionType" title="Changes GBC correction modes."
-                    class="menubtn settings-btn" onclick="CoreSetting.next('ColorCorrection');"></button>
-                </button>
+                <select class="settings-selection" id="correctionType" oninput="Renderer.setColorMode(this.value)" title="Changes GBC correction modes.">
+                    <option value="SCALED">prescaled</option>
+                    <option value="GAMMA">gamma</option>
+                    <option value="DESATURATE">desaturate</option>
+                </select>
             </label>
-            <label id="labelChangeFilter" for="changeFilter">Shader Type:
-                <button type="button" name="emuMode" id="changeFilter" title="Changes video shader."
-                    class="menubtn settings-btn" onclick="CoreSetting.next('ShaderType');">none</button>
+            <label id="labelChangeFilter" for="filterSelect">Shader Type:
+                <select class="settings-selection" id="filterSelect" oninput="Filter.set(this.value)">
+                    <option value="none">none</option>
+                    <option value="scale2x">scale2x</option>
+                    <option value="scale3x">scale3x</option>
+                    <option value="LCD">lcd</option>
+                    <option value="Monochrome">monochrome</option>
+                </select>
+                <!-- <button type="button" name="emuMode" id="changeFilter" title="Changes video shader." -->
+                    <!-- class="menubtn settings-btn" onclick="CoreSetting.next('ShaderType');">none</button> -->
             </label>
             <!-- DMG Palette -->
             <label for="dmgPal">DMG Palette:
@@ -393,7 +401,7 @@
 
     <!-- Debug menu -->
     <div id="DebugDiv" class="save-menu">
-    <div class="menu-header debug-title-bar">
+        <div class="menu-header debug-title-bar">
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showTiles();">Tiles</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showSprites();">OAM</button>
             <button type="button" class="menubtn debug-title-btn" onclick="Debug.showMap();">Map</button>
@@ -449,25 +457,21 @@
         <div id="MemoryDiv">
             <div style="margin: 5px;">
                 <!-- control buttons -->
-                <input name="MemoryTypeRadio" type="radio" id="memoryHRAM" class="settings-select-radio">
-                <label for="memoryHRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">hram</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryOAM" class="settings-select-radio">
-                <label for="memoryOAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">oam</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryWRAM" class="settings-select-radio">
-                <label for="memoryWRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">wram</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryCRAM" class="settings-select-radio">
-                <label for="memoryCRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">cram</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryVRAM" class="settings-select-radio">
-                <label for="memoryVRAM" onclick="Memory.dumpType(this.innerText);" class="settings-select">vram</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryROMX" class="settings-select-radio">
-                <label for="memoryROMX" onclick="Memory.dumpType(this.innerText);" class="settings-select">romx</label>
-                <input name="MemoryTypeRadio" type="radio" id="memoryROM0" class="settings-select-radio" checked>
-                <label for="memoryROM0" onclick="Memory.dumpType(this.innerText);" class="settings-select">rom0</label>
+                <label>Type:
+                    <select class="settings-select" oninput="Memory.dumpType(this.value)">
+                        <option value="rom0">ROM0</option>
+                        <option value="romx">ROMX</option>
+                        <option value="vram">VRAM</option>
+                        <option value="cram">CRAM</option>
+                        <option value="wram">WRAM</option>
+                        <option value="oam">OAM</option>
+                        <option value="hram">HRAM</option>
+                    </select>
+                </label>
             </div>
-            <br>
-            <div style="overflow-x: auto;">
+            <div style="overflow: auto hidden;">
                 <b><pre class="debug-text">    address       00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F</pre></b>
-                <div style="width: fit-content; overflow:hidden auto; height: 100%; padding-left: 10px;">
+                <div style="width: fit-content; overflow:hidden auto; height: calc(100% - 20px - env(safe-area-inset-bottom)); padding-left: 10px;">
                     <pre id="MemoryContent" class="debug-text debug-memory-text"></pre>
                 </div>
             </div>
@@ -625,7 +629,7 @@
             <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
         </div>
         <!-- color inputs -->
-        <div style="height: calc(100% - 50px - env(safe-area-inset-top)); width: 100%; overflow: hidden auto;">
+        <div style="height: 100%; width: 100%; overflow: hidden auto;">
             <div id="PaletteList"></div>
         </div>
     </div>
@@ -767,14 +771,6 @@
             });
         }
 
-        CoreSetting.register("ColorCorrection", ["prescaled", "gamma", "desaturate"], 0, function(i) {
-            c.ppu.colorMode = i;
-            document.getElementById('correctionType').innerText = CoreSetting.getVal("ColorCorrection");
-        });
-        CoreSetting.register("ShaderType", Object.keys(FilterType), 0, function(i) {
-            Filter.change(i);
-        });
-
         CoreSetting.register("UITheme", ["system", "light", "dark"], 0, function(i) {
             Themes.setUI(i);
         });
@@ -782,6 +778,8 @@
 
         KeyBinding.init();
         Themes.init();
+        Filter.init();
+        Renderer.setColorMode(Settings.get_core('ColorCorrection', 'prescaled'));
         Palette.load();
 
         if('launchQueue' in window) {

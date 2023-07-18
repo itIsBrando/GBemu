@@ -272,7 +272,7 @@ var SaveManager = new function() {
 
         pauseEmulation();
 
-        showElementFadeIn(popupMenu);
+        showElementFadeIn(popupMenu, 'grid');
 
         window.addEventListener('resize', saveButtonDivResize);
         saveButtonDivResize();

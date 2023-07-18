@@ -70,13 +70,13 @@ var Palette = new function() {
     let appliedPaletteIndex = 0;
 
     this.show = function() {
-        showElement(paletteSetDiv);
+        showElementFadeIn(paletteSetDiv, 'grid');
         Palette.draw();
     }
 
     // hides the palette selection menu
     this.hide = function() {
-        hideElement(paletteSetDiv);
+        hideElementFadeOut(paletteSetDiv);
     }
 
     // sets the preview color's background color

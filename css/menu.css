@@ -72,7 +72,6 @@
 }
 
 .settings-grid {
-    max-height: calc(100% - 50px - env(safe-area-inset-top));
     display: flex;
     flex-direction: column;
     margin: 10px 15%;
@@ -208,7 +207,7 @@
     border: none;
     z-index: 9;
     transition: all 0.20s ease-in-out;
-    grid-template-rows: min-content;
+    grid-template-rows: min-content 1fr;
 }
 
 .selection-menu {
@@ -269,10 +268,6 @@
             /* Do not show shortcut text on mobile */
             .shortcut-text {
                 display: none;
-            }
-
-            .keybinding-div-child {
-                 max-height: calc(100% - 50px);
             }
 
             .settings-grid {

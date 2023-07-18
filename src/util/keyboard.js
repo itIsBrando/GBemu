@@ -48,7 +48,7 @@ var KeyBinding = new function() {
 
     // shows the keybinding menu
     this.show = function() {
-        showElementFadeIn(keyBindingDiv);
+        showElementFadeIn(keyBindingDiv, 'grid');
         this.fillButtonText();
     }
 

@@ -327,6 +327,15 @@ class Renderer {
     }
 
     /**
+     * Sets GBC color correction mode
+     * @param {ColorMode} key
+     */
+    static setColorMode(key) {
+        PPU.colorMode = ColorMode[key] || 0;
+        Settings.set_core('ColorCorrection', key);
+    }
+
+    /**
      * Only meant for sprites
      * @param {Number} x
      * @param {Number} y

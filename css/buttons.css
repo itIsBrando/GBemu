@@ -101,10 +101,26 @@
     background-color: inherit;
 }
 
+.settings-selection {
+    appearance: none;
+    background: var(--ui-primary-button);
+    color: var(--ui-text);
+    text-align: center;
+    padding: 5px;
+    width: 5rem;
+    float: right;
+    border-radius: 5px;
+}
+
+option {
+    background-color: var(--ui-background);
+    color: var(--ui-background-text);
+}
+
 .settings-range {
     float: right;
     background-color: transparent;
-    max-width: 90px;
+    max-width: 5.5rem;
 }
 
 .settings-range:focus {
@@ -143,8 +159,7 @@
 }
 
 .settings-btn {
-    width: 85px;
-    margin: 3px 6px;
+    width: 5rem;
     float: right;
 }
 

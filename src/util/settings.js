@@ -159,7 +159,7 @@ var Settings = new function() {
 
         pauseEmulation();
 
-        showElementFadeIn(MainDiv);
+        showElementFadeIn(MainDiv, 'grid');
     }
 
     this.hide = function() {

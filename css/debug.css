@@ -189,7 +189,9 @@
 
 #MemoryDiv {
     height: 100%;
-    overflow: hidden hidden;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: min-content 1fr;
 }
 
 #DebugSprites {

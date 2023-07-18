@@ -18,7 +18,7 @@ var Memory = new function() {
 			}
 		}
 	}
-	
+
 	this.dumpType = function(str) {
 		const a = document.getElementById('MemoryContent');
 		const mem_types = {
@@ -66,18 +66,18 @@ var Memory = new function() {
 	this.dumpMemory = function(pc) {
         let s = `<a class="debug-memory-btn">${Debug.hex(pc, 4)} : `;
 		let characterString = '';
-        
+
         for(let i = 0; i < bytePerRow; i++) {
 			const byte = c.read8(pc++);
             s += `  ${Debug.hex(byte, 2, '')}`;
 			characterString += this.isValidCharNum(byte) ? String.fromCharCode(byte) : '.';
         }
-        
+
         return `${s}  ${characterString}</a>`;
     }
 
     this.show = function() {
-		showElement(div);
+		showElement(div, 'grid');
 		this.dumpType("rom0");
     }
 
