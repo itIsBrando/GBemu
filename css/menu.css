@@ -74,7 +74,8 @@
 .settings-grid-wrapper {
     display: grid;
     grid-template-columns: min-content 1fr 0;
-    border-top: 1px solid var(--ui-background-text);
+    overflow: hidden;
+    height: 100%;
 }
 
 .ui-dark-theme .img-svg {
@@ -124,6 +125,7 @@
 }
 
 
+/* Occurs in portrait mode on mobile devices */
 @media (max-width: 500px) and (orientation: portrait) {
     .settings-grid-wrapper {
         grid-template-columns: 1fr;
@@ -138,6 +140,7 @@
         justify-content: space-evenly;
         border: none;
         border-top: 1px solid var(--ui-background-text);
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
 
     .nav-bar-btn {
@@ -162,17 +165,24 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: 5px;
-    margin: 10px 15%;
+    margin: 5px;
     overflow: hidden auto;
 }
 
 .settings-grid label {
-    padding-left: 10px;
-    min-height: 40px;
+    font-size: large;
+    padding-left: 1rem;
+    min-height: 5.5rem;
+}
+
+.settings-subtext {
+    color: var(--ui-accent);
+    padding-left: 0.5rem;
+    font-size: small;
 }
 
 .settings-title {
-    padding: 5px 0px 0px 5px;
+    padding-left: 5px;
     margin: 15px 0px;
     color: var(--ui-accent);
 }
@@ -293,7 +303,7 @@
     border: none;
     z-index: 9;
     transition: all 0.20s ease-in-out;
-    grid-template-rows: 50px calc(100% - 50px - env(safe-area-inset-top));
+    grid-template-rows: calc(50px + env(safe-area-inset-top)) calc(100% - 50px - env(safe-area-inset-top));
 }
 
 .selection-menu {
@@ -354,10 +364,6 @@
     /* Do not show shortcut text on mobile */
     .shortcut-text {
         display: none;
-    }
-
-    .settings-grid {
-        margin: 10px;
     }
 
     .nav-bar-btn a {
