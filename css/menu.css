@@ -96,7 +96,7 @@
     overflow: hidden;
     flex-direction: column;
     gap: 5px;
-    border-right: 1px solid var(--ui-background-text);
+    box-shadow: 0px 0px 15px #000;
     background-color: var(--ui-background-dimmed);
     height: 100%;
     width: 12rem;
@@ -135,11 +135,11 @@
     .settings-nav-bar {
         grid-row: 2 / 2;
         width: 100% !important;
+        height: auto;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: space-evenly;
         border: none;
-        border-top: 1px solid var(--ui-background-text);
         padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
 

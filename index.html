@@ -356,6 +356,13 @@
                     <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
                     <p class="settings-subtext">Shows touchscreen controls</p>
                 </label>
+                <label for="">Accelerometer input
+                    <select onchange="EEPROM.setInputMode(this.value)" class="settings-selection">
+                        <option value="0">Accelerometer</option>
+                        <option value="1">Mouse</option>
+                    </select>
+                    <p class="settings-subtext">Chooses method of simulating the accelerometer</p>
+                </label>
                 <!-- Toggle vibration -->
                 <label for="vibrationToggle">Vibrate on touch
                     <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
@@ -395,6 +402,9 @@
                 <label for="AutoLoadButton">Load save on startup
                     <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
                     <p class="settings-subtext">Loads most recent save when a game is loaded</p>
+                </label>
+                <label>Storage
+                    <a style="float: right; text-align: right; font-size: small;" id="settingsStorage"></a>
                 </label>
                 <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
             </div>
@@ -573,6 +583,11 @@
             <button type="button" id="PromptSubmit" class="prompt-button"
                 onclick="PromptMenu.submit();">OK</button>
         </div>
+    </div>
+
+    <!-- Virtual accelerometer -->
+    <div id="touchAccelerometer" class="accelerometer">
+        <div class="accel-nip"></div>
     </div>
 
     <!-- Virtual Controller -->
@@ -817,7 +832,7 @@
         KeyBinding.init();
         Themes.init();
         Filter.init();
-        Renderer.setColorMode(Settings.get_core('ColorCorrection', 'prescaled'));
+        Renderer.setColorMode(Settings.get_core('ColorCorrection', 'SCALED'));
         Palette.load();
 
         if('launchQueue' in window) {

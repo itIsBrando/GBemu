@@ -25,20 +25,23 @@ const INPUT = {
 
 
 class EEPROM {
+    static inputMode = INPUT.MOUSE;
+    static accelX = 0;
+    static accelY = 0; // raw data from the device's accelerometer if present
+
     constructor(parent) {
         this.sensitivity = 0x70 * 2; // doubled because accelerometer datasheet detects up to 2g
         this.x = 0x8000; // 16-bit value
         this.y = 0x8000; // 16-bit value
-        this.accelX = 0; // raw data from the accelerometer if present
-        this.accelY = 0; // raw data from the accelerometer if present
-        this.latched = false;
-        this.inputMode = 'ondevicemotion' in window ? INPUT.ACCELEROMETER : INPUT.MOUSE;
+        this.latched = false;;
+        EEPROM.setInputMode(EEPROM.inputMode);
+        // 'ondevicemotion' in window ? INPUT.ACCELEROMETER : INPUT.MOUSE
 
-        Menu.alert.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
-        'Allow Accelerometer?', false, null, (e)=> {
+        Menu.message.show(this.inputMode == INPUT.ACCELEROMETER ? 'Your device supports the accelerometer' : 'Your device does not support an accelerometer.',
+        '', false, null, (e)=> {
             window.addEventListener("devicemotion", (e) => {
-                this.accelX =  Math.trunc(e.accelerationIncludingGravity.x * 100 / 9.8) / 100;
-                this.accelY = -Math.trunc(e.accelerationIncludingGravity.y * 100 / 9.8) / 100;
+                EEPROM.accelX =  Math.trunc(e.accelerationIncludingGravity.x * 100 / 9.8) / 100;
+                EEPROM.accelY = -Math.trunc(e.accelerationIncludingGravity.y * 100 / 9.8) / 100;
                 // display.innerHTML = `ACCELX: ${this.accelX}, x: ${this.getX()}<br>ACCELY: ${this.accelY} y: ${this.getY()}`;
             });
 
@@ -70,16 +73,31 @@ class EEPROM {
         this.outLength = 0;
     }
 
+    static setInputMode(mode) {
+        this.inputMode = mode | 0;
+
+        if(mode == INPUT.MOUSE) {
+            Accel.show();
+            EEPROM.getAccelX = () => { return Accel.dx }
+            EEPROM.getAccelY = () => { return Accel.dy }
+            console.log('hello')
+        } else {
+            Accel.hide();
+            EEPROM.getAccelX = () => { return EEPROM.accelX }
+            EEPROM.getAccelY = () => { return EEPROM.accelY }
+        }
+    }
+
 
     getX() {
         // max is 2g
-        let ax = this.accelX * this.sensitivity;
+        let ax = EEPROM.getAccelX() * this.sensitivity;
         return (0x81d0 + ax) & 0xffff;
     }
 
 
     getY() {
-        let ay = this.accelY * this.sensitivity;
+        let ay = EEPROM.getAccelY() * this.sensitivity;
         return (0x81d0 + ay) & 0xffff;
     }
 
