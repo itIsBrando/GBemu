@@ -43,8 +43,7 @@
 }
 
 .prompt-button {
-    background-color: var(--ui-background);
-    filter: brightness(0.8);
+    background-color: var(--ui-background-dimmed);
     color: var(--ui-accent);
     padding: 10px;
     border: none;
@@ -55,7 +54,10 @@
 }
 
 .prompt-button:hover {
-    /* background-color: color-mix(in srgb, currentColor, var(--ui-background) 60%); */
+    background-color: var(--ui-background);
+}
+
+.prompt-button:active {
     filter: brightness(1.2);
 }
 
@@ -76,6 +78,10 @@
 
 .show-menu-btn:hover, .icon-btn:hover, .menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
+}
+
+.show-menu-btn:active, .icon-btn:active, .menubtn:active, .dropdown-btn:active {
+    filter: brightness(0.5);
 }
 
 .x-btn:hover {

@@ -34,7 +34,7 @@ class Filter {
 
         Filter.supportsWasm = typeof Filter.wasmScale2x == "function";
 
-        this.setBorder("#00000040");
+        this.setBorder("#00000045");
     }
 
     setBorder(colorString) {

@@ -1,3 +1,7 @@
+const emuDiv = document.getElementById('settingsEmuDiv');
+const cntrDiv = document.getElementById('settingsCntrDiv');
+const miscDiv = document.getElementById('settingsMiscDiv');
+
 
 var CoreSetting = new function() {
     this.registeredNames = [];
@@ -142,6 +146,20 @@ var Settings = new function() {
         return MainDiv.style.display != "none";
     }
 
+    this.setMenu = function(str) {
+        hideElement(emuDiv);
+        hideElement(cntrDiv);
+        hideElement(miscDiv);
+
+        if(str === 'cntr') {
+            showElement(cntrDiv, 'flex');
+        } else if(str === 'misc') {
+            showElement(miscDiv, 'flex');
+        } else { // 'emu'
+            showElement(emuDiv, 'flex');
+        }
+    }
+
     this.show = function() {
         const versionElem = document.getElementById('version');
 
@@ -156,6 +174,8 @@ var Settings = new function() {
         }
 
         Themes.setSettingsBar();
+
+        Settings.setMenu('emu');
 
         pauseEmulation();
 
