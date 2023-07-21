@@ -114,6 +114,13 @@ class PromptMenu {
 		showElement(infoDiv.parentElement);
 	}
 
+	static shake() {
+		setTimeout(function() {
+			menu.classList.remove('shake-anim');
+		}, 400);
+		menu.classList.add('shake-anim');
+	}
+
     show() {
         const pat = this.accepts;
         const len = this.maxlength;
@@ -161,8 +168,10 @@ class PromptMenu {
     static submit() {
 		const [id, chc] = this.getChoice();
 
-		if(textInput.value.length == 0)
+		if(textInput.value.length == 0) {
+			PromptMenu.shake();
 			return;
+		}
 
         if(PromptMenu.onsubmit) {
 			const dict = {};
@@ -172,6 +181,7 @@ class PromptMenu {
 
 			if(PromptMenu.onsubmit(textInput.value, dict) === false) {
 				// do not hide
+				PromptMenu.shake();
 				return;
 			}
 		}

@@ -21,6 +21,16 @@
     box-shadow: 1px 1px 5px darkslategray;
 }
 
+.shake-anim {
+    animation: shake 0.35s;
+}
+
+@keyframes shake {
+    0% {transform: translateX(calc(-50% - 15px));}
+    25% {transform: translateX(calc(-50% + 15px));}
+    50% {transform: translateX(calc(-50% - 5px));}
+    100% {transform: translateX(calc(-50% + 5px));}
+}
 
 
 .menubtn, .menubtn-no-hover {
