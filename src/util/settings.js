@@ -163,7 +163,6 @@ var Settings = new function() {
     this.getStorageSize = function() {
         let len = 0;
         for(let keys in localStorage) {
-            // console.log(keys, );
             if(localStorage.hasOwnProperty(keys)) {
                 len += localStorage[keys].length;
             }
@@ -179,7 +178,7 @@ var Settings = new function() {
         const kbUsed = Settings.getStorageSize();
 
         settingsStorage.innerHTML = `
-            ${(kbUsed / 1024).toFixed(2)}MiB / 10MiB<br>${(kbUsed / (10 * 1024) * 100).toFixed(1)}%`;
+            ${(kbUsed / 1024).toFixed(2)}MiB / 5MiB<br>${(kbUsed / (5 * 1024) * 100).toFixed(1)}%`;
 
         if('caches' in window) {
             caches.keys().then(

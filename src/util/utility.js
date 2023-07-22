@@ -106,12 +106,3 @@ function showROMInfo() {
         c.getTitle()
     );
 }
-
-
-/**
- * Checks to see if the current device has a touchscreen
- * @returns true if it does, otherwise false
- */
-function hasTouchscreen() {
-    return 'ontouchstart' in window;
-}

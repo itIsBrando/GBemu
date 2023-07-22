@@ -720,7 +720,8 @@
     <script src="src/util/themes.js"></script>
     <script src="src/util/utility.js"></script>
     <script src="src/util/keyboard.js"></script>
-    <script src="src/util/controller.js"></script>
+    <script src="src/util/controller/controller.js"></script>
+    <script src="src/util/controller/accelerometer.js"></script>
     <script src="src/util/debug.js"></script>
     <script src="src/util/debug/Opcode.js"></script>
     <script src="src/util/debug/Disassembler.js"></script>
@@ -755,7 +756,7 @@
     <script src="src/initalize.js"></script>
     <script src="src/util/palette.js"></script>
     <script src="src/util/state.js"></script>
-    <script src="src/util/touch.js"></script>
+    <script src="src/util/controller/touch.js"></script>
     <script type="text/javascript">
         let inputForm = document.getElementById('inputfile');
 
@@ -828,12 +829,15 @@
             Themes.setUI(i);
         });
 
-
-        KeyBinding.init();
-        Themes.init();
-        Filter.init();
-        Renderer.setColorMode(Settings.get_core('ColorCorrection', 'SCALED'));
-        Palette.load();
+        window.addEventListener('load', () => {
+            KeyBinding.init();
+            Themes.init();
+            Filter.init();
+            Renderer.setColorMode(Settings.get_core('ColorCorrection', 'SCALED'));
+            Palette.load();
+            Dpad.init();
+            Accel.init();
+        });
 
         if('launchQueue' in window) {
             launchQueue.setConsumer((params) => {

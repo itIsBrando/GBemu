@@ -11,59 +11,6 @@ const buttonLeft = document.getElementById("controllerLeft");
 const buttonFF = document.getElementById("controllerFastForward");
 
 
-let Accel = new function() {
-    let touchAccelerometer = document.getElementById('touchAccelerometer');
-    const accelNip = touchAccelerometer.children[0];
-    let dx = 0, dy = 0;
-    let pressed = false;
-
-    this.init = function() {
-        touchAccelerometer.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            Accel.pressed = true;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            const accelRect = touchAccelerometer.getBoundingClientRect();
-            e.preventDefault();
-            if(Accel.pressed) {
-                accelNip.style.transition = 'all 0s'
-                Accel.moveTo(e.clientX - accelRect.x - 30, e.clientY - accelRect.y - 30);
-            }
-        })
-
-        const mouseUp = function() {
-            accelNip.style.transition = 'all 0.2s'
-            Accel.moveTo(0, 0);
-            Accel.pressed = false;
-        };
-
-        window.addEventListener('mouseup', mouseUp);
-
-        mouseUp();
-    }
-
-    this.moveTo = function(x, y) {
-        x = Math.max(Math.min(x, 30), -30);
-        y = Math.max(Math.min(y, 30), -30);
-
-        this.dx = -x / 60;
-        this.dy = -y / 60;
-        accelNip.style.left = `calc(30px - 10px + ${x}px)`;
-        accelNip.style.top = `calc(30px - 10px + ${y}px)`;
-    }
-
-    this.show = function() {
-        showElement(touchAccelerometer);
-    }
-
-    this.hide = function() {
-        hideElement(touchAccelerometer);
-    }
-}
-
-Accel.init();
-
 
 // dpad buttons are handled differently
 const buttonElements = [
@@ -100,39 +47,13 @@ for(let i = 0; i < buttonElements.length; i++) {
 }
 
 
-// show dpad buttons
-const d = [
-    buttonUp,
-    buttonDown,
-    buttonRight,
-    buttonLeft,
-];
-
-for(let i = 0; i < d.length; i++)
-{
-    d[i].id = ids[i + 5];
-    d[i].innerHTML = squareSample.innerHTML;
-    d[i].getElementsByClassName('gamepad-button-bottom').item(0).classList = ['dpad-button-bottom'];
-    d[i].getElementsByClassName('gamepad-button-top').item(0).classList = ['dpad-button-top'];
+/**
+ * Checks to see if the current device has a touchscreen
+ * @returns true if it does, otherwise false
+ */
+function hasTouchscreen() {
+    return 'ontouchstart' in window;
 }
-
-delete d;
-
-// add event listeners to DPAD
-const dpad = document.getElementById("dpadButtons");
-
-dpad.addEventListener('touchstart', function(event) {
-    touchDPAD(event, true);
-});
-dpad.addEventListener('touchmove', function(event) {
-    touchDPAD(event, true);
-});
-dpad.addEventListener('touchend', function(event) {
-    touchDPAD(event, false);
-});
-dpad.addEventListener('touchcancel', function(event) {
-    touchDPAD(event, false);
-});
 
 
 /**
@@ -255,7 +176,7 @@ function touchDPAD(event, state) {
     event.preventDefault();
 
     // this graphically updates the DPAD button
-    if(state == false) {
+    if(state === false) {
         touchDPADReset(buttonDown, "LEFT");
         touchDPADReset(buttonUp, "RIGHT");
         touchDPADReset(buttonLeft, "UP");
@@ -327,17 +248,53 @@ document.getElementById('vibrationToggle').addEventListener('click', (e)=>{
     if(Dpad.vibrationEnable && !('vibrate' in navigator)) {
         Menu.message.show("Vibration not supported on this device.");
         e.target.click();
+        return;
     }
 
     doVibration();
 });
 
-// auto enable if using a touch device
-if(hasTouchscreen())
-    controlsToggle.click();
-
 
 // @todo bundle button features
 var Dpad = new function() {
     let vibrationEnable = false;
+
+
+    this.init = function() {
+        // show dpad buttons
+        const d = [
+            buttonUp,
+            buttonDown,
+            buttonRight,
+            buttonLeft,
+        ];
+
+        for(let i = 0; i < d.length; i++) {
+            d[i].id = ids[i + 5];
+            d[i].innerHTML = squareSample.innerHTML;
+            d[i].getElementsByClassName('gamepad-button-bottom').item(0).classList = ['dpad-button-bottom'];
+            d[i].getElementsByClassName('gamepad-button-top').item(0).classList = ['dpad-button-top'];
+        }
+
+        // add event listeners to DPAD
+        const dpad = document.getElementById("dpadButtons");
+
+        dpad.addEventListener('touchstart', function(event) {
+            touchDPAD(event, true);
+        });
+        dpad.addEventListener('touchmove', function(event) {
+            touchDPAD(event, true);
+        });
+        dpad.addEventListener('touchend', function(event) {
+            touchDPAD(event, false);
+        });
+        dpad.addEventListener('touchcancel', function(event) {
+            touchDPAD(event, false);
+        });
+
+        // auto enable if using a touch device
+        if(hasTouchscreen())
+            controlsToggle.click();
+
+    }
 }
