@@ -68,10 +68,12 @@ function saveButtonDivResize() {
 
 
 function saveButtonOnTouchStart(event) {
+    const elem = this;
+
     _timer = setTimeout(function() {
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
-        SaveManager.contextMenuCallback(event);
+        SaveManager.contextMenuCallback.call(elem, event);
     } , 400);
 
 }
@@ -272,7 +274,7 @@ var SaveManager = new function() {
 
         pauseEmulation();
 
-        showElementFadeIn(popupMenu, 'grid');
+        showElementFadeIn(popupMenu);
 
         window.addEventListener('resize', saveButtonDivResize);
         saveButtonDivResize();
