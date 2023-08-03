@@ -276,138 +276,136 @@
     </div>
 
     <!-- Settings menu -->
-    <div id="SettingsDiv" style="opacity: 0; padding-top: env(safe-area-inset-top); grid-template-rows: 1fr;" class="save-menu">
-        <div class="settings-grid-wrapper">
-            <div class="settings-nav-bar">
-                <div class="nav-bar-btn" onclick="Settings.setMenu('emu')">
-                    <img class="img-svg" src="icons/slider.svg"/>
-                    <a>Emulation</a>
-                </div>
-                <div class="nav-bar-btn" onclick="Settings.setMenu('cntr')">
-                    <img class="img-svg" src="icons/joystick.svg"/>
-                    <a>Controls</a>
-                </div>
-                <div class="nav-bar-btn" onclick="Settings.setMenu('misc')">
-                    <img class="img-svg" src="icons/gear.svg"/>
-                    <a>System</a>
-                </div>
+    <div id="SettingsDiv" style="opacity: 0;" class="save-menu settings-grid-wrapper">
+        <div class="settings-nav-bar">
+            <div class="nav-bar-btn" onclick="Settings.setMenu('emu')">
+                <img class="img-svg" src="icons/slider.svg"/>
+                <a>Emulation</a>
             </div>
-            <div id="settingsEmuDiv" class="settings-grid">
-                <b class="settings-title">Emulation
-                    <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
-                </b>
-                <!-- Emulation Mode -->
-                <label for="toggleDMGMode">Mode
-                    <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
-                        class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
-                    <p class="settings-subtext">Set Gameboy model to emulate</p>
-                </label>
-                <label for="correctionType">Color Correction
-                    <select class="settings-selection" id="correctionType" oninput="Renderer.setColorMode(this.value)" title="Changes GBC correction modes.">
-                        <option value="SCALED">prescaled</option>
-                        <option value="GAMMA">gamma</option>
-                        <option value="DESATURATE">desaturate</option>
-                    </select>
-                    <p class="settings-subtext">Set GBC color correction mode</p>
-                </label>
-                <label id="labelChangeFilter" for="filterSelect">Shader
-                    <select class="settings-selection" id="filterSelect" oninput="Filter.set(this.value)">
-                        <option value="none">none</option>
-                        <option value="scale2x">scale2x</option>
-                        <option value="scale3x">scale3x</option>
-                        <option value="LCD">lcd</option>
-                        <option value="Monochrome">monochrome</option>
-                    </select>
-                    <p class="settings-subtext">Sets graphical shader compiled with WASM</p>
-                </label>
-                <!-- DMG Palette -->
-                <label for="dmgPal">DMG Palette
-                    <button type="button" id="dmgPal" name="dmgPal" class="menubtn settings-btn"
-                            onclick="State.push(MainState.PaletteMenu);">edit</button>
-                    <p class="settings-subtext">Sets the palette used in DMG mode</p>
-                </label>
-                <!-- Frame skip -->
-                <label>Frame skip
-                    <input class="settings-select-radio" id="frameskip3" name="FrameSkip" value="3" type="radio">
-                    <label class="settings-select" for="frameskip3">3</label>
-                    <input class="settings-select-radio" id="frameskip2" name="FrameSkip" value="2" type="radio">
-                    <label class="settings-select" for="frameskip2">2</label>
-                    <input class="settings-select-radio" id="frameskip1" name="FrameSkip" value="1" type="radio">
-                    <label class="settings-select" for="frameskip1">1</label>
-                    <input class="settings-select-radio" id="frameskip0" name="FrameSkip" value="0" type="radio" checked>
-                    <label class="settings-select" for="frameskip0">0</label>
-                    <p class="settings-subtext">Improves performance by rendering less frames</p>
-                </label>
-                <label for="sndButton">Enable Sound
-                    <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
-                    <p class="settings-subtext">Toggle sound</p>
-                </label>
-                <label for="sndSlider">Volume
-                    <input type="range" value="0.5" min="0.1" max="1" step="0.1" class="settings-range" id="sndSlider" title="Set sound volume">
-                </label>
+            <div class="nav-bar-btn" onclick="Settings.setMenu('cntr')">
+                <img class="img-svg" src="icons/joystick.svg"/>
+                <a>Controls</a>
             </div>
-            <div id="settingsCntrDiv" class="settings-grid">
-                <b class="settings-title">
-                    Controls
-                    <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
-                </b>
-                <!-- Toggle touch controls -->
-                <label for="controlsToggle">Touch Controls
-                    <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
-                    <p class="settings-subtext">Shows touchscreen controls</p>
-                </label>
-                <label for="">Accelerometer input
-                    <select onchange="EEPROM.setInputMode(this.value)" class="settings-selection">
-                        <option value="0">Accelerometer</option>
-                        <option value="1">Mouse</option>
-                    </select>
-                    <p class="settings-subtext">Chooses method of simulating the accelerometer</p>
-                </label>
-                <!-- Toggle vibration -->
-                <label for="vibrationToggle">Vibrate on touch
-                    <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
-                    <p class="settings-subtext">Haptic feedback on button press</p>
-                </label>
-                <!-- Gamepad deadzone -->
-                <label>Controller deadzone
-                    <input type="range" min="0.1" max="0.8" step="0.1" class="settings-range" id="gpDeadzoneSlider">
-                    <p class="settings-subtext">Distance before a gamepad input is registered</p>
-                </label>
-                <!-- change keyboard controls -->
-                <label for="changeKeybinding">Keyboard Controls
-                    <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
-                        onclick="KeyBinding.show();">edit</button>
-                    <p class="settings-subtext">Change keyboard mapping</p>
-                </label>
+            <div class="nav-bar-btn" onclick="Settings.setMenu('misc')">
+                <img class="img-svg" src="icons/gear.svg"/>
+                <a>System</a>
             </div>
-            <!-- Other -->
-            <div id="settingsMiscDiv" class="settings-grid">
-                <b class="settings-title">
-                    Other
-                    <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
-                </b>
-                <label>Theme
-                    <button type="button" id="uiThemeButton" title="change UI theme" class="menubtn settings-btn"
-                        onclick="CoreSetting.next('UITheme');">dark</button>
-                    <p class="settings-subtext">Set UI theme</p>
-                </label>
-                <label>Show FPS
-                    <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
-                    <p class="settings-subtext">Shows frames per second</p>
-                </label>
-                <label>Screen border
-                    <input type="checkbox" name="border" id="BorderButton" class="settings-checkbox" title="Shows/hides the border around the screen" checked>
-                    <p class="settings-subtext">Shows the border around the screen</p>
-                </label>
-                <label for="AutoLoadButton">Load save on startup
-                    <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
-                    <p class="settings-subtext">Loads most recent save when a game is loaded</p>
-                </label>
-                <label>Storage
-                    <a style="float: right; text-align: right; font-size: small;" id="settingsStorage"></a>
-                </label>
-                <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
-            </div>
+        </div>
+        <div id="settingsEmuDiv" class="settings-grid">
+            <b class="settings-title">Emulation
+                <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
+            </b>
+            <!-- Emulation Mode -->
+            <label for="toggleDMGMode">Mode
+                <button type="button" name="emuMode" id="toggleDMGMode" title="Changes emulation mode."
+                    class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
+                <p class="settings-subtext">Set Gameboy model to emulate</p>
+            </label>
+            <label for="correctionType">Color Correction
+                <select class="settings-selection" id="correctionType" oninput="Renderer.setColorMode(this.value)" title="Changes GBC correction modes.">
+                    <option value="SCALED">prescaled</option>
+                    <option value="GAMMA">gamma</option>
+                    <option value="DESATURATE">desaturate</option>
+                </select>
+                <p class="settings-subtext">Set GBC color correction mode</p>
+            </label>
+            <label id="labelChangeFilter" for="filterSelect">Shader
+                <select class="settings-selection" id="filterSelect" oninput="Filter.set(this.value)">
+                    <option value="none">none</option>
+                    <option value="scale2x">scale2x</option>
+                    <option value="scale3x">scale3x</option>
+                    <option value="LCD">lcd</option>
+                    <option value="Monochrome">monochrome</option>
+                </select>
+                <p class="settings-subtext">Sets graphical shader compiled with WASM</p>
+            </label>
+            <!-- DMG Palette -->
+            <label for="dmgPal">DMG Palette
+                <button type="button" id="dmgPal" name="dmgPal" class="menubtn settings-btn"
+                        onclick="State.push(MainState.PaletteMenu);">edit</button>
+                <p class="settings-subtext">Sets the palette used in DMG mode</p>
+            </label>
+            <!-- Frame skip -->
+            <label>Frame skip
+                <input class="settings-select-radio" id="frameskip3" name="FrameSkip" value="3" type="radio">
+                <label class="settings-select" for="frameskip3">3</label>
+                <input class="settings-select-radio" id="frameskip2" name="FrameSkip" value="2" type="radio">
+                <label class="settings-select" for="frameskip2">2</label>
+                <input class="settings-select-radio" id="frameskip1" name="FrameSkip" value="1" type="radio">
+                <label class="settings-select" for="frameskip1">1</label>
+                <input class="settings-select-radio" id="frameskip0" name="FrameSkip" value="0" type="radio" checked>
+                <label class="settings-select" for="frameskip0">0</label>
+                <p class="settings-subtext">Improves performance by rendering less frames</p>
+            </label>
+            <label for="sndButton">Enable Sound
+                <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
+                <p class="settings-subtext">Toggle sound</p>
+            </label>
+            <label for="sndSlider">Volume
+                <input type="range" value="0.5" min="0.1" max="1" step="0.1" class="settings-range" id="sndSlider" title="Set sound volume">
+            </label>
+        </div>
+        <div id="settingsCntrDiv" class="settings-grid">
+            <b class="settings-title">
+                Controls
+                <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
+            </b>
+            <!-- Toggle touch controls -->
+            <label for="controlsToggle">Touch Controls
+                <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
+                <p class="settings-subtext">Shows touchscreen controls</p>
+            </label>
+            <label for="">Accelerometer input
+                <select onchange="EEPROM.setInputMode(this.value)" class="settings-selection">
+                    <option value="0">Accelerometer</option>
+                    <option value="1">Mouse</option>
+                </select>
+                <p class="settings-subtext">Chooses method of simulating the accelerometer</p>
+            </label>
+            <!-- Toggle vibration -->
+            <label for="vibrationToggle">Vibrate on touch
+                <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
+                <p class="settings-subtext">Haptic feedback on button press</p>
+            </label>
+            <!-- Gamepad deadzone -->
+            <label>Controller deadzone
+                <input type="range" min="0.1" max="0.8" step="0.1" class="settings-range" id="gpDeadzoneSlider">
+                <p class="settings-subtext">Distance before a gamepad input is registered</p>
+            </label>
+            <!-- change keyboard controls -->
+            <label for="changeKeybinding">Keyboard Controls
+                <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
+                    onclick="KeyBinding.show();">edit</button>
+                <p class="settings-subtext">Change keyboard mapping</p>
+            </label>
+        </div>
+        <!-- Other -->
+        <div id="settingsMiscDiv" class="settings-grid">
+            <b class="settings-title">
+                Other
+                <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
+            </b>
+            <label>Theme
+                <button type="button" id="uiThemeButton" title="change UI theme" class="menubtn settings-btn"
+                    onclick="CoreSetting.next('UITheme');">dark</button>
+                <p class="settings-subtext">Set UI theme</p>
+            </label>
+            <label>Show FPS
+                <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
+                <p class="settings-subtext">Shows frames per second</p>
+            </label>
+            <label>Screen border
+                <input type="checkbox" name="border" id="BorderButton" class="settings-checkbox" title="Shows/hides the border around the screen" checked>
+                <p class="settings-subtext">Shows the border around the screen</p>
+            </label>
+            <label for="AutoLoadButton">Load save on startup
+                <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
+                <p class="settings-subtext">Loads most recent save when a game is loaded</p>
+            </label>
+            <label>Storage
+                <a style="float: right; text-align: right; font-size: small;" id="settingsStorage"></a>
+            </label>
+            <a id="version" style="grid-column: 1 / 3; text-align: right; padding: 3px; font-size: 0.65rem;"></a>
         </div>
     </div>
 
@@ -678,7 +676,7 @@
     <!-- Change palette colors -->
     <div class="save-menu" id="paletteSetDiv">
         <div class="menu-header">
-            <a>Palette Menu</a>
+            <a>Palettes</a>
             <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
         </div>
         <!-- color inputs -->
@@ -719,7 +717,7 @@
     <script src="src/util/saveManager.js"></script>
     <script src="src/util/themes.js"></script>
     <script src="src/util/utility.js"></script>
-    <script src="src/util/keyboard.js"></script>
+    <script src="src/util/controller/keyboard.js"></script>
     <script src="src/util/controller/controller.js"></script>
     <script src="src/util/controller/accelerometer.js"></script>
     <script src="src/util/debug.js"></script>

@@ -279,7 +279,6 @@ var Dpad = new function() {
             touchDPAD(event, true);
         });
         dpad.addEventListener('touchmove', function(event) {
-            Menu.alert.show('touchmove');
             touchDPAD(event, true);
         });
         dpad.addEventListener('touchend', function(event) {

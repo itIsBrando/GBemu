@@ -74,6 +74,7 @@
 .settings-grid-wrapper {
     display: grid;
     grid-template-columns: min-content 1fr 0;
+    grid-template-rows: 1fr;
     overflow: hidden;
     height: 100%;
 }
@@ -100,6 +101,7 @@
     background-color: var(--ui-background-dimmed);
     height: 100%;
     width: 12rem;
+    padding-top: env(safe-area-inset-top);
     transition: 0.2s;
 }
 
@@ -113,7 +115,7 @@
     padding: 10px 10px;
     align-items: center;
     transition: all 0.1ms;
-    justify-content: center;
+    justify-content: left;
 }
 
 .nav-bar-btn:active img {
@@ -141,6 +143,7 @@
         justify-content: space-evenly;
         border: none;
         padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-top: 0;
     }
 
     .nav-bar-btn {
@@ -165,7 +168,8 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: 5px;
-    margin: 5px;
+    margin: 10px;
+    padding-top: env(safe-area-inset-top);
     overflow: hidden auto;
 }
 
@@ -303,7 +307,6 @@
     border: none;
     z-index: 9;
     transition: all 0.20s ease-in-out;
-    grid-template-rows: calc(50px + env(safe-area-inset-top)) calc(100% - 50px - env(safe-area-inset-top));
 }
 
 .selection-menu {
@@ -372,7 +375,7 @@
 
 
     .settings-nav-bar {
-        width: 4rem;
+        width: 58px;
     }
 
 }

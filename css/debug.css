@@ -21,8 +21,7 @@
 
 .debug-box {
     font-family: monospace;
-    margin: 15px;
-    width: calc(100% - 30px);
+    margin: 5px;
     height: fit-content;
     max-height: 100%;
     border-radius: 2px;
@@ -235,7 +234,6 @@
 @media (max-width: 500px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
     .debug-box {
         margin: 5px;
-        width: calc(100% - 10px);
     }
 
     #TilePreview {

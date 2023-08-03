@@ -414,7 +414,7 @@ var SaveManager = new function() {
             btn.className = "menubtn save-menu-button";
             btn.type = "button";
             btn.innerHTML = `
-                <img width="160" height="144" class="save-menu-img">
+                <img width="160" height="144" class="save-menu-img" draggable="false">
                 <a class="save-menu-button-title">
                     ${this.getSaveString(keys[i])}
                     <code class="save-state-icon" style="color: ${obj.type == SaveType.SAVESTATE ? 'gold' : 'lightblue'};">${obj.type || "SAV"}</code>
@@ -423,12 +423,12 @@ var SaveManager = new function() {
             btn.value = keys[i];
             btn.onclick = onLabelClick;
 
-            if('oncontextmenu' in window) {
-                btn.oncontextmenu = this.contextMenuCallback;
-            } else {
+            if(isSafari() && hasTouchscreen()) {
                 // oncontext menu unavaiable for damn iOS devices :'(
                 btn.addEventListener('touchstart', saveButtonOnTouchStart);
                 btn.addEventListener('touchend', saveButtonOnTouchEnd);
+            } else if('oncontextmenu' in window) {
+                btn.oncontextmenu = this.contextMenuCallback;
             }
 
             const can = btn.getElementsByTagName('img')[0];
@@ -437,7 +437,6 @@ var SaveManager = new function() {
                 const im = decodeURI(obj.img);
                 can.src = im;
             }
-
 
             saveButtonDiv.appendChild(btn);
 
