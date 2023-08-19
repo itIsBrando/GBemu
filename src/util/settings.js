@@ -228,7 +228,7 @@ AutoLoadButton.addEventListener('click', function() {
 
 AutoLoadButton.checked = Settings.get_core("autoload", 'true') == 'true' ? true : false;
 
-const BorderButton = document.getElementById('BorderButton');
+var BorderButton = document.getElementById('BorderButton');
 
 BorderButton.addEventListener('click', function() {
     let cur = Settings.get_core('bordershown', 'true');

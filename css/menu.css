@@ -127,6 +127,17 @@
 }
 
 
+@media (max-width: 800px) and (orientation: portrait) {
+    .settings-nav-bar {
+        width: 58px;
+    }
+
+    .nav-bar-btn a {
+        display: none;
+    }
+}
+
+
 /* Occurs in portrait mode on mobile devices */
 @media (max-width: 500px) and (orientation: portrait) {
     .settings-grid-wrapper {
@@ -368,14 +379,6 @@
     .shortcut-text {
         display: none;
     }
-
-    .nav-bar-btn a {
-        display: none;
-    }
-
-
-    .settings-nav-bar {
-        width: 58px;
-    }
-
 }
+
+

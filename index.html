@@ -253,7 +253,7 @@
                 <div class="power-LED"></div>
             </div>
             <canvas class="main-canvas" id="screen" width="160" height="144"> </canvas>
-            <canvas class="main-canvas" id="filterScreen" style="image-rendering: auto;" width="1120" height="1008"> </canvas>
+            <canvas class="main-canvas" id="filterScreen" style="image-rendering: auto; pointer-events: none;" width="1120" height="1008"> </canvas>
             <div class="screen-container-right"></div>
         </div>
         <!-- Menu button to show the top menu -->
@@ -835,6 +835,18 @@
             Palette.load();
             Dpad.init();
             Accel.init();
+
+            if(window !== window.parent) {
+                // in iframe
+                Menu.title.toggle();
+                if(Settings.get_core('bordershown', 'true') == true)
+                    BorderButton.click()
+
+                canvas.onclick = () => {
+                    if(!c.romLoaded)
+                        LoadRom.click();
+                }
+            }
         });
 
         if('launchQueue' in window) {
