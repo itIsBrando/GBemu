@@ -142,22 +142,6 @@
     background-color: inherit;
 }
 
-.settings-selection {
-    appearance: none;
-    background: var(--ui-primary-button);
-    color: var(--ui-text);
-    text-align: center;
-    padding: 5px;
-    width: fit-content;
-    float: right;
-    border-radius: 5px;
-}
-
-option {
-    background-color: var(--ui-background);
-    color: var(--ui-background-text);
-}
-
 .settings-range {
     float: right;
     background-color: transparent;

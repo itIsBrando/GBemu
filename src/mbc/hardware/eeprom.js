@@ -76,11 +76,12 @@ class EEPROM {
     static setInputMode(mode) {
         this.inputMode = mode | 0;
 
+        document.getElementById('AccelInput').children[0].innerText = mode === INPUT.MOUSE ? 'cursor' : 'accelerometer';
+
         if(mode == INPUT.MOUSE) {
             Accel.show();
             EEPROM.getAccelX = () => { return Accel.dx }
             EEPROM.getAccelY = () => { return Accel.dy }
-            console.log('hello')
         } else {
             Accel.hide();
             EEPROM.getAccelX = () => { return EEPROM.accelX }

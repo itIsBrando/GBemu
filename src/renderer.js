@@ -332,6 +332,7 @@ class Renderer {
      */
     static setColorMode(key) {
         PPU.colorMode = ColorMode[key] || 0;
+        document.getElementById('correctionType').children[0].innerHTML = key.toLowerCase() || "SCALED";
         Settings.set_core('ColorCorrection', key);
     }
 

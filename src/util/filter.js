@@ -253,7 +253,7 @@ class Filter {
 
     static set(key) {
         Filter.current = FilterType[key] || 0;
-        filterSelect.value = key;
+        filterSelect.children[0].innerHTML = key;
         Settings.set_core('FilterType', key);
 
         // set canvas size

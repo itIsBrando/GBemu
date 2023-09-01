@@ -294,3 +294,20 @@ var Dpad = new function() {
 
     }
 }
+
+
+let t = null;
+
+document.getElementById('touchPadding').addEventListener('input', (e) => {
+    const div = document.getElementById('SettingsDiv');
+    touchControls.style.bottom = `calc(env(safe-area-inset-bottom) + ${e.target.value}%)`;
+    div.style.opacity = "0.8";
+
+    if(t) {
+        clearTimeout(t);
+        t = null;
+    }
+
+    t = setTimeout(() => {div.style.opacity = "1"; t = null;}, 600);
+
+});

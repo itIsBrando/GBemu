@@ -1,6 +1,6 @@
 #touchControls {
     position: fixed;
-    bottom: 0px;
+    bottom: env(safe-area-inset-bottom);
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -129,10 +129,3 @@
         right: calc(10px + env(safe-area-inset-right));
     }
 }
-
-@media (orientation: portrait) {
-    #touchControls {
-        bottom: calc(env(safe-area-inset-bottom) + 15vh);
-    }
-}
-

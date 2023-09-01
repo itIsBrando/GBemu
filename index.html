@@ -302,21 +302,27 @@
                 <p class="settings-subtext">Set Gameboy model to emulate</p>
             </label>
             <label for="correctionType">Color Correction
-                <select class="settings-selection" id="correctionType" oninput="Renderer.setColorMode(this.value)" title="Changes GBC correction modes.">
-                    <option value="SCALED">prescaled</option>
-                    <option value="GAMMA">gamma</option>
-                    <option value="DESATURATE">desaturate</option>
-                </select>
+                <div class="selection" id="correctionType" onclick="this.classList.toggle('selection-active')" title="Changes GBC correction modes.">
+                    <a>prescaled</a>
+                    <div class="selection-child">
+                        <div onclick="Renderer.setColorMode('SCALED');">prescaled</div>
+                        <div onclick="Renderer.setColorMode('GAMMA');">gamma</div>
+                        <div onclick="Renderer.setColorMode('DESATURATE');">desaturate</div>
+                    </div>
+                </div>
                 <p class="settings-subtext">Set GBC color correction mode</p>
             </label>
             <label id="labelChangeFilter" for="filterSelect">Shader
-                <select class="settings-selection" id="filterSelect" oninput="Filter.set(this.value)">
-                    <option value="none">none</option>
-                    <option value="scale2x">scale2x</option>
-                    <option value="scale3x">scale3x</option>
-                    <option value="LCD">lcd</option>
-                    <option value="Monochrome">monochrome</option>
-                </select>
+                <div class="selection" id="filterSelect" onclick="this.classList.toggle('selection-active')">
+                    <a>none</a>
+                    <div class="selection-child">
+                        <div onclick="Filter.set('none');">none</div>
+                        <div onclick="Filter.set('scale2x');">scale2x</div>
+                        <div onclick="Filter.set('scale3x');">scale3x</div>
+                        <div onclick="Filter.set('LCD');">lcd</div>
+                        <div onclick="Filter.set('Monochrome');">monochrome</div>
+                    </div>
+                </div>
                 <p class="settings-subtext">Sets graphical shader compiled with WASM</p>
             </label>
             <!-- DMG Palette -->
@@ -355,17 +361,24 @@
                 <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
                 <p class="settings-subtext">Shows touchscreen controls</p>
             </label>
-            <label for="">Accelerometer input
-                <select onchange="EEPROM.setInputMode(this.value)" class="settings-selection">
-                    <option value="0">Accelerometer</option>
-                    <option value="1">Mouse</option>
-                </select>
-                <p class="settings-subtext">Chooses method of simulating the accelerometer</p>
-            </label>
             <!-- Toggle vibration -->
             <label for="vibrationToggle">Vibrate on touch
                 <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
                 <p class="settings-subtext">Haptic feedback on button press</p>
+            </label>
+            <label for="touchPadding">Touch control padding
+                <input type="range" id="touchPadding" min="0" max="50" step="2" class="settings-range">
+                <p class="settings-subtext">Sets vertical offset of touch controls</p>
+            </label>
+            <label for="AccelInput">Accelerometer input
+                <div id="AccelInput" onclick="this.classList.toggle('selection-active')" class="selection">
+                    <a>Accelerometer</a>
+                    <div class="selection-child">
+                        <div onclick="EEPROM.setInputMode(0)">Accelerometer</div>
+                        <div onclick="EEPROM.setInputMode(1)">Cursor</div>
+                    </div>
+                </div>
+                <p class="settings-subtext">Chooses method of simulating the accelerometer</p>
             </label>
             <!-- Gamepad deadzone -->
             <label>Controller deadzone
