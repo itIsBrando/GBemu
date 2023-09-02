@@ -73,7 +73,7 @@
 
 .settings-grid-wrapper {
     display: grid;
-    grid-template-columns: min-content 1fr 0;
+    grid-template-columns: 10rem 1fr 0;
     grid-template-rows: 1fr;
     overflow: hidden;
     height: 100%;
@@ -89,18 +89,16 @@
 }
 
 .settings-nav-bar:hover {
-    width: 12rem;
+    width: 10rem;
 }
 
 .settings-nav-bar {
     display: flex;
     overflow: hidden;
     flex-direction: column;
-    gap: 5px;
-    box-shadow: 0px 0px 15px #000;
     background-color: var(--ui-background-dimmed);
     height: 100%;
-    width: 12rem;
+    width: 10rem;
     padding-top: env(safe-area-inset-top);
     transition: 0.2s;
 }
@@ -112,7 +110,7 @@
     flex-wrap: nowrap;
     color: var(--ui-background-text);
     width: 100%;
-    padding: 10px 10px;
+    padding: 12px 10px;
     align-items: center;
     transition: all 0.1ms;
     justify-content: left;
@@ -122,7 +120,7 @@
     transform: scale(120%, 120%);
 }
 
-.nav-bar-btn:hover {
+.nav-bar-btn-active, .nav-bar-btn:hover {
     background-color: var(--ui-background);
 }
 
@@ -168,54 +166,6 @@
     display: block;
 }
 
-
-@media (max-width: 800px) and (orientation: portrait) {
-    .settings-nav-bar {
-        width: 58px;
-    }
-
-    .nav-bar-btn a {
-        display: none;
-    }
-}
-
-
-/* Occurs in portrait mode on mobile devices */
-@media (max-width: 500px) and (orientation: portrait) {
-    .settings-grid-wrapper {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr min-content;
-    }
-
-    .settings-nav-bar {
-        grid-row: 2 / 2;
-        width: 100% !important;
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        border: none;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
-        padding-top: 0;
-    }
-
-    .nav-bar-btn {
-        width: auto;
-        text-align: center;
-        padding: 1px 10px;
-        flex-direction: column;
-    }
-
-    .settings-nav-bar a {
-        display: block !important;
-        font-size: 0.7rem;
-    }
-
-    .settings-nav-bar:hover {
-        width: 100%;
-    }
-}
-
 .settings-grid {
     display: flex;
     flex-direction: column;
@@ -224,6 +174,10 @@
     margin: 10px;
     padding-top: env(safe-area-inset-top);
     overflow: hidden auto;
+}
+
+.settings-tab {
+    margin: 10px 10%;
 }
 
 .settings-grid label {
@@ -424,3 +378,57 @@
 }
 
 
+@media (max-width: 800px) and (orientation: portrait) {
+    .settings-nav-bar {
+        width: 58px;
+    }
+
+    .nav-bar-btn a {
+        display: none;
+    }
+
+    .settings-tab {
+        margin: 2%
+    }
+}
+
+
+/* Occurs in portrait mode on mobile devices */
+@media (max-width: 500px) and (orientation: portrait) {
+    .settings-grid-wrapper {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr min-content;
+    }
+
+    .settings-tab {
+        margin: 10px;
+    }
+
+    .settings-nav-bar {
+        grid-row: 2 / 2;
+        width: 100% !important;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        border: none;
+        justify-content: space-evenly;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-top: 0;
+    }
+
+    .nav-bar-btn {
+        width: 100%;
+        text-align: center;
+        padding: 1px 10px;
+        flex-direction: column;
+    }
+
+    .settings-nav-bar a {
+        display: block !important;
+        font-size: 0.7rem;
+    }
+
+    .settings-nav-bar:hover {
+        width: 100%;
+    }
+}

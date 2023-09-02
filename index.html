@@ -291,7 +291,7 @@
                 <a>System</a>
             </div>
         </div>
-        <div id="settingsEmuDiv" class="settings-grid">
+        <div id="settingsEmuDiv" class="settings-grid settings-tab">
             <b class="settings-title">Emulation
                 <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
             </b>
@@ -351,7 +351,7 @@
                 <input type="range" value="0.5" min="0.1" max="1" step="0.1" class="settings-range" id="sndSlider" title="Set sound volume">
             </label>
         </div>
-        <div id="settingsCntrDiv" class="settings-grid">
+        <div id="settingsCntrDiv" class="settings-grid settings-tab">
             <b class="settings-title">
                 Controls
                 <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
@@ -368,7 +368,7 @@
             </label>
             <label for="touchPadding">Touch control padding
                 <input type="range" id="touchPadding" min="0" max="50" step="2" class="settings-range">
-                <p class="settings-subtext">Sets vertical offset of touch controls</p>
+                <p class="settings-subtext">Sets offset of touch controls in portrait</p>
             </label>
             <label for="AccelInput">Accelerometer input
                 <div id="AccelInput" onclick="this.classList.toggle('selection-active')" class="selection">
@@ -393,7 +393,7 @@
             </label>
         </div>
         <!-- Other -->
-        <div id="settingsMiscDiv" class="settings-grid">
+        <div id="settingsMiscDiv" class="settings-grid settings-tab">
             <b class="settings-title">
                 Other
                 <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
@@ -685,8 +685,6 @@
         <!-- Holds all of the save's button -->
         <div id="saveButtonDiv" class="save-main-div" ></div>
     </div>
-
-    <!-- Change palette colors -->
     <div class="save-menu" id="paletteSetDiv">
         <div class="menu-header">
             <a>Palettes</a>
@@ -694,7 +692,7 @@
         </div>
         <!-- color inputs -->
         <div style="height: 100%; width: 100%; overflow: hidden auto;">
-            <div id="PaletteList"></div>
+            <div class="settings-tab" id="PaletteList"></div>
         </div>
     </div>
 

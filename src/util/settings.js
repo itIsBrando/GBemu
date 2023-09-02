@@ -147,16 +147,24 @@ var Settings = new function() {
     }
 
     this.setMenu = function(str) {
+        const btns = MainDiv.children[0].children;
         hideElement(emuDiv);
         hideElement(cntrDiv);
         hideElement(miscDiv);
 
+        for(let i = 0; i < btns.length; i++)
+            btns[i].classList.remove('nav-bar-btn-active');
+
+
         if(str === 'cntr') {
             showElement(cntrDiv, 'flex');
+            btns[1].classList.add('nav-bar-btn-active');
         } else if(str === 'misc') {
             showElement(miscDiv, 'flex');
+            btns[2].classList.add('nav-bar-btn-active');
         } else { // 'emu'
             showElement(emuDiv, 'flex');
+            btns[0].classList.add('nav-bar-btn-active');
         }
     }
 

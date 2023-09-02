@@ -238,7 +238,7 @@ controlsToggle.addEventListener('click', function() {
     else
         showElement(touchControls);
 
-    this.checked = !isShown;
+        Dpad.enabled =  this.checked = !isShown;
 });
 
 document.getElementById('vibrationToggle').addEventListener('click', (e)=>{
@@ -257,6 +257,8 @@ document.getElementById('vibrationToggle').addEventListener('click', (e)=>{
 // @todo bundle button features
 var Dpad = new function() {
     let vibrationEnable = false;
+
+    this.enabled = false;
 
     this.init = function() {
         // show dpad buttons
@@ -292,6 +294,25 @@ var Dpad = new function() {
         if(hasTouchscreen())
             controlsToggle.click();
 
+
+        this.setPadding(20);
+    }
+
+    this.setPadding = function(percent) {
+        const div = document.getElementById('SettingsDiv');
+        touchControls.style.bottom = `calc(env(safe-area-inset-bottom) + ${percent}vh)`;
+
+        if(!Dpad.enabled)
+            return;
+
+        div.style.opacity = "0.8";
+
+        if(t) {
+            clearTimeout(t);
+            t = null;
+        }
+
+        t = setTimeout(() => {div.style.opacity = "1"; t = null;}, 600);
     }
 }
 
@@ -299,15 +320,5 @@ var Dpad = new function() {
 let t = null;
 
 document.getElementById('touchPadding').addEventListener('input', (e) => {
-    const div = document.getElementById('SettingsDiv');
-    touchControls.style.bottom = `calc(env(safe-area-inset-bottom) + ${e.target.value}%)`;
-    div.style.opacity = "0.8";
-
-    if(t) {
-        clearTimeout(t);
-        t = null;
-    }
-
-    t = setTimeout(() => {div.style.opacity = "1"; t = null;}, 600);
-
+    Dpad.setPadding(e.target.value);
 });
