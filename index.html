@@ -174,8 +174,6 @@
             z-index: -1;
         }
 
-
-
         * {
             box-sizing: border-box;
         }
@@ -301,7 +299,7 @@
                     class="menubtn settings-btn" onclick="forceEmulationMode(!c.forceDMG);"></button>
                 <p class="settings-subtext">Set Gameboy model to emulate</p>
             </label>
-            <label for="correctionType">Color Correction
+            <label for="correctionType">Color correction
                 <div class="selection" id="correctionType" onclick="this.classList.toggle('selection-active')" title="Changes GBC correction modes.">
                     <a>prescaled</a>
                     <div class="selection-child">
@@ -343,9 +341,9 @@
                 <label class="settings-select" for="frameskip0">0</label>
                 <p class="settings-subtext">Improves performance by rendering less frames</p>
             </label>
-            <label for="sndButton">Enable Sound
+            <label for="sndButton">Enable sound
                 <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
-                <p class="settings-subtext">Toggle sound</p>
+                <p class="settings-subtext">Toggle audio</p>
             </label>
             <label for="sndSlider">Volume
                 <input type="range" value="0.5" min="0.1" max="1" step="0.1" class="settings-range" id="sndSlider" title="Set sound volume">
@@ -357,7 +355,7 @@
                 <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
             </b>
             <!-- Toggle touch controls -->
-            <label for="controlsToggle">Touch Controls
+            <label for="controlsToggle">Touch controls
                 <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
                 <p class="settings-subtext">Shows touchscreen controls</p>
             </label>
@@ -366,7 +364,7 @@
                 <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
                 <p class="settings-subtext">Haptic feedback on button press</p>
             </label>
-            <label for="touchPadding">Touch control padding
+            <label for="touchPadding">Touch control offset
                 <input type="range" id="touchPadding" min="0" max="50" step="2" class="settings-range">
                 <p class="settings-subtext">Sets offset of touch controls in portrait</p>
             </label>
@@ -386,7 +384,7 @@
                 <p class="settings-subtext">Distance before a gamepad input is registered</p>
             </label>
             <!-- change keyboard controls -->
-            <label for="changeKeybinding">Keyboard Controls
+            <label for="changeKeybinding">Keyboard controls
                 <button type="button" id="changeKeybinding" name="keybind" class="menubtn settings-btn"
                     onclick="KeyBinding.show();">edit</button>
                 <p class="settings-subtext">Change keyboard mapping</p>

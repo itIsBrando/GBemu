@@ -121,7 +121,7 @@
 }
 
 .nav-bar-btn-active, .nav-bar-btn:hover {
-    background-color: var(--ui-background);
+    background-color: var(--ui-accent);
 }
 
 
