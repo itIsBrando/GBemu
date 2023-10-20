@@ -15,6 +15,8 @@ var Themes = new function() {
         "purple-theme",
         "yellow-theme",
         "green-theme",
+        "red-theme",
+        "pink-theme",
     ];
     this.prefersDarkUITheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.curTheme = 0;

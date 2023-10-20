@@ -131,12 +131,36 @@
 .skin-turnstyle {
     display: flex;
     width: 100vw;
+    height: 100%;
     padding: 0 40vw;
     gap: 40vw;
     overflow: auto hidden;
     flex-flow: row nowrap;
     scroll-snap-align: center;
     scroll-snap-type: x mandatory;
+    align-items: center;
+}
+
+
+.gameboy-skin {
+    cursor: pointer;
+    min-width: 160px;
+    height: 18rem;
+    scroll-snap-align: center;
+    margin-top: 2rem;
+    padding-bottom: 120px;
+    border-radius: 10px 10px 40px 20px;
+    transition: 0.2s;
+
+}
+
+.gameboy-skin:hover {
+    scale: 120%;
+    translate: 0 -3rem;
+}
+
+.gameboy-skin:active {
+    translate: 0 3rem;
 }
 
 
@@ -375,7 +399,6 @@
     margin-top: 25px;
     background-color: whitesmoke;
 }
-
 
 @media (max-width: 550px) and (orientation: portrait),
  (max-height: 550px) and (orientation: landscape) {

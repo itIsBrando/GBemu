@@ -82,7 +82,7 @@ var Skin = new function() {
     this.hide = function() {
         hideElementFadeOut(skinSetDiv);
 
-        Themes.apply(this.oldTheme);
+        Themes.apply(Skin.oldTheme);
     }
 
     this.getElem = function(i) {
@@ -98,7 +98,7 @@ var Skin = new function() {
             bgColor = "#ddd";
 
         return `
-        <div style="min-width: 160px; height: 18rem; scroll-snap-align: center; background: ${bgColor}; margin-top: 2rem; padding-bottom: 120px; border-radius: 10px 10px 40px 20px; box-shadow: -5px 3px 15px 3px ${bgColor}">
+        <div class="gameboy-skin" onclick="Skin.select(${i})" style="background: ${bgColor}; box-shadow: -5px 3px 15px 3px ${bgColor}">
             <div style="margin:5px; background: aliceblue; color: black; aspect-ratio: 111 / 100; border-radius: 15px; border: 10px solid ${screenBorderColor}; box-shadow: 0px 10px 8px ${screenShadow}; text-align: center; font-size: x-small;">
 
             </div>
@@ -106,17 +106,10 @@ var Skin = new function() {
         `;
     }
 
-    this.select = function() {
-        /*
-         we must calculate the index based on the scroll position
-            the following is an approximation but SHOULD be corrected @todo
-        */
-       const w = (SkinList.scrollWidth - window.innerWidth) / Themes.themes.length;
-
-       const i = (SkinList.scrollLeft / w) & -1;
-
-       console.log(i, SkinList.scrollLeft / w);
-       Skin.oldTheme = i;
+    this.select = function(i) {
+        const str = i == 0 ? "default theme" : Themes.themes[i].replace(/-/g, ' ');
+        Skin.oldTheme = i;
+        Menu.alert.show(`Set ${str}`);
     }
 }
 

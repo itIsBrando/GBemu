@@ -70,7 +70,23 @@
 .green-theme {
     --screen-shadow: rgba(154, 255, 14, 0.745);
     --bg-color: rgb(23, 209, 41);
-    --screen-border-color: #333;
+    --screen-border-color: #343;
     --dpad-color: green;
     --gamepad-btn-color: mediumseagreen;
+}
+
+.red-theme {
+    --screen-shadow: rgba(125, 4, 4, 0.75);
+    --bg-color: rgb(240, 64, 0);
+    --screen-border-color: #633;
+    --dpad-color: darkred;
+    --gamepad-btn-color: orange;
+}
+
+.pink-theme {
+    --screen-shadow: rgba(255, 14, 93, 0.55);
+    --bg-color:pink;
+    --screen-border-color: #434;
+    --dpad-color: salmon;
+    --gamepad-btn-color: red;
 }

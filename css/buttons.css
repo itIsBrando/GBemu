@@ -190,11 +190,14 @@ input:checked + .toggle-btn::after {
     float: right;
     background-color: transparent;
     max-width: 5.5rem;
-}
-
-.settings-range:focus {
+    opacity: 0.7;
     outline: none;
 }
+
+.settings-range:hover {
+    opacity: 1;
+}
+
 /*
 .settings-range::-webkit-slider-runnable-track {
     background: var(--ui-primary-button);
@@ -206,12 +209,13 @@ input:checked + .toggle-btn::after {
     padding: 1px;
     border-radius: 3px;
 }
-/*
+
 .settings-range::-webkit-scrollbar-track-piece {
-    background: #bbddff;
+    background: var(--ui-accent);
     padding: 2px;
     border-radius: 3px;
-} */
+}
+
 .settings-range::-moz-range-progress {
     background: var(--ui-accent);
     padding: 2px;
@@ -219,12 +223,23 @@ input:checked + .toggle-btn::after {
 }
 
 .settings-range::-webkit-slider-thumb {
+    appearance: none;
     cursor: pointer;
     background: var(--ui-secondary-button);
+    width: 13px;
+    height: 13px;
+    border-radius: 5px;
+    border: none;
 }
+
 .settings-range::-moz-range-thumb {
+    appearance: none;
     cursor: pointer;
     background: var(--ui-secondary-button);
+    width: 13px;
+    height: 13px;
+    border-radius: 5px;
+    border: none;
 }
 
 .settings-btn {
