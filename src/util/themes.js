@@ -4,7 +4,9 @@
  *  code relating to the UI theme has been tied in.
  */
 var Themes = new function() {
-    const themes = [
+    const uiThemeButton = document.getElementById('uiThemeButton');
+
+    this.themes = [
         "none",
         "icy-blue-theme",
         "dark-theme",
@@ -14,7 +16,6 @@ var Themes = new function() {
         "yellow-theme",
         "green-theme",
     ];
-    const uiThemeButton = document.getElementById('uiThemeButton');
     this.prefersDarkUITheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.curTheme = 0;
 
@@ -36,26 +37,11 @@ var Themes = new function() {
         }
     }
 
-    this.next = function() {
-        this.curTheme++;
-        this.curTheme %= themes.length;
-
-        this.apply(this.curTheme);
-    };
-
-    this.prev = function() {
-        if(--this.curTheme < 0) {
-            this.curTheme = themes.length - 1;
-        }
-
-        this.apply(this.curTheme);
-    };
-
     this.apply = function(i) {
-        i %= themes.length;
+        i %= this.themes.length;
         Themes.curTheme = i;
-        document.body.classList.remove(...themes);
-        document.body.classList.add(themes[i]);
+        document.body.classList.remove(...this.themes);
+        document.body.classList.add(this.themes[i]);
 
         this.setStatusBar();
         Settings.set_core("theme", String(i));

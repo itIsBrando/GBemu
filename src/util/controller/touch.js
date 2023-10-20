@@ -322,3 +322,50 @@ let t = null;
 document.getElementById('touchPadding').addEventListener('input', (e) => {
     Dpad.setPadding(e.target.value);
 });
+
+
+const eventCache = [];
+let prevDistance = -1;
+
+function setTouchZoomable(elem, zmOut, zmIn) {
+    elem.addEventListener('pointerdown', (e) => {
+        eventCache.push(e);
+    });
+
+    function rm(e) {
+        eventCache.length = 0;
+        prevDistance = -1;
+    }
+
+    elem.addEventListener('pointerup', rm);
+    elem.addEventListener('pointercancel', rm);
+
+    elem.addEventListener('pointermove', (e) => {
+
+        const index = eventCache.findIndex(
+            (cachedEv) => cachedEv.pointerId === e.pointerId,
+        );
+
+        if(index === -1) {
+            rm();
+            return;
+        }
+
+        eventCache[index] = e;
+
+        if(eventCache.length !== 2)
+            return;
+
+        const curDist = Math.sqrt((eventCache[0].y - eventCache[1].y) ** 2 + (eventCache[0].x - eventCache[1].x) ** 2);
+
+        if(prevDistance > 0) {
+            if(curDist > prevDistance)
+                zmOut(prevDistance - curDist);
+            else if(curDist < prevDistance)
+                zmIn(curDist - prevDistance);
+        }
+
+        prevDistance = curDist;
+
+    });
+}

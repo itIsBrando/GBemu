@@ -32,6 +32,50 @@
     100% {transform: translateX(calc(-50% + 5px));}
 }
 
+.toggle-btn-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-btn {
+    position: relative;
+    cursor: pointer;
+    background-color: var(--ui-background);
+    border-radius: 10px;
+    width: 50px;
+    height: 21px;
+    align-self: center;
+    margin: 0px 6px;
+    transition: 0.2s;
+    opacity: 0.7;
+    border: 2px solid var(--ui-secondary-button);
+    float: right;
+}
+
+.toggle-btn:hover {
+    opacity: 1;
+}
+
+.toggle-btn::after {
+    content: '';
+    position: absolute;
+    background-color: var(--ui-secondary-button);
+    width: 13px;
+    height: 13px;
+    border-radius: 6px;
+    top: 2px;
+    left: 4px;
+    transition: 0.25s ease-in-out;
+}
+
+input:checked + .toggle-btn {
+    background-color: var(--ui-accent);
+}
+
+input:checked + .toggle-btn::after {
+    left: 29px;
+}
 
 .menubtn, .menubtn-no-hover {
     background-color: var(--ui-primary-button);
@@ -111,7 +155,7 @@
     text-align: center;
 }
 
-.show-menu-btn:hover, .icon-btn:hover, .menubtn:hover, .dropdown-btn:hover {
+.selection:hover, .show-menu-btn:hover, .icon-btn:hover, .menubtn:hover, .dropdown-btn:hover {
     filter: brightness(0.8);
 }
 

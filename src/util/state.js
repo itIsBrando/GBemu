@@ -7,7 +7,8 @@ const MainState = {
     KeyboardAssign: { id: 4, onload: null, onunload: () => {KeyBinding.fillButtonText();} },
     Prompt: {id: 5, onload: null, onunload: PromptMenu._hide},
     PaletteMenu: {id: 6, onload: Palette.show, onunload: Palette.hide},
-}
+    SkinMenu: {id: 7, onload: Skin.show, onunload: Skin.hide},
+};
 
 var state = MainState.Main;
 let stateStack = [MainState.Main];

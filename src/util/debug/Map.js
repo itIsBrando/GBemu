@@ -11,13 +11,21 @@ var Map = new function() {
     const MapCanvas = document.getElementById('MapCanvas');
     const MapCanvas2 = document.getElementById('MapCanvas2');
 	const MapCursor = document.getElementById('MapCursor');
+	this.w = 512;
+
+	this.setZoom = function(w) {
+		this.w = Math.min(Math.max(w, 256), 1024);
+		MapCanvas.style.width = this.w + 'px';
+		MapCanvas2.style.width = this.w + 'px';
+		MapCursor.style.width = this.w + 'px';
+	}
 
     this.init = function() {
 		MapCursor.onclick = MapCursor.onmousemove = MapCursor.ontouchmove = function(e) {
 			const rect = this.getBoundingClientRect();
 			const x = Math.max(Math.floor(e.offsetX * 32 / rect.width), 0);
 			const y = Math.max(Math.floor(e.offsetY * 32 / rect.height), 0);
-			
+
 			if(this.name == "map")
 				Map.printTileInfo(radioButtons[0].checked ? c.ppu.mapBase : c.ppu.winBase, x, y);
 			else
@@ -26,9 +34,7 @@ var Map = new function() {
 
 		document.getElementById('mapZoomInput').addEventListener("change", function(e) {
 			const v = e.target.value;
-			MapCanvas.style.width = (v * 256) + 'px';
-			MapCanvas2.style.width = (v * 256) + 'px';
-			MapCursor.style.width = (v * 256) + 'px';
+			Map.setZoom(v * 256);
 		});
 
         for(let i = 0; i < radioButtons.length; i++) {
@@ -36,6 +42,16 @@ var Map = new function() {
                 Map.draw();
             });
         };
+
+		function zOut(amt) {
+			Map.setZoom(Map.w - amt);
+		}
+
+		function zIn(amt) {
+			Map.setZoom(Map.w + amt);
+		}
+
+		setTouchZoomable(MapCanvasDiv, zOut, zIn);
 
 		this.drawGrid();
     }
@@ -75,11 +91,11 @@ var Map = new function() {
     this.draw = function() {
 		const isMap = this.getDrawType() == DrawType.MAP;
 		let mapBase = isMap ? c.ppu.mapBase : c.ppu.winBase;
-        
+
         const context = MapCanvas.getContext('2d');
         context.fillStyle = "#e0e0e0";
         context.fillRect(0, 0, MapCanvas.width, MapCanvas.height);
-        
+
 		let screen = context.getImageData(0, 0, 256, 256);
 
 		for(let y = 0; y < 32; y++)
@@ -91,9 +107,9 @@ var Map = new function() {
 				c.renderer.drawTile(x << 3, y << 3, c.ppu.getBGTileAddress(tileNum), 0, true, screen, 256);
 			}
 		}
-		 
+
 		context.putImageData(screen, 0, 0);
-		
+
 		// draw a rectangle showing viewport
 		const x = isMap ? c.ppu.regs.scx: 0;
 		const y = isMap ? c.ppu.regs.scy + 0.5 : 0;
@@ -121,7 +137,7 @@ var Map = new function() {
 		let s = ``;
 
 		tx &= 31, ty &= 31;
-		
+
 		const offset = tx + ty * 32;
 		const mapAddr = offset + mapBase;
 		const tile = mapBase ? c.mem.vram[mapAddr - 0x8000] : offset;
@@ -140,7 +156,7 @@ var Map = new function() {
 			`<br>Y-flip: ${(attr >> 6) & 1}` +
 			`<br>Priority: ${(attr >> 7) & 1}`;
 		}
-        
+
 		TileInfo.innerHTML = s + "</div>";
 		this.setPreview(tile);
 
@@ -153,7 +169,7 @@ var Map = new function() {
     this.setPreview = function(tile) {
 		const canv = document.getElementById('TilePreview');
 		const ctx = canv.getContext('2d');
-		
+
 		ctx.globalAlpha = 1.0;
 		ctx.fillStyle = "#f0f0f0";
 		ctx.fillRect(0, 0, 8, 8);
@@ -191,7 +207,7 @@ var Map = new function() {
 			`${ofx}, ${ofy}`
 		];
         a.innerHTML = "";
-        
+
         for(let i = 0; i < labels.length; i++) {
             a.innerHTML += `${labels[i]} : ${values[i]}<br>`;
         }

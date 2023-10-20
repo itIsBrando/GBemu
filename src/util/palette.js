@@ -61,6 +61,65 @@ const ALL_PALETTES = {
     ],
 };
 
+
+var Skin = new function() {
+    const skinSetDiv = document.getElementById('skinSetDiv');
+    const SkinList = document.getElementById('SkinList');
+    this.oldTheme = 0;
+
+    this.show = function() {
+        showElementFadeIn(skinSetDiv, 'grid');
+
+        let str = '';
+        for(let i = 0; i < Themes.themes.length; i++) {
+            str += Skin.getElem(i);
+        }
+        SkinList.innerHTML = str;
+
+        Skin.oldTheme = Themes.curTheme;
+    }
+
+    this.hide = function() {
+        hideElementFadeOut(skinSetDiv);
+
+        Themes.apply(this.oldTheme);
+    }
+
+    this.getElem = function(i) {
+        document.body.classList.remove(...Themes.themes);
+        document.body.classList.add(Themes.themes[i]);
+
+        let bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color');
+        const screenBorderColor = getComputedStyle(document.body).getPropertyValue('--screen-border-color');
+        const screenShadow = getComputedStyle(document.body).getPropertyValue('--screen-shadow');
+
+        // increase contrast with light UI theme
+        if(Themes.themes[i] === "light-theme")
+            bgColor = "#ddd";
+
+        return `
+        <div style="min-width: 160px; height: 18rem; scroll-snap-align: center; background: ${bgColor}; margin-top: 2rem; padding-bottom: 120px; border-radius: 10px 10px 40px 20px; box-shadow: -5px 3px 15px 3px ${bgColor}">
+            <div style="margin:5px; background: aliceblue; color: black; aspect-ratio: 111 / 100; border-radius: 15px; border: 10px solid ${screenBorderColor}; box-shadow: 0px 10px 8px ${screenShadow}; text-align: center; font-size: x-small;">
+
+            </div>
+        </div>
+        `;
+    }
+
+    this.select = function() {
+        /*
+         we must calculate the index based on the scroll position
+            the following is an approximation but SHOULD be corrected @todo
+        */
+       const w = (SkinList.scrollWidth - window.innerWidth) / Themes.themes.length;
+
+       const i = (SkinList.scrollLeft / w) & -1;
+
+       console.log(i, SkinList.scrollLeft / w);
+       Skin.oldTheme = i;
+    }
+}
+
 var Palette = new function() {
     // color palette
     const paletteSetDiv = document.getElementById('paletteSetDiv');

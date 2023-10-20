@@ -120,8 +120,23 @@
     transform: scale(120%, 120%);
 }
 
-.nav-bar-btn-active, .nav-bar-btn:hover {
+.nav-bar-btn-active {
     background-color: var(--ui-accent);
+}
+
+.nav-bar-btn:hover {
+    background-color: var(--ui-background);
+}
+
+.skin-turnstyle {
+    display: flex;
+    width: 100vw;
+    padding: 0 40vw;
+    gap: 40vw;
+    overflow: auto hidden;
+    flex-flow: row nowrap;
+    scroll-snap-align: center;
+    scroll-snap-type: x mandatory;
 }
 
 
@@ -164,6 +179,10 @@
 
 .selection-active .selection-child {
     display: block;
+}
+
+.selection-active {
+    filter: brightness(1) !important;
 }
 
 .settings-grid {
@@ -357,17 +376,6 @@
     background-color: whitesmoke;
 }
 
-.theme-div {
-    display: none;
-    margin: calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-left));
-    position: absolute;
-    top: 0px;
-    background-color: var(--ui-background);
-    color: var(--ui-background-text);
-    box-shadow: 0px 4px 16px 10px rgba(0, 0, 0, 0.7);
-    min-height: 25px;
-    border-radius: 5px;
-}
 
 @media (max-width: 550px) and (orientation: portrait),
  (max-height: 550px) and (orientation: landscape) {
@@ -412,14 +420,14 @@
         flex-wrap: nowrap;
         border: none;
         justify-content: space-evenly;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-bottom: 0;
         padding-top: 0;
     }
 
     .nav-bar-btn {
         width: 100%;
         text-align: center;
-        padding: 1px 10px;
+        padding: 1px 10px max(10px, env(safe-area-inset-bottom)) 10px;
         flex-direction: column;
     }
 

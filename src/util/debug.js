@@ -20,6 +20,27 @@ var Debug = new function() {
 		hideElement(PalDiv);
 	}
 
+	this.init = function() {
+		Debug.initialized = true;
+
+		Map.init();
+        Oam.init();
+		Disassembler.init();
+
+		// add input file event listener @todo
+		let symFile = document.getElementById('symFile');
+
+        symFile.addEventListener('change', function () {
+            let reader = new FileReader();
+
+            reader.readAsText(this.files[0]);
+
+            reader.onloadend = function () {
+                console.log(Debug.parseSymFile(reader.result));
+            }
+        });
+	}
+
 	this.start = function(fadeIn = true) {
 		if(fadeIn)
 			showElementFadeIn(DebugDiv, 'grid');
@@ -32,29 +53,12 @@ var Debug = new function() {
 
 		Themes.setSettingsBar();
 
-        if(Debug.initialized) {
-			Debug.showDisasm();
+        if(!Debug.initialized) {
+			Debug.init();
 			return;
 		}
 
-		Map.init();
-        Oam.init();
-		Disassembler.init();
-
-		// add input file event listener
-		let symFile = document.getElementById('symFile');
-
-        symFile.addEventListener('change', function () {
-            let reader = new FileReader();
-
-            reader.readAsText(this.files[0]);
-
-            reader.onloadend = function () {
-                console.log(Debug.parseSymFile(reader.result));
-            }
-        });
-
-        this.initialized = true;
+		Debug.showDisasm();
 	}
 
 

@@ -74,9 +74,6 @@
             grid-template-columns: min-content 1fr min-content;
         }
 
-        .screen-container-dragdrop {
-        }
-
         .screen-container-dragdrop::after {
             content: 'Drop file here';
             position: absolute;
@@ -241,7 +238,6 @@
         <button type="button" id="optionsMenuToggle" class="title-btn"
             style="width: 34vw;"><b>Options</b></button>
         <div id="optionsMenu" style="width: 34vw;" class="dropdown-background">
-            <button type="button" class="dropdown-btn" onclick="document.getElementById('ThemeDiv').style.display='block';">Skin</button>
             <button type="button" class="dropdown-btn"
             onclick="Cheats.start();">Cheats</button>
             <button type="button" id="enterDebugger" class="dropdown-btn"
@@ -361,7 +357,8 @@
                 <p class="settings-subtext">Improves performance by rendering less frames</p>
             </label>
             <label for="sndButton">Enable sound
-                <input type="checkbox" class="settings-checkbox" id="sndButton" name="sndEnable" title="enable/disable sound" onclick="APU.toggle(this);">
+                <input type="checkbox" id="sndButton" name="sndEnable" class="toggle-btn-input" title="enable/disable sound" onclick="APU.toggle(this);">
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Toggle audio</p>
             </label>
             <label for="sndSlider">Volume
@@ -375,12 +372,14 @@
             </b>
             <!-- Toggle touch controls -->
             <label for="controlsToggle">Touch controls
-                <input type="checkbox" name="Ctrls" id="controlsToggle" class="settings-checkbox">
+                <input type="checkbox" name="Ctrls" id="controlsToggle" class="toggle-btn-input">
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Shows touchscreen controls</p>
             </label>
             <!-- Toggle vibration -->
             <label for="vibrationToggle">Vibrate on touch
-                <input type="checkbox" id="vibrationToggle" class="settings-checkbox">
+                <input type="checkbox" id="vibrationToggle" class="toggle-btn-input">
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Haptic feedback on button press</p>
             </label>
             <label for="touchPadding">Touch control offset
@@ -420,16 +419,23 @@
                     onclick="CoreSetting.next('UITheme');">dark</button>
                 <p class="settings-subtext">Set UI theme</p>
             </label>
+            <label>Skin
+                <button type="button" title="change skin" class="menubtn settings-btn" onclick="State.push(MainState.SkinMenu)">edit</button>
+                <p class="settings-subtext">Set gameboy skin color</p>
+            </label>
             <label>Show FPS
-                <input type="checkbox" name="fpsCounter" title="Show framerate" class="settings-checkbox" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
+                <input type="checkbox" name="fpsCounter" title="Show framerate" class="toggle-btn-input" onclick="c.powerConsumptionShown = this.checked; powerConsumption.style.display = this.checked ? 'block' : 'none';">
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Shows frames per second</p>
             </label>
             <label>Screen border
-                <input type="checkbox" name="border" id="BorderButton" class="settings-checkbox" title="Shows/hides the border around the screen" checked>
+                <input type="checkbox" name="border" id="BorderButton" class="toggle-btn-input" title="Shows/hides the border around the screen" checked>
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Shows the border around the screen</p>
             </label>
             <label for="AutoLoadButton">Load save on startup
-                <input type="checkbox" name="autoload" id="AutoLoadButton" class="settings-checkbox" title="Loads a save when a game is loaded.">
+                <input type="checkbox" name="autoload" id="AutoLoadButton" class="toggle-btn-input" title="Loads a save when a game is loaded.">
+                <div class="toggle-btn"></div>
                 <p class="settings-subtext">Loads most recent save when a game is loaded</p>
             </label>
             <label>Storage
@@ -460,19 +466,6 @@
             </fieldset>
             <button style="width: 100%; visibility: hidden;" type="button" class="menubtn" onclick="Cheats.rm();" id="CheatsRm">remove
                 code</button>
-    </div>
-
-    <div id="ThemeDiv" class="theme-div">
-        <button class="icon-btn" type="button" onclick="Themes.prev();">&larr;</button>
-        <button class="icon-btn" type="button" onclick="Themes.next();">&rarr;</button>
-        skin
-        <button class="x-btn" type="button" onclick="this.parentNode.style.display = 'none';">&times;</button>
-        <br>
-        <div style="background: var(--bg-color); padding-bottom: 120px; border-radius: 5px;">
-            <div style="margin:5px; background: aliceblue; color: black; aspect-ratio: 111 / 100; border-radius: 15px; border: 10px solid var(--screen-border-color); box-shadow: 0px 10px 8px var(--screen-shadow); text-align: center; font-size: x-small;">
-                preview
-            </div>
-        </div>
     </div>
 
     <!-- Debug menu -->
@@ -702,6 +695,19 @@
         <!-- Holds all of the save's button -->
         <div id="saveButtonDiv" class="save-main-div" ></div>
     </div>
+
+    <!-- Menu for changing skin -->
+    <div class="save-menu" id="skinSetDiv">
+        <div class="menu-header">
+            <a>Skins</a>
+            <button type="button" class="x-btn" onclick="State.pop();">&times;</button>
+        </div>
+        <div class="skin-turnstyle" id="SkinList">
+
+        </div>
+        <button type="button" class="menubtn" onclick="Skin.select();" style="position: absolute; left: 50%; bottom: 8rem; translate: -50% 0;">Select</button>
+    </div>
+    <!-- Menu for changing DMG palette -->
     <div class="save-menu" id="paletteSetDiv">
         <div class="menu-header">
             <a>Palettes</a>
