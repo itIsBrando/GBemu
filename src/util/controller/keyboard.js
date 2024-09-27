@@ -76,8 +76,8 @@ var KeyBinding = new function() {
 
     this.setDefault = function() {
         Menu.message.show(
+            'Set keybindings to default?',
             '',
-            "Set keybindings to default?",
             true,
             null,
             function() {

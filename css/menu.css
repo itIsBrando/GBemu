@@ -27,6 +27,7 @@
 .menu-header-no-ext {
     background-color: transparent;
     padding: 5px 0px 5px 5px;
+    min-height: 0;
 }
 
 .menu-header > a {
@@ -58,7 +59,7 @@
 
 .prompt-menu-choice {
     display: block;
-    background-color: var(--ui-secondary-button);
+    background-color: var(--ui-primary-button);
     color: var(--ui-text);
     filter: brightness(0.6);
     border-radius: 5px;
@@ -186,7 +187,7 @@
     color: var(--ui-background-text);
     background-color: var(--ui-background-dimmed);
     right: 3px;
-    top: 100%;
+    bottom: 100%;
     width: fit-content;
     box-shadow: -2px 4px 15px 1px #777;
     z-index: 2;
