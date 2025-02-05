@@ -1,5 +1,5 @@
 # GBemu
-GameBoy and GameBoy Color emulator built using pure JavaScript, HTML, and CSS.
+GameBoy and GameBoy Color emulator built using JavaScript, HTML, CSS, and WebAssembly.
 
 ## Project Goals
 - **Primary Objective:**
@@ -33,7 +33,7 @@ GameBoy and GameBoy Color emulator built using pure JavaScript, HTML, and CSS.
 - **Installation:**
   - Can be installed as a web app on any browser that supports web apps!
 - **Running the Project:**
-  - [Available here](https://itIsBrando.github.io/GBemu)
+  - [Available here](https://itIsBrando.github.io/GBemu) using GitHub Pages
 
 
 ### Color Correction Modes
